@@ -1,71 +1,68 @@
-
 import requests
 import json
-from mydevolo_api import Mydevolo
 import websocket
 import time
-try:
-    import thread
-except ImportError:
-    import _thread as thread
-import pprint
+import _thread as thread    #TODO: replace by threading
 
-pp = pprint.PrettyPrinter(indent=4)
+from mydevolo_api import Mydevolo
 
 
 class MprmWebSocket:
     def __init__(self, mprm_rest_api):
-        self_mprm_rest_api = mprm_rest_api
+        self._mprm_rest_api = mprm_rest_api
+        self._ws = None
 
     def on_open(self):
         def run(*args):
+            #TODO: replace by logger
             print('Starting websocket connection')
-            # for i in range(300):
             while True:
                 time.sleep(1)
             time.sleep(1)
-            ws.close()
+            self._ws.close()
+            #TODO: replace by logger
             print("thread terminating...")
 
         thread.start_new_thread(run, ())
 
     def on_message(self, message):
-        # print(type(message))
         message = json.loads(message)
-        # print(type(message))
-        # pp.pprint(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
-            api.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
+            self._mprm_rest_api.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
+            #TODO: replace by logger
             print(f'We got a new binary switch value for device {message.get("properties").get("uid")}')
-            pp.pprint(message)
-            api.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('data') == 1 else False)
+            self._mprm_rest_api.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('data') == 1 else False)
         else:
             pass
-            # print(f"Not a meter value {message['properties']['uid']}")
 
     def on_error(self, error):
+        #TODO: replace by logger
         print(error)
 
     def on_close(self):
+        #TODO: replace by logger
         print("### closed ###")
 
-    def web_socket_connection(self, cookies):
-        import websocket
-        ws_url = f"ws://192.168.1.107/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID=1406126500001876)(!(GW_ID=*)))"
-        ws = websocket.WebSocketApp(ws_url,
-                                    cookie="; ".join([str(x)+"="+str(y) for x, y in cookies.items()]),
+    def web_socket_connection(self, cookies: dict):
+        mprm_url = self._mprm_rest_api.get_mprm_url()
+        cookie = "; ".join([str(name)+"="+str(value) for name, value in cookies.items()])
+        gateway_serial = self._mprm_rest_api.get_gateway_serial()
+        ws_url = f"ws://{mprm_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
+        self._ws = websocket.WebSocketApp(ws_url,
+                                    cookie=cookie,
+                                    on_open=self.on_open,
                                     on_message=self.on_message,
                                     on_error=self.on_error,
                                     on_close=self.on_close)
-        ws.on_open = self.on_open
-        ws.run_forever()
+        self._ws.run_forever()
 
 
 class MprmRestApi:
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
         self._mprm_url = mprm_url
+        self._gateway_serial = gateway_serial
         self._headers = {'content-type': 'application/json'}
         uuid = mydevolo.get_uuid()
 
@@ -73,7 +70,7 @@ class MprmRestApi:
 
         # Create a session
         self.session = requests.Session()
-        full_url = requests.get(mydevolo.get_url() + "/v1/users/" + uuid + "/hc/gateways/" + gateway_serial + "/fullURL", auth=(user, password), headers=self._headers).json()['url']
+        full_url = requests.get(mydevolo.get_url() + "/v1/users/" + uuid + "/hc/gateways/" + self._gateway_serial + "/fullURL", auth=(user, password), headers=self._headers).json()['url']
         self.session.get(full_url)
 
         # create a dict with UIDs --> names
@@ -182,6 +179,12 @@ class MprmRestApi:
         :return: List of element UID with probably one element
         """
         return [s for s in self._devices.get(device_name) if element_uid in s]
+
+    def get_gateway_serial(self) -> str:
+        return self._gateway_serial
+
+    def get_mprm_url(self) -> str:
+        return self._mprm_url
 
     def update_devices(self):
         # TODO: Add http, hue, powermeter
