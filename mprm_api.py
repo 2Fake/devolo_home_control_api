@@ -28,7 +28,7 @@ class MprmWebSocket:
     def on_message(self, message):
         message = json.loads(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
-            print('MEter Value')
+            print(message.get("properties").get("uid"))
             self._mprm_rest_api.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             # TODO: replace by logger
@@ -92,10 +92,15 @@ class MprmRestApi:
         self.update_notifications()
         self.update_rules()
 
-        device_name = 'Umwälzpumpe'
-        self.subscriber_server = Subscriber(device_name)
-        self._pub = Publisher(['consumption'])
-        self._pub.register('consumption', self.subscriber_server)
+        devices_list = []
+        for device in self._devices:
+            devices_list.append(f'consumption_{device}')
+        self._pub = Publisher(devices_list)
+        self.register_pub()
+        # device_name = 'Umwälzpumpe'
+        # self.subscriber_server = Subscriber(device_name)
+
+
 
     def get_consumption_of_every_device(self, consumption_type='current'):
         device_consumption_dict = {}
@@ -178,7 +183,7 @@ class MprmRestApi:
             return False
         else:
             self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = value
-            self._pub.dispatch('consumption', value)
+            self._pub.dispatch(f'consumption_{self._element_uid_dict[element_uid]}', value)
 
     def get_binary_switch_state(self, device_name):
         return self._devices.get(device_name).get('binary_switch').get('state')
@@ -215,6 +220,12 @@ class MprmRestApi:
     def get_mprm_url(self) -> str:
         return self._mprm_url
 
+    def register_pub(self):
+        for uid in self._element_uid_dict:
+            if uid.startswith('devolo.Meter'):
+                self._devices[self._element_uid_dict.get(uid)]['current_consumption']['subscriber'] = Subscriber(self._element_uid_dict.get(uid))
+                self._pub.register(f'consumption_{self._element_uid_dict.get(uid)}', self._devices[self._element_uid_dict.get(uid)].get('current_consumption').get('subscriber'))
+
     def update_devices(self):
         # TODO: Add http, hue, powermeter
         data = {'jsonrpc': '2.0',
@@ -240,6 +251,7 @@ class MprmRestApi:
                         self._devices[name]['current_consumption'] = {}
                         self._devices[name]['current_consumption']['uid'] = i
                         self.update_consumption(element_uid=i)
+
 
     def get_devices(self):
         return self._devices
@@ -356,6 +368,7 @@ class Publisher:
         if callback == None:
             callback = getattr(who, 'update')
         self.get_subscribers(event)[who] = callback
+        print(f'register {event} {who}')
 
     def unregister(self, event, who):
         del self.get_subscribers(event)[who]
