@@ -128,6 +128,7 @@ class MprmRestApi:
             raise ValueError('Got not information about a device or an elementUID')
         if value is None:
             # TODO: Catch error
+            # TODO: This can be shortened
             if device_name and not element_uid:
                 try:
                     r = self._extract_data_from_element_uid(self._devices.get(device_name).get('binary_switch').get('uid'))
@@ -150,9 +151,24 @@ class MprmRestApi:
     def update_consumption(self, element_uid=None, device_name=None, value=None):
         if element_uid is None and device_name is None:
             raise ValueError('Got not information about a device or an elementUID')
-        if not value:
-            self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = None
-            # TODO:
+        if value is None:
+            if device_name and not element_uid:
+                try:
+                    r = self._extract_data_from_element_uid(self._devices.get(device_name).get('current_consumption').get('uid'))
+                    self._devices[device_name]['current_consumption']['consumption'] = r['properties']['currentValue']
+                    return True
+                except KeyError:
+                    raise KeyError(f"The device {device_name} does not have a consumption")
+            elif element_uid and not device_name:
+                r = self._extract_data_from_element_uid(element_uid)
+                value = r['properties']['currentValue']
+                self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = value
+                return True
+            elif element_uid and device_name:
+                r = self._extract_data_from_element_uid(element_uid)
+                self._devices[device_name]['current_consumption']['consumption'] = r['properties']['currentValue']
+                return True
+            return False
         else:
             self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = value
 
@@ -160,7 +176,11 @@ class MprmRestApi:
         return self._devices.get(device_name).get('binary_switch').get('state')
 
     def get_current_consumption(self, device_name):
-        return self._devices.get(device_name).get('current_consumption').get('consumption')
+        try:
+            return self._devices.get(device_name).get('current_consumption').get('consumption')
+        except AttributeError:
+            # TODO 1D Relay does not have a consumption. We should do a better error handling here.
+            return None
 
     def set_binary_switch_state(self, device_name: str, state: bool):
         """
