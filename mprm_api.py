@@ -15,7 +15,7 @@ class MprmWebSocket:
     def on_open(self):
         def run(*args):
             # TODO: replace by logger
-            print('Starting websocket connection')
+            print('Starting web socket connection')
             while True:
                 time.sleep(1)
             time.sleep(1)
@@ -32,7 +32,7 @@ class MprmWebSocket:
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             # TODO: replace by logger
             print(f'We got a new binary switch value for device {message.get("properties").get("uid")}')
-            self._mprm_rest_api.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('data') == 1 else False)
+            self._mprm_rest_api.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
             pass
 
@@ -45,10 +45,11 @@ class MprmWebSocket:
         print("### closed ###")
 
     def web_socket_connection(self, cookies: dict):
+        import websocket  # TODO: Find out why we nee the import here. Otherwise it throws an error --> AttributeError: 'function' object has no attribute 'WebSocketApp'
         mprm_url = self._mprm_rest_api.get_mprm_url()
         cookie = "; ".join([str(name)+"="+str(value) for name, value in cookies.items()])
         gateway_serial = self._mprm_rest_api.get_gateway_serial()
-        ws_url = f"ws://{mprm_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
+        ws_url = f"wss://{mprm_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
                                           on_open=self.on_open,
@@ -59,14 +60,14 @@ class MprmWebSocket:
 
 
 class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='www.mydevolo.com', mprm_url='homecontrol.mydevolo.com'):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
         self._mprm_url = mprm_url
         self._gateway_serial = gateway_serial
         self._headers = {'content-type': 'application/json'}
         uuid = mydevolo.get_uuid()
 
-        self.rpc_url = self._mprm_url + "/remote/json-rpc"
+        self.rpc_url = "https://" + self._mprm_url + "/remote/json-rpc"
 
         # Create a session
         self.session = requests.Session()
@@ -329,7 +330,7 @@ if __name__ == "__main__":
     api = MprmRestApi(user=user,
                       password=password,
                       mydevolo_url=mydevolo.get_url(),
-                      mprm_url="https://mprm-test.devolo.net",
+                      mprm_url="mprm-test.devolo.net",
                       gateway_serial="1406126500001876")
     # print(api.get_binary_switch_devices())
     device_name = 'Relay'
