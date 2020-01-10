@@ -46,10 +46,11 @@ class MprmWebSocket:
 
     def web_socket_connection(self, cookies: dict):
         import websocket  # TODO: Find out why we nee the import here. Otherwise it throws an error --> AttributeError: 'function' object has no attribute 'WebSocketApp'
-        mprm_url = self._mprm_rest_api.get_mprm_url()
+        ws_url = self._mprm_rest_api.get_mprm_url().replace("https://", "wss://")
+        ws_url = ws_url.replace("http://", "ws://")
         cookie = "; ".join([str(name)+"="+str(value) for name, value in cookies.items()])
         gateway_serial = self._mprm_rest_api.get_gateway_serial()
-        ws_url = f"wss://{mprm_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
+        ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
                                           on_open=self.on_open,
@@ -60,14 +61,14 @@ class MprmWebSocket:
 
 
 class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='www.mydevolo.com', mprm_url='homecontrol.mydevolo.com'):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
         self._mprm_url = mprm_url
         self._gateway_serial = gateway_serial
         self._headers = {'content-type': 'application/json'}
         uuid = mydevolo.get_uuid()
 
-        self.rpc_url = "https://" + self._mprm_url + "/remote/json-rpc"
+        self.rpc_url = self._mprm_url + "/remote/json-rpc"
 
         # Create a session
         self.session = requests.Session()
@@ -350,7 +351,7 @@ if __name__ == "__main__":
     api = MprmRestApi(user=user,
                       password=password,
                       mydevolo_url=mydevolo.get_url(),
-                      mprm_url="mprm-test.devolo.net",
+                      mprm_url="https://mprm-test.devolo.net",
                       gateway_serial="1406126500001876")
     # print(api.get_binary_switch_devices())
     device_name = 'Relay'
