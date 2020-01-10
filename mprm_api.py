@@ -28,6 +28,7 @@ class MprmWebSocket:
     def on_message(self, message):
         message = json.loads(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
+            print('MEter Value')
             self._mprm_rest_api.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             # TODO: replace by logger
@@ -90,6 +91,11 @@ class MprmRestApi:
         self.update_scenes()
         self.update_notifications()
         self.update_rules()
+
+        device_name = 'Umwälzpumpe'
+        self.subscriber_server = Subscriber(device_name)
+        self._pub = Publisher(['consumption'])
+        self._pub.register('consumption', self.subscriber_server)
 
     def get_consumption_of_every_device(self, consumption_type='current'):
         device_consumption_dict = {}
@@ -172,6 +178,7 @@ class MprmRestApi:
             return False
         else:
             self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = value
+            self._pub.dispatch('consumption', value)
 
     def get_binary_switch_state(self, device_name):
         return self._devices.get(device_name).get('binary_switch').get('state')
@@ -191,7 +198,7 @@ class MprmRestApi:
         :return:
         """
         self.set_binary_switch(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), state=state)
-        self.update_binary_switch_state(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), device_name=device_name)
+        # self.update_binary_switch_state(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), device_name=device_name)
 
     def get_specific_element_uid(self, device_name: str, element_uid: str) -> list:
         """
@@ -333,9 +340,36 @@ class MprmRestApi:
                 'params': [f"{element_uid}", "turnOn" if state else "turnOff", []]}
         r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
-        print(json.dumps(r.json(), indent=4))
 
 
+class Publisher:
+    def __init__(self, events):
+        # maps event names to subscribers
+        # str -> dict
+        self.events = {event: dict()
+                       for event in events}
+
+    def get_subscribers(self, event):
+        return self.events[event]
+
+    def register(self, event, who, callback=None):
+        if callback == None:
+            callback = getattr(who, 'update')
+        self.get_subscribers(event)[who] = callback
+
+    def unregister(self, event, who):
+        del self.get_subscribers(event)[who]
+
+    def dispatch(self, event, message):
+        for subscriber, callback in self.get_subscribers(event).items():
+            callback(message)
+
+class Subscriber:
+    def __init__(self, name):
+        self.name = name
+
+    def update(self, message):
+        print('{} got message "{}"'.format(self.name, message))
 if __name__ == "__main__":
     # usage example:
 
@@ -352,9 +386,9 @@ if __name__ == "__main__":
                       password=password,
                       mydevolo_url=mydevolo.get_url(),
                       mprm_url="https://mprm-test.devolo.net",
-                      gateway_serial="1406126500001876")
+                      gateway_serial="1401100500000088")
     # print(api.get_binary_switch_devices())
-    device_name = 'Relay'
+
     # state = api.update_binary_switch_state(device_name=device_name)
     # print(f'state: {state}')
     # api.set_binary_switch_state(device_name=device_name, state=not state)
@@ -367,7 +401,9 @@ if __name__ == "__main__":
         mprm_websocket.web_socket_connection(cookies=api.session.cookies)
 
     threading.Thread(target=websocket).start()
-    while True:
-        time.sleep(1)
-        print(f'Binary Switch: {api.get_binary_switch_state(device_name=device_name)}')
-        print(f'Consumption: {api.get_current_consumption(device_name=device_name)}')
+    # while True:
+    #     time.sleep(1)
+    #     print(f'Binary Switch: {api.get_binary_switch_state(device_name=device_name)}')
+    #     print(f'Consumption: {api.get_current_consumption(device_name=device_name)}')
+
+
