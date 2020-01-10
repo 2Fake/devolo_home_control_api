@@ -2,7 +2,7 @@ import requests
 import json
 import websocket
 import time
-import _thread as thread    # TODO: replace by threading
+import threading
 
 from mydevolo_api import Mydevolo
 
@@ -23,7 +23,7 @@ class MprmWebSocket:
             # TODO: replace by logger
             print("thread terminating...")
 
-        thread.start_new_thread(run, ())
+        threading.Thread(target=run).start()
 
     def on_message(self, message):
         message = json.loads(message)
@@ -361,11 +361,12 @@ if __name__ == "__main__":
     # sleep(2)
     # state = api.get_binary_switch_state(device_name=device_name)
     # print(f'state: {state}')
+
     def websocket(*args):
         mprm_websocket = MprmWebSocket(mprm_rest_api=api)
         mprm_websocket.web_socket_connection(cookies=api.session.cookies)
 
-    thread.start_new_thread(websocket, ())
+    threading.Thread(target=websocket).start()
     while True:
         time.sleep(1)
         print(f'Binary Switch: {api.get_binary_switch_state(device_name=device_name)}')
