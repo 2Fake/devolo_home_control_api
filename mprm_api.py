@@ -2,7 +2,7 @@ import requests
 import json
 import websocket
 import time
-import _thread as thread    #TODO: replace by threading
+import _thread as thread    # TODO: replace by threading
 
 from mydevolo_api import Mydevolo
 
@@ -14,13 +14,13 @@ class MprmWebSocket:
 
     def on_open(self):
         def run(*args):
-            #TODO: replace by logger
+            # TODO: replace by logger
             print('Starting websocket connection')
             while True:
                 time.sleep(1)
             time.sleep(1)
             self._ws.close()
-            #TODO: replace by logger
+            # TODO: replace by logger
             print("thread terminating...")
 
         thread.start_new_thread(run, ())
@@ -30,18 +30,18 @@ class MprmWebSocket:
         if message['properties']['uid'].startswith('devolo.Meter'):
             self._mprm_rest_api.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
-            #TODO: replace by logger
+            # TODO: replace by logger
             print(f'We got a new binary switch value for device {message.get("properties").get("uid")}')
             self._mprm_rest_api.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('data') == 1 else False)
         else:
             pass
 
     def on_error(self, error):
-        #TODO: replace by logger
+        # TODO: replace by logger
         print(error)
 
     def on_close(self):
-        #TODO: replace by logger
+        # TODO: replace by logger
         print("### closed ###")
 
     def web_socket_connection(self, cookies: dict):
@@ -50,11 +50,11 @@ class MprmWebSocket:
         gateway_serial = self._mprm_rest_api.get_gateway_serial()
         ws_url = f"ws://{mprm_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
         self._ws = websocket.WebSocketApp(ws_url,
-                                    cookie=cookie,
-                                    on_open=self.on_open,
-                                    on_message=self.on_message,
-                                    on_error=self.on_error,
-                                    on_close=self.on_close)
+                                          cookie=cookie,
+                                          on_open=self.on_open,
+                                          on_message=self.on_message,
+                                          on_error=self.on_error,
+                                          on_close=self.on_close)
         self._ws.run_forever()
 
 
