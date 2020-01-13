@@ -7,59 +7,6 @@ import threading
 from mydevolo_api import Mydevolo
 
 
-class MprmWebSocket:
-    def __init__(self, mprm_rest_api):
-        self._mprm_rest_api = mprm_rest_api
-        self._ws = None
-
-    def on_open(self):
-        def run(*args):
-            # TODO: replace by logger
-            print('Starting web socket connection')
-            while True:
-                time.sleep(1)
-            time.sleep(1)
-            self._ws.close()
-            # TODO: replace by logger
-            print("thread terminating...")
-
-        threading.Thread(target=run).start()
-
-    def on_message(self, message):
-        message = json.loads(message)
-        if message['properties']['uid'].startswith('devolo.Meter'):
-            self._mprm_rest_api.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
-        elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
-            # TODO: replace by logger
-            print(f'We got a new binary switch value for device {message.get("properties").get("uid")}')
-            self._mprm_rest_api.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
-        else:
-            pass
-
-    def on_error(self, error):
-        # TODO: replace by logger
-        print(error)
-
-    def on_close(self):
-        # TODO: replace by logger
-        print("### closed ###")
-
-    def web_socket_connection(self, cookies: dict):
-        import websocket  # TODO: Find out why we nee the import here. Otherwise it throws an error --> AttributeError: 'function' object has no attribute 'WebSocketApp'
-        ws_url = self._mprm_rest_api.get_mprm_url().replace("https://", "wss://")
-        ws_url = ws_url.replace("http://", "ws://")
-        cookie = "; ".join([str(name)+"="+str(value) for name, value in cookies.items()])
-        gateway_serial = self._mprm_rest_api.get_gateway_serial()
-        ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={gateway_serial})(!(GW_ID=*)))"
-        self._ws = websocket.WebSocketApp(ws_url,
-                                          cookie=cookie,
-                                          on_open=self.on_open,
-                                          on_message=self.on_message,
-                                          on_error=self.on_error,
-                                          on_close=self.on_close)
-        self._ws.run_forever()
-
-
 class MprmRestApi:
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
@@ -91,7 +38,18 @@ class MprmRestApi:
         self.update_notifications()
         self.update_rules()
 
+        devices_list = []
+        for uid, device_name in self._element_uid_dict.items():
+            if uid.startswith('devolo.Meter'):
+                devices_list.append(f'current_consumption_{uid}')
+            elif uid.startswith('devolo.BinarySwitch'):
+                devices_list.append(f'state_{uid}')
+        print(devices_list)
+        self._pub = Publisher(devices_list)
+        self.register_pub()
+
     def get_consumption_of_every_device(self, consumption_type='current'):
+        # TODO Unify consumption_type with consumption of update_consumption()
         device_consumption_dict = {}
         for device in self._devices.keys():
             try:
@@ -102,6 +60,8 @@ class MprmRestApi:
         return device_consumption_dict
 
     def get_consumption(self, device_name, consumption_type='current'):
+        # TODO Change to UUID
+        # TODO Unify consumption_type with consumption of update_consumption()
         # As only devices can have a consumption, we don't need to search for it in other dicts than devices.
         if consumption_type not in ['current', 'total']:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
@@ -124,59 +84,31 @@ class MprmRestApi:
                 pass
         return device_binary_switch_state_dict
 
-    def update_binary_switch_state(self, element_uid=None, device_name=None, value=None):
-        if element_uid is None and device_name is None:
-            raise ValueError('Got not information about a device or an elementUID')
+    def update_binary_switch_state(self, element_uid, value=None):
         if value is None:
-            # TODO: Catch error
-            # TODO: This can be shortened
-            if device_name and not element_uid:
-                try:
-                    r = self._extract_data_from_element_uid(self._devices.get(device_name).get('binary_switch').get('uid'))
-                    self._devices[device_name]['binary_switch']['state'] = True if r['properties']['state'] == 1 else False
-                    return True
-                except KeyError:
-                    raise KeyError(f"The device {device_name} does not have a binary switch")
-            elif element_uid and not device_name:
-                r = self._extract_data_from_element_uid(element_uid)
-                self._devices[self._element_uid_dict[element_uid]]['binary_switch']['state'] = True if r['properties']['state'] == 1 else False
-                return True
-            elif element_uid and device_name:
-                r = self._extract_data_from_element_uid(element_uid)
-                self._devices[device_name]['binary_switch']['state'] = True if r['properties']['state'] == 1 else False
-                return True
-            return False
+            r = self._extract_data_from_element_uid(element_uid)
+            self._element_uid_dict[element_uid]['state'] = True if r['properties']['state'] == 1 else False
         else:
-            self._devices[self._element_uid_dict[element_uid]]['binary_switch']['state'] = value
+            self._element_uid_dict[element_uid]['binary_switch']['state'] = value
+            self._pub.dispatch(f'state_{self._element_uid_dict[element_uid]}', value)
 
-    def update_consumption(self, element_uid=None, device_name=None, value=None):
-        if element_uid is None and device_name is None:
-            raise ValueError('Got not information about a device or an elementUID')
+    def update_consumption(self, element_uid, consumption, value=None):
+        if consumption not in ['current_consumption', 'total_consumption']:
+            raise ValueError('Consumption value is not valid. Only "current_consumption" and "total_consumption are allowed!')
         if value is None:
-            if device_name and not element_uid:
-                try:
-                    r = self._extract_data_from_element_uid(self._devices.get(device_name).get('current_consumption').get('uid'))
-                    self._devices[device_name]['current_consumption']['consumption'] = r['properties']['currentValue']
-                    return True
-                except KeyError:
-                    raise KeyError(f"The device {device_name} does not have a consumption")
-            elif element_uid and not device_name:
-                r = self._extract_data_from_element_uid(element_uid)
-                value = r['properties']['currentValue']
-                self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = value
-                return True
-            elif element_uid and device_name:
-                r = self._extract_data_from_element_uid(element_uid)
-                self._devices[device_name]['current_consumption']['consumption'] = r['properties']['currentValue']
-                return True
-            return False
+            r = self._extract_data_from_element_uid(element_uid)
+            value = r['properties']['currentValue']
+            self._element_uid_dict[element_uid]['current_consumption'] = value
         else:
-            self._devices[self._element_uid_dict[element_uid]]['current_consumption']['consumption'] = value
+            self._element_uid_dict[element_uid][consumption] = value
+            self._pub.dispatch(f'current_consumption_{element_uid}', value)
 
     def get_binary_switch_state(self, device_name):
+        # TODO Change to UUID
         return self._devices.get(device_name).get('binary_switch').get('state')
 
     def get_current_consumption(self, device_name):
+        # TODO Change to UUID
         try:
             return self._devices.get(device_name).get('current_consumption').get('consumption')
         except AttributeError:
@@ -184,6 +116,7 @@ class MprmRestApi:
             return None
 
     def set_binary_switch_state(self, device_name: str, state: bool):
+        # TODO Change to UUID
         """
         Set the binary switch to the desired state
         :param device_name: Name of the device
@@ -191,7 +124,7 @@ class MprmRestApi:
         :return:
         """
         self.set_binary_switch(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), state=state)
-        self.update_binary_switch_state(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), device_name=device_name)
+        # self.update_binary_switch_state(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), device_name=device_name)
 
     def get_specific_element_uid(self, device_name: str, element_uid: str) -> list:
         """
@@ -202,11 +135,14 @@ class MprmRestApi:
         """
         return [s for s in self._devices.get(device_name) if element_uid in s]
 
-    def get_gateway_serial(self) -> str:
-        return self._gateway_serial
-
-    def get_mprm_url(self) -> str:
-        return self._mprm_url
+    def register_pub(self):
+        for uid in self._element_uid_dict:
+            if uid.startswith('devolo.Meter'):
+                self._element_uid_dict[uid]['subscriber'] = Subscriber(uid)
+                self._pub.register(f'current_consumption_{uid}', self._element_uid_dict[uid]['subscriber'])
+            elif uid.startswith('devolo.BinarySwitch'):
+                self._element_uid_dict[uid]['subscriber'] = Subscriber(uid)
+                self._pub.register(f'state_{uid}', self._element_uid_dict[uid]['subscriber'])
 
     def update_devices(self):
         # TODO: Add http, hue, powermeter
@@ -220,19 +156,16 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=device)
-                self._devices[name] = {}
-                self._devices[name]['element_uids'] = elementUIDs
-                for i in elementUIDs:
-                    self._element_uid_dict[i] = name
-                    if i.startswith('devolo.BinarySwitch'):
-                        self._devices[name]['binary_switch'] = {}
-                        self._devices[name]['binary_switch']['uid'] = i
-                        self.update_binary_switch_state(element_uid=i)
-                    elif i.startswith('devolo.Meter'):
-                        self._devices[name]['current_consumption'] = {}
-                        self._devices[name]['current_consumption']['uid'] = i
-                        self.update_consumption(element_uid=i)
+                name, element_uids = self._get_name_and_element_uids(uid=device)
+                # self._devices[name] = {}
+                # self._devices[name]['element_uids'] = element_uids
+                for uid in element_uids:
+                    self._element_uid_dict[uid] = {}
+                    self._element_uid_dict[uid]['name'] = name
+                    if uid.startswith('devolo.BinarySwitch'):
+                        self.update_binary_switch_state(element_uid=uid)
+                    elif uid.startswith('devolo.Meter'):
+                        self.update_consumption(element_uid=uid, consumption="current_consumption")
 
     def get_devices(self):
         return self._devices
@@ -254,7 +187,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_groups_list = item['properties']['smartGroupWidgetUIDs']
             for group in all_groups_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=group)
+                name, elementUIDs = self._get_name_and_element_uids(uid=group)
                 self._groups[name] = elementUIDs
 
     def update_schedules(self):
@@ -267,7 +200,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_schedules_list = item['properties']['scheduleUIDs']
             for schedule in all_schedules_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=schedule)
+                name, elementUIDs = self._get_name_and_element_uids(uid=schedule)
                 self._schedules[name] = elementUIDs
 
     def update_notifications(self):
@@ -280,7 +213,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_notifications_list = item['properties']['customMessageUIDs']
             for notification in all_notifications_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=notification)
+                name, elementUIDs = self._get_name_and_element_uids(uid=notification)
                 self._notifications[name] = elementUIDs
 
     def update_rules(self):
@@ -293,7 +226,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_rules_list = item['properties']['serviceUIDs']
             for rule in all_rules_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=rule)
+                name, elementUIDs = self._get_name_and_element_uids(uid=rule)
                 self._rules[name] = elementUIDs
 
     def update_scenes(self):
@@ -306,10 +239,10 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_scenes_list = item['properties']['sceneUIDs']
             for scene in all_scenes_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=scene)
+                name, elementUIDs = self._get_name_and_element_uids(uid=scene)
                 self._scenes[name] = elementUIDs
 
-    def _get_name_and_elementUIDs(self, uid):
+    def _get_name_and_element_uids(self, uid):
         data = {'jsonrpc': '2.0',
                 'id': 11,
                 'method': 'FIM/getFunctionalItems',
@@ -324,6 +257,7 @@ class MprmRestApi:
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{element_uid}"], 0]}
         r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        # TODO: Catch error!
         return r.json()['result']['items'][0]
 
     def set_binary_switch(self, element_uid, state: bool):
@@ -333,7 +267,87 @@ class MprmRestApi:
                 'params': [f"{element_uid}", "turnOn" if state else "turnOff", []]}
         r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
-        print(json.dumps(r.json(), indent=4))
+
+
+class MprmWebSocket(MprmRestApi):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
+        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url)
+        self._ws = None
+
+    def on_open(self):
+        def run(*args):
+            # TODO: replace by logger
+            print('Starting web socket connection')
+            while True:
+                time.sleep(1)
+            time.sleep(1)
+            self._ws.close()
+            # TODO: replace by logger
+            print("thread terminating...")
+
+        threading.Thread(target=run).start()
+
+    def on_message(self, message):
+        message = json.loads(message)
+        if message['properties']['uid'].startswith('devolo.Meter'):
+            self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current_consumption", value=message.get('properties').get('property.value.new'))
+        elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
+            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
+        else:
+            # Unknown messages shall be ignored
+            pass
+
+    def on_error(self, error):
+        # TODO: replace by logger
+        print(error)
+
+    def on_close(self):
+        # TODO: replace by logger
+        print("### closed ###")
+
+    def web_socket_connection(self, cookies: dict):
+        import websocket  # TODO: Find out why we nee the import here. Otherwise it throws an error --> AttributeError: 'function' object has no attribute 'WebSocketApp'
+        ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
+        cookie = "; ".join([str(name)+"="+str(value) for name, value in cookies.items()])
+        ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={self._gateway_serial})(!(GW_ID=*)))"
+        self._ws = websocket.WebSocketApp(ws_url,
+                                          cookie=cookie,
+                                          on_open=self.on_open,
+                                          on_message=self.on_message,
+                                          on_error=self.on_error,
+                                          on_close=self.on_close)
+        self._ws.run_forever()
+
+
+class Publisher:
+    def __init__(self, events):
+        # maps event names to subscribers
+        # str -> dict
+        self.events = {event: dict()
+                       for event in events}
+
+    def get_subscribers(self, event):
+        return self.events[event]
+
+    def register(self, event, who, callback=None):
+        if callback == None:
+            callback = getattr(who, 'update')
+        self.get_subscribers(event)[who] = callback
+
+    def unregister(self, event, who):
+        del self.get_subscribers(event)[who]
+
+    def dispatch(self, event, message):
+        for subscriber, callback in self.get_subscribers(event).items():
+            callback(message)
+
+
+class Subscriber:
+    def __init__(self, name):
+        self.name = name
+
+    def update(self, message):
+        print('{} got message "{}"'.format(self.name, message))
 
 
 if __name__ == "__main__":
@@ -344,8 +358,8 @@ if __name__ == "__main__":
     user = "username"
     password = "password"
     mydevolo = Mydevolo(user=user, password=password, url='https://dcloud-test.devolo.net')
-    # uuid = mydevolo.get_uuid()
-    # gateways_serials = mydevolo.get_gateway_serials()
+    uuid = mydevolo.get_uuid()
+    gateways_serials = mydevolo.get_gateway_serials()
     # localPasskey = mydevolo.get_local_passkey(serial="1406126500001876")
     #
     api = MprmRestApi(user=user,
@@ -354,7 +368,7 @@ if __name__ == "__main__":
                       mprm_url="https://mprm-test.devolo.net",
                       gateway_serial="1406126500001876")
     # print(api.get_binary_switch_devices())
-    device_name = 'Relay'
+
     # state = api.update_binary_switch_state(device_name=device_name)
     # print(f'state: {state}')
     # api.set_binary_switch_state(device_name=device_name, state=not state)
@@ -363,11 +377,17 @@ if __name__ == "__main__":
     # print(f'state: {state}')
 
     def websocket(*args):
-        mprm_websocket = MprmWebSocket(mprm_rest_api=api)
+        mprm_websocket = MprmWebSocket(user=user,
+                      password=password,
+                      mydevolo_url=mydevolo.get_url(),
+                      mprm_url="https://mprm-test.devolo.net",
+                      gateway_serial="1406126500001876")
         mprm_websocket.web_socket_connection(cookies=api.session.cookies)
 
     threading.Thread(target=websocket).start()
-    while True:
-        time.sleep(1)
-        print(f'Binary Switch: {api.get_binary_switch_state(device_name=device_name)}')
-        print(f'Consumption: {api.get_current_consumption(device_name=device_name)}')
+    # while True:
+    #     time.sleep(1)
+    #     print(f'Binary Switch: {api.get_binary_switch_state(device_name=device_name)}')
+    #     print(f'Consumption: {api.get_current_consumption(device_name=device_name)}')
+
+
