@@ -14,6 +14,7 @@ class Mydevolo:
         self._password = password
         self._url = url
         self._uuid = None
+        self._uuid = self.get_uuid()
 
     def get_gateway_serials(self) -> list:
         """
