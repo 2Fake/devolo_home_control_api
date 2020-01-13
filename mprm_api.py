@@ -49,6 +49,7 @@ class MprmRestApi:
         self.register_pub()
 
     def get_consumption_of_every_device(self, consumption_type='current'):
+        # TODO Unify consumption_type with consumption of update_consumption()
         device_consumption_dict = {}
         for device in self._devices.keys():
             try:
@@ -59,6 +60,8 @@ class MprmRestApi:
         return device_consumption_dict
 
     def get_consumption(self, device_name, consumption_type='current'):
+        # TODO Change to UUID
+        # TODO Unify consumption_type with consumption of update_consumption()
         # As only devices can have a consumption, we don't need to search for it in other dicts than devices.
         if consumption_type not in ['current', 'total']:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
@@ -101,9 +104,11 @@ class MprmRestApi:
             self._pub.dispatch(f'current_consumption_{element_uid}', value)
 
     def get_binary_switch_state(self, device_name):
+        # TODO Change to UUID
         return self._devices.get(device_name).get('binary_switch').get('state')
 
     def get_current_consumption(self, device_name):
+        # TODO Change to UUID
         try:
             return self._devices.get(device_name).get('current_consumption').get('consumption')
         except AttributeError:
@@ -111,6 +116,7 @@ class MprmRestApi:
             return None
 
     def set_binary_switch_state(self, device_name: str, state: bool):
+        # TODO Change to UUID
         """
         Set the binary switch to the desired state
         :param device_name: Name of the device
@@ -150,16 +156,16 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
-                name, element_uids = self._get_name_and_elementUIDs(uid=device)
+                name, element_uids = self._get_name_and_element_uids(uid=device)
                 # self._devices[name] = {}
                 # self._devices[name]['element_uids'] = element_uids
                 for uid in element_uids:
                     self._element_uid_dict[uid] = {}
                     self._element_uid_dict[uid]['name'] = name
                     if uid.startswith('devolo.BinarySwitch'):
-                        self._element_uid_dict[uid]['state'] = self.update_binary_switch_state(element_uid=uid)
+                        self.update_binary_switch_state(element_uid=uid)
                     elif uid.startswith('devolo.Meter'):
-                        self._element_uid_dict[uid]['current_consumption'] = self.update_consumption(element_uid=uid)
+                        self.update_consumption(element_uid=uid, consumption="current_consumption")
 
     def get_devices(self):
         return self._devices
@@ -181,7 +187,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_groups_list = item['properties']['smartGroupWidgetUIDs']
             for group in all_groups_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=group)
+                name, elementUIDs = self._get_name_and_element_uids(uid=group)
                 self._groups[name] = elementUIDs
 
     def update_schedules(self):
@@ -194,7 +200,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_schedules_list = item['properties']['scheduleUIDs']
             for schedule in all_schedules_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=schedule)
+                name, elementUIDs = self._get_name_and_element_uids(uid=schedule)
                 self._schedules[name] = elementUIDs
 
     def update_notifications(self):
@@ -207,7 +213,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_notifications_list = item['properties']['customMessageUIDs']
             for notification in all_notifications_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=notification)
+                name, elementUIDs = self._get_name_and_element_uids(uid=notification)
                 self._notifications[name] = elementUIDs
 
     def update_rules(self):
@@ -220,7 +226,7 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_rules_list = item['properties']['serviceUIDs']
             for rule in all_rules_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=rule)
+                name, elementUIDs = self._get_name_and_element_uids(uid=rule)
                 self._rules[name] = elementUIDs
 
     def update_scenes(self):
@@ -233,10 +239,10 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_scenes_list = item['properties']['sceneUIDs']
             for scene in all_scenes_list:
-                name, elementUIDs = self._get_name_and_elementUIDs(uid=scene)
+                name, elementUIDs = self._get_name_and_element_uids(uid=scene)
                 self._scenes[name] = elementUIDs
 
-    def _get_name_and_elementUIDs(self, uid):
+    def _get_name_and_element_uids(self, uid):
         data = {'jsonrpc': '2.0',
                 'id': 11,
                 'method': 'FIM/getFunctionalItems',
@@ -284,11 +290,11 @@ class MprmWebSocket(MprmRestApi):
     def on_message(self, message):
         message = json.loads(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
-            print(message)
-            self.update_consumption(element_uid=message.get("properties").get("uid"), value=message.get('properties').get('property.value.new'))
+            self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current_consumption", value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
+            # Unknown messages shall be ignored
             pass
 
     def on_error(self, error):
