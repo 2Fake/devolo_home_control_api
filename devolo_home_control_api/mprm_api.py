@@ -322,39 +322,6 @@ class Subscriber:
         print('{} got message "{}"'.format(self.name, message))
 
 
-if __name__ == "__main__":
 
-    user = "username"
-    password = "password"
-    mydevolo = Mydevolo(user=user, password=password, url='https://dcloud-test.devolo.net')
-    uuid = mydevolo.get_uuid()
-    gateways_serials = mydevolo.get_gateway_serials()
-    api = MprmRestApi(user=user,
-                      password=password,
-                      mydevolo_url=mydevolo.get_url(),
-                      mprm_url="https://mprm-test.devolo.net",
-                      gateway_serial="1406126500001876")
-    # print(api.get_binary_switch_devices())
-
-    # state = api.update_binary_switch_state(device_name=device_name)
-    # print(f'state: {state}')
-    # api.set_binary_switch_state(device_name=device_name, state=not state)
-    # sleep(2)
-    # state = api.get_binary_switch_state(device_name=device_name)
-    # print(f'state: {state}')
-
-    def websocket(*args):
-        mprm_websocket = MprmWebSocket(user=user,
-                                       password=password,
-                                       mydevolo_url=mydevolo.get_url(),
-                                       mprm_url="https://mprm-test.devolo.net",
-                                       gateway_serial="1406126500001876")
-        mprm_websocket.web_socket_connection(cookies=api.session.cookies)
-
-    threading.Thread(target=websocket).start()
-    # while True:
-    #     time.sleep(1)
-    #     print(f'Binary Switch: {api.get_binary_switch_state(device_name=device_name)}')
-    #     print(f'Consumption: {api.get_current_consumption(device_name=device_name)}')
 
 
