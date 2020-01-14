@@ -57,6 +57,7 @@ class Mydevolo:
         Get the UUID of the current user
         :return: UUID of current user
         """
+        # TODO: Catch wrong password or not existing user
         if self._uuid is None:
             try:
                 self._uuid = requests.get(self._url + "/v1/users/uuid", auth=(self._user, self._password), timeout=60).json()['uuid']

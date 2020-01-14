@@ -38,111 +38,71 @@ class MprmRestApi:
         self.update_notifications()
         self.update_rules()
 
-        devices_list = []
+        element_uid_list = []
         for uid, device_name in self._element_uid_dict.items():
-            if uid.startswith('devolo.Meter'):
-                devices_list.append(f'current_consumption_{uid}')
-            elif uid.startswith('devolo.BinarySwitch'):
-                devices_list.append(f'state_{uid}')
-        print(devices_list)
-        self._pub = Publisher(devices_list)
+            for element_uid in device_name:
+                if element_uid.startswith('devolo.Meter'):
+                    element_uid_list.append(f'current_consumption_{element_uid}')
+                elif element_uid.startswith('devolo.BinarySwitch'):
+                    element_uid_list.append(f'binary_state_{element_uid}')
+        self._pub = Publisher(element_uid_list)
+        print(element_uid_list)
         self.register_pub()
 
-    def get_consumption_of_every_device(self, consumption_type='current'):
-        # TODO Unify consumption_type with consumption of update_consumption()
-        device_consumption_dict = {}
-        for device in self._devices.keys():
-            try:
-                device_consumption_dict[device] = self.get_consumption(device_name=device, consumption_type=consumption_type)
-            except IndexError:
-                # The device does not have a consumption
-                pass
-        return device_consumption_dict
-
-    def get_consumption(self, device_name, consumption_type='current'):
-        # TODO Change to UUID
-        # TODO Unify consumption_type with consumption of update_consumption()
-        # As only devices can have a consumption, we don't need to search for it in other dicts than devices.
+    def get_consumption(self, uid, consumption_type='current'):
         if consumption_type not in ['current', 'total']:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
-        if device_name not in self._devices:
-            raise ValueError(f"Device '{device_name}' not found. Did you provide the correct name?")
-        elementUID = [s for s in self._devices.get(device_name) if 'devolo.Meter' in s]
-        try:
-            r = self._extract_data_from_element_uid(elementUID[0])
-        except IndexError:
-            raise IndexError(f"The device {device_name} does not have a consumption")
-        return float(r['properties']['currentValue'] if consumption_type == 'current' else r['properties']['totalValue'])
+        # TODO: Prepare for more meter items as one
+        return self._element_uid_dict.get(uid).get(f'devolo.Meter:{uid}').get(f'{consumption_type}_consumption')
 
-    def get_binary_switch_state_of_all_devices(self):
-        device_binary_switch_state_dict = {}
-        for device in self._devices.keys():
-            try:
-                device_binary_switch_state_dict[device] = self.get_binary_switch_state(device_name=device)
-            except IndexError:
-                # The device does not have a binary switch
-                pass
-        return device_binary_switch_state_dict
-
-    def update_binary_switch_state(self, element_uid, value=None):
+    def update_binary_switch_state(self, uid, value=None):
+        element_uid = 'devolo.BinarySwitch:' + uid
         if value is None:
             r = self._extract_data_from_element_uid(element_uid)
-            self._element_uid_dict[element_uid]['state'] = True if r['properties']['state'] == 1 else False
+            self._element_uid_dict[uid][element_uid]['state'] = True if r['properties']['state'] == 1 else False
         else:
-            self._element_uid_dict[element_uid]['binary_switch']['state'] = value
+            self._element_uid_dict[uid][element_uid]['binary_switch']['state'] = value
             self._pub.dispatch(f'state_{self._element_uid_dict[element_uid]}', value)
 
-    def update_consumption(self, element_uid, consumption, value=None):
-        if consumption not in ['current_consumption', 'total_consumption']:
-            raise ValueError('Consumption value is not valid. Only "current_consumption" and "total_consumption are allowed!')
-        if value is None:
-            r = self._extract_data_from_element_uid(element_uid)
-            value = r['properties']['currentValue']
-            self._element_uid_dict[element_uid]['current_consumption'] = value
-        else:
-            self._element_uid_dict[element_uid][consumption] = value
-            self._pub.dispatch(f'current_consumption_{element_uid}', value)
+    def update_consumption(self, uid, consumption, value=None):
+        if consumption not in ['current', 'total']:
+            raise ValueError('Consumption value is not valid. Only "current" and "total are allowed!')
+        if value is not None:
+            raise ValueError('Value is not allowed here.')
+        element_uid = 'devolo.Meter:' + uid
+        r = self._extract_data_from_element_uid(element_uid)
+        value = r['properties']['currentValue'] if consumption == 'currentValue' else r['properties']['totalValue']
+        self._element_uid_dict[uid][element_uid]['current_consumption'] = value
 
-    def get_binary_switch_state(self, device_name):
-        # TODO Change to UUID
-        return self._devices.get(device_name).get('binary_switch').get('state')
+    def get_binary_switch_state(self, uid):
+        return self._element_uid_dict.get(uid).get(f'devolo.BinarySwitch:{uid}').get('state')
 
-    def get_current_consumption(self, device_name):
-        # TODO Change to UUID
+    def get_current_consumption(self, uid):
         try:
-            return self._devices.get(device_name).get('current_consumption').get('consumption')
+            return self._element_uid_dict.get(uid).get(f'devolo.Meter:{uid}').get('current_consumption')
         except AttributeError:
             # TODO 1D Relay does not have a consumption. We should do a better error handling here.
             return None
 
-    def set_binary_switch_state(self, device_name: str, state: bool):
+    def set_binary_switch_state(self, uid: str, state: bool):
         # TODO Change to UUID
         """
         Set the binary switch to the desired state
-        :param device_name: Name of the device
+        :param uid: uid
         :param state: Desired state of the binary switch of the device
         :return:
         """
-        self.set_binary_switch(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), state=state)
-        # self.update_binary_switch_state(element_uid=self._devices.get(device_name).get('binary_switch').get('uid'), device_name=device_name)
-
-    def get_specific_element_uid(self, device_name: str, element_uid: str) -> list:
-        """
-        Get a specific element uid of a device
-        :param device_name: Name of the device
-        :param element_uid: Start of string
-        :return: List of element UID with probably one element
-        """
-        return [s for s in self._devices.get(device_name) if element_uid in s]
+        self.set_binary_switch(element_uid=f'devolo.BinarySwitch:{uid}', state=state)
 
     def register_pub(self):
         for uid in self._element_uid_dict:
-            if uid.startswith('devolo.Meter'):
-                self._element_uid_dict[uid]['subscriber'] = Subscriber(uid)
-                self._pub.register(f'current_consumption_{uid}', self._element_uid_dict[uid]['subscriber'])
-            elif uid.startswith('devolo.BinarySwitch'):
-                self._element_uid_dict[uid]['subscriber'] = Subscriber(uid)
-                self._pub.register(f'state_{uid}', self._element_uid_dict[uid]['subscriber'])
+            for element_uid in self._element_uid_dict[uid]:
+                if element_uid.startswith('devolo.Meter'):
+                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(uid)
+                    self._pub.register(f'current_consumption_{element_uid}', self._element_uid_dict[uid][element_uid]['subscriber'])
+                elif element_uid.startswith('devolo.BinarySwitch'):
+                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(uid)
+                    self._pub.register(f'binary_state_{element_uid}', self._element_uid_dict[uid][element_uid]['subscriber'])
 
     def update_devices(self):
         # TODO: Add http, hue, powermeter
@@ -157,15 +117,10 @@ class MprmRestApi:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
                 name, element_uids = self._get_name_and_element_uids(uid=device)
-                # self._devices[name] = {}
-                # self._devices[name]['element_uids'] = element_uids
+                self._element_uid_dict[device] = {}
                 for uid in element_uids:
-                    self._element_uid_dict[uid] = {}
-                    self._element_uid_dict[uid]['name'] = name
-                    if uid.startswith('devolo.BinarySwitch'):
-                        self.update_binary_switch_state(element_uid=uid)
-                    elif uid.startswith('devolo.Meter'):
-                        self.update_consumption(element_uid=uid, consumption="current_consumption")
+                    self._element_uid_dict[device][uid] = {}
+                    self._element_uid_dict[device]['name'] = name
 
     def get_devices(self):
         return self._devices
@@ -173,8 +128,7 @@ class MprmRestApi:
     def get_binary_switch_devices(self):
         devices = []
         for uid, device in self._element_uid_dict.items():
-            if uid.startswith('devolo.BinarySwitch'):
-                devices.append(device)
+            [devices.append(device) for element_uid in self._element_uid_dict.get(uid) if element_uid.startswith('devolo.BinarySwitch')]
         return devices
 
     def update_groups(self):
@@ -268,6 +222,14 @@ class MprmRestApi:
         r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
 
+    def get_element_uid(self, element_uid):
+        """
+        Return the FIM UID of the given element uid
+        :param element_uid:
+        :return: FIM UID as string
+        """
+        return element_uid.split(":", 1)
+
 
 class MprmWebSocket(MprmRestApi):
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
@@ -290,7 +252,8 @@ class MprmWebSocket(MprmRestApi):
     def on_message(self, message):
         message = json.loads(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
-            self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current_consumption", value=message.get('properties').get('property.value.new'))
+            # TODO: distinguish between current and total value
+            self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
@@ -317,6 +280,15 @@ class MprmWebSocket(MprmRestApi):
                                           on_error=self.on_error,
                                           on_close=self.on_close)
         self._ws.run_forever()
+
+    def update_consumption(self, element_uid, consumption, value=None):
+        if consumption not in ['current', 'total']:
+            raise ValueError('Consumption value is not valid. Only "current" and "total are allowed!')
+        if value is None:
+            raise ValueError('Got value==None. This is impossible')
+        uid = element_uid.split(":", 1)[1].split("#")[0]
+        self._element_uid_dict[uid][element_uid][f'{consumption}_consumption'] = value
+        self._pub.dispatch(f'current_consumption_{element_uid}', value)
 
 
 class Publisher:
@@ -351,17 +323,12 @@ class Subscriber:
 
 
 if __name__ == "__main__":
-    # usage example:
-
-    from time import sleep
 
     user = "username"
     password = "password"
     mydevolo = Mydevolo(user=user, password=password, url='https://dcloud-test.devolo.net')
     uuid = mydevolo.get_uuid()
     gateways_serials = mydevolo.get_gateway_serials()
-    # localPasskey = mydevolo.get_local_passkey(serial="1406126500001876")
-    #
     api = MprmRestApi(user=user,
                       password=password,
                       mydevolo_url=mydevolo.get_url(),
@@ -378,10 +345,10 @@ if __name__ == "__main__":
 
     def websocket(*args):
         mprm_websocket = MprmWebSocket(user=user,
-                      password=password,
-                      mydevolo_url=mydevolo.get_url(),
-                      mprm_url="https://mprm-test.devolo.net",
-                      gateway_serial="1406126500001876")
+                                       password=password,
+                                       mydevolo_url=mydevolo.get_url(),
+                                       mprm_url="https://mprm-test.devolo.net",
+                                       gateway_serial="1406126500001876")
         mprm_websocket.web_socket_connection(cookies=api.session.cookies)
 
     threading.Thread(target=websocket).start()
