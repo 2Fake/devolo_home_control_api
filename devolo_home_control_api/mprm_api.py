@@ -40,6 +40,14 @@ class MprmRestApi:
         self.update_notifications()
         self.update_rules()
         # self.register_sub()
+        for device in self._element_uid_dict:
+            for uid in self._element_uid_dict.get(device).get('element_uids'):
+                if uid.startswith('devolo.meter'):
+                    print('updating consumption')
+                    self.update_consumption(uid=uid, consumption='current')
+                elif uid.startswith('devolo.BinarySwitch'):
+                    print('updating binary_switch')
+                    self.update_binary_switch_state(uid=uid)
 
 
     def get_consumption(self, uid, consumption_type='current'):
@@ -62,13 +70,14 @@ class MprmRestApi:
         :param uid: UID as string
         :param value: bool
         """
-        element_uid = 'devolo.BinarySwitch:' + uid
+        if not uid.startswith('devolo.BinarySwitch:'):
+            raise ValueError('Not a valid uid to get binary switch data')
         if value is None:
-            r = self._extract_data_from_element_uid(element_uid)
-            self._element_uid_dict[uid]['element_uids'][element_uid]['state'] = True if r['properties']['state'] == 1 else False
+            r = self._extract_data_from_element_uid(uid)
+            self._element_uid_dict[uid.split(":", 1)[1].split("#")[0]]['element_uids'][uid]['state'] = True if r['properties']['state'] == 1 else False
         else:
-            self._element_uid_dict[uid]['element_uids'][element_uid]['binary_switch']['state'] = value
-            self._pub.dispatch(f'state_{self._element_uid_dict[element_uid]}', value)
+            self._element_uid_dict[uid.split(":", 1)[1].split("#")[0]]['element_uids'][uid]['binary_switch']['state'] = value
+            self._pub.dispatch(f'state_{self._element_uid_dict[uid]}', value)
 
     def update_consumption(self, uid, consumption, value=None):
         """
@@ -90,7 +99,7 @@ class MprmRestApi:
 
     def get_binary_switch_state(self, uid):
         """Return the internal saved binary switch state of a device."""
-        return self._element_uid_dict.get(uid).get(f'devolo.BinarySwitch:{uid}').get('state')
+        return self._element_uid_dict.get(uid.split(":", 1)[1].split("#")[0]).get('element_uids').get(uid).get('state')
 
     def get_current_consumption(self, uid):
         """Return the internal saved current consumption state of a device"""
@@ -307,6 +316,7 @@ class MprmWebSocket(MprmRestApi):
 
     def on_message(self, message):
         message = json.loads(message)
+        print(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
             # TODO: distinguish between current and total value
             self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
@@ -379,8 +389,3 @@ class Subscriber:
 
     def update(self, message):
         print('{} got message "{}"'.format(self.name, message))
-
-
-
-
-
