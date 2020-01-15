@@ -1,3 +1,5 @@
+import traceback
+
 import requests
 import json
 import websocket
@@ -8,7 +10,7 @@ from mydevolo_api import Mydevolo
 
 
 class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
         self._mprm_url = mprm_url
         self._gateway_serial = gateway_serial
@@ -37,10 +39,8 @@ class MprmRestApi:
         self.update_scenes()
         self.update_notifications()
         self.update_rules()
+        # self.register_sub()
 
-        self._pub = None
-        self.create_pub()
-        self.register_sub()
 
     def get_consumption(self, uid, consumption_type='current'):
         """
@@ -65,9 +65,9 @@ class MprmRestApi:
         element_uid = 'devolo.BinarySwitch:' + uid
         if value is None:
             r = self._extract_data_from_element_uid(element_uid)
-            self._element_uid_dict[uid][element_uid]['state'] = True if r['properties']['state'] == 1 else False
+            self._element_uid_dict[uid]['element_uids'][element_uid]['state'] = True if r['properties']['state'] == 1 else False
         else:
-            self._element_uid_dict[uid][element_uid]['binary_switch']['state'] = value
+            self._element_uid_dict[uid]['element_uids'][element_uid]['binary_switch']['state'] = value
             self._pub.dispatch(f'state_{self._element_uid_dict[element_uid]}', value)
 
     def update_consumption(self, uid, consumption, value=None):
@@ -109,40 +109,6 @@ class MprmRestApi:
         """
         self.set_binary_switch(element_uid=f'devolo.BinarySwitch:{uid}', state=state)
 
-    def create_pub(self):
-        """
-        Create a publisher for every element we support at the moment.
-        Actual there are publisher for current consumption and binary state
-        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
-        Binary state publisher is created as "binary_state_ELEMENT_UID"
-        """
-        element_uid_list = []
-        for uid, device_name in self._element_uid_dict.items():
-            for element_uid in device_name:
-                if element_uid.startswith('devolo.Meter'):
-                    element_uid_list.append(f'current_consumption_{element_uid}')
-                elif element_uid.startswith('devolo.BinarySwitch'):
-                    element_uid_list.append(f'binary_state_{element_uid}')
-        self._pub = Publisher(element_uid_list)
-
-    def register_sub(self):
-        """
-        Register a Subscriber for every element we support at the moment.
-        This method is more or less an example how to use the publisher created in 'create_pub'
-        Actual there are publisher for current consumption and binary state
-        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
-        Binary state publisher is created as "binary_state_ELEMENT_UID"
-        :return:
-        """
-        for uid in self._element_uid_dict:
-            for element_uid in self._element_uid_dict[uid]:
-                if element_uid.startswith('devolo.Meter'):
-                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(element_uid)
-                    self._pub.register(f'current_consumption_{element_uid}', self._element_uid_dict[uid][element_uid]['subscriber'])
-                elif element_uid.startswith('devolo.BinarySwitch'):
-                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(element_uid)
-                    self._pub.register(f'binary_state_{element_uid}', self._element_uid_dict[uid][element_uid]['subscriber'])
-
     def update_devices(self):
         """Create the initial internal device dict"""
         # TODO: Add http, hue, powermeter
@@ -158,8 +124,9 @@ class MprmRestApi:
             for device in all_devices_list:
                 name, element_uids = self._get_name_and_element_uids(uid=device)
                 self._element_uid_dict[device] = {}
+                self._element_uid_dict[device]['element_uids'] = {}
                 for uid in element_uids:
-                    self._element_uid_dict[device][uid] = {}
+                    self._element_uid_dict[device]['element_uids'][uid] = {}
                     self._element_uid_dict[device]['name'] = name
 
     def get_uids(self):
@@ -169,8 +136,8 @@ class MprmRestApi:
     def get_binary_switch_devices(self):
         """Returns all binary switch devices."""
         devices = []
-        for uid, device in self._element_uid_dict.items():
-            [devices.append(device) for element_uid in self._element_uid_dict.get(uid) if element_uid.startswith('devolo.BinarySwitch')]
+        for uid in self._element_uid_dict:
+            [devices.append(self._element_uid_dict.get(uid)) for element_uid in self._element_uid_dict.get(uid).get('element_uids') if element_uid.startswith('devolo.BinarySwitch')]
         return devices
 
     def update_groups(self):
@@ -278,9 +245,52 @@ class MprmRestApi:
 
 
 class MprmWebSocket(MprmRestApi):
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
-        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url)
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
+        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=create_publisher)
         self._ws = None
+        if create_publisher:
+            self._pub = None
+            self.create_pub()
+        ####################################################
+        # Uncomment the next line for testing
+        # self.register_sub()
+
+    def create_pub(self):
+        """
+        Create a publisher for every element we support at the moment.
+        Actual there are publisher for current consumption and binary state
+        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
+        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        """
+        element_uid_list = []
+        for uid in self._element_uid_dict:
+            for element_uid in self._element_uid_dict.get(uid).get('element_uids'):
+                if element_uid.startswith('devolo.Meter'):
+                    element_uid_list.append(f'current_consumption_{element_uid}')
+                elif element_uid.startswith('devolo.BinarySwitch'):
+                    element_uid_list.append(f'binary_state_{element_uid}')
+        self._pub = Publisher(element_uid_list)
+
+    def register_sub(self):
+        """
+        Register a Subscriber for every element we support at the moment.
+        This method is more or less an example how to use the publisher created in 'create_pub'
+        Actual there are publisher for current consumption and binary state
+        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
+        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        :return:
+        """
+        for uid in self._element_uid_dict:
+            for element_uid in self._element_uid_dict.get(uid).get('element_uids'):
+                if element_uid.startswith('devolo.Meter'):
+                    self._element_uid_dict[uid]['element_uids'][element_uid]['subscriber'] = Subscriber(element_uid)
+                    self._pub.register(f'current_consumption_{element_uid}', self._element_uid_dict[uid]['element_uids'][element_uid]['subscriber'])
+                elif element_uid.startswith('devolo.BinarySwitch'):
+                    self._element_uid_dict[uid]['element_uids'][element_uid]['subscriber'] = Subscriber(element_uid)
+                    self._pub.register(f'binary_state_{element_uid}', self._element_uid_dict[uid]['element_uids'][element_uid]['subscriber'])
+
+    def get_publisher(self):
+        return self._pub
 
     def on_open(self):
         def run(*args):
@@ -301,7 +311,7 @@ class MprmWebSocket(MprmRestApi):
             # TODO: distinguish between current and total value
             self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
-            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
+            self.update_binary_switch_state(uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
             # Unknown messages shall be ignored
             pass
@@ -333,7 +343,7 @@ class MprmWebSocket(MprmRestApi):
         if value is None:
             raise ValueError('Got value==None. This is impossible')
         uid = element_uid.split(":", 1)[1].split("#")[0]
-        self._element_uid_dict[uid][element_uid][f'{consumption}_consumption'] = value
+        self._element_uid_dict[uid]['element_uids'][element_uid][consumption] = value
         self._pub.dispatch(f'current_consumption_{element_uid}', value)
 
 
@@ -343,6 +353,9 @@ class Publisher:
         # str -> dict
         self.events = {event: dict()
                        for event in events}
+
+    def get_events(self):
+        return self.events
 
     def get_subscribers(self, event):
         return self.events[event]
