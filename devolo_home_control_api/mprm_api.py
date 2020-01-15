@@ -38,24 +38,30 @@ class MprmRestApi:
         self.update_notifications()
         self.update_rules()
 
-        element_uid_list = []
-        for uid, device_name in self._element_uid_dict.items():
-            for element_uid in device_name:
-                if element_uid.startswith('devolo.Meter'):
-                    element_uid_list.append(f'current_consumption_{element_uid}')
-                elif element_uid.startswith('devolo.BinarySwitch'):
-                    element_uid_list.append(f'binary_state_{element_uid}')
-        self._pub = Publisher(element_uid_list)
-        print(element_uid_list)
-        self.register_pub()
+        self._pub = None
+        self.create_pub()
+        self.register_sub()
 
     def get_consumption(self, uid, consumption_type='current'):
+        """
+        Return the consumption, specified in consumption_type for the given uid.
+        :param uid: UID as string
+        :param consumption_type: 'current' or 'total' consumption
+        :return: Consumption as float
+        """
         if consumption_type not in ['current', 'total']:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         # TODO: Prepare for more meter items as one
         return self._element_uid_dict.get(uid).get(f'devolo.Meter:{uid}').get(f'{consumption_type}_consumption')
 
     def update_binary_switch_state(self, uid, value=None):
+        """
+        Function to update the internal binary switch state of a device.
+        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a web socket,
+        the value is written into the internal dict.
+        :param uid: UID as string
+        :param value: bool
+        """
         element_uid = 'devolo.BinarySwitch:' + uid
         if value is None:
             r = self._extract_data_from_element_uid(element_uid)
@@ -65,6 +71,14 @@ class MprmRestApi:
             self._pub.dispatch(f'state_{self._element_uid_dict[element_uid]}', value)
 
     def update_consumption(self, uid, consumption, value=None):
+        """
+        Function to update the internal consumption of a device.
+        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a web socket,
+        the value is written into the internal dict.
+        :param uid: UID as string
+        :param consumption: String, which consumption is meant (current or total)
+        :param value: consumption value as float
+        """
         if consumption not in ['current', 'total']:
             raise ValueError('Consumption value is not valid. Only "current" and "total are allowed!')
         if value is not None:
@@ -75,9 +89,11 @@ class MprmRestApi:
         self._element_uid_dict[uid][element_uid]['current_consumption'] = value
 
     def get_binary_switch_state(self, uid):
+        """Return the internal saved binary switch state of a device."""
         return self._element_uid_dict.get(uid).get(f'devolo.BinarySwitch:{uid}').get('state')
 
     def get_current_consumption(self, uid):
+        """Return the internal saved current consumption state of a device"""
         try:
             return self._element_uid_dict.get(uid).get(f'devolo.Meter:{uid}').get('current_consumption')
         except AttributeError:
@@ -85,7 +101,6 @@ class MprmRestApi:
             return None
 
     def set_binary_switch_state(self, uid: str, state: bool):
-        # TODO Change to UUID
         """
         Set the binary switch to the desired state
         :param uid: uid
@@ -94,17 +109,42 @@ class MprmRestApi:
         """
         self.set_binary_switch(element_uid=f'devolo.BinarySwitch:{uid}', state=state)
 
-    def register_pub(self):
+    def create_pub(self):
+        """
+        Create a publisher for every element we support at the moment.
+        Actual there are publisher for current consumption and binary state
+        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
+        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        """
+        element_uid_list = []
+        for uid, device_name in self._element_uid_dict.items():
+            for element_uid in device_name:
+                if element_uid.startswith('devolo.Meter'):
+                    element_uid_list.append(f'current_consumption_{element_uid}')
+                elif element_uid.startswith('devolo.BinarySwitch'):
+                    element_uid_list.append(f'binary_state_{element_uid}')
+        self._pub = Publisher(element_uid_list)
+
+    def register_sub(self):
+        """
+        Register a Subscriber for every element we support at the moment.
+        This method is more or less an example how to use the publisher created in 'create_pub'
+        Actual there are publisher for current consumption and binary state
+        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
+        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        :return:
+        """
         for uid in self._element_uid_dict:
             for element_uid in self._element_uid_dict[uid]:
                 if element_uid.startswith('devolo.Meter'):
-                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(uid)
+                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(element_uid)
                     self._pub.register(f'current_consumption_{element_uid}', self._element_uid_dict[uid][element_uid]['subscriber'])
                 elif element_uid.startswith('devolo.BinarySwitch'):
-                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(uid)
+                    self._element_uid_dict[uid][element_uid]['subscriber'] = Subscriber(element_uid)
                     self._pub.register(f'binary_state_{element_uid}', self._element_uid_dict[uid][element_uid]['subscriber'])
 
     def update_devices(self):
+        """Create the initial internal device dict"""
         # TODO: Add http, hue, powermeter
         data = {'jsonrpc': '2.0',
                 'id': 10,
@@ -122,16 +162,19 @@ class MprmRestApi:
                     self._element_uid_dict[device][uid] = {}
                     self._element_uid_dict[device]['name'] = name
 
-    def get_devices(self):
-        return self._devices
+    def get_uids(self):
+        """Returns the element_uid_dict with all information in it"""
+        return self._element_uid_dict
 
     def get_binary_switch_devices(self):
+        """Returns all binary switch devices."""
         devices = []
         for uid, device in self._element_uid_dict.items():
             [devices.append(device) for element_uid in self._element_uid_dict.get(uid) if element_uid.startswith('devolo.BinarySwitch')]
         return devices
 
     def update_groups(self):
+        """Create the initial internal groups dict"""
         data = {'jsonrpc': '2.0',
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
@@ -145,6 +188,7 @@ class MprmRestApi:
                 self._groups[name] = elementUIDs
 
     def update_schedules(self):
+        """Create the initial internal schedules dict"""
         data = {'jsonrpc': '2.0',
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
@@ -158,6 +202,7 @@ class MprmRestApi:
                 self._schedules[name] = elementUIDs
 
     def update_notifications(self):
+        """Create the initial internal notifications dict"""
         data = {'jsonrpc': '2.0',
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
@@ -171,6 +216,7 @@ class MprmRestApi:
                 self._notifications[name] = elementUIDs
 
     def update_rules(self):
+        """Create the initial internal rules dict"""
         data = {'jsonrpc': '2.0',
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
@@ -184,6 +230,7 @@ class MprmRestApi:
                 self._rules[name] = elementUIDs
 
     def update_scenes(self):
+        """Create the initial internal scenes dict"""
         data = {'jsonrpc': '2.0',
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
@@ -197,6 +244,7 @@ class MprmRestApi:
                 self._scenes[name] = elementUIDs
 
     def _get_name_and_element_uids(self, uid):
+        """Returns the name and all element uids of the given UID"""
         data = {'jsonrpc': '2.0',
                 'id': 11,
                 'method': 'FIM/getFunctionalItems',
@@ -206,6 +254,7 @@ class MprmRestApi:
             return x['properties']['itemName'], x['properties']["elementUIDs"]
 
     def _extract_data_from_element_uid(self, element_uid):
+        """Returns data from an element_uid using a RPC call"""
         data = {'jsonrpc': '2.0',
                 'id': 11,
                 'method': 'FIM/getFunctionalItems',
@@ -215,20 +264,17 @@ class MprmRestApi:
         return r.json()['result']['items'][0]
 
     def set_binary_switch(self, element_uid, state: bool):
+        """
+        Set the binary switch of the given element_uid to the given state
+        :param element_uid: element_uid as string
+        :param state: Bool
+        """
         data = {'jsonrpc': '2.0',
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': [f"{element_uid}", "turnOn" if state else "turnOff", []]}
         r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
-
-    def get_element_uid(self, element_uid):
-        """
-        Return the FIM UID of the given element uid
-        :param element_uid:
-        :return: FIM UID as string
-        """
-        return element_uid.split(":", 1)
 
 
 class MprmWebSocket(MprmRestApi):
