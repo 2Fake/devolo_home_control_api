@@ -13,19 +13,24 @@ except ModuleNotFoundError:
 
 
 class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True, local=False):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
         self._mprm_url = mprm_url
         self._gateway_serial = gateway_serial
         self._headers = {'content-type': 'application/json'}
         uuid = mydevolo.get_uuid()
-
         self.rpc_url = self._mprm_url + "/remote/json-rpc"
-
-        # Create a session
         self.session = requests.Session()
-        full_url = requests.get(mydevolo.get_url() + "/v1/users/" + uuid + "/hc/gateways/" + self._gateway_serial + "/fullURL", auth=(user, password), headers=self._headers).json()['url']
-        self.session.get(full_url)
+        if local:
+            local_passkey = mydevolo.get_local_passkey(serial=gateway_serial)
+            full_url = self._mprm_url + '/dhlp/port/full'
+            # Get a token
+            token_url = self.session.get(full_url, auth=(uuid, local_passkey)).json()
+            self.session.get(token_url.get('link'))
+        else:
+            # Create a session
+            full_url = requests.get(mydevolo.get_url() + "/v1/users/" + uuid + "/hc/gateways/" + self._gateway_serial + "/fullURL", auth=(user, password), headers=self._headers).json()['url']
+            self.session.get(full_url)
 
         # create a dict with UIDs --> names
         self._element_uid_dict = {}
@@ -48,6 +53,40 @@ class MprmRestApi:
                     self.update_consumption(uid=uid, consumption='current')
                 elif uid.startswith('devolo.BinarySwitch'):
                     self.update_binary_switch_state(uid=uid)
+
+    def start_inclusion(self):
+        print('Starting inclusion')
+        print(self._mprm_url)
+        data = {'jsonrpc': '2.0',
+                'id': 11,
+                'method': 'FIM/invokeOperation',
+                'params': ["devolo.PairDevice", "pairDevice", ["PAT02-B"]]}
+        self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+
+    def start_exclusion(self):
+        data = {'jsonrpc': '2.0',
+                'id': 11,
+                'method': 'FIM/invokeOperation',
+                'params': ["devolo.RemoveDevice", "removeDevice", []]}
+        self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+
+    def stop_inclusion(self):
+        print('Stopping inclusion')
+        data = {'jsonrpc': '2.0',
+                'id': 11,
+                'method': 'FIM/invokeOperation',
+                'params': ["devolo.PairDevice", "cancel", []]}
+        self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+
+    def set_name(self, uid, name):
+        """Set the name for the given uid"""
+        data = {'jsonrpc': '2.0',
+                'id': 11,
+                'method': 'FIM/invokeOperation',
+                'params': ["gds.hdm:ZWave:F6BF9812/28", "save", [{'name': name, 'zoneID': "hz_1", 'icon': "", 'eventsEnabled': True}]]}
+        r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        print(r.text)
+
 
     def get_consumption(self, uid, consumption_type='current'):
         """
@@ -243,6 +282,8 @@ class MprmRestApi:
         :param element_uid: element_uid as string
         :param state: Bool
         """
+        # TODO: We should think about how to prevent an jumping binary switch in the UI of hass
+        # Maybe set the state of the binary internally without waiting for the websocket to tell us the state.
         data = {'jsonrpc': '2.0',
                 'id': 11,
                 'method': 'FIM/invokeOperation',
@@ -252,8 +293,8 @@ class MprmRestApi:
 
 
 class MprmWebSocket(MprmRestApi):
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
-        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=False)
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True, local=False):
+        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=False, local=local)
         self._ws = None
         if create_publisher:
             self._pub = None
@@ -325,10 +366,12 @@ class MprmWebSocket(MprmRestApi):
 
     def on_error(self, error):
         # TODO: replace by logger
+        # TODO: catch error
         print(error)
 
     def on_close(self):
         # TODO: replace by logger
+        # TODO: We need to think about a way to restart the web socket connection if it is closed.
         print("### closed ###")
 
     def web_socket_connection(self, cookies: dict):
