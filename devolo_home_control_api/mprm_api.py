@@ -366,7 +366,7 @@ class MprmWebSocket(MprmRestApi):
             super().update_binary_switch_state(uid=uid)
             return
         self._element_uid_dict[uid.split(":", 1)[1].split("#")[0]]['element_uids'][uid]['state'] = value
-        self._pub.dispatch(f'state_{self._element_uid_dict[uid]}', value)
+        self._pub.dispatch(f"binary_state_{uid}", value)
 
 
 class Publisher:
