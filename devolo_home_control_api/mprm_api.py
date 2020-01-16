@@ -1,5 +1,3 @@
-import traceback
-
 import requests
 import json
 import websocket
@@ -11,6 +9,7 @@ try:
 except ModuleNotFoundError:
     from .mydevolo_api import Mydevolo
 
+from device_classes.binary_switch_device import BinarySwitchDevice
 
 class MprmRestApi:
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True, local=False):
@@ -42,11 +41,11 @@ class MprmRestApi:
         self._notifications = {}
         self._rules = {}
         self.update_devices()
-        self.update_groups()
-        self.update_schedules()
-        self.update_scenes()
-        self.update_notifications()
-        self.update_rules()
+        # self.update_groups()
+        # self.update_schedules()
+        # self.update_scenes()
+        # self.update_notifications()
+        # self.update_rules()
         for device in self._element_uid_dict:
             for uid in self._element_uid_dict.get(device).get('element_uids'):
                 if uid.startswith('devolo.Meter'):
@@ -157,7 +156,7 @@ class MprmRestApi:
 
     def update_devices(self):
         """Create the initial internal device dict"""
-        # TODO: Add http, hue, powermeter
+        # TODO: Add http, powermeter
         data = {'jsonrpc': '2.0',
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
@@ -168,12 +167,11 @@ class MprmRestApi:
         for item in r.json()['result']['items']:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
-                name, element_uids = self._get_name_and_element_uids(uid=device)
-                self._element_uid_dict[device] = {}
-                self._element_uid_dict[device]['element_uids'] = {}
-                for uid in element_uids:
-                    self._element_uid_dict[device]['element_uids'][uid] = {}
-                    self._element_uid_dict[device]['name'] = name
+                name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
+                if deviceModelUID in ['devolo.model.Wall:Plug:Switch:and:Meter', 'unk.model.Fibaro:Plug', 'devolo.model.Relay', 'unk.model.Netichome:D:Module', 'devolo.model.Relay']:
+                    self._devices[device] = {BinarySwitchDevice(name=name, fim_uid=device, element_uids=element_uids)}
+                else:
+                    print(deviceModelUID)
 
     def get_uids(self):
         """Returns the element_uid_dict with all information in it"""
@@ -264,7 +262,10 @@ class MprmRestApi:
                 'params': [[f"{uid}"], 0]}
         r = self.session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         for x in r.json()["result"]["items"]:
-            return x['properties']['itemName'], x['properties']["elementUIDs"]
+            try:
+                return x['properties']['itemName'], x['properties']["elementUIDs"], x['properties']['deviceModelUID']
+            except KeyError:
+                print(x)
 
     def _extract_data_from_element_uid(self, element_uid):
         """Returns data from an element_uid using a RPC call"""
