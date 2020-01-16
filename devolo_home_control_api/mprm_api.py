@@ -114,7 +114,7 @@ class MprmRestApi:
         :param state: Desired state of the binary switch of the device
         :return:
         """
-        self.set_binary_switch(element_uid=f'devolo.BinarySwitch:{uid}', state=state)
+        self.set_binary_switch(element_uid=uid, state=state)
 
     def update_devices(self):
         """Create the initial internal device dict"""
