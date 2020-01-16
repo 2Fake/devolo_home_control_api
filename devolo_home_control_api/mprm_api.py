@@ -6,7 +6,10 @@ import websocket
 import time
 import threading
 
-from mydevolo_api import Mydevolo
+try:
+    from mydevolo_api import Mydevolo
+except ModuleNotFoundError:
+    from .mydevolo_api import Mydevolo
 
 
 class MprmRestApi:
@@ -39,16 +42,12 @@ class MprmRestApi:
         self.update_scenes()
         self.update_notifications()
         self.update_rules()
-        # self.register_sub()
         for device in self._element_uid_dict:
             for uid in self._element_uid_dict.get(device).get('element_uids'):
-                if uid.startswith('devolo.meter'):
-                    print('updating consumption')
+                if uid.startswith('devolo.Meter'):
                     self.update_consumption(uid=uid, consumption='current')
                 elif uid.startswith('devolo.BinarySwitch'):
-                    print('updating binary_switch')
                     self.update_binary_switch_state(uid=uid)
-
 
     def get_consumption(self, uid, consumption_type='current'):
         """
@@ -92,10 +91,9 @@ class MprmRestApi:
             raise ValueError('Consumption value is not valid. Only "current" and "total are allowed!')
         if value is not None:
             raise ValueError('Value is not allowed here.')
-        element_uid = 'devolo.Meter:' + uid
-        r = self._extract_data_from_element_uid(element_uid)
+        r = self._extract_data_from_element_uid(uid)
         value = r['properties']['currentValue'] if consumption == 'currentValue' else r['properties']['totalValue']
-        self._element_uid_dict[uid][element_uid]['current_consumption'] = value
+        self._element_uid_dict[uid.split(":", 1)[1].split("#")[0]]['element_uids'][uid]['current_consumption'] = value
 
     def get_binary_switch_state(self, uid):
         """Return the internal saved binary switch state of a device."""
@@ -104,7 +102,7 @@ class MprmRestApi:
     def get_current_consumption(self, uid):
         """Return the internal saved current consumption state of a device"""
         try:
-            return self._element_uid_dict.get(uid).get(f'devolo.Meter:{uid}').get('current_consumption')
+            return self._element_uid_dict.get(uid.split(":", 1)[1].split("#")[0]).get('element_uids').get(uid).get('current_consumption')
         except AttributeError:
             # TODO 1D Relay does not have a consumption. We should do a better error handling here.
             return None
@@ -255,7 +253,7 @@ class MprmRestApi:
 
 class MprmWebSocket(MprmRestApi):
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
-        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=create_publisher)
+        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=False)
         self._ws = None
         if create_publisher:
             self._pub = None
@@ -316,10 +314,9 @@ class MprmWebSocket(MprmRestApi):
 
     def on_message(self, message):
         message = json.loads(message)
-        print(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
             # TODO: distinguish between current and total value
-            self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
+            self.update_consumption(uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             self.update_binary_switch_state(uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
@@ -347,14 +344,29 @@ class MprmWebSocket(MprmRestApi):
                                           on_close=self.on_close)
         self._ws.run_forever()
 
-    def update_consumption(self, element_uid, consumption, value=None):
+    def update_consumption(self, uid, consumption, value=None):
         if consumption not in ['current', 'total']:
             raise ValueError('Consumption value is not valid. Only "current" and "total are allowed!')
         if value is None:
-            raise ValueError('Got value==None. This is impossible')
-        uid = element_uid.split(":", 1)[1].split("#")[0]
-        self._element_uid_dict[uid]['element_uids'][element_uid][consumption] = value
-        self._pub.dispatch(f'current_consumption_{element_uid}', value)
+            super().update_consumption(uid=uid, consumption='current')
+            return
+            # raise ValueError('Got value==None. This is impossible')
+        self._element_uid_dict[uid.split(":", 1)[1].split("#")[0]]['element_uids'][uid][f'{consumption}_consumption'] = value
+        self._pub.dispatch(f'current_consumption_{uid}', value)
+
+    def update_binary_switch_state(self, uid, value=None):
+        """
+        Function to update the internal binary switch state of a device.
+        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a web socket,
+        the value is written into the internal dict.
+        :param uid: UID as string
+        :param value: bool
+        """
+        if value is None:
+            super().update_binary_switch_state(uid=uid)
+            return
+        self._element_uid_dict[uid.split(":", 1)[1].split("#")[0]]['element_uids'][uid]['state'] = value
+        self._pub.dispatch(f'state_{self._element_uid_dict[uid]}', value)
 
 
 class Publisher:
