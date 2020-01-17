@@ -2,18 +2,21 @@ import json
 import logging
 import threading
 import time
-
+import socket
 import requests
 import websocket
+from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf, DNSAddress
 
 from .device_classes.binary_switch_device import BinarySwitchDevice
 from .mydevolo_api import Mydevolo
 
 
 class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True, local=False):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
-        self._mprm_url = mprm_url
+        local_ip = self._detect_gateway_in_lan()
+
+        self._mprm_url = mprm_url if not local_ip else "http://" + local_ip
         self._gateway_serial = gateway_serial
         self._headers = {'content-type': 'application/json'}
 
@@ -22,7 +25,7 @@ class MprmRestApi:
 
         self.rpc_url = self._mprm_url + '/remote/json-rpc'
 
-        if local:
+        if local_ip:
             self._local_passkey = mydevolo.get_local_passkey(serial=gateway_serial)
             full_url = self._mprm_url + '/dhlp/port/full'
             # Get a token
@@ -271,6 +274,23 @@ class MprmRestApi:
                 self._scenes[name] = elementUIDs
 
 
+    def _detect_gateway_in_lan(self):
+        def on_service_state_change(zeroconf, service_type, name, state_change):
+            if state_change is ServiceStateChange.Added:
+                zeroconf.get_service_info(service_type, name)
+
+        zeroconf = Zeroconf()
+        ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
+        time.sleep(2)
+        try:
+            local_ip = socket.inet_ntoa(zeroconf.cache.entries_with_name('devolo-homecontrol.local.')[1].address)
+            # TODO: prepare for more than oen gateway in LAN
+        except IndexError:
+            local_ip = False
+        zeroconf.close()
+        return local_ip
+
+
     def _get_name_and_element_uids(self, uid):
         """Returns the name and all element uids of the given UID"""
         data = {'jsonrpc': '2.0',
@@ -314,8 +334,8 @@ class MprmRestApi:
 
 
 class MprmWebSocket(MprmRestApi):
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True, local=False):
-        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=False, local=local)
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
+        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=False)
         self._ws = None
         if create_publisher:
             self._pub = None
