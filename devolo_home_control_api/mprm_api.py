@@ -322,7 +322,7 @@ class MprmWebSocket(MprmRestApi):
             self.create_pub()
         ####################################################
         # Uncomment the next line for testing
-        # self.register_sub()
+        self.register_sub()
 
     def create_pub(self):
         """
@@ -421,10 +421,12 @@ class MprmWebSocket(MprmRestApi):
             super().update_binary_switch_state(uid=uid)
             # TODO: Replace return by else?
             return
-        for binary_switch in self.devices[(self._get_fim_uid_from_element_uid(element_uid=uid))].binary_switch_property:
-            if binary_switch.element_uid == uid:
+        for binary_switch in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property:
+            if binary_switch == uid:
+                # TODO: use get() correct
                 self._logger.debug(f"Updating state of {uid}")
-                binary_switch.state = value
+                # binary_switch.state = value
+                self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.get(binary_switch).state = value
         self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
 
