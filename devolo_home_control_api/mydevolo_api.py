@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 
@@ -12,9 +14,11 @@ class Mydevolo:
         """
         self._user = user
         self._password = password
-        self._url = url
-        self._uuid = None
-        self._uuid = self.get_uuid()
+
+        self._logger = logging.getLogger(self.__class__.__name__)
+
+        self.url = url
+        self.uuid = self._get_uuid()
 
     def get_gateway_serials(self) -> list:
         """
@@ -23,12 +27,20 @@ class Mydevolo:
         """
         gateways = []
         try:
-            r = requests.get(self._url + "/v1/users/" + self._uuid + "/hc/gateways/status", auth=(self._user, self._password), timeout=60).json()['items']
+            r = requests.get(self.url + '/v1/users/' + self.uuid + '/hc/gateways/status', auth=(self._user, self._password), timeout=60).json()['items']
+            self._logger.debug(f"Getting list of gateways")
             for gateway in r:
                 gateways.append(gateway['gatewayId'])
-        except IndexError:
-            # TODO:
-            pass
+                self._logger.debug(f"Adding {gateway['gatewayId']} to list of gateways.")
+        except KeyError:
+            self._logger.error("Could not get gateway list. Wrong Username or Password?")
+            raise
+        except requests.exceptions.ConnectionError:
+            self._logger.error("Could not get gateway list. Wrong URL used?")
+            raise
+        if len(gateways) == 0:
+            self._logger.error("Could not get gateway list. No Gateway attached to account?")
+            raise IndexError("No gateways")
         return gateways
 
     def get_local_passkey(self, serial: str) -> str:
@@ -39,29 +51,28 @@ class Mydevolo:
         """
         local_passkey = None
         try:
-            local_passkey = requests.get(self._url + "/v1/users/" + self.get_uuid() + "/hc/gateways/" + serial, auth=(self._user, self._password), timeout=60).json()['localPasskey']
-        except IndexError:
-            # TODO:
-            pass
+            local_passkey = requests.get(self.url + '/v1/users/' + self.uuid + '/hc/gateways/' + serial, auth=(self._user, self._password), timeout=60).json()['localPasskey']
+            self._logger.debug("Getting local passkey")
+        except KeyError:
+            self._logger.error("Could not get local passkey. Wrong Username or Password?")
+            raise
+        except requests.exceptions.ConnectionError:
+            self._logger.error("Could not get local passkey. Wrong URL used?")
+            raise
         return local_passkey
 
-    def get_url(self) -> str:
-        """
-        Get the URL of the used stage
-        :return: URL of used stage
-        """
-        return self._url
-
-    def get_uuid(self) -> str:
+    def _get_uuid(self) -> str:
         """
         Get the UUID of the current user
         :return: UUID of current user
         """
-        # TODO: Catch wrong password or not existing user
-        if self._uuid is None:
-            try:
-                self._uuid = requests.get(self._url + "/v1/users/uuid", auth=(self._user, self._password), timeout=60).json()['uuid']
-            except ConnectionError:
-                # TODO:
-                pass
-        return self._uuid
+        try:
+            uuid = requests.get(self.url + '/v1/users/uuid', auth=(self._user, self._password), timeout=60).json()['uuid']
+            self._logger.debug("Getting UUID")
+        except KeyError:
+            self._logger.error("Could not get UUID. Wrong Username or Password?")
+            raise
+        except requests.exceptions.ConnectionError:
+            self._logger.error("Could not get UUID. Wrong URL used?")
+            raise
+        return uuid
