@@ -1,4 +1,4 @@
-from property_classes.property import Property
+from .property import Property
 
 
 class ConsumptionProperty(Property):
