@@ -1,8 +1,7 @@
-"""
-This class is intended to be inherited by every other property class
-"""
+import logging
 
 
 class Property:
     def __init__(self, element_uid):
+        self._logger = logging.getLogger(self.__class__.__name__)
         self.element_uid = element_uid
