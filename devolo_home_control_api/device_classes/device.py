@@ -7,5 +7,6 @@ class Device:
     def __init__(self, name, fim_uid):
         self.name = name
         self.fim_uid = fim_uid
+        self.subscriber = None
 
 
