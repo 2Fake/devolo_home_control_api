@@ -398,16 +398,16 @@ class MprmWebSocket(MprmRestApi):
             raise ValueError("Consumption value is not valid. Only \"current\" and \"total\" are allowed!")
         if value is None:
             super().update_consumption(uid=uid, consumption=consumption)
-            return
-        for consumption_property in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].consumption_property:
-            if uid == consumption_property:
-                # Todo : make one liner
-                self._logger.debug(f"Updating {consumption} consumption of {uid}")
-                if consumption == 'current':
-                    self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].consumption_property[uid].value = value
-                else:
-                    self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].total_consumption[uid].value = value
-        self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
+        else:
+            for consumption_property_name, consumption_property in self.devices.get(self._get_fim_uid_from_element_uid(element_uid=uid)).consumption_property.items():
+                if uid == consumption_property_name:
+                    # Todo : make one liner
+                    self._logger.debug(f"Updating {consumption} consumption of {uid}")
+                    if consumption == 'current':
+                        consumption_property.current_consumption = value
+                    else:
+                        consumption_property.current_consumption = value
+            self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
     def update_binary_switch_state(self, uid, value=None):
         """
@@ -419,17 +419,12 @@ class MprmWebSocket(MprmRestApi):
         """
         if value is None:
             super().update_binary_switch_state(uid=uid)
-            # TODO: Replace return by else?
-            return
-        for binary_switch in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property:
-            if binary_switch == uid:
-                # TODO: use get() correct
-                self._logger.debug(f"Updating state of {uid}")
-                # binary_switch.state = value
-                self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.get(binary_switch).state = value
-        self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
-
-
+        else:
+            for binary_switch_name, binary_switch_property in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.items():
+                if binary_switch_name == uid:
+                    self._logger.debug(f"Updating state of {uid}")
+                    binary_switch_property.state = value
+            self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
 
 class Publisher:
