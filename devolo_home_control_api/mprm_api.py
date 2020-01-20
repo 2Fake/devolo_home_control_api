@@ -272,6 +272,7 @@ class MprmRestApi:
                 self._scenes[name] = elementUIDs
 
     def _detect_gateway_in_lan(self):
+        # TODO: Prepare for gateways in LAN which are not the needed one
         def on_service_state_change(zeroconf, service_type, name, state_change):
             if state_change is ServiceStateChange.Added:
                 zeroconf.get_service_info(service_type, name)
