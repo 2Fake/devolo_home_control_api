@@ -14,7 +14,10 @@ from .mydevolo_api import Mydevolo
 class MprmRestApi:
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
+        # TODO: Check if the correct gateway was found locally
+
         local_ip = self._detect_gateway_in_lan()
+        local_ip = False
 
         self._mprm_url = mprm_url if not local_ip else "http://" + local_ip
         self._gateway_serial = gateway_serial
@@ -56,12 +59,13 @@ class MprmRestApi:
             if hasattr(self.devices[device], 'consumption_property'):
                 # print(device)
                 # print(self.devices[device])
-                for consumption in self.devices[device].consumption_property:
+                for consumption_uid, consumption_property in self.devices[device].consumption_property.items():
                     # print(consumption)
-                    self.update_consumption(uid=consumption, consumption='current')
-            elif hasattr(self.devices[device], 'binary_switch_property'):
+                    self.update_consumption(uid=consumption_uid, consumption='current')
+            if hasattr(self.devices[device], 'binary_switch_property'):
                 for binary_switch in self.devices[device].binary_switch_property:
                     self.update_binary_switch_state(uid=binary_switch)
+        print()
 
     def start_inclusion(self):
         self._logger.info("Starting inclusion")
@@ -139,16 +143,17 @@ class MprmRestApi:
         self._logger.debug(f"Updating {consumption} consumption of {uid}")
         r = self._extract_data_from_element_uid(uid)
         value = r['properties']['currentValue'] if consumption == 'currentValue' else r['properties']['totalValue']
-        self.devices[self._get_fim_uid_from_element_uid(uid)].consumption_property[uid].value = value
+        # TODO: correct current and total value
+        self.devices[self._get_fim_uid_from_element_uid(uid)].consumption_property[uid].current_consumption = value
 
     def get_binary_switch_state(self, element_uid):
         """Return the internal saved binary switch state of a device."""
-        return self.devices[self._get_fim_uid_from_element_uid(element_uid)].binary_switch_property[element_uid].state
+        return self.devices.get(self._get_fim_uid_from_element_uid(element_uid)).binary_switch_property[element_uid].state
 
-    def get_current_consumption(self, uid):
+    def get_current_consumption(self, element_uid):
         """Return the internal saved current consumption state of a device"""
         try:
-            return self.devices[uid].binary_switch.state
+            return self.devices.get(self._get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption
         except AttributeError:
             # TODO 1D Relay does not have a consumption. We should do a better error handling here.
             return None
@@ -176,6 +181,7 @@ class MprmRestApi:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
+                # TODO: Rethink this!
                 if deviceModelUID in ['devolo.model.Wall:Plug:Switch:and:Meter', 'unk.model.Fibaro:Plug', 'devolo.model.Relay', 'unk.model.Netichome:D:Module', 'devolo.model.Relay']:
                     self._logger.debug(f"Adding {name} ({device}) to device list as binary switch.")
                     self.devices[device] = BinarySwitchDevice(name=name, fim_uid=device, element_uids=element_uids)
@@ -321,7 +327,7 @@ class MprmWebSocket(MprmRestApi):
             self.create_pub()
         ####################################################
         # Uncomment the next line for testing
-        self.register_sub()
+        # self.register_sub()
 
     def create_pub(self):
         """
@@ -398,14 +404,14 @@ class MprmWebSocket(MprmRestApi):
         if value is None:
             super().update_consumption(uid=uid, consumption=consumption)
         else:
-            for consumption_property_name, consumption_property in self.devices.get(self._get_fim_uid_from_element_uid(element_uid=uid)).consumption_property.items():
+            for consumption_property_name, consumption_property_value in self.devices.get(self._get_fim_uid_from_element_uid(element_uid=uid)).consumption_property.items():
                 if uid == consumption_property_name:
                     # Todo : make one liner
                     self._logger.debug(f"Updating {consumption} consumption of {uid}")
                     if consumption == 'current':
-                        consumption_property.current_consumption = value
+                        consumption_property_value.current_consumption = value
                     else:
-                        consumption_property.current_consumption = value
+                        consumption_property_value.total_consumption = value
             self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
     def update_binary_switch_state(self, uid, value=None):
@@ -419,10 +425,10 @@ class MprmWebSocket(MprmRestApi):
         if value is None:
             super().update_binary_switch_state(uid=uid)
         else:
-            for binary_switch_name, binary_switch_property in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.items():
+            for binary_switch_name, binary_switch_property_value in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.items():
                 if binary_switch_name == uid:
                     self._logger.debug(f"Updating state of {uid}")
-                    binary_switch_property.state = value
+                    binary_switch_property_value.state = value
             self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
 
