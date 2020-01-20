@@ -63,7 +63,6 @@ class MprmRestApi:
                 for binary_switch in self.devices[device].binary_switch_property:
                     self.update_binary_switch_state(uid=binary_switch)
 
-
     def start_inclusion(self):
         self._logger.info("Starting inclusion")
         data = {'jsonrpc': '2.0',
@@ -71,7 +70,6 @@ class MprmRestApi:
                 'method': 'FIM/invokeOperation',
                 'params': ['devolo.PairDevice', 'pairDevice', ['PAT02-B']]}
         self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-
 
     def start_exclusion(self):
         self._logger.info("Starting exclusion")
@@ -81,7 +79,6 @@ class MprmRestApi:
                 'params': ['devolo.RemoveDevice', 'removeDevice', []]}
         self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
 
-
     def stop_inclusion(self):
         self._logger.info("Stopping inclusion")
         data = {'jsonrpc': '2.0',
@@ -90,7 +87,6 @@ class MprmRestApi:
                 'params': ['devolo.PairDevice', 'cancel', []]}
         self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
 
-
     def set_name(self, uid, name):
         self._logger.debug(f"Setting name of {uid} to {name}")
         data = {'jsonrpc': '2.0',
@@ -98,7 +94,6 @@ class MprmRestApi:
                 'method': 'FIM/invokeOperation',
                 'params': ['gds.hdm:ZWave:F6BF9812/28', 'save', [{'name': name, 'zoneID': 'hz_1', 'icon': '', 'eventsEnabled': True}]]}
         self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-
 
     def get_consumption(self, uid, consumption_type='current'):
         """
@@ -111,7 +106,6 @@ class MprmRestApi:
             raise ValueError("Unknown consumption type. \"current\" and \"total\" are valid consumption types.")
         # TODO: Prepare for more meter items as one
         return self._element_uid_dict.get(uid).get(f"devolo.Meter:{uid}").get(f"{consumption_type}_consumption")
-
 
     def update_binary_switch_state(self, uid, value=None):
         """
@@ -128,7 +122,6 @@ class MprmRestApi:
         self._logger.debug(f"Updating state of {uid}")
         r = self._extract_data_from_element_uid(uid)
         self.devices[self._get_fim_uid_from_element_uid(uid)].binary_switch_property[uid].state = True if r['properties']['state'] == 1 else False
-
 
     def update_consumption(self, uid, consumption, value=None):
         """
@@ -148,11 +141,9 @@ class MprmRestApi:
         value = r['properties']['currentValue'] if consumption == 'currentValue' else r['properties']['totalValue']
         self.devices[self._get_fim_uid_from_element_uid(uid)].consumption_property[uid].value = value
 
-
     def get_binary_switch_state(self, element_uid):
         """Return the internal saved binary switch state of a device."""
         return self.devices[self._get_fim_uid_from_element_uid(element_uid)].binary_switch_property[element_uid].state
-
 
     def get_current_consumption(self, uid):
         """Return the internal saved current consumption state of a device"""
@@ -161,7 +152,6 @@ class MprmRestApi:
         except AttributeError:
             # TODO 1D Relay does not have a consumption. We should do a better error handling here.
             return None
-
 
     def set_binary_switch_state(self, uid: str, state: bool):
         """
@@ -172,7 +162,6 @@ class MprmRestApi:
         """
         # TODO: check, if this method is useless
         self.set_binary_switch(element_uid=uid, state=state)
-
 
     def update_devices(self):
         """Create the initial internal device dict"""
@@ -194,11 +183,9 @@ class MprmRestApi:
                 else:
                     self._logger.info(f"Found an unexpected device model UID: {deviceModelUID}")
 
-
     def get_binary_switch_devices(self):
         """Returns all binary switch devices."""
         return [self.devices.get(uid) for uid in self.devices if isinstance(self.devices.get(uid), BinarySwitchDevice)]
-
 
     def update_groups(self):
         """Create the initial internal groups dict"""
@@ -214,7 +201,6 @@ class MprmRestApi:
                 name, elementUIDs = self._get_name_and_element_uids(uid=group)
                 self._groups[name] = elementUIDs
 
-
     def update_schedules(self):
         """Create the initial internal schedules dict"""
         data = {'jsonrpc': '2.0',
@@ -228,7 +214,6 @@ class MprmRestApi:
             for schedule in all_schedules_list:
                 name, elementUIDs = self._get_name_and_element_uids(uid=schedule)
                 self._schedules[name] = elementUIDs
-
 
     def update_notifications(self):
         """Create the initial internal notifications dict"""
@@ -244,7 +229,6 @@ class MprmRestApi:
                 name, elementUIDs = self._get_name_and_element_uids(uid=notification)
                 self._notifications[name] = elementUIDs
 
-
     def update_rules(self):
         """Create the initial internal rules dict"""
         data = {'jsonrpc': '2.0',
@@ -259,7 +243,6 @@ class MprmRestApi:
                 name, elementUIDs = self._get_name_and_element_uids(uid=rule)
                 self._rules[name] = elementUIDs
 
-
     def update_scenes(self):
         """Create the initial internal scenes dict"""
         data = {'jsonrpc': '2.0',
@@ -273,7 +256,6 @@ class MprmRestApi:
             for scene in all_scenes_list:
                 name, elementUIDs = self._get_name_and_element_uids(uid=scene)
                 self._scenes[name] = elementUIDs
-
 
     def _detect_gateway_in_lan(self):
         def on_service_state_change(zeroconf, service_type, name, state_change):
@@ -291,7 +273,6 @@ class MprmRestApi:
         zeroconf.close()
         return local_ip
 
-
     def _get_name_and_element_uids(self, uid):
         """Returns the name and all element uids of the given UID"""
         data = {'jsonrpc': '2.0',
@@ -302,7 +283,6 @@ class MprmRestApi:
         for x in r.json()["result"]["items"]:
             return x['properties']['itemName'], x['properties']["elementUIDs"], x['properties']['deviceModelUID']
 
-
     def _extract_data_from_element_uid(self, element_uid):
         """Returns data from an element_uid using a RPC call"""
         data = {'jsonrpc': '2.0',
@@ -312,7 +292,6 @@ class MprmRestApi:
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch error!
         return r.json()['result']['items'][0]
-
 
     def set_binary_switch(self, element_uid, state: bool):
         """
@@ -328,7 +307,6 @@ class MprmRestApi:
                 'params': [f"{element_uid}", 'turnOn' if state else 'turnOff', []]}
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
-
 
     def _get_fim_uid_from_element_uid(self, element_uid):
         return element_uid.split(':', 1)[1].split('#')[0]
@@ -419,16 +397,16 @@ class MprmWebSocket(MprmRestApi):
             raise ValueError("Consumption value is not valid. Only \"current\" and \"total\" are allowed!")
         if value is None:
             super().update_consumption(uid=uid, consumption=consumption)
-            return
-        for consumption_property in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].consumption_property:
-            if uid == consumption_property:
-                # Todo : make one liner
-                self._logger.debug(f"Updating {consumption} consumption of {uid}")
-                if consumption == 'current':
-                    self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].consumption_property[uid].value = value
-                else:
-                    self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].total_consumption[uid].value = value
-        self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
+        else:
+            for consumption_property_name, consumption_property in self.devices.get(self._get_fim_uid_from_element_uid(element_uid=uid)).consumption_property.items():
+                if uid == consumption_property_name:
+                    # Todo : make one liner
+                    self._logger.debug(f"Updating {consumption} consumption of {uid}")
+                    if consumption == 'current':
+                        consumption_property.current_consumption = value
+                    else:
+                        consumption_property.current_consumption = value
+            self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
     def update_binary_switch_state(self, uid, value=None):
         """
@@ -440,17 +418,12 @@ class MprmWebSocket(MprmRestApi):
         """
         if value is None:
             super().update_binary_switch_state(uid=uid)
-            # TODO: Replace return by else?
-            return
-        for binary_switch in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property:
-            if binary_switch == uid:
-                # TODO: use get() correct
-                self._logger.debug(f"Updating state of {uid}")
-                # binary_switch.state = value
-                self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.get(binary_switch).state = value
-        self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
-
-
+        else:
+            for binary_switch_name, binary_switch_property in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.items():
+                if binary_switch_name == uid:
+                    self._logger.debug(f"Updating state of {uid}")
+                    binary_switch_property.state = value
+            self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
 
 class Publisher:
@@ -467,7 +440,7 @@ class Publisher:
         return self.events[event]
 
     def register(self, event, who, callback=None):
-        if callback == None:
+        if callback is None:
             callback = getattr(who, 'update')
         self.get_subscribers(event)[who] = callback
 
