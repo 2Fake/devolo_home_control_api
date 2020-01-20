@@ -319,7 +319,7 @@ class MprmWebSocket(MprmRestApi):
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url)
         self._ws = None
-        self._pub = None
+        self.publisher = None
         self.create_pub()
         ####################################################
         # Uncomment the next line for testing
@@ -335,7 +335,7 @@ class MprmWebSocket(MprmRestApi):
         publisher_list = []
         for device in self.devices:
             publisher_list.append(device)
-        self._pub = Publisher(publisher_list)
+        self.publisher = Publisher(publisher_list)
 
     def register_sub(self):
         """
@@ -347,10 +347,7 @@ class MprmWebSocket(MprmRestApi):
         """
         for device in self.devices:
             self.devices[device].subscriber = Subscriber(device)
-            self._pub.register(device, self.devices[device].subscriber)
-
-    def get_publisher(self):
-        return self._pub
+            self.publisher.register(device, self.devices[device].subscriber)
 
     def on_open(self):
         def run(*args):
@@ -410,7 +407,7 @@ class MprmWebSocket(MprmRestApi):
                         consumption_property_value.current_consumption = value
                     else:
                         consumption_property_value.total_consumption = value
-            self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
+            self.publisher.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
     def update_binary_switch_state(self, uid, value=None):
         """
@@ -427,7 +424,7 @@ class MprmWebSocket(MprmRestApi):
                 if binary_switch_name == uid:
                     self._logger.debug(f"Updating state of {uid}")
                     binary_switch_property_value.state = value
-            self._pub.dispatch(self._get_fim_uid_from_element_uid(uid), value)
+            self.publisher.dispatch(self._get_fim_uid_from_element_uid(uid), value)
 
 
 class Publisher:
