@@ -7,7 +7,9 @@ import requests
 import websocket
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf, DNSAddress
 
-from .device_classes.binary_switch_device import BinarySwitchDevice
+from .property_classes.binary_switch_property import BinarySwitchProperty
+from .property_classes.consumption_property import ConsumptionProperty
+from .device_classes.device import Device
 from .mydevolo_api import Mydevolo
 
 
@@ -57,10 +59,7 @@ class MprmRestApi:
         # self.update_rules()
         for device in self.devices:
             if hasattr(self.devices[device], 'consumption_property'):
-                # print(device)
-                # print(self.devices[device])
                 for consumption_uid, consumption_property in self.devices[device].consumption_property.items():
-                    # print(consumption)
                     self.update_consumption(uid=consumption_uid, consumption='current')
             if hasattr(self.devices[device], 'binary_switch_property'):
                 for binary_switch in self.devices[device].binary_switch_property:
@@ -182,16 +181,25 @@ class MprmRestApi:
             for device in all_devices_list:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
                 # TODO: Rethink this!
-                if deviceModelUID in ['devolo.model.Wall:Plug:Switch:and:Meter', 'unk.model.Fibaro:Plug', 'devolo.model.Relay', 'unk.model.Netichome:D:Module', 'devolo.model.Relay']:
-                    self._logger.debug(f"Adding {name} ({device}) to device list as binary switch.")
-                    self.devices[device] = BinarySwitchDevice(name=name, fim_uid=device, element_uids=element_uids)
-                # TODO:
-                else:
-                    self._logger.info(f"Found an unexpected device model UID: {deviceModelUID}")
+                self.devices[device] = Device(name=name, fim_uid=device)
+                for element_uid in element_uids:
+                    if self._get_device_type_from_element_uid(element_uid) == 'devolo.BinarySwitch':
+                        if not hasattr(self.devices[device], 'binary_switch_property'):
+                            self.devices[device].binary_switch_property = {}
+                        self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
+                        self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid=element_uid)
+                    elif self._get_device_type_from_element_uid(element_uid) == 'devolo.Meter':
+                        if not hasattr(self.devices[device], 'consumption_property'):
+                            self.devices[device].consumption_property = {}
+                            self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
+                            self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid=element_uid)
+                    # TODO:
+                    else:
+                        self._logger.info(f"Found an unexpected element uid: {element_uid}")
 
     def get_binary_switch_devices(self):
         """Returns all binary switch devices."""
-        return [self.devices.get(uid) for uid in self.devices if isinstance(self.devices.get(uid), BinarySwitchDevice)]
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
     def update_groups(self):
         """Create the initial internal groups dict"""
@@ -317,14 +325,15 @@ class MprmRestApi:
     def _get_fim_uid_from_element_uid(self, element_uid):
         return element_uid.split(':', 1)[1].split('#')[0]
 
+    def _get_device_type_from_element_uid(self, element_uid):
+        return element_uid.split(':')[0]
 
 class MprmWebSocket(MprmRestApi):
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
-        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url, create_publisher=False)
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
+        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url)
         self._ws = None
-        if create_publisher:
-            self._pub = None
-            self.create_pub()
+        self._pub = None
+        self.create_pub()
         ####################################################
         # Uncomment the next line for testing
         # self.register_sub()
@@ -346,8 +355,7 @@ class MprmWebSocket(MprmRestApi):
         Register a Subscriber for every element we support at the moment.
         This method is more or less an example how to use the publisher created in 'create_pub'
         A publisher exists for every device
-        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
-        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        Current consumption publisher is create as "FIM_UD"
         :return:
         """
         for device in self.devices:
