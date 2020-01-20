@@ -26,6 +26,7 @@ class MprmRestApi:
         self.rpc_url = self._mprm_url + '/remote/json-rpc'
 
         if local_ip:
+            self._logger.info('Connecting to gateway locally')
             self._local_passkey = mydevolo.get_local_passkey(serial=gateway_serial)
             full_url = self._mprm_url + '/dhlp/port/full'
             # Get a token
@@ -283,8 +284,8 @@ class MprmRestApi:
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
         time.sleep(2)
         try:
-            local_ip = socket.inet_ntoa(zeroconf.cache.entries_with_name('devolo-homecontrol.local.')[1].address)
-            # TODO: prepare for more than oen gateway in LAN
+            local_ip = socket.inet_ntoa(zeroconf.cache.entries_with_name('devolo-homecontrol-2.local.')[1].address)
+            # TODO: prepare for more than one gateway in LAN
         except IndexError:
             local_ip = False
         zeroconf.close()
