@@ -64,7 +64,6 @@ class MprmRestApi:
             if hasattr(self.devices[device], 'binary_switch_property'):
                 for binary_switch in self.devices[device].binary_switch_property:
                     self.update_binary_switch_state(uid=binary_switch)
-        print()
 
     def start_inclusion(self):
         self._logger.info("Starting inclusion")
@@ -120,8 +119,8 @@ class MprmRestApi:
         """
         if not uid.startswith('devolo.BinarySwitch:'):
             raise ValueError("Not a valid uid to get binary switch data")
-        if value != None:
-            raise ValueError("Use function in mPRM Websocket to update a binary state with a value")
+        if value is not None:
+            raise ValueError("Use function in mPRM web socket to update a binary state with a value")
         self._logger.debug(f"Updating state of {uid}")
         r = self._extract_data_from_element_uid(uid)
         self.devices[self._get_fim_uid_from_element_uid(uid)].binary_switch_property[uid].state = True if r['properties']['state'] == 1 else False
@@ -141,9 +140,10 @@ class MprmRestApi:
             raise ValueError("Value is not allowed here.")
         self._logger.debug(f"Updating {consumption} consumption of {uid}")
         r = self._extract_data_from_element_uid(uid)
-        value = r['properties']['currentValue'] if consumption == 'currentValue' else r['properties']['totalValue']
-        # TODO: correct current and total value
-        self.devices[self._get_fim_uid_from_element_uid(uid)].consumption_property[uid].current_consumption = value
+        if consumption == 'current':
+            self.devices[self._get_fim_uid_from_element_uid(uid)].consumption_property[uid].current_consumption = r['properties']['currentValue']
+        elif consumption == 'total':
+            self.devices[self._get_fim_uid_from_element_uid(uid)].consumption_property[uid].total_consumption = r['properties']['totalValue']
 
     def get_binary_switch_state(self, element_uid):
         """Return the internal saved binary switch state of a device."""
@@ -154,18 +154,7 @@ class MprmRestApi:
         try:
             return self.devices.get(self._get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption
         except AttributeError:
-            # TODO 1D Relay does not have a consumption. We should do a better error handling here.
             return None
-
-    def set_binary_switch_state(self, uid: str, state: bool):
-        """
-        Set the binary switch to the desired state
-        :param uid: uid
-        :param state: Desired state of the binary switch of the device
-        :return:
-        """
-        # TODO: check, if this method is useless
-        self.set_binary_switch(element_uid=uid, state=state)
 
     def update_devices(self):
         """Create the initial internal device dict"""
@@ -180,7 +169,6 @@ class MprmRestApi:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
-                # TODO: Rethink this!
                 self.devices[device] = Device(name=name, fim_uid=device)
                 for element_uid in element_uids:
                     if self._get_device_type_from_element_uid(element_uid) == 'devolo.BinarySwitch':
@@ -208,7 +196,6 @@ class MprmRestApi:
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Grouping"], 0]}
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-        self._groups = {}
         for item in r.json()['result']['items']:
             all_groups_list = item['properties']['smartGroupWidgetUIDs']
             for group in all_groups_list:
@@ -222,7 +209,6 @@ class MprmRestApi:
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Schedules"], 0]}
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-        self._schedules = {}
         for item in r.json()['result']['items']:
             all_schedules_list = item['properties']['scheduleUIDs']
             for schedule in all_schedules_list:
@@ -236,7 +222,6 @@ class MprmRestApi:
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Messages"], 0]}
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-        self._notifications = {}
         for item in r.json()['result']['items']:
             all_notifications_list = item['properties']['customMessageUIDs']
             for notification in all_notifications_list:
@@ -250,7 +235,6 @@ class MprmRestApi:
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Services"], 0]}
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-        self._rules = {}
         for item in r.json()['result']['items']:
             all_rules_list = item['properties']['serviceUIDs']
             for rule in all_rules_list:
@@ -264,7 +248,6 @@ class MprmRestApi:
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Scene"], 0]}
         r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
-        self._scenes = {}
         for item in r.json()['result']['items']:
             all_scenes_list = item['properties']['sceneUIDs']
             for scene in all_scenes_list:
@@ -320,14 +303,17 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': [f"{element_uid}", 'turnOn' if state else 'turnOff', []]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
 
     def _get_fim_uid_from_element_uid(self, element_uid):
+        """Return FIM UID from the given element UID"""
         return element_uid.split(':', 1)[1].split('#')[0]
 
     def _get_device_type_from_element_uid(self, element_uid):
+        """Return the device type of the given element uid"""
         return element_uid.split(':')[0]
+
 
 class MprmWebSocket(MprmRestApi):
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
@@ -378,8 +364,12 @@ class MprmWebSocket(MprmRestApi):
     def on_message(self, message):
         message = json.loads(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
-            # TODO: distinguish between current and total value
-            self.update_consumption(uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
+            if message['properties']['property.name'] == 'currentValue':
+                self.update_consumption(uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
+            elif message['properties']['property.name'] == 'totalValue':
+                self.update_consumption(uid=message.get("properties").get("uid"), consumption="total", value=message.get('properties').get('property.value.new'))
+            else:
+                self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.\n{message.get("properties")}')
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
             self.update_binary_switch_state(uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
@@ -395,7 +385,6 @@ class MprmWebSocket(MprmRestApi):
         self._logger.info("Closed web socket connection")
 
     def web_socket_connection(self):
-        import websocket  # TODO: Find out why we nee the import here. Otherwise it throws an error --> AttributeError: 'function' object has no attribute 'WebSocketApp'
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name)+"="+str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={self._gateway_serial})(!(GW_ID=*)))"
