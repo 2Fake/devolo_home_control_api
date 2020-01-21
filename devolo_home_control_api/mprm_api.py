@@ -15,29 +15,29 @@ from .mydevolo_api import Mydevolo
 
 class MprmRestApi:
     def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
-        mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
-        # TODO: Check if the correct gateway was found locally
-
-        local_ip = self._detect_gateway_in_lan()
-        local_ip = False
-
-        self._mprm_url = mprm_url if not local_ip else "http://" + local_ip
-        self._gateway_serial = gateway_serial
-        self._headers = {'content-type': 'application/json'}
-
-        self._session = requests.Session()
         self._logger = logging.getLogger(self.__class__.__name__)
 
-        self.rpc_url = self._mprm_url + '/remote/json-rpc'
+        mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
+
+        self._local_passkey = mydevolo.get_local_passkey(serial=gateway_serial)
+        self._uuid = mydevolo.uuid
+        self._gateway_serial = gateway_serial
+
+        local_ip = self._detect_gateway_in_lan()
+
+        self._mprm_url = mprm_url if not local_ip else "http://" + local_ip
+        self._rpc_url = self._mprm_url + '/remote/json-rpc'
+        self._headers = {'content-type': 'application/json'}
+        self._session = requests.Session()
 
         if local_ip:
             self._logger.info('Connecting to gateway locally')
-            self._local_passkey = mydevolo.get_local_passkey(serial=gateway_serial)
             full_url = self._mprm_url + '/dhlp/port/full'
             # Get a token
-            self._token_url = self._session.get(full_url, auth=(mydevolo.uuid, self._local_passkey)).json()
+            self._token_url = self._session.get(full_url, auth=(self._uuid, self._local_passkey)).json()
             self._session.get(self._token_url.get('link'))
         else:
+            self._logger.info('Connecting to gateway via cloud')
             # Create a _session
             full_url = requests.get(mydevolo.url + '/v1/users/' + mydevolo.uuid + '/hc/gateways/' + self._gateway_serial + '/fullURL', auth=(user, password), headers=self._headers).json()['url']
             self._session.get(full_url)
@@ -71,7 +71,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': ['devolo.PairDevice', 'pairDevice', ['PAT02-B']]}
-        self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
 
     def start_exclusion(self):
         self._logger.info("Starting exclusion")
@@ -79,7 +79,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': ['devolo.RemoveDevice', 'removeDevice', []]}
-        self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
 
     def stop_inclusion(self):
         self._logger.info("Stopping inclusion")
@@ -87,7 +87,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': ['devolo.PairDevice', 'cancel', []]}
-        self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
 
     def set_name(self, uid, name):
         self._logger.debug(f"Setting name of {uid} to {name}")
@@ -95,7 +95,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': ['gds.hdm:ZWave:F6BF9812/28', 'save', [{'name': name, 'zoneID': 'hz_1', 'icon': '', 'eventsEnabled': True}]]}
-        self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
 
     def get_consumption(self, uid, consumption_type='current'):
         """
@@ -163,7 +163,7 @@ class MprmRestApi:
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [['devolo.DevicesPage'], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         self.devices = {}
         for item in r.json()['result']['items']:
             all_devices_list = item['properties']['deviceUIDs']
@@ -195,7 +195,7 @@ class MprmRestApi:
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Grouping"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         for item in r.json()['result']['items']:
             all_groups_list = item['properties']['smartGroupWidgetUIDs']
             for group in all_groups_list:
@@ -208,7 +208,7 @@ class MprmRestApi:
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Schedules"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         for item in r.json()['result']['items']:
             all_schedules_list = item['properties']['scheduleUIDs']
             for schedule in all_schedules_list:
@@ -221,7 +221,7 @@ class MprmRestApi:
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Messages"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         for item in r.json()['result']['items']:
             all_notifications_list = item['properties']['customMessageUIDs']
             for notification in all_notifications_list:
@@ -234,7 +234,7 @@ class MprmRestApi:
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Services"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         for item in r.json()['result']['items']:
             all_rules_list = item['properties']['serviceUIDs']
             for rule in all_rules_list:
@@ -247,7 +247,7 @@ class MprmRestApi:
                 'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [["devolo.Scene"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         for item in r.json()['result']['items']:
             all_scenes_list = item['properties']['sceneUIDs']
             for scene in all_scenes_list:
@@ -255,19 +255,27 @@ class MprmRestApi:
                 self._scenes[name] = elementUIDs
 
     def _detect_gateway_in_lan(self):
-        # TODO: Prepare for gateways in LAN which are not the needed one
+        """Detects a gateway in local network and check if it is the desired one."""
         def on_service_state_change(zeroconf, service_type, name, state_change):
             if state_change is ServiceStateChange.Added:
                 zeroconf.get_service_info(service_type, name)
 
+        local_ip = None
         zeroconf = Zeroconf()
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
+        # TODO: Optimize the sleep
         time.sleep(2)
-        try:
-            local_ip = socket.inet_ntoa(zeroconf.cache.entries_with_name('devolo-homecontrol-2.local.')[1].address)
-            # TODO: prepare for more than one gateway in LAN
-        except IndexError:
-            local_ip = False
+        for mdns_name in zeroconf.cache.entries():
+            if hasattr(mdns_name, 'address'):
+                try:
+                    ip = socket.inet_ntoa(mdns_name.address)
+                    if requests.get('http://' + ip + '/dhlp/port/full', auth=(self._uuid, self._local_passkey)).status_code == requests.codes.ok:
+                        self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                        local_ip = ip
+                        break
+                except OSError:
+                    # Got IPv6 address
+                    self._logger.debug(f'Found an IPv6 address.')
         zeroconf.close()
         return local_ip
 
@@ -277,7 +285,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{uid}"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         for x in r.json()["result"]["items"]:
             return x['properties']['itemName'], x['properties']["elementUIDs"], x['properties']['deviceModelUID']
 
@@ -287,7 +295,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{element_uid}"], 0]}
-        r = self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch error!
         return r.json()['result']['items'][0]
 
@@ -303,7 +311,7 @@ class MprmRestApi:
                 'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': [f"{element_uid}", 'turnOn' if state else 'turnOff', []]}
-        self._session.post(self.rpc_url, data=json.dumps(data), headers=self._headers)
+        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch errors!
 
     def _get_fim_uid_from_element_uid(self, element_uid):
