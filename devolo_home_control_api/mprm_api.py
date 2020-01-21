@@ -14,7 +14,7 @@ from .mydevolo_api import Mydevolo
 
 
 class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com', create_publisher=True):
+    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         self._logger = logging.getLogger(self.__class__.__name__)
 
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
