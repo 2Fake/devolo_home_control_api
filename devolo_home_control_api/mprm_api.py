@@ -1,16 +1,17 @@
 import json
 import logging
+import socket
 import threading
 import time
-import socket
+
 import requests
 import websocket
-from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf, DNSAddress
+from zeroconf import DNSAddress, ServiceBrowser, ServiceStateChange, Zeroconf
 
-from .property_classes.binary_switch_property import BinarySwitchProperty
-from .property_classes.consumption_property import ConsumptionProperty
 from .device_classes.device import Device
 from .mydevolo_api import Mydevolo
+from .property_classes.binary_switch_property import BinarySwitchProperty
+from .property_classes.consumption_property import ConsumptionProperty
 
 
 class MprmRestApi:
@@ -329,9 +330,7 @@ class MprmWebSocket(MprmRestApi):
         self._ws = None
         self.publisher = None
         self.create_pub()
-        ####################################################
-        # Uncomment the next line for testing
-        # self.register_sub()
+        threading.Thread(target=self.web_socket_connection).start()
 
     def create_pub(self):
         """
@@ -344,18 +343,6 @@ class MprmWebSocket(MprmRestApi):
         for device in self.devices:
             publisher_list.append(device)
         self.publisher = Publisher(publisher_list)
-
-    def register_sub(self):
-        """
-        Register a Subscriber for every element we support at the moment.
-        This method is more or less an example how to use the publisher created in 'create_pub'
-        A publisher exists for every device
-        Current consumption publisher is create as "FIM_UD"
-        :return:
-        """
-        for device in self.devices:
-            self.devices[device].subscriber = Subscriber(device)
-            self.publisher.register(device, self.devices[device].subscriber)
 
     def on_open(self):
         def run(*args):
@@ -393,6 +380,7 @@ class MprmWebSocket(MprmRestApi):
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name)+"="+str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={self._gateway_serial})(!(GW_ID=*)))"
+        self._logger.debug(f"Connecting to {ws_url}")
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
                                           on_open=self.on_open,
@@ -459,11 +447,3 @@ class Publisher:
     def dispatch(self, event, message):
         for subscriber, callback in self.get_subscribers(event).items():
             callback(message)
-
-
-class Subscriber:
-    def __init__(self, name):
-        self.name = name
-
-    def update(self, message):
-        print('{} got message "{}"'.format(self.name, message))
