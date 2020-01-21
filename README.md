@@ -2,7 +2,7 @@
 This project implements parts of the devolo Home Control API in Python. 
 
 ## System requirements
-Telling the system requirements with exact versions is typically hard. But there is a tested envirement:
+Telling the system requirements with exact versions is typically hard. But there is a tested environment:
 
 * Linux
 * Python 3.6.9
