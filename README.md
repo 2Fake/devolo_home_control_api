@@ -13,6 +13,9 @@ Telling the system requirements with exact versions is typically hard. But there
 
 Other versions and even other operating systems might work. Feel free to tell us about your experience.
 
+## Versioning
+In our versioning we follow [Semantic Versioning](https://semver.org/).
+
 ## Installing for development
 First, you need to get the sources.
 ```
