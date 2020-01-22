@@ -1,6 +1,4 @@
 import logging
-import socket
-import threading
 
 from devolo_home_control_api.mprm_api import MprmWebSocket
 from devolo_home_control_api.mydevolo_api import Mydevolo
@@ -25,5 +23,5 @@ gateways_serial = mydevolo.get_gateway_serials()[0]
 mprm_websocket = MprmWebSocket(user=user, password=password, gateway_serial=gateways_serial)
 
 for device in mprm_websocket.devices:
-        mprm_websocket.devices[device].subscriber = Subscriber(device)
-        mprm_websocket.publisher.register(device, mprm_websocket.devices[device].subscriber)
+    mprm_websocket.devices[device].subscriber = Subscriber(device)
+    mprm_websocket.publisher.register(device, mprm_websocket.devices[device].subscriber)
