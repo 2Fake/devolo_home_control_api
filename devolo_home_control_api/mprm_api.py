@@ -186,7 +186,8 @@ class MprmRestApi:
                     else:
                         self._logger.info(f"Found an unexpected element uid: {element_uid}")
 
-    def get_binary_switch_devices(self):
+    @property
+    def binary_switch_devices(self):
         """Returns all binary switch devices."""
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
