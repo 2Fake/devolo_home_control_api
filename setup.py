@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="devolo_home_control_api", # Replace with your own username
-    version="0.0.1",
+    name="devolo_home_control_api",
+    version="0.1.0",
     author="Markus Bong, Guido Schmitz",
     author_email="guido.schmitz@fedaix.de",
     description="devolo Home Control API in Python",
