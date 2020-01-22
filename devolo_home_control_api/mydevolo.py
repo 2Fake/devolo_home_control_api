@@ -2,13 +2,15 @@ import logging
 
 import requests
 
+from .devices.gateway import Gateway
+
 
 class Mydevolo:
     """
     The Mydevolo object handles calls to the my devolo API v1. It does not cover all API calls, just those requested up to now.
     All calls are done in a user context, so you need to provide credentials of that user.
     :param user: devolo ID
-    :param password: password
+    :param password: Corresponding password
     :param url: URL of the stage (typically use default value)
     """
 
@@ -21,17 +23,17 @@ class Mydevolo:
         self.url = url
         self.uuid = self._get_uuid()
 
-    def get_gateway_serials(self) -> list:
+    def get_gateway_ids(self) -> list:
         """
-        Get gateway serial numbers.
-        :return: Gateway serial numbers
+        Get gateway IDs.
+        :return: Gateway IDs
         """
         gateways = []
         try:
             self._logger.debug(f"Getting list of gateways")
-            r = requests.get(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status",
-                             auth=(self._user, self._password), timeout=60).json()['items']
-            for gateway in r:
+            items = requests.get(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status",
+                                 auth=(self._user, self._password), timeout=60).json()['items']
+            for gateway in items:
                 gateways.append(gateway['gatewayId'])
                 self._logger.debug(f"Adding {gateway['gatewayId']} to list of gateways.")
         except KeyError:
@@ -45,24 +47,23 @@ class Mydevolo:
             raise IndexError("No gateways")
         return gateways
 
-    def get_local_passkey(self, serial: str) -> str:
+    def get_gateway(self, id: str) -> Gateway:
         """
-        Get the local passkey of the given gateway for local authentication.
-        :param serial: gateway serial number
-        :return: passkey for local authentication
+        Get gateway.
+        :param id: Gateway ID
+        :return: Gateway object
         """
-        local_passkey = None
         try:
-            self._logger.debug("Getting local passkey")
-            local_passkey = requests.get(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + serial,
-                                         auth=(self._user, self._password), timeout=60).json()['localPasskey']
+            self._logger.debug("Getting gateway")
+            gateway = requests.get(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id,
+                                   auth=(self._user, self._password), timeout=60).json()
         except KeyError:
             self._logger.error("Could not get local passkey. Wrong Username or Password?")
             raise
         except requests.exceptions.ConnectionError:
             self._logger.error("Could not get local passkey. Wrong URL used?")
             raise
-        return local_passkey
+        return Gateway(gateway)
 
 
     def _get_uuid(self) -> str:

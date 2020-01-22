@@ -1,28 +1,24 @@
 import json
 import logging
 import socket
-import threading
 import time
 
 import requests
-import websocket
 from zeroconf import DNSAddress, ServiceBrowser, ServiceStateChange, Zeroconf
 
-from .device_classes.device import Device
-from .mydevolo_api import Mydevolo
-from .property_classes.binary_switch_property import BinarySwitchProperty
-from .property_classes.consumption_property import ConsumptionProperty
+from .devices.zwave import Zwave
+from .mydevolo import Mydevolo
+from .properties.binary_switch_property import BinarySwitchProperty
+from .properties.consumption_property import ConsumptionProperty
 
 
-class MprmRestApi:
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
+class MprmRest:
+    def __init__(self, user, password, gateway_id, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         self._logger = logging.getLogger(self.__class__.__name__)
 
         mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
-
-        self._local_passkey = mydevolo.get_local_passkey(serial=gateway_serial)
+        self._gateway = mydevolo.get_gateway(id=gateway_id)
         self._uuid = mydevolo.uuid
-        self._gateway_serial = gateway_serial
 
         local_ip = self._detect_gateway_in_lan()
 
@@ -35,12 +31,12 @@ class MprmRestApi:
             self._logger.info('Connecting to gateway locally')
             full_url = self._mprm_url + '/dhlp/port/full'
             # Get a token
-            self._token_url = self._session.get(full_url, auth=(self._uuid, self._local_passkey)).json()
+            self._token_url = self._session.get(full_url, auth=(self._uuid, self._gateway.local_passkey)).json()
             self._session.get(self._token_url.get('link'))
         else:
             self._logger.info('Connecting to gateway via cloud')
             # Create a _session
-            full_url = requests.get(mydevolo.url + '/v1/users/' + mydevolo.uuid + '/hc/gateways/' + self._gateway_serial + '/fullURL', auth=(user, password), headers=self._headers).json()['url']
+            full_url = requests.get(mydevolo.url + '/v1/users/' + mydevolo.uuid + '/hc/gateways/' + self._gateway.id + '/fullURL', auth=(user, password), headers=self._headers).json()['url']
             self._session.get(full_url)
 
         # create a dict with UIDs --> names
@@ -170,7 +166,7 @@ class MprmRestApi:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
-                self.devices[device] = Device(name=name, fim_uid=device)
+                self.devices[device] = Zwave(name=name, fim_uid=device)
                 for element_uid in element_uids:
                     if self._get_device_type_from_element_uid(element_uid) == 'devolo.BinarySwitch':
                         if not hasattr(self.devices[device], 'binary_switch_property'):
@@ -271,7 +267,7 @@ class MprmRestApi:
             if hasattr(mdns_name, 'address'):
                 try:
                     ip = socket.inet_ntoa(mdns_name.address)
-                    if requests.get('http://' + ip + '/dhlp/port/full', auth=(self._uuid, self._local_passkey)).status_code == requests.codes.ok:
+                    if requests.get('http://' + ip + '/dhlp/port/full', auth=(self._uuid, self._gateway.local_passkey)).status_code == requests.codes.ok:
                         self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                         local_ip = ip
                         break
@@ -323,128 +319,3 @@ class MprmRestApi:
     def _get_device_type_from_element_uid(self, element_uid):
         """Return the device type of the given element uid"""
         return element_uid.split(':')[0]
-
-
-class MprmWebSocket(MprmRestApi):
-    def __init__(self, user, password, gateway_serial, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
-        super().__init__(user, password, gateway_serial, mydevolo_url, mprm_url)
-        self._ws = None
-        self.publisher = None
-        self.create_pub()
-        threading.Thread(target=self.web_socket_connection).start()
-
-    def create_pub(self):
-        """
-        Create a publisher for every element we support at the moment.
-        Actual there are publisher for current consumption and binary state
-        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
-        Binary state publisher is created as "binary_state_ELEMENT_UID"
-        """
-        publisher_list = []
-        for device in self.devices:
-            publisher_list.append(device)
-        self.publisher = Publisher(publisher_list)
-
-    def on_open(self):
-        def run(*args):
-            self._logger.info("Starting web socket connection")
-            while True:
-                time.sleep(1)
-            time.sleep(1)
-            self._ws.close()
-        threading.Thread(target=run).start()
-
-    def on_message(self, message):
-        message = json.loads(message)
-        if message['properties']['uid'].startswith('devolo.Meter'):
-            if message['properties']['property.name'] == 'currentValue':
-                self.update_consumption(uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
-            elif message['properties']['property.name'] == 'totalValue':
-                self.update_consumption(uid=message.get("properties").get("uid"), consumption="total", value=message.get('properties').get('property.value.new'))
-            else:
-                self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.\n{message.get("properties")}')
-        elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
-            self.update_binary_switch_state(uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
-        else:
-            # Unknown messages shall be ignored
-            pass
-
-    def on_error(self, error):
-        # TODO: catch error
-        self._logger.error(error)
-
-    def on_close(self):
-        # TODO: We need to think about a way to restart the web socket connection if it is closed.
-        self._logger.info("Closed web socket connection")
-
-    def web_socket_connection(self):
-        ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
-        cookie = "; ".join([str(name)+"="+str(value) for name, value in self._session.cookies.items()])
-        ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={self._gateway_serial})(!(GW_ID=*)))"
-        self._logger.debug(f"Connecting to {ws_url}")
-        self._ws = websocket.WebSocketApp(ws_url,
-                                          cookie=cookie,
-                                          on_open=self.on_open,
-                                          on_message=self.on_message,
-                                          on_error=self.on_error,
-                                          on_close=self.on_close)
-        self._ws.run_forever()
-
-    def update_consumption(self, uid, consumption, value=None):
-        if consumption not in ['current', 'total']:
-            raise ValueError("Consumption value is not valid. Only \"current\" and \"total\" are allowed!")
-        if value is None:
-            super().update_consumption(uid=uid, consumption=consumption)
-        else:
-            for consumption_property_name, consumption_property_value in self.devices.get(self._get_fim_uid_from_element_uid(element_uid=uid)).consumption_property.items():
-                if uid == consumption_property_name:
-                    # Todo : make one liner
-                    self._logger.debug(f"Updating {consumption} consumption of {uid}")
-                    if consumption == 'current':
-                        consumption_property_value.current_consumption = value
-                    else:
-                        consumption_property_value.total_consumption = value
-            self.publisher.dispatch(self._get_fim_uid_from_element_uid(uid), value)
-
-    def update_binary_switch_state(self, uid, value=None):
-        """
-        Function to update the internal binary switch state of a device.
-        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a web socket,
-        the value is written into the internal dict.
-        :param uid: UID as string
-        :param value: bool
-        """
-        if value is None:
-            super().update_binary_switch_state(uid=uid)
-        else:
-            for binary_switch_name, binary_switch_property_value in self.devices[self._get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.items():
-                if binary_switch_name == uid:
-                    self._logger.debug(f"Updating state of {uid}")
-                    binary_switch_property_value.state = value
-            self.publisher.dispatch(self._get_fim_uid_from_element_uid(uid), value)
-
-
-class Publisher:
-    def __init__(self, events):
-        # maps event names to subscribers
-        # str -> dict
-        self.events = {event: dict()
-                       for event in events}
-
-    def get_events(self):
-        return self.events
-
-    def get_subscribers(self, event):
-        return self.events[event]
-
-    def register(self, event, who, callback=None):
-        if callback is None:
-            callback = getattr(who, 'update')
-        self.get_subscribers(event)[who] = callback
-
-    def unregister(self, event, who):
-        del self.get_subscribers(event)[who]
-
-    def dispatch(self, event, message):
-        for subscriber, callback in self.get_subscribers(event).items():
-            callback(message)

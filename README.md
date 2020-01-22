@@ -34,10 +34,10 @@ $ python3 example.py
 You will see changes to any BinarySwitch device (e.g. state or consumption) reported to your console. If the executing device is in the same LAN as the Home Control Central Unit, it will be discovered via Zeroconf. In this case, data will be collected from the Central Unit directly, otherwise data will be collected via cloud from my devolo.
 
 ### Connecting to my devolo
-If you don't know your gateway serial, you can ask my devolo. For now, no other functionality is implemented, that you would need to access directly. If you discover other use cases, feel free to file a feature request.
-```
+If you don't know your gateway ID, you can ask my devolo. For now, no other functionality is implemented, that you would need to access directly. If you discover other use cases, feel free to file a feature request.
+```python
 mydevolo = Mydevolo(user=user, password=password)
-gateways_serials = mydevolo.get_gateway_serials()
+gateways_serials = mydevolo.get_gateway_ids()
 ```
 
 ### Collecting Home Control data
@@ -48,7 +48,7 @@ There are three ways of getting data:
 #### Poll the gateway
 When polling the gateway, each property will be checked at time of accessing it.
 ```python
-mprm = MprmRestApi(user=user, password=password, gateway_serial=gateways_serial)
+mprm = MprmRest(user=user, password=password, gateway_id=gateways_id)
 for binary_switch in mprm.binary_switch_devices:
     for state in binary_switch.binary_switch_property:
         print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")
@@ -56,7 +56,7 @@ for binary_switch in mprm.binary_switch_devices:
 #### Using websockets
 Your way of accessing the data is more or less the same. Websocket events will keep the object up to date. This method uses less resources on the devolo Home Control Central Unit.
 ```python
-mprm = MprmWebsocket(user=user, password=password, gateway_serial=gateways_serial)
+mprm = MprmWebsocket(user=user, password=password, gateway_id=gateways_id)
 for binary_switch in mprm.binary_switch_devices:
     for state in binary_switch.binary_switch_property:
         print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")
