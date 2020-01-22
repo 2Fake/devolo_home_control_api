@@ -1,7 +1,7 @@
 import logging
 
 
-class Device:
+class Zwave:
     def __init__(self, name, fim_uid):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.name = name
