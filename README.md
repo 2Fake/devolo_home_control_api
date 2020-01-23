@@ -36,8 +36,11 @@ You will see changes to any BinarySwitch device (e.g. state or consumption) repo
 ### Connecting to my devolo
 If you don't know your gateway ID, you can ask my devolo. For now, no other functionality is implemented, that you would need to access directly. If you discover other use cases, feel free to file a feature request.
 ```python
-mydevolo = Mydevolo(user=user, password=password)
-gateways_serials = mydevolo.get_gateway_ids()
+mydevolo = Mydevolo.get_instance()
+mydevolo.user = "username"
+mydevolo.password = "password"
+for gateway_id in mydevolo.gateway_ids:
+    print(gateway_id)
 ```
 
 ### Collecting Home Control data
@@ -48,18 +51,20 @@ There are three ways of getting data:
 #### Poll the gateway
 When polling the gateway, each property will be checked at time of accessing it.
 ```python
-mprm = MprmRest(user=user, password=password, gateway_id=gateways_id)
+mprm = MprmRest(gateway_id=gateway_id)
 for binary_switch in mprm.binary_switch_devices:
     for state in binary_switch.binary_switch_property:
         print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")
 ```
+To execute this example, you need a configured instance of Mydevolo.
 #### Using websockets
 Your way of accessing the data is more or less the same. Websocket events will keep the object up to date. This method uses less resources on the devolo Home Control Central Unit.
 ```python
-mprm = MprmWebsocket(user=user, password=password, gateway_id=gateways_id)
+mprm = MprmWebsocket(gateway_id=gateway_id)
 for binary_switch in mprm.binary_switch_devices:
     for state in binary_switch.binary_switch_property:
         print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")
 ```
+To execute this example, you again need a configured instance of Mydevolo.
 #### Using subscriber
 This preferred usage is shown in our [small example](example.py). On every websocket event, ```update()``` will be called. That way you can react on changes right away.
