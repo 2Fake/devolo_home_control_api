@@ -31,6 +31,7 @@ test.py
 .idea/**/dictionaries
 .idea/**/shelf
 
+.idea/*
 # Generated files
 .idea/**/contentModel.xml
 
@@ -220,5 +221,7 @@ dmypy.json
 # Ignore all local history of files
 .history
 
+### venv
+venv/
 # End of https://www.gitignore.io/api/linux,python,pycharm,visualstudiocode
 
