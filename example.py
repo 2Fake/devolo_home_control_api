@@ -24,5 +24,5 @@ gateway = mydevolo.get_gateway(gateway_id)
 mprm_websocket = MprmWebSocket(user=user, password=password, gateway_id=gateway_id)
 
 for device in mprm_websocket.devices:
-        mprm_websocket.devices[device].subscriber = Subscriber(device)
-        mprm_websocket.publisher.register(device, mprm_websocket.devices[device].subscriber)
+    mprm_websocket.devices[device].subscriber = Subscriber(device)
+    mprm_websocket.publisher.register(device, mprm_websocket.devices[device].subscriber)
