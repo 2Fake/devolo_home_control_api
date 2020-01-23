@@ -39,21 +39,10 @@ class MprmRest:
             full_url = requests.get(mydevolo.url + '/v1/users/' + mydevolo.uuid + '/hc/gateways/' + self._gateway.id + '/fullURL', auth=(user, password), headers=self._headers).json()['url']
             self._session.get(full_url)
 
-        # create a dict with UIDs --> names
-        self._element_uid_dict = {}
-        # create a dict with names --> UIDs
+        # create the initial device dict
         self.devices = {}
-        self.groups = {}
-        self.schedules = {}
-        self.scenes = {}
-        self.notifications = {}
-        self.rules = {}
         self.update_devices()
-        # self.update_groups()
-        # self.update_schedules()
-        # self.update_scenes()
-        # self.update_notifications()
-        # self.update_rules()
+
         for device in self.devices:
             if hasattr(self.devices[device], 'consumption_property'):
                 for consumption_uid, consumption_property in self.devices[device].consumption_property.items():
@@ -146,6 +135,21 @@ class MprmRest:
         """Return the internal saved binary switch state of a device."""
         return self.devices.get(self._get_fim_uid_from_element_uid(element_uid)).binary_switch_property[element_uid].state
 
+    def set_binary_switch(self, element_uid, state: bool):
+        """
+        Set the binary switch of the given element_uid to the given state
+        :param element_uid: element_uid as string
+        :param state: Bool
+        """
+        # TODO: We should think about how to prevent an jumping binary switch in the UI of hass
+        # Maybe set the state of the binary internally without waiting for the websocket to tell us the state.
+        data = {'jsonrpc': '2.0',
+                'id': 11,
+                'method': 'FIM/invokeOperation',
+                'params': [f"{element_uid}", 'turnOn' if state else 'turnOff', []]}
+        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
+        # TODO: Catch errors!
+
     def get_current_consumption(self, element_uid):
         """Return the internal saved current consumption state of a device"""
         try:
@@ -161,7 +165,6 @@ class MprmRest:
                 'method': 'FIM/getFunctionalItems',
                 'params': [['devolo.DevicesPage'], 0]}
         r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        self.devices = {}
         for item in r.json()['result']['items']:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
@@ -186,71 +189,6 @@ class MprmRest:
     def binary_switch_devices(self):
         """Returns all binary switch devices."""
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
-
-    def update_groups(self):
-        """Create the initial internal groups dict"""
-        data = {'jsonrpc': '2.0',
-                'id': 10,
-                'method': 'FIM/getFunctionalItems',
-                'params': [["devolo.Grouping"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for item in r.json()['result']['items']:
-            all_groups_list = item['properties']['smartGroupWidgetUIDs']
-            for group in all_groups_list:
-                name, elementUIDs = self._get_name_and_element_uids(uid=group)
-                self._groups[name] = elementUIDs
-
-    def update_schedules(self):
-        """Create the initial internal schedules dict"""
-        data = {'jsonrpc': '2.0',
-                'id': 10,
-                'method': 'FIM/getFunctionalItems',
-                'params': [["devolo.Schedules"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for item in r.json()['result']['items']:
-            all_schedules_list = item['properties']['scheduleUIDs']
-            for schedule in all_schedules_list:
-                name, elementUIDs = self._get_name_and_element_uids(uid=schedule)
-                self._schedules[name] = elementUIDs
-
-    def update_notifications(self):
-        """Create the initial internal notifications dict"""
-        data = {'jsonrpc': '2.0',
-                'id': 10,
-                'method': 'FIM/getFunctionalItems',
-                'params': [["devolo.Messages"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for item in r.json()['result']['items']:
-            all_notifications_list = item['properties']['customMessageUIDs']
-            for notification in all_notifications_list:
-                name, elementUIDs = self._get_name_and_element_uids(uid=notification)
-                self._notifications[name] = elementUIDs
-
-    def update_rules(self):
-        """Create the initial internal rules dict"""
-        data = {'jsonrpc': '2.0',
-                'id': 10,
-                'method': 'FIM/getFunctionalItems',
-                'params': [["devolo.Services"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for item in r.json()['result']['items']:
-            all_rules_list = item['properties']['serviceUIDs']
-            for rule in all_rules_list:
-                name, elementUIDs = self._get_name_and_element_uids(uid=rule)
-                self._rules[name] = elementUIDs
-
-    def update_scenes(self):
-        """Create the initial internal scenes dict"""
-        data = {'jsonrpc': '2.0',
-                'id': 10,
-                'method': 'FIM/getFunctionalItems',
-                'params': [["devolo.Scene"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for item in r.json()['result']['items']:
-            all_scenes_list = item['properties']['sceneUIDs']
-            for scene in all_scenes_list:
-                name, elementUIDs = self._get_name_and_element_uids(uid=scene)
-                self._scenes[name] = elementUIDs
 
     def _detect_gateway_in_lan(self):
         """Detects a gateway in local network and check if it is the desired one."""
@@ -296,21 +234,6 @@ class MprmRest:
         r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
         # TODO: Catch error!
         return r.json()['result']['items'][0]
-
-    def set_binary_switch(self, element_uid, state: bool):
-        """
-        Set the binary switch of the given element_uid to the given state
-        :param element_uid: element_uid as string
-        :param state: Bool
-        """
-        # TODO: We should think about how to prevent an jumping binary switch in the UI of hass
-        # Maybe set the state of the binary internally without waiting for the websocket to tell us the state.
-        data = {'jsonrpc': '2.0',
-                'id': 11,
-                'method': 'FIM/invokeOperation',
-                'params': [f"{element_uid}", 'turnOn' if state else 'turnOff', []]}
-        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        # TODO: Catch errors!
 
     def _get_fim_uid_from_element_uid(self, element_uid):
         """Return FIM UID from the given element UID"""
