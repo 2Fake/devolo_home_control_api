@@ -183,7 +183,7 @@ class MprmRest:
                             self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid=element_uid)
                     # TODO:
                     else:
-                        self._logger.info(f"Found an unexpected element uid: {element_uid}")
+                        self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
     @property
     def binary_switch_devices(self):
