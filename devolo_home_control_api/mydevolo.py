@@ -2,13 +2,16 @@ import logging
 
 import requests
 
-from .devices.gateway import Gateway
-
 
 class Mydevolo:
     """
-    The Mydevolo object handles calls to the my devolo API v1 as singleton. It does not cover all API calls, just those requested up to now.
-    All calls are done in a user context, so you need to provide credentials of that user.
+    The Mydevolo object handles calls to the my devolo API v1 as singleton. It does not cover all API calls, just 
+    those requested up to now. All calls are done in a user context, so you need to provide credentials of that user.
+
+    We differentiate between general information like UUID or gateway IDs and information my devolo can provide, if 
+    you know what you are looking for like gateway details. We treat the frommer as properties and the latter as
+    parametries functions. Althouth they typically start with get, those are not getter function, as the result is
+    not stored in the object.
     """
     __instance = None
 
@@ -94,14 +97,14 @@ class Mydevolo:
         return self._gateway_ids
 
 
-    def get_gateway(self, id: str) -> Gateway:
+    def get_gateway(self, id: str) -> dict:
         """
-        Get gateway.
+        Get gateway details like name, local passkey and other.
         :param id: Gateway ID
         :return: Gateway object
         """
         try:
-            self._logger.debug("Getting gateway")
+            self._logger.debug(f"Getting details for gateway {id}")
             details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id).json()
         except KeyError:
             self._logger.error("Could not get local passkey. Wrong Username or Password?")
@@ -109,9 +112,24 @@ class Mydevolo:
         except requests.exceptions.ConnectionError:
             self._logger.error("Could not get local passkey. Wrong URL used?")
             raise
-        gateway = Gateway(details)
-        gateway.full_url = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id + "/fullURL").json()['url']
-        return gateway
+        return details
+
+    def get_full_url(self, id: str) -> str:
+        """
+        Get gateway's portal URL.
+        :param id: Gateway ID
+        :return: URL
+        """
+        try:
+            self._logger.debug("Getting gateway")
+            details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id + "/fullURL").json()
+        except KeyError:
+            self._logger.error("Could not get local passkey. Wrong Username or Password?")
+            raise
+        except requests.exceptions.ConnectionError:
+            self._logger.error("Could not get local passkey. Wrong URL used?")
+            raise
+        return details
 
 
     def _call(self, url: str) -> requests.Response:
