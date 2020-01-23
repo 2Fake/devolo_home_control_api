@@ -16,7 +16,8 @@ class MprmRest:
     def __init__(self, user, password, gateway_id, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
         self._logger = logging.getLogger(self.__class__.__name__)
 
-        mydevolo = Mydevolo(user=user, password=password, url=mydevolo_url)
+        mydevolo = Mydevolo.get_instance()
+        mydevolo.url = mydevolo_url
         self._gateway = mydevolo.get_gateway(id=gateway_id)
         self._uuid = mydevolo.uuid
 
@@ -35,9 +36,7 @@ class MprmRest:
             self._session.get(self._token_url.get('link'))
         else:
             self._logger.info('Connecting to gateway via cloud')
-            # Create a _session
-            full_url = requests.get(mydevolo.url + '/v1/users/' + mydevolo.uuid + '/hc/gateways/' + self._gateway.id + '/fullURL', auth=(user, password), headers=self._headers).json()['url']
-            self._session.get(full_url)
+            self._session.get(self._gateway.full_url)
 
         # create the initial device dict
         self.devices = {}
