@@ -12,3 +12,4 @@ class Gateway:
         self.status = details['status']
         self.state = details['state']
         self.firmware_version = details['firmwareVersion']
+        self.full_url = None
