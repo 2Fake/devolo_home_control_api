@@ -43,10 +43,8 @@ class MprmWebSocket(MprmRest):
         """
         def run(*args):
             self._logger.info("Starting web socket connection")
-            while True:
+            while self._ws.sock.connected:
                 time.sleep(1)
-            time.sleep(1)
-            self._ws.close()
         threading.Thread(target=run).start()
 
     def on_message(self, message):
