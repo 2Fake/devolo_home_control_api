@@ -2,7 +2,7 @@ import logging
 
 
 class Gateway:
-    def __init__(self, details: str):
+    def __init__(self, details: dict):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.id = details['gatewayId']
         self.name = details['name']
