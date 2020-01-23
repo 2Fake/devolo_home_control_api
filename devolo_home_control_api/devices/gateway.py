@@ -1,15 +1,36 @@
 import logging
 
+from ..mydevolo import Mydevolo
+
 
 class Gateway:
-    def __init__(self, details: dict):
+    """
+    Representing object for devolo Home Control Central Units. As it is a gateway from the IP world to the Z-Wave
+    world, we call it that way.
+    :param id: Gateway ID (aka serial number), typically found on the label of the device
+    """
+    def __init__(self, id: str):
         self._logger = logging.getLogger(self.__class__.__name__)
+        self._mydevolo = Mydevolo.get_instance()
+        self._full_url = None
+
+        details = self._mydevolo.get_gateway(id)
+
         self.id = details['gatewayId']
         self.name = details['name']
         self.role = details['role']
+        self.local_user = self._mydevolo.uuid
         self.local_passkey = details['localPasskey']
         self.external_access = details['externalAccess']
         self.status = details['status']
         self.state = details['state']
         self.firmware_version = details['firmwareVersion']
-        self.full_url = None
+
+
+    @property
+    def full_url(self):
+        """ The full URL is used to get a valid remote session """
+        if self._full_url == None:
+            self._full_url = self._mydevolo.get_full_url(self.id)['url']
+            self._logger.debug(f"Setting full URL to {self._full_url}")
+        return self._full_url
