@@ -7,19 +7,16 @@ import websocket
 from .mprm_rest import MprmRest
 
 
-class MprmWebSocket(MprmRest):
+class MprmWebsocket(MprmRest):
     """
-    The MprmWebSocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those requested up to now.
+    The MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those requested up to now.
     All calls are done in a user context, so you need to provide credentials of that user.
-    :param user: devolo ID
-    :param password: Corresponding password
     :param gateway_id: Gateway ID
-    :param mydevolo_url: URL of the mydevolo stage (typically use default value)
     :param mprm_url: URL of the mPRM stage (typically use default value)
     """
 
-    def __init__(self, user, password, gateway_id, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
-        super().__init__(user, password, gateway_id, mydevolo_url, mprm_url)
+    def __init__(self, gateway_id, mprm_url='https://homecontrol.mydevolo.com'):
+        super().__init__(gateway_id, mprm_url)
         self._ws = None
         self.publisher = None
         self.create_pub()
@@ -91,7 +88,7 @@ class MprmWebSocket(MprmRest):
                                           on_message=self.on_message,
                                           on_error=self.on_error,
                                           on_close=self.on_close)
-        self._ws.run_forever()
+        self._ws.run_forever(ping_interval=30)
 
     def update_consumption(self, uid, consumption, value=None):
         if consumption not in ['current', 'total']:

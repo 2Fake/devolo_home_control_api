@@ -6,20 +6,17 @@ import time
 import requests
 from zeroconf import DNSAddress, ServiceBrowser, ServiceStateChange, Zeroconf
 
+from .devices.gateway import Gateway
 from .devices.zwave import Zwave
-from .mydevolo import Mydevolo
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 
 
 class MprmRest:
-    def __init__(self, user, password, gateway_id, mydevolo_url='https://www.mydevolo.com', mprm_url='https://homecontrol.mydevolo.com'):
+    def __init__(self, gateway_id, mprm_url='https://homecontrol.mydevolo.com'):
         self._logger = logging.getLogger(self.__class__.__name__)
 
-        mydevolo = Mydevolo.get_instance()
-        mydevolo.url = mydevolo_url
-        self._gateway = mydevolo.get_gateway(id=gateway_id)
-        self._uuid = mydevolo.uuid
+        self._gateway = Gateway(gateway_id)
 
         local_ip = self._detect_gateway_in_lan()
 
@@ -32,7 +29,7 @@ class MprmRest:
             self._logger.info('Connecting to gateway locally')
             full_url = self._mprm_url + '/dhlp/port/full'
             # Get a token
-            self._token_url = self._session.get(full_url, auth=(self._uuid, self._gateway.local_passkey)).json()
+            self._token_url = self._session.get(full_url, auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
             self._session.get(self._token_url.get('link'))
         else:
             self._logger.info('Connecting to gateway via cloud')
@@ -49,6 +46,13 @@ class MprmRest:
             if hasattr(self.devices[device], 'binary_switch_property'):
                 for binary_switch in self.devices[device].binary_switch_property:
                     self.update_binary_switch_state(uid=binary_switch)
+
+
+    @property
+    def binary_switch_devices(self):
+        """Returns all binary switch devices."""
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
+
 
     def start_inclusion(self):
         self._logger.info("Starting inclusion")
@@ -184,10 +188,6 @@ class MprmRest:
                     else:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
-    @property
-    def binary_switch_devices(self):
-        """Returns all binary switch devices."""
-        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
     def _detect_gateway_in_lan(self):
         """Detects a gateway in local network and check if it is the desired one."""
@@ -204,7 +204,7 @@ class MprmRest:
             if hasattr(mdns_name, 'address'):
                 try:
                     ip = socket.inet_ntoa(mdns_name.address)
-                    if requests.get('http://' + ip + '/dhlp/port/full', auth=(self._uuid, self._gateway.local_passkey)).status_code == requests.codes.ok:
+                    if requests.get('http://' + ip + '/dhlp/port/full', auth=(self._gateway.local_user, self._gateway.local_passkey)).status_code == requests.codes.ok:
                         self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                         local_ip = ip
                         break
