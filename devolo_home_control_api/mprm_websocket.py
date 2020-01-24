@@ -4,7 +4,7 @@ import time
 
 import websocket
 
-from .mprm_rest import MprmRest, get_fim_uid_from_element_uid
+from .mprm_rest import MprmRest, get_device_uid_from_element_uid
 
 
 class MprmWebsocket(MprmRest):
@@ -37,9 +37,9 @@ class MprmWebsocket(MprmRest):
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         if consumption_type == "current":
-            return self.devices.get(get_fim_uid_from_element_uid(element_uid)).consumption_property.current_consumption
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.current_consumption
         else:
-            return self.devices.get(get_fim_uid_from_element_uid(element_uid)).consumption_property.total_consumption
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.total_consumption
 
     def update_binary_switch_state(self, element_uid: str, value: bool = None):
         """
@@ -53,11 +53,11 @@ class MprmWebsocket(MprmRest):
         if value is None:
             super().get_binary_switch_state(element_uid=element_uid)
         else:
-            for binary_switch_name, binary_switch_property_value in self.devices[get_fim_uid_from_element_uid(element_uid=element_uid)].binary_switch_property.items():
+            for binary_switch_name, binary_switch_property_value in self.devices[get_device_uid_from_element_uid(element_uid=element_uid)].binary_switch_property.items():
                 if binary_switch_name == element_uid:
                     self._logger.debug(f"Updating state of {element_uid}")
                     binary_switch_property_value.state = value
-            self.publisher.dispatch(get_fim_uid_from_element_uid(element_uid), value)
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
     def update_consumption(self, element_uid: str, consumption: str, value: float = None):
         """
@@ -74,7 +74,7 @@ class MprmWebsocket(MprmRest):
         if value is None:
             super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
-            for consumption_property_name, consumption_property_value in self.devices.get(get_fim_uid_from_element_uid(element_uid=element_uid)).consumption_property.items():
+            for consumption_property_name, consumption_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid=element_uid)).consumption_property.items():
                 if element_uid == consumption_property_name:
                     self._logger.debug(f"Updating {consumption} consumption of {element_uid}")
                     # TODO : make one liner
@@ -82,7 +82,7 @@ class MprmWebsocket(MprmRest):
                         consumption_property_value.current_consumption = value
                     else:
                         consumption_property_value.total_consumption = value
-            self.publisher.dispatch(get_fim_uid_from_element_uid(element_uid), value)
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
 
     def _create_pub(self):
