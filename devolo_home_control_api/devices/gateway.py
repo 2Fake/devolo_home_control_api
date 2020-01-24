@@ -10,6 +10,7 @@ class Gateway:
 
     :param id: Gateway ID (aka serial number), typically found on the label of the device
     """
+
     def __init__(self, id: str):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
@@ -17,21 +18,21 @@ class Gateway:
 
         details = self._mydevolo.get_gateway(id)
 
-        self.id = details['gatewayId']
-        self.name = details['name']
-        self.role = details['role']
+        self.id = details.get("gatewayId")
+        self.name = details.get("name")
+        self.role = details.get("role")
         self.local_user = self._mydevolo.uuid
-        self.local_passkey = details['localPasskey']
-        self.external_access = details['externalAccess']
-        self.status = details['status']
-        self.state = details['state']
-        self.firmware_version = details['firmwareVersion']
+        self.local_passkey = details.get("localPasskey")
+        self.external_access = details.get("externalAccess")
+        self.status = details.get("status")
+        self.state = details.get("state")
+        self.firmware_version = details.get("firmwareVersion")
 
 
     @property
     def full_url(self):
         """ The full URL is used to get a valid remote session """
         if self._full_url == None:
-            self._full_url = self._mydevolo.get_full_url(self.id)['url']
+            self._full_url = self._mydevolo.get_full_url(self.id).get("url")
             self._logger.debug(f"Setting full URL to {self._full_url}")
         return self._full_url
