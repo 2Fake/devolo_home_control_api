@@ -66,7 +66,7 @@ class Mydevolo:
         if self._uuid == None:
             try:
                 self._logger.debug("Getting UUID")
-                self._uuid = self._call(self.url + "/v1/users/uuid").json()['uuid']
+                self._uuid = self._call(self.url + "/v1/users/uuid").json().get("uuid")
             except KeyError:
                 self._logger.error("Could not get UUID. Wrong Username or Password?")
                 raise
@@ -81,9 +81,9 @@ class Mydevolo:
         if self._gateway_ids == []:
             try:
                 self._logger.debug(f"Getting list of gateways")
-                items = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status").json()['items']
+                items = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status").json().get("items")
                 for gateway in items:
-                    self._gateway_ids.append(gateway['gatewayId'])
+                    self._gateway_ids.append(gateway.get("gatewayId"))
                     self._logger.debug(f"Adding {gateway['gatewayId']} to list of gateways.")
             except KeyError:
                 self._logger.error("Could not get gateway list. Wrong Username or Password?")

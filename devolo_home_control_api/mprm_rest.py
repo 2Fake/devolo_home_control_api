@@ -21,7 +21,7 @@ class MprmRest:
     :param url: URL of the mPRM (typically leave it at default)
     """
 
-    def __init__(self, gateway_id: str, url: str ="https://homecontrol.mydevolo.com"):
+    def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
@@ -62,13 +62,13 @@ class MprmRest:
         :param element_uid: element UID of the consumption. Usually starts with devolo.BinarySwitch
         :return: Binary switch state
         """
-        if not element_uid.startswith('devolo.BinarySwitch:'):
+        if not element_uid.startswith("devolo.BinarySwitch:"):
             raise ValueError("Not a valid uid to get binary switch data")
         response = self._extract_data_from_element_uid(element_uid)
-        self.devices.get(_get_fim_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = True if response['properties']['state'] == 1 else False
-        return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state
+        self.devices.get(get_fim_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = True if response['properties']['state'] == 1 else False
+        return self.devices.get(get_fim_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state
 
-    def get_consumption(self, element_uid: str, consumption_type: str ="current") -> float:
+    def get_consumption(self, element_uid: str, consumption_type: str = "current") -> float:
         """
         Update and return the consumption, specified in consumption_type for the given uid.
 
@@ -76,19 +76,19 @@ class MprmRest:
         :param consumption_type: current or total consumption
         :return: Consumption
         """
-        if consumption_type not in ['current', 'total']:
+        if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         response = self._extract_data_from_element_uid(element_uid)
-        if consumption_type == 'current':
-            self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption = response['properties']['currentValue']
-            return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption
+        if consumption_type == "current":
+            self.devices.get(get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption = response['properties']['currentValue']
+            return self.devices.get(get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption
         else:
-            self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption = response['properties']['totalValue']
-            return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption
+            self.devices.get(get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption = response['properties']['totalValue']
+            return self.devices.get(get_fim_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption
 
     def set_binary_switch(self, element_uid, state: bool):
         """
-        Set the binary switch of the given element_uid to the given state
+        Set the binary switch of the given element_uid to the given state.
 
         :param element_uid: element_uid as string
         :param state: True if switching on, False if switching off
@@ -103,7 +103,7 @@ class MprmRest:
 
 
     def _detect_gateway_in_lan(self):
-        """Detects a gateway in local network and check if it is the desired one."""
+        """ Detects a gateway in local network and check if it is the desired one. """
         def on_service_state_change(zeroconf, service_type, name, state_change):
             if state_change is ServiceStateChange.Added:
                 zeroconf.get_service_info(service_type, name)
@@ -114,21 +114,21 @@ class MprmRest:
         # TODO: Optimize the sleep
         time.sleep(2)
         for mdns_name in zeroconf.cache.entries():
-            if hasattr(mdns_name, 'address'):
+            if hasattr(mdns_name, "address"):
                 try:
                     ip = socket.inet_ntoa(mdns_name.address)
-                    if requests.get('http://' + ip + '/dhlp/port/full', auth=(self._gateway.local_user, self._gateway.local_passkey)).status_code == requests.codes.ok:
+                    if requests.get("http://" + ip + "/dhlp/port/full", auth=(self._gateway.local_user, self._gateway.local_passkey)).status_code == requests.codes.ok:
                         self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                         local_ip = ip
                         break
                 except OSError:
                     # Got IPv6 address which isn't supported by socket.inet_ntoa
-                    self._logger.debug(f'Found an IPv6 address. This cannot be a gateway.')
+                    self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
         zeroconf.close()
         return local_ip
 
     def _extract_data_from_element_uid(self, element_uid):
-        """Returns data from an element_uid using a RPC call"""
+        """ Returns data from an element_uid using a RPC call """
         data = {'jsonrpc': '2.0',
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{element_uid}"], 0]}
@@ -137,16 +137,16 @@ class MprmRest:
         return response['result']['items'][0]
 
     def _get_name_and_element_uids(self, uid):
-        """Returns the name and all element uids of the given UID"""
+        """ Returns the name, all element UIDs and the device model of the given device UID. """
         data = {'jsonrpc': '2.0',
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{uid}"], 0]}
         response = self._post(data)
-        for x in response["result"]["items"]:
+        for x in response['result']['items']:
             return x['properties']['itemName'], x['properties']["elementUIDs"], x['properties']['deviceModelUID']
 
     def _inspect_devices(self):
-        """Create the initial internal device dict"""
+        """ Create the initial internal device dict. """
         data = {'jsonrpc': '2.0',
                 'method': 'FIM/getFunctionalItems',
                 'params': [['devolo.DevicesPage'], 0]}
@@ -157,13 +157,13 @@ class MprmRest:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
                 self.devices[device] = Zwave(name=name, device_uid=device)
                 for element_uid in element_uids:
-                    if _get_device_type_from_element_uid(element_uid) == 'devolo.BinarySwitch':
-                        if not hasattr(self.devices[device], 'binary_switch_property'):
+                    if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
+                        if not hasattr(self.devices[device], "binary_switch_property"):
                             self.devices[device].binary_switch_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
                         self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid=element_uid)
-                    elif _get_device_type_from_element_uid(element_uid) == 'devolo.Meter':
-                        if not hasattr(self.devices[device], 'consumption_property'):
+                    elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
+                        if not hasattr(self.devices[device], "consumption_property"):
                             self.devices[device].consumption_property = {}
                             self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
                             self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid=element_uid)
@@ -171,14 +171,11 @@ class MprmRest:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
     def _post(self, data: dict) -> dict:
-        """
-        Communicate with the RPC interface.
-        :param data: Data you want so send
-        """
+        """ Communicate with the RPC interface. """
         self._data_id += 1
         data['id'] = self._data_id
-        headers = {'content-type': 'application/json'}
-        response = self._session.post(self._mprm_url + '/remote/json-rpc', data=json.dumps(data), headers=headers).json()
+        headers = {"content-type": "application/json"}
+        response = self._session.post(self._mprm_url + "/remote/json-rpc", data=json.dumps(data), headers=headers).json()
         # TODO: Catch errors!
         if response['id'] != self._data_id:
             self._logger.error("Got an unexpected response after posting data.")
@@ -186,10 +183,20 @@ class MprmRest:
         return response
 
 
-def _get_fim_uid_from_element_uid(element_uid):
-    """Return FIM UID from the given element UID"""
-    return element_uid.split(':', 1)[1].split('#')[0]
+def get_fim_uid_from_element_uid(element_uid: str) -> str:
+    """
+    Return FIM UID from the given element UID
+    
+    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+    :return: FIM UID, something like hdm:ZWave:CBC56091/24
+    """
+    return element_uid.split(":", 1)[1].split("#")[0]
 
-def _get_device_type_from_element_uid(element_uid):
-    """Return the device type of the given element uid"""
-    return element_uid.split(':')[0]
+def get_device_type_from_element_uid(element_uid):
+    """
+    Return the device type of the given element uid
+    
+    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24
+    :return: FIM UID, something like devolo.MultiLevelSensor
+    """
+    return element_uid.split(":")[0]
