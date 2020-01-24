@@ -13,38 +13,48 @@ from .properties.consumption_property import ConsumptionProperty
 
 
 class MprmRest:
-    def __init__(self, gateway_id, mprm_url='https://homecontrol.mydevolo.com'):
-        self._logger = logging.getLogger(self.__class__.__name__)
+    """
+    The MprmRest object handles calls to the so called mPRM. It does not cover all API calls, just those requested
+    up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway.
 
+    :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
+    :param url: URL of the mPRM (typically leave it at default)
+    """
+
+    def __init__(self, gateway_id: str, url: str ="https://homecontrol.mydevolo.com"):
+        self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
+        self._session = requests.Session()
+        self._data_id = 0
+        self._mprm_url = url
 
         local_ip = self._detect_gateway_in_lan()
 
-        self._mprm_url = mprm_url if not local_ip else "http://" + local_ip
-        self._rpc_url = self._mprm_url + '/remote/json-rpc'
-        self._headers = {'content-type': 'application/json'}
-        self._session = requests.Session()
-
         if local_ip:
-            self._logger.info('Connecting to gateway locally')
-            full_url = self._mprm_url + '/dhlp/port/full'
-            # Get a token
-            self._token_url = self._session.get(full_url, auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
+            # Get a local session
+            self._logger.info("Connecting to gateway locally")
+            self._mprm_url = "http://" + local_ip
+            self._token_url = self._session.get(self._mprm_url + "/dhlp/port/full", auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
             self._session.get(self._token_url.get('link'))
-        else:
-            self._logger.info('Connecting to gateway via cloud')
+        elif self._gateway.external_access:
+            # Get a remote session, if we are allowed to
+            self._logger.info("Connecting to gateway via cloud")
             self._session.get(self._gateway.full_url)
+        else:
+            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is prohibited.")
+            raise ConnectionError("Cannot connect to gateway.")
 
         # create the initial device dict
         self.devices = {}
         self.update_devices()
 
-        for device in self.devices:
-            if hasattr(self.devices[device], 'consumption_property'):
-                for consumption_uid, consumption_property in self.devices[device].consumption_property.items():
-                    self.update_consumption(uid=consumption_uid, consumption='current')
-            if hasattr(self.devices[device], 'binary_switch_property'):
-                for binary_switch in self.devices[device].binary_switch_property:
+        # update device properties
+        for device in self.devices.values():
+            if hasattr(device, "consumption_property"):
+                for consumption_uid in device.consumption_property.keys():
+                    self.update_consumption(uid=consumption_uid, consumption="current")
+            if hasattr(device, "binary_switch_property"):
+                for binary_switch in device.binary_switch_property:
                     self.update_binary_switch_state(uid=binary_switch)
 
 
@@ -53,48 +63,17 @@ class MprmRest:
         """Returns all binary switch devices."""
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
-
-    def start_inclusion(self):
-        self._logger.info("Starting inclusion")
-        data = {'jsonrpc': '2.0',
-                'id': 11,
-                'method': 'FIM/invokeOperation',
-                'params': ['devolo.PairDevice', 'pairDevice', ['PAT02-B']]}
-        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-
-    def start_exclusion(self):
-        self._logger.info("Starting exclusion")
-        data = {'jsonrpc': '2.0',
-                'id': 11,
-                'method': 'FIM/invokeOperation',
-                'params': ['devolo.RemoveDevice', 'removeDevice', []]}
-        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-
-    def stop_inclusion(self):
-        self._logger.info("Stopping inclusion")
-        data = {'jsonrpc': '2.0',
-                'id': 11,
-                'method': 'FIM/invokeOperation',
-                'params': ['devolo.PairDevice', 'cancel', []]}
-        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-
-    def set_name(self, uid, name):
-        self._logger.debug(f"Setting name of {uid} to {name}")
-        data = {'jsonrpc': '2.0',
-                'id': 11,
-                'method': 'FIM/invokeOperation',
-                'params': ['gds.hdm:ZWave:F6BF9812/28', 'save', [{'name': name, 'zoneID': 'hz_1', 'icon': '', 'eventsEnabled': True}]]}
-        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-
-    def get_consumption(self, uid, consumption_type='current'):
+ 
+    def get_consumption(self, uid: str, consumption_type: str ="current"):
         """
         Return the consumption, specified in consumption_type for the given uid.
-        :param uid: UID as string
-        :param consumption_type: 'current' or 'total' consumption
+
+        :param uid: UID
+        :param consumption_type: current or total consumption
         :return: Consumption as float
         """
         if consumption_type not in ['current', 'total']:
-            raise ValueError("Unknown consumption type. \"current\" and \"total\" are valid consumption types.")
+            raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         # TODO: Prepare for more meter items as one
         return self._element_uid_dict.get(uid).get(f"devolo.Meter:{uid}").get(f"{consumption_type}_consumption")
 
@@ -103,6 +82,7 @@ class MprmRest:
         Function to update the internal binary switch state of a device.
         If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a web socket,
         the value is written into the internal dict.
+
         :param uid: UID as string
         :param value: bool
         """
@@ -147,10 +127,9 @@ class MprmRest:
         # TODO: We should think about how to prevent an jumping binary switch in the UI of hass
         # Maybe set the state of the binary internally without waiting for the websocket to tell us the state.
         data = {'jsonrpc': '2.0',
-                'id': 11,
                 'method': 'FIM/invokeOperation',
                 'params': [f"{element_uid}", 'turnOn' if state else 'turnOff', []]}
-        self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
+        self._post(data)
         # TODO: Catch errors!
 
     def get_current_consumption(self, element_uid):
@@ -164,11 +143,10 @@ class MprmRest:
         """Create the initial internal device dict"""
         # TODO: Add http, powermeter
         data = {'jsonrpc': '2.0',
-                'id': 10,
                 'method': 'FIM/getFunctionalItems',
                 'params': [['devolo.DevicesPage'], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for item in r.json()['result']['items']:
+        response = self._post(data)
+        for item in response['result']['items']:
             all_devices_list = item['properties']['deviceUIDs']
             for device in all_devices_list:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
@@ -209,30 +187,28 @@ class MprmRest:
                         local_ip = ip
                         break
                 except OSError:
-                    # Got IPv6 address
-                    self._logger.debug(f'Found an IPv6 address.')
+                    # Got IPv6 address which isn't supported by socket.inet_ntoa
+                    self._logger.debug(f'Found an IPv6 address. This cannot be a gateway.')
         zeroconf.close()
         return local_ip
 
     def _get_name_and_element_uids(self, uid):
         """Returns the name and all element uids of the given UID"""
         data = {'jsonrpc': '2.0',
-                'id': 11,
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{uid}"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
-        for x in r.json()["result"]["items"]:
+        response = self._post(data)
+        for x in response["result"]["items"]:
             return x['properties']['itemName'], x['properties']["elementUIDs"], x['properties']['deviceModelUID']
 
     def _extract_data_from_element_uid(self, element_uid):
         """Returns data from an element_uid using a RPC call"""
         data = {'jsonrpc': '2.0',
-                'id': 11,
                 'method': 'FIM/getFunctionalItems',
                 'params': [[f"{element_uid}"], 0]}
-        r = self._session.post(self._rpc_url, data=json.dumps(data), headers=self._headers)
+        response = self._post(data)
         # TODO: Catch error!
-        return r.json()['result']['items'][0]
+        return response['result']['items'][0]
 
     def _get_fim_uid_from_element_uid(self, element_uid):
         """Return FIM UID from the given element UID"""
@@ -241,3 +217,18 @@ class MprmRest:
     def _get_device_type_from_element_uid(self, element_uid):
         """Return the device type of the given element uid"""
         return element_uid.split(':')[0]
+
+    def _post(self, data: dict) -> dict:
+        """
+        Communicate with the RPC interface.
+        :param data: Data you want so send
+        """
+        self._data_id += 1
+        data['id'] = self._data_id
+        headers = {'content-type': 'application/json'}
+        rpc_url = self._mprm_url + '/remote/json-rpc'
+        response = self._session.post(rpc_url, data=json.dumps(data), headers=headers).json()
+        if response['id'] != self._data_id:
+            self._logger.error("Got an unexpected response after posting data.")
+            raise ValueError("Got an unexpected response after posting data.")
+        return response
