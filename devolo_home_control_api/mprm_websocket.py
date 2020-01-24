@@ -4,7 +4,7 @@ import time
 
 import websocket
 
-from .mprm_rest import MprmRest
+from .mprm_rest import MprmRest, _get_fim_uid_from_element_uid
 
 
 class MprmWebsocket(MprmRest):
@@ -18,16 +18,9 @@ class MprmWebsocket(MprmRest):
     def __init__(self, gateway_id, mprm_url='https://homecontrol.mydevolo.com'):
         super().__init__(gateway_id, mprm_url)
         self._ws = None
+
         self.publisher = None
         self.create_pub()
-        # update device properties
-        for device in self.devices.values():
-            if hasattr(device, "consumption_property"):
-                for consumption_uid in device.consumption_property.keys():
-                    super().get_consumption(element_uid=consumption_uid, consumption_type="current")
-            if hasattr(device, "binary_switch_property"):
-                for binary_switch in device.binary_switch_property:
-                    super().get_binary_switch_state(element_uid=binary_switch)
         threading.Thread(target=self.web_socket_connection).start()
 
     def create_pub(self):
@@ -39,8 +32,21 @@ class MprmWebsocket(MprmRest):
         """
         publisher_list = []
         for device in self.devices:
+            # TODO: convert to oneliner
             publisher_list.append(device)
         self.publisher = Publisher(publisher_list)
+
+    def get_consumption(self, element_uid: str, consumption_type: str = "current") -> float:
+        """
+        Return the internal saved consumption
+        :param element_uid:
+        :param consumption_type:
+        :return:
+        """
+        if consumption_type == 'current':
+            return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.current_consumption
+        else:
+            return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.total_consumption
 
     def on_open(self):
         """
@@ -60,13 +66,13 @@ class MprmWebsocket(MprmRest):
         message = json.loads(message)
         if message['properties']['uid'].startswith('devolo.Meter'):
             if message['properties']['property.name'] == 'currentValue':
-                self.update_consumption(uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
+                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
             elif message['properties']['property.name'] == 'totalValue':
-                self.update_consumption(uid=message.get("properties").get("uid"), consumption="total", value=message.get('properties').get('property.value.new'))
+                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="total", value=message.get('properties').get('property.value.new'))
             else:
                 self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.\n{message.get("properties")}')
         elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
-            self.update_binary_switch_state(uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
+            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
         else:
             # Unknown messages shall be ignored
             pass
@@ -85,6 +91,39 @@ class MprmWebsocket(MprmRest):
         """
         self._logger.info("Closed web socket connection")
 
+    def update_binary_switch_state(self, element_uid: str, value: bool = None):
+        """
+        Function to update the internal binary switch state of a device.
+        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
+        the value is written into the internal dict.
+        :param element_uid: UID
+        :param value: bool
+        """
+        if value is None:
+            super().get_binary_switch_state(element_uid=element_uid)
+        else:
+            for binary_switch_name, binary_switch_property_value in self.devices[_get_fim_uid_from_element_uid(element_uid=element_uid)].binary_switch_property.items():
+                if binary_switch_name == element_uid:
+                    self._logger.debug(f"Updating state of {element_uid}")
+                    binary_switch_property_value.state = value
+            self.publisher.dispatch(_get_fim_uid_from_element_uid(element_uid), value)
+
+    def update_consumption(self, element_uid, consumption, value=None):
+        if consumption not in ['current', 'total']:
+            raise ValueError('Consumption value is not valid. Only "current" and "total" are allowed!')
+        if value is None:
+            super().get_consumption(element_uid=element_uid, consumption_type=consumption)
+        else:
+            for consumption_property_name, consumption_property_value in self.devices.get(_get_fim_uid_from_element_uid(element_uid=element_uid)).consumption_property.items():
+                if element_uid == consumption_property_name:
+                    self._logger.debug(f"Updating {consumption} consumption of {element_uid}")
+                    # TODO : make one liner
+                    if consumption == 'current':
+                        consumption_property_value.current_consumption = value
+                    else:
+                        consumption_property_value.total_consumption = value
+            self.publisher.dispatch(_get_fim_uid_from_element_uid(element_uid), value)
+
     def web_socket_connection(self):
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name)+"="+str(value) for name, value in self._session.cookies.items()])
@@ -98,51 +137,6 @@ class MprmWebsocket(MprmRest):
                                           on_close=self.on_close)
         self._ws.run_forever(ping_interval=30)
 
-    def get_consumption(self, element_uid: str, consumption_type: str = "current") -> float:
-        """
-        Return the internal saved consumption
-        :param element_uid:
-        :param consumption_type:
-        :return:
-        """
-        if consumption_type == 'current':
-            return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.current_consumption
-        else:
-            return self.devices.get(_get_fim_uid_from_element_uid(element_uid)).consumption_property.total_consumption
-
-    def update_consumption(self, uid, consumption, value=None):
-        if consumption not in ['current', 'total']:
-            raise ValueError("Consumption value is not valid. Only \"current\" and \"total\" are allowed!")
-        if value is None:
-            super().get_consumption(element_uid=uid, consumption_type=consumption)
-        else:
-            for consumption_property_name, consumption_property_value in self.devices.get(_get_fim_uid_from_element_uid(element_uid=uid)).consumption_property.items():
-                if uid == consumption_property_name:
-                    # Todo : make one liner
-                    self._logger.debug(f"Updating {consumption} consumption of {uid}")
-                    if consumption == 'current':
-                        consumption_property_value.current_consumption = value
-                    else:
-                        consumption_property_value.total_consumption = value
-            self.publisher.dispatch(_get_fim_uid_from_element_uid(uid), value)
-
-    def update_binary_switch_state(self, uid, value=None):
-        """
-        Function to update the internal binary switch state of a device.
-        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
-        the value is written into the internal dict.
-        :param uid: UID as string
-        :param value: bool
-        """
-        if value is None:
-            super().update_binary_switch_state(uid=uid)
-        else:
-            for binary_switch_name, binary_switch_property_value in self.devices[_get_fim_uid_from_element_uid(element_uid=uid)].binary_switch_property.items():
-                if binary_switch_name == uid:
-                    self._logger.debug(f"Updating state of {uid}")
-                    binary_switch_property_value.state = value
-            self.publisher.dispatch(_get_fim_uid_from_element_uid(uid), value)
-
 
 class Publisher:
     def __init__(self, events):
@@ -150,6 +144,10 @@ class Publisher:
         # str -> dict
         self.events = {event: dict()
                        for event in events}
+
+    def dispatch(self, event, message):
+        for callback in self.get_subscribers(event).values():
+            callback(message)
 
     def get_events(self):
         return self.events
@@ -165,6 +163,4 @@ class Publisher:
     def unregister(self, event, who):
         del self.get_subscribers(event)[who]
 
-    def dispatch(self, event, message):
-        for callback in self.get_subscribers(event).values():
-            callback(message)
+
