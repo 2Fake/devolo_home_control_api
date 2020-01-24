@@ -13,6 +13,7 @@ class Mydevolo:
     parametries functions. Althouth they typically start with get, those are not getter function, as the result is
     not stored in the object.
     """
+
     __instance = None
 
     @staticmethod
@@ -35,6 +36,7 @@ class Mydevolo:
             self.url = "https://www.mydevolo.com"
 
             Mydevolo.__instance = self
+
 
     @property
     def user(self) -> str:
