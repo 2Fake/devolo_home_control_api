@@ -7,6 +7,7 @@ class Gateway:
     """
     Representing object for devolo Home Control Central Units. As it is a gateway from the IP world to the Z-Wave
     world, we call it that way.
+
     :param id: Gateway ID (aka serial number), typically found on the label of the device
     """
     def __init__(self, id: str):
