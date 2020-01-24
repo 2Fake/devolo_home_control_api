@@ -1,5 +1,5 @@
 # devolo_home_control_api
-This project implements parts of the devolo Home Control API in Python. 
+This project implements parts of the devolo Home Control API in Python. It is based on reverse engineering and therefore may brake at any update devolo makes. If you discover a breakage, please feel free to [report an issue](https://github.com/2Fake/devolo_home_control_api/issues).
 
 ## System requirements
 Telling the system requirements with exact versions is typically hard. But there is a tested environment:
