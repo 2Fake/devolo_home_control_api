@@ -24,7 +24,7 @@ class Mydevolo:
 
     def __init__(self):
         if Mydevolo.__instance != None:
-            raise Exception("Please use Mydevolo.get_instance() to connect to my devolo.")
+            raise SyntaxError("Please use Mydevolo.get_instance() to connect to my devolo.")
         else:
             self._logger = logging.getLogger(self.__class__.__name__)
             self._user = None
@@ -100,6 +100,7 @@ class Mydevolo:
     def get_gateway(self, id: str) -> dict:
         """
         Get gateway details like name, local passkey and other.
+
         :param id: Gateway ID
         :return: Gateway object
         """
@@ -117,6 +118,7 @@ class Mydevolo:
     def get_full_url(self, id: str) -> str:
         """
         Get gateway's portal URL.
+
         :param id: Gateway ID
         :return: URL
         """
@@ -135,6 +137,7 @@ class Mydevolo:
     def _call(self, url: str) -> requests.Response:
         """
         Make a call to any entry point with the user's context.
+
         :param url: URL you want to call
         """
         headers = {'content-type': 'application/json'}
