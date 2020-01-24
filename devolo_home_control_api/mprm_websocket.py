@@ -30,10 +30,7 @@ class MprmWebsocket(MprmRest):
         Current consumption publisher is create as "current_consumption_ELEMENT_UID"
         Binary state publisher is created as "binary_state_ELEMENT_UID"
         """
-        publisher_list = []
-        for device in self.devices:
-            # TODO: convert to oneliner
-            publisher_list.append(device)
+        publisher_list = [device for device in self.devices]
         self.publisher = Publisher(publisher_list)
 
     def get_consumption(self, element_uid: str, consumption_type: str = "current") -> float:
