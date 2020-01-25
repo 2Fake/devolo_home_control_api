@@ -106,15 +106,15 @@ class MprmWebsocket(MprmRest):
     def _on_message(self, message):
         """ Callback function to react on a message. """
         message = json.loads(message)
-        if message['properties']['uid'].startswith('devolo.Meter'):
-            if message['properties']['property.name'] == 'currentValue':
-                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get('properties').get('property.value.new'))
-            elif message['properties']['property.name'] == 'totalValue':
-                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="total", value=message.get('properties').get('property.value.new'))
+        if message.get("properties").get("uid").startswith("devolo.Meter"):
+            if message.get("properties").get("property.name") == "currentValue":
+                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get("properties").get("property.value.new"))
+            elif message.get("properties").get("property.name") == "totalValue":
+                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="total", value=message.get("properties").get("property.value.new"))
             else:
                 self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.\n{message.get("properties")}')
-        elif message['properties']['uid'].startswith('devolo.BinarySwitch') and message['properties']['property.name'] == 'state':
-            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get('properties').get('property.value.new') == 1 else False)
+        elif message.get("properties").get("uid").startswith("devolo.BinarySwitch") and message.get("properties").get("property.name") == "state":
+            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get("properties").get("property.value.new") == 1 else False)
         else:
             # Unknown messages shall be ignored
             pass

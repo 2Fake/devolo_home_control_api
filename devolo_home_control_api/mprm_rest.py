@@ -65,7 +65,7 @@ class MprmRest:
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise ValueError("Not a valid uid to get binary switch data")
         response = self._extract_data_from_element_uid(element_uid)
-        self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = True if response['properties']['state'] == 1 else False
+        self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = True if response.get("properties").get("state") == 1 else False
         return self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state
 
     def get_consumption(self, element_uid: str, consumption_type: str = "current") -> float:
@@ -80,10 +80,10 @@ class MprmRest:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         response = self._extract_data_from_element_uid(element_uid)
         if consumption_type == "current":
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption = response['properties']['currentValue']
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption = response.get("properties").get("currentValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption
         else:
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption = response['properties']['totalValue']
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption = response.get("properties").get("totalValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption
 
     def set_binary_switch(self, element_uid, state: bool):
@@ -132,23 +132,23 @@ class MprmRest:
                 "params": [[element_uid], 0]}
         response = self._post(data)
         # TODO: Catch error!
-        return response['result']['items'][0]
+        return response.get("result").get("items")[0]
 
     def _get_name_and_element_uids(self, uid):
         """ Returns the name, all element UIDs and the device model of the given device UID. """
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
         response = self._post(data)
-        for x in response['result']['items']:
-            return x['properties']['itemName'], x['properties']["elementUIDs"], x['properties']['deviceModelUID']
+        for x in response.get("result").get("items"):
+            return x.get("properties").get("itemName"), x.get("properties").get("elementUIDs"), x.get("properties").get("deviceModelUID")
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
         response = self._post(data)
-        for item in response['result']['items']:
-            all_devices_list = item['properties']['deviceUIDs']
+        for item in response.get("result").get("items"):
+            all_devices_list = item.get("properties").get("deviceUIDs")
             for device in all_devices_list:
                 name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
                 self.devices[device] = Zwave(name=name, device_uid=device)
