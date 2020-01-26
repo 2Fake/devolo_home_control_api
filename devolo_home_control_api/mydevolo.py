@@ -5,10 +5,10 @@ import requests
 
 class Mydevolo:
     """
-    The Mydevolo object handles calls to the my devolo API v1 as singleton. It does not cover all API calls, just 
+    The Mydevolo object handles calls to the my devolo API v1 as singleton. It does not cover all API calls, just
     those requested up to now. All calls are done in a user context, so you need to provide credentials of that user.
 
-    We differentiate between general information like UUID or gateway IDs and information my devolo can provide, if 
+    We differentiate between general information like UUID or gateway IDs and information my devolo can provide, if
     you know what you are looking for like gateway details. We treat the frommer as properties and the latter as
     parametries functions. Althouth they typically start with get, those are not getter function, as the result is
     not stored in the object.
@@ -18,13 +18,13 @@ class Mydevolo:
 
     @staticmethod
     def get_instance():
-        if Mydevolo.__instance == None:
+        if Mydevolo.__instance is None:
             Mydevolo()
         return Mydevolo.__instance
 
 
     def __init__(self):
-        if Mydevolo.__instance != None:
+        if Mydevolo.__instance is not None:
             raise SyntaxError("Please use Mydevolo.get_instance() to connect to my devolo.")
         else:
             self._logger = logging.getLogger(self.__class__.__name__)
@@ -65,7 +65,7 @@ class Mydevolo:
     @property
     def uuid(self) -> str:
         """ The uuid is a central attribute in my devolo. Most URLs in the user context contain it. """
-        if self._uuid == None:
+        if self._uuid is None:
             try:
                 self._logger.debug("Getting UUID")
                 self._uuid = self._call(self.url + "/v1/users/uuid").json().get("uuid")
@@ -155,6 +155,7 @@ class Mydevolo:
 
 class WrongCredentialsError(Exception):
     """ Wrong credentials were used. """
+
 
 class WrongUrlError(Exception):
     """ Wrong URL was used. """

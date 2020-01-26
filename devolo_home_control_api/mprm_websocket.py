@@ -131,7 +131,7 @@ class MprmWebsocket(MprmRest):
     def _websocket_connection(self):
         """ Set up the websocket connection """
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
-        cookie = "; ".join([str(name)+"="+str(value) for name, value in self._session.cookies.items()])
+        cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
         self._logger.debug(f"Connecting to {ws_url}")
         self._ws = websocket.WebSocketApp(ws_url,
