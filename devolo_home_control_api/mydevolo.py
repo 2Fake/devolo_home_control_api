@@ -71,8 +71,10 @@ class Mydevolo:
                 self._uuid = self._call(self.url + "/v1/users/uuid").json().get("uuid")
             except WrongCredentialsError:
                 self._logger.error("Could not get UUID. Wrong Username or Password?")
-            except requests.exceptions.ConnectionError:
+                raise
+            except WrongUrlError:
                 self._logger.error("Could not get UUID. Wrong URL used?")
+                raise
         return self._uuid
 
     @property
@@ -87,8 +89,10 @@ class Mydevolo:
                     self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
             except WrongCredentialsError:
                 self._logger.error("Could not get gateway list. Wrong Username or Password?")
-            except requests.exceptions.ConnectionError:
+                raise
+            except WrongUrlError:
                 self._logger.error("Could not get gateway list. Wrong URL used?")
+                raise
             if len(self._gateway_ids) == 0:
                 self._logger.error("Could not get gateway list. No Gateway attached to account?")
                 raise IndexError("No gateways")
@@ -105,11 +109,12 @@ class Mydevolo:
         try:
             self._logger.debug(f"Getting details for gateway {id}")
             details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id).json()
-            # TODO: Handle wrong gateway IDs
         except WrongCredentialsError:
-            self._logger.error("Could not get local passkey. Wrong Username or Password?")
-        except requests.exceptions.ConnectionError:
-            self._logger.error("Could not get local passkey. Wrong URL used?")
+            self._logger.error("Could not get gateway details. Wrong Username or Password?")
+            raise
+        except WrongUrlError:
+            self._logger.error("Could not get gateway details. Wrong gateway ID used?")
+            raise
         return details
 
     def get_full_url(self, id: str) -> str:
@@ -123,9 +128,11 @@ class Mydevolo:
             self._logger.debug("Getting gateway")
             details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id + "/fullURL").json()
         except WrongCredentialsError:
-            self._logger.error("Could not get local passkey. Wrong Username or Password?")
-        except requests.exceptions.ConnectionError:
-            self._logger.error("Could not get local passkey. Wrong URL used?")
+            self._logger.error("Could not get full URL. Wrong Username or Password?")
+            raise
+        except WrongUrlError:
+            self._logger.error("Could not get full URL. Wrong gateway ID used?")
+            raise
         return details
 
 
@@ -141,8 +148,13 @@ class Mydevolo:
                                 timeout=60)
         if responds.status_code == requests.codes.forbidden:
             raise WrongCredentialsError("Wrong Username or Password.")
+        elif responds.status_code == requests.codes.not_found:
+            raise WrongUrlError(f"Wrong URL: {url}")
         return responds
 
 
 class WrongCredentialsError(Exception):
-    """ Wrong credentials where used. """
+    """ Wrong credentials were used. """
+
+class WrongUrlError(Exception):
+    """ Wrong URL was used. """
