@@ -37,9 +37,9 @@ class MprmWebsocket(MprmRest):
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         if consumption_type == "current":
-            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.current_consumption
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.current
         else:
-            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.total_consumption
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.total
 
     def update_binary_switch_state(self, element_uid: str, value: bool = None):
         """
@@ -79,9 +79,9 @@ class MprmWebsocket(MprmRest):
                     self._logger.debug(f"Updating {consumption} consumption of {element_uid}")
                     # TODO : make one liner
                     if consumption == "current":
-                        consumption_property_value.current_consumption = value
+                        consumption_property_value.current = value
                     else:
-                        consumption_property_value.total_consumption = value
+                        consumption_property_value.total = value
             self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
 

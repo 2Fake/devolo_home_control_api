@@ -80,11 +80,11 @@ class MprmRest:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         response = self._extract_data_from_element_uid(element_uid)
         if consumption_type == "current":
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption = response.get("properties").get("currentValue")
-            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current_consumption
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current = response.get("properties").get("currentValue")
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current
         else:
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption = response.get("properties").get("totalValue")
-            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total_consumption
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total = response.get("properties").get("totalValue")
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total
 
     def set_binary_switch(self, element_uid, state: bool):
         """
