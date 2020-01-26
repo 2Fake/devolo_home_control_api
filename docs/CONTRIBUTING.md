@@ -14,6 +14,8 @@ If you are having issues with our module, especially, if you found a bug, we wan
 ## Requesting a feature
 While we develop this module, we have our own use cases in mind. Those use cases do not necessarily meet your use cases. Nevertheless we want to hear about them, so you can either [create an issue](https://github.com/2Fake/devolo_home_control_api/issues) or create a merge request. By choosing the first way, you tell us to take care about your use case. That will take time as we will priorities it with our own needs. By choosing the second way, you can speed up this process. Please read our code style guide.
 
+If you are using a device we do not support, we want to know about it. Please [create an issue](https://github.com/2Fake/devolo_home_control_api/issues) and attach an [HAR file](https://en.wikipedia.org/wiki/HAR_(file_format)) of your device page. Of course we can only support devices devolo Home Control support itself (at least rudimentary).
+
 ## Code style guide
 We basically follow [PEP8](https://www.python.org/dev/peps/pep-0008/), but deviate in some points for - as we think - good reasons. If you have good reasons to stick strictly to PEP8 or even have good reasons to deviate from our deviation, feel free to convince us.
 
