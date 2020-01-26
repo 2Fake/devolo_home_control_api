@@ -7,3 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Support for devolo Metering Plug v1
 - Support for devolo Metering Plug v2
+- Support for devolo Switch FM
+- Support for Qubino Flush 1 Relay
+- Support for Qubino Flush 1D Relay
+- Support for Fibaro Wall Plug
