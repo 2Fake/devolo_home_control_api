@@ -19,6 +19,7 @@ class MprmWebsocket(MprmRest):
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         super().__init__(gateway_id, url)
         self._ws = None
+        self._event_sequence = 0
 
         self.publisher = None
 
@@ -124,6 +125,12 @@ class MprmWebsocket(MprmRest):
     def _on_message(self, message):
         """ Callback function to react on a message. """
         message = json.loads(message)
+        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
+        if event_sequence == self._event_sequence:
+            self._event_sequence += 1
+        else:
+            self._logger.warning("We missed a websocket message.")
+            self._event_sequence = event_sequence
         if message.get("properties").get("uid").startswith("devolo.Meter"):
             if message.get("properties").get("property.name") == "currentValue":
                 self.update_consumption(element_uid=message.get("properties").get("uid"),
