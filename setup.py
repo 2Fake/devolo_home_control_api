@@ -7,7 +7,7 @@ setuptools.setup(
     name="devolo_home_control_api",
     version="0.1.0",
     author="Markus Bong, Guido Schmitz",
-    author_email="guido.schmitz@fedaix.de",
+    author_email="m.bong@famabo.de, guido.schmitz@fedaix.de",
     description="devolo Home Control API in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
