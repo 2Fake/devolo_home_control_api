@@ -99,40 +99,27 @@ class Mydevolo:
         return self._gateway_ids
 
 
-    def get_gateway(self, id: str) -> dict:
+    def get_gateway(self, gateway_id: str) -> dict:
         """
         Get gateway details like name, local passkey and other.
 
         :param id: Gateway ID
         :return: Gateway object
         """
-        try:
-            self._logger.debug(f"Getting details for gateway {id}")
-            details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id).json()
-        except WrongCredentialsError:
-            self._logger.error("Could not get gateway details. Wrong Username or Password?")
-            raise
-        except WrongUrlError:
-            self._logger.error("Could not get gateway details. Wrong gateway ID used?")
-            raise
+        self._logger.debug(f"Getting details for gateway {gateway_id}")
+        details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + gateway_id).json()
         return details
 
-    def get_full_url(self, id: str) -> str:
+    def get_full_url(self, gateway_id: str) -> str:
         """
         Get gateway's portal URL.
 
         :param id: Gateway ID
         :return: URL
         """
-        try:
-            self._logger.debug("Getting gateway")
-            details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + id + "/fullURL").json()
-        except WrongCredentialsError:
-            self._logger.error("Could not get full URL. Wrong Username or Password?")
-            raise
-        except WrongUrlError:
-            self._logger.error("Could not get full URL. Wrong gateway ID used?")
-            raise
+        self._logger.debug("Getting gateway")
+        details = self._call(self.url + "/v1/users/"
+                             + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").json().get("url")
         return details
 
 
@@ -147,8 +134,10 @@ class Mydevolo:
                                 headers={'content-type': 'application/json'},
                                 timeout=60)
         if responds.status_code == requests.codes.forbidden:
+            self._logger.error("Could not get full URL. Wrong Username or Password?")
             raise WrongCredentialsError("Wrong Username or Password.")
         elif responds.status_code == requests.codes.not_found:
+            self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise WrongUrlError(f"Wrong URL: {url}")
         return responds
 
