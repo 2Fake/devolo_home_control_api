@@ -84,6 +84,24 @@ class MprmWebsocket(MprmRest):
                         consumption_property_value.total = value
             self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
+    def update_voltage(self, element_uid: str, value: float = None):
+        """
+        Function to update the internal voltage of a device.
+        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
+        the value is written into the internal dict.
+
+        :param element_uid: Element UID, something like , something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
+        :param value: Value so be set
+        """
+        if value is None:
+            super().get_voltage(element_uid=element_uid)
+        else:
+            for voltage_property_name, voltage_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid=element_uid)).voltage_property.items():
+                if element_uid == voltage_property_name:
+                    self._logger.debug(f"Updating voltage of {element_uid}")
+                    voltage_property_value.current = value
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+
 
     def _create_pub(self):
         """
@@ -115,6 +133,8 @@ class MprmWebsocket(MprmRest):
                 self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.\n{message.get("properties")}')
         elif message.get("properties").get("uid").startswith("devolo.BinarySwitch") and message.get("properties").get("property.name") == "state":
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get("properties").get("property.value.new") == 1 else False)
+        elif message.get("properties").get("uid").startswith("devolo.VoltageMultiLevelSensor"):
+            self.update_voltage(element_uid=message.get("properties").get("uid"), value=message.get("properties").get("property.value.new"))
         else:
             # Unknown messages shall be ignored
             pass

@@ -48,6 +48,7 @@ class MprmRest:
         # create the initial device dict
         self.devices = {}
         self._inspect_devices()
+        # TODO: Why don't we update the devices at start?
 
     @property
     def binary_switch_devices(self):
@@ -85,6 +86,16 @@ class MprmRest:
         else:
             self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total = response.get("properties").get("totalValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total
+
+    def get_voltage(self, element_uid: str) -> float:
+        """
+        Update and return the voltage
+        :param element_uid: element UID of the voltage. Usually starts with devolo.VoltageMultiLevelSensor
+        :return: voltage
+        """
+        response = self._extract_data_from_element_uid(element_uid)
+        self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current = response.get("properties").get("value")
+        return self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current
 
     def set_binary_switch(self, element_uid, state: bool):
         """
