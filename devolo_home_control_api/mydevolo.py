@@ -22,6 +22,10 @@ class Mydevolo:
             Mydevolo()
         return Mydevolo.__instance
 
+    @staticmethod
+    def del_instance():
+        Mydevolo.__instance = None
+
 
     def __init__(self):
         if Mydevolo.__instance is not None:
