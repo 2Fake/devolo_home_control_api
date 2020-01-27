@@ -1,3 +1,5 @@
+pytest==4.5.0
+pytest-mock==1.11.2
 requests==2.22.0
 websocket_client==0.57.0
 zeroconf==0.24.4

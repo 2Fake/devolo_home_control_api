@@ -11,7 +11,10 @@ Defining the system requirements with exact versions typically is difficult. But
 * websocket_client 0.57.0
 * zeroconf 0.24.4
 
-Other versions and even other operating systems might work. Feel free to tell us about your experience.
+Other versions and even other operating systems might work. Feel free to tell us about your experience. If you want to run our unit tests, you also need
+
+* pytest 4.5.0
+* pytest-mock 1.11.2
 
 ## Versioning
 In our versioning we follow [Semantic Versioning](https://semver.org/).
