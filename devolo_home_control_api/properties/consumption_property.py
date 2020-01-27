@@ -1,4 +1,4 @@
-from .property import Property
+from .property import Property, WrongElementError
 
 
 class ConsumptionProperty(Property):
@@ -9,6 +9,9 @@ class ConsumptionProperty(Property):
     """
 
     def __init__(self, element_uid):
+        if not element_uid.startswith("devolo.Meter:"):
+            raise WrongElementError(f"{element_uid} is not a Meter.")
+
         super().__init__(element_uid=element_uid)
         self.current = None
         self.current_unit = "W"

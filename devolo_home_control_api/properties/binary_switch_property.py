@@ -1,4 +1,4 @@
-from .property import Property
+from .property import Property, WrongElementError
 
 
 class BinarySwitchProperty(Property):
@@ -9,5 +9,8 @@ class BinarySwitchProperty(Property):
     """
 
     def __init__(self, element_uid):
+        if not element_uid.startswith("devolo.BinarySwitch:"):
+            raise WrongElementError(f"{element_uid} is not a Binary Switch.")
+
         super().__init__(element_uid=element_uid)
         self.state = None

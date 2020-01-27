@@ -1,4 +1,4 @@
-from .property import Property
+from .property import Property, WrongElementError
 
 
 class VoltageProperty(Property):
@@ -9,6 +9,9 @@ class VoltageProperty(Property):
     """
 
     def __init__(self, element_uid):
+        if not element_uid.startswith("devolo.VoltageMultiLevelSensor:"):
+            raise WrongElementError(f"{element_uid} is not a Voltage Sensor.")
+
         super().__init__(element_uid=element_uid)
         self.current = None
         self.current_unit = "V"
