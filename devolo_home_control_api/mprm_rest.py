@@ -10,6 +10,7 @@ from .devices.gateway import Gateway
 from .devices.zwave import Zwave
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
+from .properties.voltage_property import VoltageProperty
 
 
 class MprmRest:
@@ -47,7 +48,6 @@ class MprmRest:
         # create the initial device dict
         self.devices = {}
         self._inspect_devices()
-
 
     @property
     def binary_switch_devices(self):
@@ -161,8 +161,13 @@ class MprmRest:
                     elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
                         if not hasattr(self.devices[device], "consumption_property"):
                             self.devices[device].consumption_property = {}
-                            self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
-                            self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid=element_uid)
+                        self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
+                        self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid=element_uid)
+                    elif get_device_type_from_element_uid(element_uid) == "devolo.VoltageMultiLevelSensor":
+                        if not hasattr(self.devices[device], "voltage_property"):
+                            self.devices[device].voltage_property = {}
+                        self._logger.debug(f"Adding {name} ({device}) to device list as voltage property.")
+                        self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid=element_uid)
                     else:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
