@@ -111,16 +111,14 @@ class Mydevolo:
     def _call(self, url: str) -> requests.Response:
         """
         Make a call to any entry point with the user's context.
-
-        :param url: URL you want to call
         """
         responds = requests.get(url,
                                 auth=(self._user, self._password),
                                 headers={'content-type': 'application/json'},
                                 timeout=60)
         if responds.status_code == requests.codes.forbidden:
-            self._logger.error("Could not get full URL. Wrong Username or Password?")
-            raise WrongCredentialsError("Wrong Username or Password.")
+            self._logger.error("Could not get full URL. Wrong username or password?")
+            raise WrongCredentialsError("Wrong username or password.")
         elif responds.status_code == requests.codes.not_found:
             self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise WrongUrlError(f"Wrong URL: {url}")
