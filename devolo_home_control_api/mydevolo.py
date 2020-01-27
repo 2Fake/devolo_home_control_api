@@ -106,10 +106,9 @@ class Mydevolo:
         :param id: Gateway ID
         :return: URL
         """
-        self._logger.debug("Getting gateway")
-        details = self._call(self.url + "/v1/users/"
-                             + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").get("url")
-        return details
+        self._logger.debug("Getting full URL of gateway.")
+        return self._call(self.url + "/v1/users/"
+                          + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").get("url")
 
 
     def _call(self, url: str) -> requests.Response:
