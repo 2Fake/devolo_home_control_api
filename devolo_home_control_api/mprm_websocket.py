@@ -9,8 +9,8 @@ from .mprm_rest import MprmRest, get_device_uid_from_element_uid
 
 class MprmWebsocket(MprmRest):
     """
-    The MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those requested up to now.
-    All calls are done in a user context, so you need to provide credentials of that user.
+    The MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
+    requested up to now. All calls are done in a user context, so you need to provide credentials of that user.
 
     :param gateway_id: Gateway ID
     :param url: URL of the mPRM stage (typically use default value)
@@ -47,13 +47,13 @@ class MprmWebsocket(MprmRest):
         If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
         the value is written into the internal dict.
 
-        :param element_uid: Element UID, something like , something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
         :param value: Value so be set
         """
         if value is None:
             super().get_binary_switch_state(element_uid=element_uid)
         else:
-            for binary_switch_name, binary_switch_property_value in self.devices[get_device_uid_from_element_uid(element_uid=element_uid)].binary_switch_property.items():
+            for binary_switch_name, binary_switch_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.items():
                 if binary_switch_name == element_uid:
                     self._logger.debug(f"Updating state of {element_uid}")
                     binary_switch_property_value.state = value
@@ -66,7 +66,7 @@ class MprmWebsocket(MprmRest):
         the value is written into the internal dict.
 
         :param element_uid: Element UID, something like , something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-        :param consumption_type: current or total consumption
+        :param consumption: current or total consumption
         :param value: Value so be set
         """
         if consumption not in ["current", "total"]:
@@ -74,7 +74,7 @@ class MprmWebsocket(MprmRest):
         if value is None:
             super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
-            for consumption_property_name, consumption_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid=element_uid)).consumption_property.items():
+            for consumption_property_name, consumption_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
                 if element_uid == consumption_property_name:
                     self._logger.debug(f"Updating {consumption} consumption of {element_uid}")
                     # TODO : make one liner
@@ -90,13 +90,13 @@ class MprmWebsocket(MprmRest):
         If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
         the value is written into the internal dict.
 
-        :param element_uid: Element UID, something like , something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
+        :param element_uid: Element UID, something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
         :param value: Value so be set
         """
         if value is None:
             super().get_voltage(element_uid=element_uid)
         else:
-            for voltage_property_name, voltage_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid=element_uid)).voltage_property.items():
+            for voltage_property_name, voltage_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.items():
                 if element_uid == voltage_property_name:
                     self._logger.debug(f"Updating voltage of {element_uid}")
                     voltage_property_value.current = value
@@ -126,15 +126,23 @@ class MprmWebsocket(MprmRest):
         message = json.loads(message)
         if message.get("properties").get("uid").startswith("devolo.Meter"):
             if message.get("properties").get("property.name") == "currentValue":
-                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="current", value=message.get("properties").get("property.value.new"))
+                self.update_consumption(element_uid=message.get("properties").get("uid"),
+                                        consumption="current",
+                                        value=message.get("properties").get("property.value.new"))
             elif message.get("properties").get("property.name") == "totalValue":
-                self.update_consumption(element_uid=message.get("properties").get("uid"), consumption="total", value=message.get("properties").get("property.value.new"))
+                self.update_consumption(element_uid=message.get("properties").get("uid"),
+                                        consumption="total", value=message.get("properties").get("property.value.new"))
             else:
-                self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.\n{message.get("properties")}')
-        elif message.get("properties").get("uid").startswith("devolo.BinarySwitch") and message.get("properties").get("property.name") == "state":
-            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"), value=True if message.get("properties").get("property.value.new") == 1 else False)
+                self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.')
+                self._logger.info(message.get("properties"))
+        elif message.get("properties").get("uid").startswith("devolo.BinarySwitch") \
+                and message.get("properties").get("property.name") == "state":
+            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
+                                            value=True if message.get("properties").get("property.value.new") == 1
+                                            else False)
         elif message.get("properties").get("uid").startswith("devolo.VoltageMultiLevelSensor"):
-            self.update_voltage(element_uid=message.get("properties").get("uid"), value=message.get("properties").get("property.value.new"))
+            self.update_voltage(element_uid=message.get("properties").get("uid"),
+                                value=message.get("properties").get("property.value.new"))
         else:
             # Unknown messages shall be ignored
             pass
@@ -152,7 +160,9 @@ class MprmWebsocket(MprmRest):
         """ Set up the websocket connection """
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
-        ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED,com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
+        ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
+                 f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
+                 f"&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
         self._logger.debug(f"Connecting to {ws_url}")
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,

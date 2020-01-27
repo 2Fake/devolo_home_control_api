@@ -35,7 +35,8 @@ class MprmRest:
             # Get a local session
             self._logger.info("Connecting to gateway locally")
             self._mprm_url = "http://" + local_ip
-            self._token_url = self._session.get(self._mprm_url + "/dhlp/port/full", auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
+            self._token_url = self._session.get(self._mprm_url + "/dhlp/port/full",
+                                                auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
             self._session.get(self._token_url.get('link'))
         elif self._gateway.external_access:
             # Get a remote session, if we are allowed to
@@ -53,7 +54,8 @@ class MprmRest:
     @property
     def binary_switch_devices(self):
         """Returns all binary switch devices."""
-        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid),
+                                                                         "binary_switch_property")]
 
 
     def get_binary_switch_state(self, element_uid: str) -> bool:
@@ -127,7 +129,9 @@ class MprmRest:
             if hasattr(mdns_name, "address"):
                 try:
                     ip = socket.inet_ntoa(mdns_name.address)
-                    if requests.get("http://" + ip + "/dhlp/port/full", auth=(self._gateway.local_user, self._gateway.local_passkey), timeout=0.5).status_code == requests.codes.ok:
+                    if requests.get("http://" + ip + "/dhlp/port/full",
+                                    auth=(self._gateway.local_user, self._gateway.local_passkey),
+                                    timeout=0.5).status_code == requests.codes.ok:
                         self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                         local_ip = ip
                         break
@@ -151,7 +155,9 @@ class MprmRest:
                 "params": [[uid], 0]}
         response = self._post(data)
         for x in response.get("result").get("items"):
-            return x.get("properties").get("itemName"), x.get("properties").get("elementUIDs"), x.get("properties").get("deviceModelUID")
+            return x.get("properties").get("itemName"),\
+                   x.get("properties").get("elementUIDs"),\
+                   x.get("properties").get("deviceModelUID")
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
@@ -168,17 +174,17 @@ class MprmRest:
                         if not hasattr(self.devices[device], "binary_switch_property"):
                             self.devices[device].binary_switch_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
-                        self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid=element_uid)
+                        self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
                     elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
                         if not hasattr(self.devices[device], "consumption_property"):
                             self.devices[device].consumption_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
-                        self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid=element_uid)
+                        self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
                     elif get_device_type_from_element_uid(element_uid) == "devolo.VoltageMultiLevelSensor":
                         if not hasattr(self.devices[device], "voltage_property"):
                             self.devices[device].voltage_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as voltage property.")
-                        self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid=element_uid)
+                        self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
                     else:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
@@ -187,8 +193,9 @@ class MprmRest:
         self._data_id += 1
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
-        headers = {"content-type": "application/json"}
-        response = self._session.post(self._mprm_url + "/remote/json-rpc", data=json.dumps(data), headers=headers).json()
+        response = self._session.post(self._mprm_url + "/remote/json-rpc",
+                                      data=json.dumps(data),
+                                      headers={"content-type": "application/json"}).json()
         # TODO: Catch errors!
         if response['id'] != self._data_id:
             self._logger.error("Got an unexpected response after posting data.")
