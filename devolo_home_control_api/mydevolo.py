@@ -66,33 +66,19 @@ class Mydevolo:
     def uuid(self) -> str:
         """ The uuid is a central attribute in my devolo. Most URLs in the user context contain it. """
         if self._uuid is None:
-            try:
-                self._logger.debug("Getting UUID")
-                self._uuid = self._call(self.url + "/v1/users/uuid").json().get("uuid")
-            except WrongCredentialsError:
-                self._logger.error("Could not get UUID. Wrong Username or Password?")
-                raise
-            except WrongUrlError:
-                self._logger.error("Could not get UUID. Wrong URL used?")
-                raise
+            self._logger.debug("Getting UUID")
+            self._uuid = self._call(self.url + "/v1/users/uuid").get("uuid")
         return self._uuid
 
     @property
     def gateway_ids(self) -> list:
         """ Get gateway IDs. """
-        if self._gateway_ids == []:
-            try:
-                self._logger.debug(f"Getting list of gateways")
-                items = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status").json().get("items")
-                for gateway in items:
-                    self._gateway_ids.append(gateway.get("gatewayId"))
-                    self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
-            except WrongCredentialsError:
-                self._logger.error("Could not get gateway list. Wrong Username or Password?")
-                raise
-            except WrongUrlError:
-                self._logger.error("Could not get gateway list. Wrong URL used?")
-                raise
+        if not self._gateway_ids:
+            self._logger.debug(f"Getting list of gateways")
+            items = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status").get("items")
+            for gateway in items:
+                self._gateway_ids.append(gateway.get("gatewayId"))
+                self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
             if len(self._gateway_ids) == 0:
                 self._logger.error("Could not get gateway list. No Gateway attached to account?")
                 raise IndexError("No gateways")
@@ -107,8 +93,7 @@ class Mydevolo:
         :return: Gateway object
         """
         self._logger.debug(f"Getting details for gateway {gateway_id}")
-        details = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + gateway_id).json()
-        return details
+        return self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + gateway_id)
 
     def get_full_url(self, gateway_id: str) -> str:
         """
@@ -119,7 +104,7 @@ class Mydevolo:
         """
         self._logger.debug("Getting gateway")
         details = self._call(self.url + "/v1/users/"
-                             + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").json().get("url")
+                             + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").get("url")
         return details
 
 
@@ -139,7 +124,7 @@ class Mydevolo:
         elif responds.status_code == requests.codes.not_found:
             self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise WrongUrlError(f"Wrong URL: {url}")
-        return responds
+        return responds.json()
 
 
 class WrongCredentialsError(Exception):
