@@ -154,13 +154,14 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
         response = self._post(data)
-        for x in response.get("result").get("items"):
-            return x.get("properties").get("itemName"),\
-                   x.get("properties").get("zone"),\
-                   x.get("properties").get("batteryLevel"),\
-                   x.get("properties").get("icon"),\
-                   x.get("properties").get("elementUIDs"),\
-                   x.get("properties").get("deviceModelUID")
+        properties = response.get("result").get("items")[0].get("properties")
+        return properties.get("itemName"),\
+               properties.get("zone"),\
+               properties.get("batteryLevel"),\
+               properties.get("icon"),\
+               properties.get("elementUIDs"),\
+               properties.get("settingUIDs"),\
+               properties.get("deviceModelUID")
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
@@ -170,7 +171,7 @@ class MprmRest:
         for item in response.get("result").get("items"):
             all_devices_list = item.get("properties").get("deviceUIDs")
             for device in all_devices_list:
-                name, zone, battery_level, icon, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
+                name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
                 self.devices[device] = Zwave(name=name,
                                              device_uid=device,
                                              zone=zone,
@@ -195,6 +196,8 @@ class MprmRest:
                         self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
                     else:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
+                for setting_uid in setting_uids:
+                    pass
 
     def _post(self, data: dict) -> dict:
         """ Communicate with the RPC interface. """
