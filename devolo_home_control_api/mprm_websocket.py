@@ -38,9 +38,9 @@ class MprmWebsocket(MprmRest):
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         if consumption_type == "current":
-            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.current
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current
         else:
-            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.total
+            return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total
 
     def update_binary_switch_state(self, element_uid: str, value: bool = None):
         """
@@ -52,7 +52,7 @@ class MprmWebsocket(MprmRest):
         :param value: Value so be set
         """
         if value is None:
-            super().get_binary_switch_state(element_uid=element_uid)
+            self.get_binary_switch_state(element_uid=element_uid)
         else:
             for binary_switch_name, binary_switch_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.items():
                 if binary_switch_name == element_uid:
@@ -73,7 +73,7 @@ class MprmWebsocket(MprmRest):
         if consumption not in ["current", "total"]:
             raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed!')
         if value is None:
-            super().get_consumption(element_uid=element_uid, consumption_type=consumption)
+            self.get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
             for consumption_property_name, consumption_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
                 if element_uid == consumption_property_name:
@@ -95,7 +95,7 @@ class MprmWebsocket(MprmRest):
         :param value: Value so be set
         """
         if value is None:
-            super().get_voltage(element_uid=element_uid)
+            self.get_voltage(element_uid=element_uid)
         else:
             for voltage_property_name, voltage_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.items():
                 if element_uid == voltage_property_name:
