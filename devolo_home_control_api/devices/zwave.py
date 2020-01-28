@@ -13,7 +13,7 @@ class Zwave:
         self.name = name
         self.zone = zone
         if battery_level != -1:
-            self.battery_level = battery_level,
+            self.battery_level = battery_level
         self.icon = icon
         self.device_uid = device_uid
         self.subscriber = None
