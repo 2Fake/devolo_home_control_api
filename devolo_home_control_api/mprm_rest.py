@@ -35,7 +35,7 @@ class MprmRest:
             # Get a local session
             self._logger.info("Connecting to gateway locally")
             self._mprm_url = "http://" + local_ip
-            self._token_url = self._session.get(self._mprm_url + "/dhlp/port/full",
+            self._token_url = self._session.get(self._mprm_url + "/dhlp/portal/full",
                                                 auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
             self._session.get(self._token_url.get('link'))
         elif self._gateway.external_access:
@@ -156,6 +156,9 @@ class MprmRest:
         response = self._post(data)
         for x in response.get("result").get("items"):
             return x.get("properties").get("itemName"),\
+                   x.get("properties").get("zone"),\
+                   x.get("properties").get("batteryLevel"),\
+                   x.get("properties").get("icon"),\
                    x.get("properties").get("elementUIDs"),\
                    x.get("properties").get("deviceModelUID")
 
@@ -167,8 +170,13 @@ class MprmRest:
         for item in response.get("result").get("items"):
             all_devices_list = item.get("properties").get("deviceUIDs")
             for device in all_devices_list:
-                name, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
-                self.devices[device] = Zwave(name=name, device_uid=device)
+                name, zone, battery_level, icon, element_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
+                self.devices[device] = Zwave(name=name,
+                                             device_uid=device,
+                                             zone=zone,
+                                             battery_level=battery_level,
+                                             icon=icon)
+                # TODO: Find out why battery level is saved as a tuple
                 for element_uid in element_uids:
                     if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
                         if not hasattr(self.devices[device], "binary_switch_property"):
