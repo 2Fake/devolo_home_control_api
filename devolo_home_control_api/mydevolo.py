@@ -52,7 +52,7 @@ class Mydevolo:
         """ Invalidate uuid and gateway IDs on user name change. """
         self._user = user
         self._uuid = None
-        self._gateway_ids == []
+        self._gateway_ids = []
 
     @property
     def password(self) -> str:
@@ -64,7 +64,7 @@ class Mydevolo:
         """ Invalidate uuid and gateway IDs on password change. """
         self._password = password
         self._uuid = None
-        self._gateway_ids == []
+        self._gateway_ids = []
 
     @property
     def uuid(self) -> str:
@@ -93,7 +93,7 @@ class Mydevolo:
         """
         Get gateway details like name, local passkey and other.
 
-        :param id: Gateway ID
+        :param gateway_id: Gateway ID
         :return: Gateway object
         """
         self._logger.debug(f"Getting details for gateway {gateway_id}")
@@ -103,7 +103,7 @@ class Mydevolo:
         """
         Get gateway's portal URL.
 
-        :param id: Gateway ID
+        :param gateway_id: Gateway ID
         :return: URL
         """
         self._logger.debug("Getting full URL of gateway.")
