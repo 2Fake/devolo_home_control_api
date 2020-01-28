@@ -156,12 +156,12 @@ class MprmRest:
         response = self._post(data)
         properties = response.get("result").get("items")[0].get("properties")
         return properties.get("itemName"),\
-               properties.get("zone"),\
-               properties.get("batteryLevel"),\
-               properties.get("icon"),\
-               properties.get("elementUIDs"),\
-               properties.get("settingUIDs"),\
-               properties.get("deviceModelUID")
+            properties.get("zone"),\
+            properties.get("batteryLevel"),\
+            properties.get("icon"),\
+            properties.get("elementUIDs"),\
+            properties.get("settingUIDs"),\
+            properties.get("deviceModelUID")
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
@@ -183,28 +183,20 @@ class MprmRest:
                             self.devices[device].binary_switch_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
                         self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
-                        # Check if we are a subclass of the websocket class
-                        self.update_binary_switch_state(element_uid) if type(self).__name__ == "MprmWebsocket" else self.get_binary_switch_state(element_uid)
+                        self.get_binary_switch_state(element_uid)
                     elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
                         if not hasattr(self.devices[device], "consumption_property"):
                             self.devices[device].consumption_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
                         self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
-                        # Check if we are a subclass of the websocket class
-                        if type(self).__name__ == "MprmWebsocket":
-                            for consumption in ['current', 'total']:
-                                self.update_consumption(element_uid, consumption)
-                        else:
-                            for consumption in ['current', 'total']:
-                                self.get_consumption(element_uid, consumption)
-                        # self.update_consumption(element_uid, 'current')
+                        for consumption in ['current', 'total']:
+                            self.get_consumption(element_uid, consumption)
                     elif get_device_type_from_element_uid(element_uid) == "devolo.VoltageMultiLevelSensor":
                         if not hasattr(self.devices[device], "voltage_property"):
                             self.devices[device].voltage_property = {}
                         self._logger.debug(f"Adding {name} ({device}) to device list as voltage property.")
                         self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
-                        # Check if we are a subclass of the websocket class
-                        self.update_voltage(element_uid) if type(self).__name__ == "MprmWebsocket" else self.get_voltage(element_uid)
+                        self.get_voltage(element_uid)
                     else:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
                 for setting_uid in setting_uids:
