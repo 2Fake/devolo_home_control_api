@@ -12,7 +12,8 @@ class Zwave:
         self._logger = logging.getLogger(self.__class__.__name__)
         self.name = name
         self.zone = zone
-        self.battery_level = battery_level,
+        if battery_level != -1:
+            self.battery_level = battery_level,
         self.icon = icon
         self.device_uid = device_uid
         self.subscriber = None
