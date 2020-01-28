@@ -5,7 +5,7 @@ class Gateway:
 
     def __init__(self, gateway_id: str):
         self._logger = logging.getLogger(self.__class__.__name__)
- 
+
         self.id = gateway_id
         self.name = "Home"
         self.role = "owner"
