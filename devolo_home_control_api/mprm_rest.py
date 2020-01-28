@@ -11,6 +11,7 @@ from .devices.zwave import Zwave
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.voltage_property import VoltageProperty
+from .properties.settings_property import SettingsProperty
 
 
 class MprmRest:
@@ -177,7 +178,6 @@ class MprmRest:
                                              zone=zone,
                                              battery_level=battery_level,
                                              icon=icon)
-                # TODO: Find out why battery level is saved as a tuple
                 for element_uid in element_uids:
                     if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
                         if not hasattr(self.devices[device], "binary_switch_property"):
@@ -197,7 +197,12 @@ class MprmRest:
                     else:
                         self._logger.debug(f"Found an unexpected element uid: {element_uid}")
                 for setting_uid in setting_uids:
-                    pass
+                    if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
+                        if not hasattr(self.devices[device], "settings_property"):
+                            self.devices[device].settings_property = {}
+                        self._logger.debug(f"Adding {name} ({device}) to device list as settings property")
+                        self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
+                                                                                               led_setting=None)
 
     def _post(self, data: dict) -> dict:
         """ Communicate with the RPC interface. """
