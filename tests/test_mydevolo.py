@@ -3,7 +3,7 @@ import pytest
 from devolo_home_control_api.mydevolo import Mydevolo
 
 
-class TestMydevolo():
+class TestMydevolo:
 
     _uuid = "535512AB-165D-11E7-A4E2-000C29D76CCA"
     _gateway = "1409301750000598"
