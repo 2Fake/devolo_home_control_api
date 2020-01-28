@@ -5,7 +5,6 @@ from .mock_gateway import Gateway
 
 
 class TestMprmRest:
-    def test_binary_switch_devices(self, mocker):
-        mocker.patch('devolo_home_control_api.devices.gateway.Gateway.__init__', Gateway.__init__)
+    def test_binary_switch_devices(self, mock_gateway):
         mprm = MprmRest("1409301750000598")
         print(mprm._gateway)
