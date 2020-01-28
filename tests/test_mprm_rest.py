@@ -7,8 +7,7 @@ from .mock_gateway import Gateway
 
 class TestMprmRest:
 
-    def test_binary_switch_devices(self, mocker):
-        with mocker.patch('.devices.gateway.Gateway', autospec=True) as MockGateway:
-            MockGateway.return_value = Gateway("1409301750000598")
-            mprm = MprmRest("1409301750000598")
-            print(mprm._gateway)
+    def test_binary_switch_devices(self, mocker, mock_gateway):
+        mock_gateway.return_value = Gateway("1409301750000598")
+        mprm = MprmRest("1409301750000598")
+        print(mprm._gateway)
