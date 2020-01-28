@@ -71,7 +71,7 @@ class MprmWebsocket(MprmRest):
         :param value: Value so be set
         """
         if consumption not in ["current", "total"]:
-            raise ValueError('Consumption value is not valid. Only "current" and "total" are allowed!')
+            raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed!')
         if value is None:
             super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
