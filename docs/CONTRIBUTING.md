@@ -19,7 +19,7 @@ If you are using a device we do not support, we want to know about it. Please [c
 ## Code style guide
 We basically follow [PEP8](https://www.python.org/dev/peps/pep-0008/), but deviate in some points for - as we think - good reasons. If you have good reasons to stick strictly to PEP8 or even have good reasons to deviate from our deviation, feel free to convince us.
 
-We limit out lines to 120 characters, as that is maximum length still allowing code reviews without horizontal scrolling.
+We limit out lines to 127 characters, as that is maximum length still allowing code reviews on github without horizontal scrolling.
 
 As PEP8 allows to use extra blank lines sparingly to separate groups of related functions, we use an extra line between static methods and constructor, constructor and properties, properties and public methods, and public methods and internal methods.
 
