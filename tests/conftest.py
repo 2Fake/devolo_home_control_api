@@ -2,6 +2,7 @@ import pytest
 
 from devolo_home_control_api.mydevolo import Mydevolo
 from tests.mock_gateway import Gateway
+from tests.mock_metering_plug import metering_plug
 
 
 user = "testuser@test.de"
@@ -17,10 +18,10 @@ def mock_gateway(mocker):
 
 
 @pytest.fixture()
-def mock_inspect_devices(mocker):
-    def mock_inspect_devices(self):
-        pass
-    mocker.patch('devolo_home_control_api.mprm_rest.MprmRest._inspect_devices', mock_inspect_devices)
+def mock_inspect_devices_metering_plug(mocker):
+    def mock__inspect_devices(self):
+        self.devices['hdm:ZWave:CBC56091/3'] = metering_plug(device_uid="hdm:ZWave:CBC56091/3")
+    mocker.patch('devolo_home_control_api.mprm_rest.MprmRest._inspect_devices', mock__inspect_devices)
 
 
 @pytest.fixture()
