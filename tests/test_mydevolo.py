@@ -42,7 +42,7 @@ class TestMydevolo:
 
         mydevolo.password = self.password
 
-        assert mydevolo._uuid == None
+        assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
 
     def test_set_user(self):
@@ -52,7 +52,7 @@ class TestMydevolo:
 
         mydevolo.user = self.user
 
-        assert mydevolo._uuid == None
+        assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
 
     def test_singleton_mydevolo(self):
