@@ -94,6 +94,63 @@ class MprmRest:
                 response.get("properties").get("totalValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total
 
+    def get_led_setting(self, setting_uid: str):
+        """
+        Update and return the led setting
+        :param setting_uid:
+        :return:led setting as bool
+        """
+        if not setting_uid.startswith("lis.hdm"):
+            raise ValueError("Not a valid uid to get the led setting")
+        response = self._extract_data_from_element_uid(setting_uid)
+        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).led_setting = \
+            response.get("properties").get("led")
+        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).led_setting
+
+    def get_events_enabled_settings(self, setting_uid: str):
+        """
+        Update and return the events enabled setting
+        :param setting_uid:
+        :return: events enabled as bool
+        """
+        if not setting_uid.startswith("gds.hdm"):
+            raise ValueError("Not a valid uid to get the events enabled setting")
+        response = self._extract_data_from_element_uid(setting_uid)
+        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).events_enabled = \
+            response.get("properties").get("eventsEnabled")
+        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).events_enabled
+
+    def get_param_changed_setting(self, setting_uid: str):
+        """
+        Update and return the param changed setting
+        :param setting_uid:
+        :return: param changed as bool
+        """
+        if not setting_uid.startswith("cps.hdm"):
+            raise ValueError("Not a valid uid to get the param changed setting")
+        response = self._extract_data_from_element_uid(setting_uid)
+        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).param_changed = \
+            response.get("properties").get("paramChanged")
+        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).param_changed
+
+    def get_protection_setting(self, setting_uid, protection_setting):
+        """
+        Update and return the protection setting. There are only two protection settings. Local and remote switching.
+        :param setting_uid:
+        :param protection_setting:
+        :return:
+        """
+        if not setting_uid.startswith("ps.hdm"):
+            raise ValueError("Not a valid uid to get the protection setting")
+        if protection_setting not in ["local", "remote"]:
+            raise ValueError("Only local and remote are possible protection settings")
+        response = self._extract_data_from_element_uid(setting_uid)
+        setting_property = self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid)
+        if protection_setting == "local":
+            setting_property.local_switching = response.get("properties").get("localSwitch")
+        else:
+            setting_property.remote_switching = response.get("properties").get("remoteSwitch")
+
     def get_voltage(self, element_uid: str) -> float:
         """
         Update and return the voltage
@@ -233,12 +290,30 @@ class MprmRest:
     def _process_settings_uids(self, device, name, setting_uids):
         """Generate properties depending on the setting uid"""
         for setting_uid in setting_uids:
+            if not hasattr(self.devices[device], "settings_property"):
+                self.devices[device].settings_property = {}
             if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
-                if not hasattr(self.devices[device], "settings_property"):
-                    self.devices[device].settings_property = {}
                 self._logger.debug(f"Adding {name} ({device}) to device list as settings property")
                 self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
                                                                                        led_setting=None)
+                self.get_led_setting(setting_uid)
+            elif get_device_type_from_element_uid(setting_uid) == "gds.hdm":
+                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
+                                                                                       events_enabled=None)
+                self.get_events_enabled_settings(setting_uid)
+            elif get_device_type_from_element_uid(setting_uid) == "cps.hdm":
+                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
+                                                                                       param_changed=None)
+                self.get_param_changed_setting(setting_uid)
+            elif get_device_type_from_element_uid(setting_uid) == "ps.hdm":
+                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
+                                                                                       local_switching=None,
+                                                                                       remote_switching=None)
+                for protection in ["local", "remote"]:
+                    # TODO: find a better way for this loop.
+                    self.get_protection_setting(setting_uid=setting_uid, protection_setting=protection)
+            else:
+                self._logger.debug(f"Found an unexpected element uid: {setting_uid}")
 
 
 def get_device_uid_from_element_uid(element_uid: str) -> str:
@@ -259,6 +334,15 @@ def get_device_type_from_element_uid(element_uid):
     :return: Device type, something like devolo.MultiLevelSensor
     """
     return element_uid.split(":")[0]
+
+
+def get_device_uid_from_setting_uid(setting_uid):
+    """
+    Return the device uid of the given setting uid
+    :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
+    :return: Device type, something like devolo.MultiLevelSensor
+    """
+    return setting_uid.split(".", 1)[-1]
 
 
 class MprmDeviceError(Exception):
