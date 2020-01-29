@@ -4,8 +4,11 @@ from devolo_home_control_api.mydevolo import Mydevolo
 from tests.mock_gateway import Gateway
 
 
+user = "testuser@test.de"
+password = "7fee3cdb598b45a459ffe2aa720c8532"
 uuid = "535512AB-165D-11E7-A4E2-000C29D76CCA"
 gateway_id = "1409301750000598"
+full_url = "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b"
 
 
 @pytest.fixture()
@@ -31,8 +34,7 @@ def mock_mprmrest__detect_gateway_in_lan(mocker):
 def mock_mydevolo__call(mocker, request):
     def _call_mock(url):
         if url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL":
-            return {"url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?"
-                           "token=1410000000002_1:ec73a059f398fa8b&X-MPRM-LB=1410000000002_1"}
+            return {"url": full_url}
         elif url == "https://www.mydevolo.com/v1/users/uuid":
             return {"uuid": uuid}
         elif url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status":
@@ -50,8 +52,11 @@ def mock_mydevolo__call(mocker, request):
 
 @pytest.fixture(autouse=True)
 def test_data(request):
+    request.cls.user = user
+    request.cls.password = password
     request.cls.uuid = uuid
     request.cls.gateway_id = gateway_id
+    request.cls.full_url = full_url
 
 
 @pytest.fixture(autouse=True)

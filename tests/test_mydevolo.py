@@ -5,15 +5,11 @@ from devolo_home_control_api.mydevolo import Mydevolo
 
 class TestMydevolo:
 
-    def test_singleton_mydevolo(self):
-        Mydevolo.get_instance()
-
-        with pytest.raises(SyntaxError):
-            Mydevolo()
-
-    def test_uuid(self, mock_mydevolo__call):
+    def test_gateway_ids(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
-        assert mydevolo.uuid == self.uuid
+        mydevolo._uuid = self.uuid
+
+        assert mydevolo.gateway_ids == [self.gateway_id]
 
     def test_gateway_ids_empty(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
@@ -22,11 +18,14 @@ class TestMydevolo:
         with pytest.raises(IndexError):
             mydevolo.gateway_ids
 
-    def test_gateway_ids(self, mock_mydevolo__call):
+    def test_get_full_url(self, mock_mydevolo__call):
+
         mydevolo = Mydevolo.get_instance()
         mydevolo._uuid = self.uuid
 
-        assert mydevolo.gateway_ids == [self.gateway_id]
+        full_url = mydevolo.get_full_url(self.gateway_id)
+
+        assert full_url == self.full_url
 
     def test_get_gateway(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
@@ -36,12 +35,32 @@ class TestMydevolo:
 
         assert details.get("gatewayId") == self.gateway_id
 
-    def test_get_full_url(self, mock_mydevolo__call):
-
+    def test_set_password(self):
         mydevolo = Mydevolo.get_instance()
         mydevolo._uuid = self.uuid
+        mydevolo._gateway_ids = [self.gateway_id]
 
-        full_url = mydevolo.get_full_url(self.gateway_id)
+        mydevolo.password = self.password
 
-        assert full_url == "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/" \
-                           "?token=1410000000002_1:ec73a059f398fa8b&X-MPRM-LB=1410000000002_1"
+        assert mydevolo._uuid == None
+        assert mydevolo._gateway_ids == []
+
+    def test_set_user(self):
+        mydevolo = Mydevolo.get_instance()
+        mydevolo._uuid = self.uuid
+        mydevolo._gateway_ids = [self.gateway_id]
+
+        mydevolo.user = self.user
+
+        assert mydevolo._uuid == None
+        assert mydevolo._gateway_ids == []
+
+    def test_singleton_mydevolo(self):
+        Mydevolo.get_instance()
+
+        with pytest.raises(SyntaxError):
+            Mydevolo()
+
+    def test_uuid(self, mock_mydevolo__call):
+        mydevolo = Mydevolo.get_instance()
+        assert mydevolo.uuid == self.uuid
