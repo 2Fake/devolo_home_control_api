@@ -65,8 +65,8 @@ class MprmRest:
         :param element_uid: element UID of the consumption. Usually starts with devolo.BinarySwitch
         :return: Binary switch state
         """
-        if not element_uid.startswith("devolo.BinarySwitch:"):
-            raise ValueError("Not a valid uid to get binary switch data")
+        if not element_uid.startswith("devolo.BinarySwitch"):
+            raise ValueError("Not a valid uid to get binary switch data.")
         response = self._extract_data_from_element_uid(element_uid)
         self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = \
             True if response.get("properties").get("state") == 1 else False
@@ -80,6 +80,8 @@ class MprmRest:
         :param consumption_type: current or total consumption
         :return: Consumption
         """
+        if not element_uid.startswith("devolo.Meter"):
+            raise ValueError("Not a valid uid to get consumption data.")
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         response = self._extract_data_from_element_uid(element_uid)
@@ -98,24 +100,29 @@ class MprmRest:
         :param element_uid: element UID of the voltage. Usually starts with devolo.VoltageMultiLevelSensor
         :return: voltage
         """
+        if not element_uid.startswith("devolo.VoltageMultiLevelSensor"):
+            raise ValueError("Not a valid uid to get consumption data.")
         response = self._extract_data_from_element_uid(element_uid)
         self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current = \
             response.get("properties").get("value")
         return self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current
 
-    def set_binary_switch(self, element_uid, state: bool):
+    def set_binary_switch(self, element_uid: str, state: bool):
         """
         Set the binary switch of the given element_uid to the given state.
 
-        :param element_uid: element_uid as string
+        :param element_uid: element_uid
         :param state: True if switching on, False if switching off
         """
-        # TODO: We should think about how to prevent an jumping binary switch in the UI of hass
-        # Maybe set the state of the binary internally without waiting for the websocket to tell us the state.
+        if not element_uid.startswith("devolo.BinarySwitch"):
+            raise ValueError("Not a valid uid to set binary switch data.")
         data = {"method": "FIM/invokeOperation",
                 "params": [element_uid, "turnOn" if state else "turnOff", []]}
-        self._post(data)
-        # TODO: Catch errors!
+        response = self._post(data)
+        if response.get("result").get("status") == 1:
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = state
+        else:
+            raise MprmDeviceError(f"Could not set state of device {get_device_uid_from_element_uid(element_uid)}.")
 
 
     def _detect_gateway_in_lan(self):
@@ -252,3 +259,7 @@ def get_device_type_from_element_uid(element_uid):
     :return: Device type, something like devolo.MultiLevelSensor
     """
     return element_uid.split(":")[0]
+
+
+class MprmDeviceError(Exception):
+    """ Communicating to a device via mPRM failed """
