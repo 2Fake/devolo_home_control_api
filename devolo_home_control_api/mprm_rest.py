@@ -172,45 +172,17 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
         response = self._post(data)
-        for item in response.get("result").get("items"):
-            all_devices_list = item.get("properties").get("deviceUIDs")
-            for device in all_devices_list:
-                name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = \
-                    self._get_name_and_element_uids(uid=device)
-                self.devices[device] = Zwave(name=name,
-                                             device_uid=device,
-                                             zone=zone,
-                                             battery_level=battery_level,
-                                             icon=icon)
-                for element_uid in element_uids:
-                    if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
-                        if not hasattr(self.devices[device], "binary_switch_property"):
-                            self.devices[device].binary_switch_property = {}
-                        self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
-                        self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
-                        self.get_binary_switch_state(element_uid)
-                    elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
-                        if not hasattr(self.devices[device], "consumption_property"):
-                            self.devices[device].consumption_property = {}
-                        self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
-                        self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
-                        for consumption in ['current', 'total']:
-                            self.get_consumption(element_uid, consumption)
-                    elif get_device_type_from_element_uid(element_uid) == "devolo.VoltageMultiLevelSensor":
-                        if not hasattr(self.devices[device], "voltage_property"):
-                            self.devices[device].voltage_property = {}
-                        self._logger.debug(f"Adding {name} ({device}) to device list as voltage property.")
-                        self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
-                        self.get_voltage(element_uid)
-                    else:
-                        self._logger.debug(f"Found an unexpected element uid: {element_uid}")
-                for setting_uid in setting_uids:
-                    if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
-                        if not hasattr(self.devices[device], "settings_property"):
-                            self.devices[device].settings_property = {}
-                        self._logger.debug(f"Adding {name} ({device}) to device list as settings property")
-                        self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
-                                                                                               led_setting=None)
+        all_devices_list = response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+        for device in all_devices_list:
+            name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = \
+                self._get_name_and_element_uids(uid=device)
+            self.devices[device] = Zwave(name=name,
+                                         device_uid=device,
+                                         zone=zone,
+                                         battery_level=battery_level,
+                                         icon=icon)
+            self._process_element_uids(device=device, name=name, element_uids=element_uids)
+            self._process_settings_uids(device=device, name=name, setting_uids=setting_uids)
 
     def _post(self, data: dict) -> dict:
         """ Communicate with the RPC interface. """
@@ -225,6 +197,41 @@ class MprmRest:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
+
+    def _process_element_uids(self, device, name, element_uids):
+        """Generate properties depending on the element uid"""
+        for element_uid in element_uids:
+            if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
+                if not hasattr(self.devices[device], "binary_switch_property"):
+                    self.devices[device].binary_switch_property = {}
+                self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
+                self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
+                self.get_binary_switch_state(element_uid)
+            elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
+                if not hasattr(self.devices[device], "consumption_property"):
+                    self.devices[device].consumption_property = {}
+                self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
+                self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
+                for consumption in ['current', 'total']:
+                    self.get_consumption(element_uid, consumption)
+            elif get_device_type_from_element_uid(element_uid) == "devolo.VoltageMultiLevelSensor":
+                if not hasattr(self.devices[device], "voltage_property"):
+                    self.devices[device].voltage_property = {}
+                self._logger.debug(f"Adding {name} ({device}) to device list as voltage property.")
+                self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
+                self.get_voltage(element_uid)
+            else:
+                self._logger.debug(f"Found an unexpected element uid: {element_uid}")
+
+    def _process_settings_uids(self, device, name, setting_uids):
+        """Generate properties depending on the setting uid"""
+        for setting_uid in setting_uids:
+            if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
+                if not hasattr(self.devices[device], "settings_property"):
+                    self.devices[device].settings_property = {}
+                self._logger.debug(f"Adding {name} ({device}) to device list as settings property")
+                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
+                                                                                       led_setting=None)
 
 
 def get_device_uid_from_element_uid(element_uid: str) -> str:
