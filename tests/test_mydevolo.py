@@ -6,10 +6,10 @@ from devolo_home_control_api.mydevolo import Mydevolo
 class TestMydevolo:
 
     def test_singleton_mydevolo(self):
-        mydevolo = Mydevolo.get_instance()
+        Mydevolo.get_instance()
 
         with pytest.raises(SyntaxError):
-            mydevolo = Mydevolo()
+            Mydevolo()
 
     def test_uuid(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
@@ -20,7 +20,7 @@ class TestMydevolo:
         mydevolo._uuid = self.uuid
 
         with pytest.raises(IndexError):
-            gateway_ids = mydevolo.gateway_ids
+            mydevolo.gateway_ids
 
     def test_gateway_ids(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
