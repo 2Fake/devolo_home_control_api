@@ -1,7 +1,6 @@
 import pytest
 
 from devolo_home_control_api.mprm_rest import MprmRest
-from tests.mock_metering_plug import metering_plug
 
 
 class TestMprmRest:
