@@ -35,6 +35,8 @@ class MprmWebsocket(MprmRest):
         :param consumption_type: current or total consumption
         :return: Consumption
         """
+        if not element_uid.startswith("devolo.Meter"):
+            raise ValueError("Not a valid uid to get consumption data.")
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         if consumption_type == "current":
@@ -51,6 +53,8 @@ class MprmWebsocket(MprmRest):
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
         :param value: Value so be set
         """
+        if not element_uid.startswith("devolo.BinarySwitch"):
+            raise ValueError("Not a valid uid to set binary switch state.")
         if value is None:
             self.get_binary_switch_state(element_uid=element_uid)
         else:
@@ -71,6 +75,8 @@ class MprmWebsocket(MprmRest):
         :param consumption: current or total consumption
         :param value: Value so be set
         """
+        if not element_uid.startswith("devolo.Meter"):
+            raise ValueError("Not a valid uid to set consumption data.")
         if consumption not in ["current", "total"]:
             raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed!')
         if value is None:
@@ -96,6 +102,8 @@ class MprmWebsocket(MprmRest):
         :param element_uid: Element UID, something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
         :param value: Value so be set
         """
+        if not element_uid.startswith("devolo.VoltageMultiLevelSensor"):
+            raise ValueError("Not a valid uid to set voltage data.")
         if value is None:
             self.get_voltage(element_uid=element_uid)
         else:
