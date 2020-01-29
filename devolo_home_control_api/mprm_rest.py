@@ -68,7 +68,8 @@ class MprmRest:
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise ValueError("Not a valid uid to get binary switch data")
         response = self._extract_data_from_element_uid(element_uid)
-        self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = True if response.get("properties").get("state") == 1 else False
+        self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = \
+            True if response.get("properties").get("state") == 1 else False
         return self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state
 
     def get_consumption(self, element_uid: str, consumption_type: str = "current") -> float:
@@ -83,10 +84,12 @@ class MprmRest:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
         response = self._extract_data_from_element_uid(element_uid)
         if consumption_type == "current":
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current = response.get("properties").get("currentValue")
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current = \
+                response.get("properties").get("currentValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).current
         else:
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total = response.get("properties").get("totalValue")
+            self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total = \
+                response.get("properties").get("totalValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total
 
     def get_voltage(self, element_uid: str) -> float:
@@ -96,7 +99,8 @@ class MprmRest:
         :return: voltage
         """
         response = self._extract_data_from_element_uid(element_uid)
-        self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current = response.get("properties").get("value")
+        self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current = \
+            response.get("properties").get("value")
         return self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.get(element_uid).current
 
     def set_binary_switch(self, element_uid, state: bool):
@@ -171,7 +175,8 @@ class MprmRest:
         for item in response.get("result").get("items"):
             all_devices_list = item.get("properties").get("deviceUIDs")
             for device in all_devices_list:
-                name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = self._get_name_and_element_uids(uid=device)
+                name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = \
+                    self._get_name_and_element_uids(uid=device)
                 self.devices[device] = Zwave(name=name,
                                              device_uid=device,
                                              zone=zone,

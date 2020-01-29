@@ -40,4 +40,5 @@ class TestMydevolo:
 
         full_url = mydevolo.get_full_url(TestMydevolo._gateway)
 
-        assert full_url == "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b&X-MPRM-LB=1410000000002_1"
+        assert full_url == "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/" \
+                           "?token=1410000000002_1:ec73a059f398fa8b&X-MPRM-LB=1410000000002_1"

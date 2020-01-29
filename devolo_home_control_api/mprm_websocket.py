@@ -54,7 +54,8 @@ class MprmWebsocket(MprmRest):
         if value is None:
             self.get_binary_switch_state(element_uid=element_uid)
         else:
-            for binary_switch_name, binary_switch_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.items():
+            for binary_switch_name, binary_switch_property_value in \
+                    self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.items():
                 if binary_switch_name == element_uid:
                     self._logger.debug(f"Updating state of {element_uid}")
                     binary_switch_property_value.state = value
@@ -75,7 +76,8 @@ class MprmWebsocket(MprmRest):
         if value is None:
             self.get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
-            for consumption_property_name, consumption_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
+            for consumption_property_name, consumption_property_value in \
+                    self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
                 if element_uid == consumption_property_name:
                     self._logger.debug(f"Updating {consumption} consumption of {element_uid}")
                     # TODO : make one liner
@@ -97,7 +99,8 @@ class MprmWebsocket(MprmRest):
         if value is None:
             self.get_voltage(element_uid=element_uid)
         else:
-            for voltage_property_name, voltage_property_value in self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.items():
+            for voltage_property_name, voltage_property_value in \
+                    self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.items():
                 if element_uid == voltage_property_name:
                     self._logger.debug(f"Updating voltage of {element_uid}")
                     voltage_property_value.current = value

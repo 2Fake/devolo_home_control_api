@@ -1,6 +1,5 @@
 import pytest
 import logging
-from devolo_home_control_api.mprm_rest import MprmRest
 from devolo_home_control_api.mydevolo import Mydevolo
 from tests.mock_gateway import Gateway
 
@@ -57,7 +56,8 @@ def mock_mydevolo__call_get_gateways(mocker):
 @pytest.fixture()
 def mock_mydevolo__call_get_full_url(mocker):
     def _call_mock(url):
-        return {"url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b&X-MPRM-LB=1410000000002_1"}
+        return {"url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?"
+                       "token=1410000000002_1:ec73a059f398fa8b&X-MPRM-LB=1410000000002_1"}
 
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)
 
