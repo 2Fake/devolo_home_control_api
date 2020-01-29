@@ -263,7 +263,7 @@ class MprmRest:
         return response
 
     def _process_element_uids(self, device, name, element_uids):
-        """Generate properties depending on the element uid"""
+        """ Generate properties depending on the element uid """
         for element_uid in element_uids:
             if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
                 if not hasattr(self.devices[device], "binary_switch_property"):
