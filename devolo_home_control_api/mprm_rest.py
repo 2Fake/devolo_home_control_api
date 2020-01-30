@@ -103,11 +103,11 @@ class MprmRest:
         if not setting_uid.startswith("lis.hdm"):
             raise ValueError("Not a valid uid to get the led setting")
         response = self._extract_data_from_element_uid(setting_uid)
-        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).led_setting = \
+        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("led").led_setting = \
             response.get("properties").get("led")
-        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).led_setting
+        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("led").led_setting
 
-    def get_events_enabled_settings(self, setting_uid: str):
+    def get_general_device_settings(self, setting_uid: str):
         """
         Update and return the events enabled setting
         :param setting_uid:
@@ -116,9 +116,12 @@ class MprmRest:
         if not setting_uid.startswith("gds.hdm"):
             raise ValueError("Not a valid uid to get the events enabled setting")
         response = self._extract_data_from_element_uid(setting_uid)
-        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).events_enabled = \
-            response.get("properties").get("eventsEnabled")
-        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).events_enabled
+        gds = self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("general_device_settings")
+        gds.name = response.get("properties").get("name")
+        gds.icon = response.get("properties").get("icon")
+        gds.zone_id = response.get("properties").get("zoneID")
+        gds.events_enabled = response.get("properties").get("eventsEnabled")
+        return gds.name, gds.icon, gds.zone_id, gds.events_enabled
 
     def get_param_changed_setting(self, setting_uid: str):
         """
@@ -129,9 +132,9 @@ class MprmRest:
         if not setting_uid.startswith("cps.hdm"):
             raise ValueError("Not a valid uid to get the param changed setting")
         response = self._extract_data_from_element_uid(setting_uid)
-        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).param_changed = \
+        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("param_changed").param_changed = \
             response.get("properties").get("paramChanged")
-        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid).param_changed
+        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("param_changed").param_changed
 
     def get_protection_setting(self, setting_uid, protection_setting):
         """
@@ -145,7 +148,7 @@ class MprmRest:
         if protection_setting not in ["local", "remote"]:
             raise ValueError("Only local and remote are possible protection settings")
         response = self._extract_data_from_element_uid(setting_uid)
-        setting_property = self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid)
+        setting_property = self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("led")
         if protection_setting == "local":
             setting_property.local_switching = response.get("properties").get("localSwitch")
             return setting_property.local_switching
@@ -296,21 +299,24 @@ class MprmRest:
                 self.devices[device].settings_property = {}
             if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
                 self._logger.debug(f"Adding {name} ({device}) to device list as settings property")
-                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
-                                                                                       led_setting=None)
+                self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid,
+                                                                                 led_setting=None)
                 self.get_led_setting(setting_uid)
             elif get_device_type_from_element_uid(setting_uid) == "gds.hdm":
-                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
-                                                                                       events_enabled=None)
-                self.get_events_enabled_settings(setting_uid)
+                self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
+                                                                                                     events_enabled=None,
+                                                                                                     name=None,
+                                                                                                     zone_id=None,
+                                                                                                     icon=None)
+                self.get_general_device_settings(setting_uid)
             elif get_device_type_from_element_uid(setting_uid) == "cps.hdm":
-                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
-                                                                                       param_changed=None)
+                self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
+                                                                                           param_changed=None)
                 self.get_param_changed_setting(setting_uid)
             elif get_device_type_from_element_uid(setting_uid) == "ps.hdm":
-                self.devices[device].settings_property[setting_uid] = SettingsProperty(element_uid=setting_uid,
-                                                                                       local_switching=None,
-                                                                                       remote_switching=None)
+                self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
+                                                                                        local_switching=None,
+                                                                                        remote_switching=None)
                 for protection in ["local", "remote"]:
                     # TODO: find a better way for this loop.
                     self.get_protection_setting(setting_uid=setting_uid, protection_setting=protection)
