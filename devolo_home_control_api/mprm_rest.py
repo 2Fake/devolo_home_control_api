@@ -148,8 +148,10 @@ class MprmRest:
         setting_property = self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get(setting_uid)
         if protection_setting == "local":
             setting_property.local_switching = response.get("properties").get("localSwitch")
+            return setting_property.local_switching
         else:
             setting_property.remote_switching = response.get("properties").get("remoteSwitch")
+            return setting_property.remote_switching
 
     def get_voltage(self, element_uid: str) -> float:
         """

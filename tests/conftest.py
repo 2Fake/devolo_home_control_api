@@ -61,6 +61,14 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
             return {"properties": {"state": 0}}
         elif request.node.name == "test_get_consumption_valid":
             return {"properties": {"currentValue": 0.58, "totalValue": 125.68}}
+        elif request.node.name == "test_get_led_setting_valid":
+            return {"properties": {"led": True}}
+        elif request.node.name == "test_get_events_enabled_valid":
+            return {"properties": {"eventsEnabled": True}}
+        elif request.node.name == "test_get_param_changed_valid":
+            return {"properties": {"paramChanged": True}}
+        elif request.node.name == "test_get_protection_setting_valid":
+            return {"properties": {"localSwitch": True, "remoteSwitch": False}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)

@@ -31,6 +31,40 @@ class TestMprmRest:
         assert current == 0.58
         assert total == 125.68
 
+    def test_get_led_setting_invalid(self):
+        with pytest.raises(ValueError):
+            self.mprm.get_led_setting("invalid")
+
+    def test_get_led_setting_valid(self):
+        assert self.mprm.get_led_setting(setting_uid=f"lis.{self.device_uid}")
+
+    def test_get_events_enabled_invalid(self):
+        with pytest.raises(ValueError):
+            self.mprm.get_events_enabled_settings("invalid")
+
+    def test_get_events_enabled_valid(self):
+        assert self.mprm.get_events_enabled_settings(setting_uid=f"gds.{self.device_uid}")
+
+    def test_get_param_changed_invalid(self):
+        with pytest.raises(ValueError):
+            self.mprm.get_param_changed_setting("invalid")
+
+    def test_get_param_changed_valid(self):
+        assert self.mprm.get_param_changed_setting(setting_uid=f"cps.{self.device_uid}")
+
+    def test_get_protection_setting_invalid(self):
+        with pytest.raises(ValueError):
+            self.mprm.get_protection_setting(setting_uid="invalid", protection_setting='local')
+
+        with pytest.raises(ValueError):
+            self.mprm.get_protection_setting(setting_uid=f"ps.{self.device_uid}", protection_setting='invalid')
+
+    def test_get_protection_setting_valid(self):
+        local_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.device_uid}", protection_setting='local')
+        remote_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.device_uid}", protection_setting='remote')
+        assert local_switch
+        assert not remote_switch
+
     def test_get_voltage_invalid(self):
         with pytest.raises(ValueError):
             self.mprm.get_voltage("invalid")
