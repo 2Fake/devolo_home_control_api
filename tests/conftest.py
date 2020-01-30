@@ -2,10 +2,11 @@ import json
 
 import pytest
 
+from devolo_home_control_api.mprm_rest import MprmRest
+from devolo_home_control_api.mprm_websocket import MprmWebsocket
+from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
 from tests.mock_gateway import Gateway
 from tests.mock_metering_plug import metering_plug
-from devolo_home_control_api.mprm_rest import MprmRest
-from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
 
 with open('test_data.json') as file:
     test_data = json.load(file)
@@ -65,10 +66,8 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
         elif request.node.name == "test_get_binary_switch_state_valid_off":
             return {"properties": {"state": 0}}
         elif request.node.name == "test_get_consumption_valid":
-            return {"properties": {"currentValue":
-                                       test_data.get("device").get("mains").get("current_consumption"),
-                                   "totalValue":
-                                       test_data.get("device").get("mains").get("total_consumption")}}
+            return {"properties": {"currentValue": test_data.get("device").get("mains").get("current_consumption"),
+                                   "totalValue": test_data.get("device").get("mains").get("total_consumption")}}
         elif request.node.name == "test_get_led_setting_valid":
             return {"properties": {"led": test_data.get("device").get("mains").get("led_setting")}}
         elif request.node.name == "test_get_param_changed_valid":
@@ -89,17 +88,12 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 
 
 @pytest.fixture()
-def mock_mprmrest__post_set_success(mocker, request):
+def mock_mprmrest__post_set(mocker, request):
     def _post(data):
-        return {"result": {"status": 1 } }
-
-    mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post)
-
-
-@pytest.fixture()
-def mock_mprmrest__post_set_error(mocker, request):
-    def _post(data):
-        return {"result": {"status": 3 } }
+        if request.node.name == "test_set_binary_switch_valid":
+            return {"result": {"status": 1}}
+        elif request.node.name == "test_set_binary_switch_error":
+            return {"result": {"status": 3}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post)
 
@@ -113,7 +107,10 @@ def test_data_fixture(request):
 
 @pytest.fixture()
 def mprm_instance(request, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
-    request.cls.mprm = MprmRest(test_data.get("gateway").get("id"))
+    if "TestMprmRest" in request.node.nodeid:
+        request.cls.mprm = MprmRest(test_data.get("gateway").get("id"))
+    else:
+        request.cls.mprm = MprmWebsocket(test_data.get("gateway").get("id"))
 
 
 @pytest.fixture(autouse=True)

@@ -26,8 +26,10 @@ class TestMprmRest:
             self.mprm.get_consumption("devolo.Meter:", "invalid")
 
     def test_get_consumption_valid(self):
-        current = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.device.get('mains').get('uid')}", consumption_type="current")
-        total = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.device.get('mains').get('uid')}", consumption_type="total")
+        current = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.device.get('mains').get('uid')}",
+                                            consumption_type="current")
+        total = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.device.get('mains').get('uid')}",
+                                          consumption_type="total")
         assert current == 0.58
         assert total == 125.68
 
@@ -37,9 +39,9 @@ class TestMprmRest:
 
     def test_get_general_device_settings_valid(self):
         name, icon, zone_id, events_enabled = self.mprm.get_general_device_settings(setting_uid=f"gds.{self.device.get('mains').get('uid')}")
-        assert name == "Light"
-        assert icon == "light-bulb"
-        assert zone_id == "hz_2"
+        assert name == self.device.get('mains').get('name')
+        assert icon == self.device.get('mains').get('icon')
+        assert zone_id == self.device.get('mains').get('zone_id')
         assert events_enabled
 
     def test_get_led_setting_invalid(self):
@@ -61,11 +63,14 @@ class TestMprmRest:
             self.mprm.get_protection_setting(setting_uid="invalid", protection_setting="local")
 
         with pytest.raises(ValueError):
-            self.mprm.get_protection_setting(setting_uid=f"ps.{self.device.get('mains').get('uid')}", protection_setting="invalid")
+            self.mprm.get_protection_setting(setting_uid=f"ps.{self.device.get('mains').get('uid')}",
+                                             protection_setting="invalid")
 
     def test_get_protection_setting_valid(self):
-        local_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.device.get('mains').get('uid')}", protection_setting="local")
-        remote_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.device.get('mains').get('uid')}", protection_setting="remote")
+        local_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.device.get('mains').get('uid')}",
+                                                        protection_setting="local")
+        remote_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.device.get('mains').get('uid')}",
+                                                         protection_setting="remote")
         assert local_switch
         assert not remote_switch
 
@@ -81,15 +86,16 @@ class TestMprmRest:
         with pytest.raises(ValueError):
             self.mprm.set_binary_switch(element_uid="invalid", state=True)
         with pytest.raises(ValueError):
-            self.mprm.set_binary_switch(element_uid=f"devolo.BinarySwitch:{self.device.get('mains').get('uid')}", state="invalid")
+            self.mprm.set_binary_switch(element_uid=f"devolo.BinarySwitch:{self.device.get('mains').get('uid')}",
+                                        state="invalid")
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set_success")
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_valid(self):
         element_uid = f"devolo.BinarySwitch:{self.device.get('mains').get('uid')}"
         self.mprm.set_binary_switch(element_uid=element_uid, state=True)
         assert self.mprm.devices.get(self.device.get('mains').get('uid')).binary_switch_property.get(element_uid).state
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set_error")
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_error(self):
         with pytest.raises(MprmDeviceError):
             element_uid = f"devolo.BinarySwitch:{self.device.get('mains').get('uid')}"
