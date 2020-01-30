@@ -1,10 +1,10 @@
 import pytest
+import json
 
 from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.mprm_rest import MprmRest
 from tests.mock_gateway import Gateway
 from tests.mock_metering_plug import metering_plug
-
 
 user = "testuser@test.de"
 password = "7fee3cdb598b45a459ffe2aa720c8532"
@@ -12,6 +12,12 @@ uuid = "535512AB-165D-11E7-A4E2-000C29D76CCA"
 gateway_id = "1409301750000598"
 full_url = "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b"
 device_uid = 'hdm:ZWave:CBC56091/3'
+
+
+def pytest_sessionstart(session):
+    with open('tests/test_data.json') as file:
+        session.test_data = json.load(file)
+
 
 @pytest.fixture()
 def mock_gateway(mocker):
@@ -22,6 +28,7 @@ def mock_gateway(mocker):
 def mock_inspect_devices_metering_plug(mocker):
     def mock__inspect_devices(self):
         self.devices[device_uid] = metering_plug(device_uid=device_uid)
+
     mocker.patch('devolo_home_control_api.mprm_rest.MprmRest._inspect_devices', mock__inspect_devices)
 
 
@@ -29,6 +36,7 @@ def mock_inspect_devices_metering_plug(mocker):
 def mock_mprmrest__detect_gateway_in_lan(mocker):
     def _detect_gateway_in_lan(self):
         return None
+
     mocker.patch('devolo_home_control_api.mprm_rest.MprmRest._detect_gateway_in_lan', _detect_gateway_in_lan)
 
 
@@ -60,15 +68,24 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
         elif request.node.name == "test_get_binary_switch_state_valid_off":
             return {"properties": {"state": 0}}
         elif request.node.name == "test_get_consumption_valid":
-            return {"properties": {"currentValue": 0.58, "totalValue": 125.68}}
+            return {"properties": {"currentValue":
+                                       request.session.test_data.get("device").get("mains").get("current_consumption"),
+                                   "totalValue":
+                                       request.session.test_data.get("device").get("mains").get("total_consumption")}}
         elif request.node.name == "test_get_led_setting_valid":
-            return {"properties": {"led": True}}
-        elif request.node.name == "test_get_events_enabled_valid":
-            return {"properties": {"eventsEnabled": True}}
+            return {"properties": {"led": request.session.test_data.get("device").get("mains").get("led_setting")}}
         elif request.node.name == "test_get_param_changed_valid":
-            return {"properties": {"paramChanged": True}}
+            return {"properties": {"paramChanged": request.session.test_data.get("device").get("mains").get("param_changed")}}
+        elif request.node.name == "test_get_general_device_settings_valid":
+            return {"properties": {"eventsEnabled": request.session.test_data.get("device").get("mains").get("events_enabled"),
+                                   "name": request.session.test_data.get("device").get("mains").get("name"),
+                                   "icon": request.session.test_data.get("device").get("mains").get("icon"),
+                                   "zoneID": request.session.test_data.get("device").get("mains").get("zone_id")}}
         elif request.node.name == "test_get_protection_setting_valid":
-            return {"properties": {"localSwitch": True, "remoteSwitch": False}}
+            return {"properties": {"localSwitch": request.session.test_data.get("device").get("mains").get("local_switch"),
+                                   "remoteSwitch": request.session.test_data.get("device").get("mains").get("remote_switch")}}
+        elif request.node.name == "test_get_voltage_valid":
+            return {"properties": {"value": request.session.test_data.get("device").get("mains").get("voltage")}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)

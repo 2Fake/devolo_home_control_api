@@ -38,19 +38,23 @@ class TestMprmRest:
     def test_get_led_setting_valid(self):
         assert self.mprm.get_led_setting(setting_uid=f"lis.{self.device_uid}")
 
-    def test_get_events_enabled_invalid(self):
+    def test_get_general_device_settings_invalid(self):
         with pytest.raises(ValueError):
-            self.mprm.get_events_enabled_settings("invalid")
+            self.mprm.get_general_device_settings("invalid")
 
-    def test_get_events_enabled_valid(self):
-        assert self.mprm.get_events_enabled_settings(setting_uid=f"gds.{self.device_uid}")
+    def test_get_general_device_settings_valid(self):
+        name, icon, zone_id, events_enabled = self.mprm.get_general_device_settings(setting_uid=f"gds.{self.device_uid}")
+        assert name == "Light"
+        assert icon == "light-bulb"
+        assert zone_id == "hz_2"
+        assert events_enabled
 
     def test_get_param_changed_invalid(self):
         with pytest.raises(ValueError):
             self.mprm.get_param_changed_setting("invalid")
 
     def test_get_param_changed_valid(self):
-        assert self.mprm.get_param_changed_setting(setting_uid=f"cps.{self.device_uid}")
+        assert not self.mprm.get_param_changed_setting(setting_uid=f"cps.{self.device_uid}")
 
     def test_get_protection_setting_invalid(self):
         with pytest.raises(ValueError):
@@ -68,3 +72,8 @@ class TestMprmRest:
     def test_get_voltage_invalid(self):
         with pytest.raises(ValueError):
             self.mprm.get_voltage("invalid")
+
+    def test_get_voltage_valid(self):
+        voltage = self.mprm.get_voltage(f"devolo.VoltageMultiLevelSensor:{self.device_uid}")
+        assert voltage == 237
+
