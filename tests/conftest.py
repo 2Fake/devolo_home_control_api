@@ -91,7 +91,7 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__post_set_success(mocker, request):
     def _post(data):
-        return {"result": {"status": 1 }}
+        return {"result": {"status": 1 } }
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post)
 
@@ -99,7 +99,7 @@ def mock_mprmrest__post_set_success(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__post_set_error(mocker, request):
     def _post(data):
-        return {"result": {"status": 3 }}
+        return {"result": {"status": 3 } }
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post)
 
