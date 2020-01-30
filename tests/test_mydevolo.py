@@ -7,13 +7,13 @@ class TestMydevolo:
 
     def test_gateway_ids(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
-        mydevolo._uuid = self.uuid
+        mydevolo._uuid = self.user.get("uuid")
 
-        assert mydevolo.gateway_ids == [self.gateway_id]
+        assert mydevolo.gateway_ids == [self.gateway.get("id")]
 
     def test_gateway_ids_empty(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
-        mydevolo._uuid = self.uuid
+        mydevolo._uuid = self.user.get("uuid")
 
         with pytest.raises(IndexError):
             mydevolo.gateway_ids
@@ -21,36 +21,36 @@ class TestMydevolo:
     def test_get_full_url(self, mock_mydevolo__call):
 
         mydevolo = Mydevolo.get_instance()
-        mydevolo._uuid = self.uuid
+        mydevolo._uuid = self.user.get("uuid")
 
-        full_url = mydevolo.get_full_url(self.gateway_id)
+        full_url = mydevolo.get_full_url(self.gateway.get("id"))
 
-        assert full_url == self.full_url
+        assert full_url == self.gateway.get("full_url")
 
     def test_get_gateway(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
-        mydevolo._uuid = self.uuid
+        mydevolo._uuid = self.user.get("uuid")
 
-        details = mydevolo.get_gateway(self.gateway_id)
+        details = mydevolo.get_gateway(self.gateway.get("id"))
 
-        assert details.get("gatewayId") == self.gateway_id
+        assert details.get("gatewayId") == self.gateway.get("id")
 
     def test_set_password(self):
         mydevolo = Mydevolo.get_instance()
-        mydevolo._uuid = self.uuid
-        mydevolo._gateway_ids = [self.gateway_id]
+        mydevolo._uuid = self.user.get("uuid")
+        mydevolo._gateway_ids = [self.gateway.get("id")]
 
-        mydevolo.password = self.password
+        mydevolo.password = self.user.get("password")
 
         assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
 
     def test_set_user(self):
         mydevolo = Mydevolo.get_instance()
-        mydevolo._uuid = self.uuid
-        mydevolo._gateway_ids = [self.gateway_id]
+        mydevolo._uuid = self.user.get("uuid")
+        mydevolo._gateway_ids = [self.gateway.get("id")]
 
-        mydevolo.user = self.user
+        mydevolo.user = self.user.get("username")
 
         assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
@@ -63,4 +63,4 @@ class TestMydevolo:
 
     def test_uuid(self, mock_mydevolo__call):
         mydevolo = Mydevolo.get_instance()
-        assert mydevolo.uuid == self.uuid
+        assert mydevolo.uuid == self.user.get("uuid")

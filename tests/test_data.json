@@ -6,7 +6,14 @@
   },
   "gateway": {
     "id": "1409301750000598",
-    "full_url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b"
+    "full_url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b",
+    "local_passkey": "6b96ad097aa389209f1ceeaed6fe7029",
+    "name": "Home",
+    "role": "owner",
+    "external_access": true,
+    "status": "devolo.hc_gateway.status.online",
+    "state": "devolo.hc_gateway.state.idle",
+    "firmware": "8.0.45_2016-11-17"
   },
   "device": {
     "mains":{

@@ -5,7 +5,7 @@ from devolo_home_control_api.properties.property import WrongElementError
 
 class TestSettingsProperty:
     def test_settings_property_valid(self):
-        setting_property = SettingsProperty(f"lis.{self.device_uid}",
+        setting_property = SettingsProperty(f"lis.{self.device.get('mains').get('uid')}",
                                             led_setting=True,
                                             events_enabled=False,
                                             param_changed=True,
@@ -19,4 +19,4 @@ class TestSettingsProperty:
 
     def test_settings_property_invalid(self):
         with pytest.raises(WrongElementError):
-            SettingsProperty(self.device_uid)
+            SettingsProperty(self.device.get('mains').get('uid'))

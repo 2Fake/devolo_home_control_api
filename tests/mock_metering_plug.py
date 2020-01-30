@@ -8,8 +8,9 @@ from devolo_home_control_api.properties.settings_property import SettingsPropert
 
 
 def metering_plug(device_uid):
-    with open('tests/test_data.json') as file:
+    with open('test_data.json') as file:
         test_data = json.load(file)
+
     device = Zwave(name=test_data.get("device").get("mains").get("name"),
                    device_uid=device_uid,
                    zone=test_data.get("device").get("mains").get("zone_name"),
