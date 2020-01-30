@@ -1,6 +1,5 @@
 import pytest
 
-from devolo_home_control_api.mprm_rest import MprmRest
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -76,4 +75,5 @@ class TestMprmRest:
     def test_get_voltage_valid(self):
         voltage = self.mprm.get_voltage(f"devolo.VoltageMultiLevelSensor:{self.device_uid}")
         assert voltage == 237
+
 
