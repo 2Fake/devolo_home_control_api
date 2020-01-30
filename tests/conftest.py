@@ -1,6 +1,7 @@
 import pytest
 
 from devolo_home_control_api.mydevolo import Mydevolo
+from devolo_home_control_api.mprm_rest import MprmRest
 from tests.mock_gateway import Gateway
 from tests.mock_metering_plug import metering_plug
 
@@ -72,6 +73,11 @@ def test_data(request):
     request.cls.full_url = full_url
 
     request.cls.device_uid = device_uid
+
+
+@pytest.fixture()
+def mprm_instance(request, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+    request.cls.mprm = MprmRest(gateway_id)
 
 
 @pytest.fixture(autouse=True)
