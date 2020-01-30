@@ -178,6 +178,8 @@ class MprmRest:
         """
         if not element_uid.startswith("devolo.BinarySwitch"):
             raise ValueError("Not a valid uid to set binary switch data.")
+        if type(state) != bool:
+            raise ValueError("Not a valid binary switch state.")
         data = {"method": "FIM/invokeOperation",
                 "params": [element_uid, "turnOn" if state else "turnOff", []]}
         response = self._post(data)
@@ -209,7 +211,7 @@ class MprmRest:
                         local_ip = ip
                         break
                 except OSError:
-                    # Got IPv6 address which isn't supported by socket.inet_ntoa
+                    # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
                     self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
         zeroconf.close()
         return local_ip
@@ -329,7 +331,7 @@ def get_device_uid_from_element_uid(element_uid: str) -> str:
     Return device UID from the given element UID
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: device UID, something like hdm:ZWave:CBC56091/24
+    :return: Device UID, something like hdm:ZWave:CBC56091/24
     """
     return element_uid.split(":", 1)[1].split("#")[0]
 
@@ -348,7 +350,7 @@ def get_device_uid_from_setting_uid(setting_uid):
     """
     Return the device uid of the given setting uid
     :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
-    :return: Device type, something like devolo.MultiLevelSensor
+    :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
     return setting_uid.split(".", 1)[-1]
 
