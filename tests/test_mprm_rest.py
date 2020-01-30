@@ -4,17 +4,36 @@ from devolo_home_control_api.mprm_rest import MprmRest
 
 
 class TestMprmRest:
-    def test_binary_switch_devices(self, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+    def test_binary_switch_devices(self, mock_gateway, mock_inspect_devices_metering_plug,
+                                   mock_mprmrest__detect_gateway_in_lan):
         mprm = MprmRest(self.gateway_id)
         assert hasattr(mprm.binary_switch_devices[0], "binary_switch_property")
 
-    def test_get_binary_switch_state_invalid(self, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+    def test_get_binary_switch_state_invalid(self, mock_gateway, mock_inspect_devices_metering_plug,
+                                             mock_mprmrest__detect_gateway_in_lan):
         mprm = MprmRest(self.gateway_id)
 
         with pytest.raises(ValueError):
             mprm.get_binary_switch_state("invalid")
 
-    def test_get_consumption_invalid(self, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+    def test_get_binary_switch_state_valid_on(self,
+                                              mock_gateway,
+                                              mock_inspect_devices_metering_plug,
+                                              mock_mprmrest__detect_gateway_in_lan,
+                                              mock_mprmrest__extract_data_from_element_uid):
+        mprm = MprmRest(self.gateway_id)
+        assert mprm.get_binary_switch_state(element_uid=f"devolo.BinarySwitch:{self.device_uid}")
+
+    def test_get_binary_switch_state_valid_off(self,
+                                               mock_gateway,
+                                               mock_inspect_devices_metering_plug,
+                                               mock_mprmrest__detect_gateway_in_lan,
+                                               mock_mprmrest__extract_data_from_element_uid):
+        mprm = MprmRest(self.gateway_id)
+        assert not mprm.get_binary_switch_state(element_uid=f"devolo.BinarySwitch:{self.device_uid}")
+
+    def test_get_consumption_invalid(self, mock_gateway, mock_inspect_devices_metering_plug,
+                                     mock_mprmrest__detect_gateway_in_lan):
         mprm = MprmRest(self.gateway_id)
 
         with pytest.raises(ValueError):

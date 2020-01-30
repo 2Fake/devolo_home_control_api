@@ -10,7 +10,7 @@ password = "7fee3cdb598b45a459ffe2aa720c8532"
 uuid = "535512AB-165D-11E7-A4E2-000C29D76CCA"
 gateway_id = "1409301750000598"
 full_url = "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b"
-
+device_uid = 'hdm:ZWave:CBC56091/3'
 
 @pytest.fixture()
 def mock_gateway(mocker):
@@ -20,7 +20,7 @@ def mock_gateway(mocker):
 @pytest.fixture()
 def mock_inspect_devices_metering_plug(mocker):
     def mock__inspect_devices(self):
-        self.devices['hdm:ZWave:CBC56091/3'] = metering_plug(device_uid="hdm:ZWave:CBC56091/3")
+        self.devices[device_uid] = metering_plug(device_uid=device_uid)
     mocker.patch('devolo_home_control_api.mprm_rest.MprmRest._inspect_devices', mock__inspect_devices)
 
 
@@ -51,6 +51,18 @@ def mock_mydevolo__call(mocker, request):
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)
 
 
+@pytest.fixture()
+def mock_mprmrest__extract_data_from_element_uid(mocker, request):
+    def _extract_data_from_element_uid(element_uid):
+        if request.node.name == "test_get_binary_switch_state_valid_on":
+            return {"properties": {"state": 1}}
+        elif request.node.name == "test_get_binary_switch_state_valid_off":
+            return {"properties": {"state": 0}}
+
+    mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
+                 side_effect=_extract_data_from_element_uid)
+
+
 @pytest.fixture(autouse=True)
 def test_data(request):
     request.cls.user = user
@@ -58,6 +70,8 @@ def test_data(request):
     request.cls.uuid = uuid
     request.cls.gateway_id = gateway_id
     request.cls.full_url = full_url
+
+    request.cls.device_uid = device_uid
 
 
 @pytest.fixture(autouse=True)
