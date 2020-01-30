@@ -6,6 +6,9 @@ from devolo_home_control_api.mprm_rest import MprmRest
 from tests.mock_gateway import Gateway
 from tests.mock_metering_plug import metering_plug
 
+with open('tests/test_data.json') as file:
+    test_data = json.load(file)
+
 user = "testuser@test.de"
 password = "7fee3cdb598b45a459ffe2aa720c8532"
 uuid = "535512AB-165D-11E7-A4E2-000C29D76CCA"
@@ -69,30 +72,30 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
             return {"properties": {"state": 0}}
         elif request.node.name == "test_get_consumption_valid":
             return {"properties": {"currentValue":
-                                       request.session.test_data.get("device").get("mains").get("current_consumption"),
+                                       test_data.get("device").get("mains").get("current_consumption"),
                                    "totalValue":
-                                       request.session.test_data.get("device").get("mains").get("total_consumption")}}
+                                       test_data.get("device").get("mains").get("total_consumption")}}
         elif request.node.name == "test_get_led_setting_valid":
-            return {"properties": {"led": request.session.test_data.get("device").get("mains").get("led_setting")}}
+            return {"properties": {"led": test_data.get("device").get("mains").get("led_setting")}}
         elif request.node.name == "test_get_param_changed_valid":
-            return {"properties": {"paramChanged": request.session.test_data.get("device").get("mains").get("param_changed")}}
+            return {"properties": {"paramChanged": test_data.get("device").get("mains").get("param_changed")}}
         elif request.node.name == "test_get_general_device_settings_valid":
-            return {"properties": {"eventsEnabled": request.session.test_data.get("device").get("mains").get("events_enabled"),
-                                   "name": request.session.test_data.get("device").get("mains").get("name"),
-                                   "icon": request.session.test_data.get("device").get("mains").get("icon"),
-                                   "zoneID": request.session.test_data.get("device").get("mains").get("zone_id")}}
+            return {"properties": {"eventsEnabled": test_data.get("device").get("mains").get("events_enabled"),
+                                   "name": test_data.get("device").get("mains").get("name"),
+                                   "icon": test_data.get("device").get("mains").get("icon"),
+                                   "zoneID": test_data.get("device").get("mains").get("zone_id")}}
         elif request.node.name == "test_get_protection_setting_valid":
-            return {"properties": {"localSwitch": request.session.test_data.get("device").get("mains").get("local_switch"),
-                                   "remoteSwitch": request.session.test_data.get("device").get("mains").get("remote_switch")}}
+            return {"properties": {"localSwitch": test_data.get("device").get("mains").get("local_switch"),
+                                   "remoteSwitch": test_data.get("device").get("mains").get("remote_switch")}}
         elif request.node.name == "test_get_voltage_valid":
-            return {"properties": {"value": request.session.test_data.get("device").get("mains").get("voltage")}}
+            return {"properties": {"value": test_data.get("device").get("mains").get("voltage")}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)
 
 
 @pytest.fixture(autouse=True)
-def test_data(request):
+def test_data_fixture(request):
     request.cls.user = user
     request.cls.password = password
     request.cls.uuid = uuid
