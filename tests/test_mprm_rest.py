@@ -26,7 +26,10 @@ class TestMprmRest:
             self.mprm.get_consumption("devolo.Meter:", "invalid")
 
     def test_get_consumption_valid(self):
-        pass
+        current = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.device_uid}", consumption_type='current')
+        total = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.device_uid}", consumption_type='total')
+        assert current == 0.58
+        assert total == 125.68
 
     def test_get_voltage_invalid(self):
         with pytest.raises(ValueError):

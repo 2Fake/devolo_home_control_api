@@ -59,6 +59,8 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
             return {"properties": {"state": 1}}
         elif request.node.name == "test_get_binary_switch_state_valid_off":
             return {"properties": {"state": 0}}
+        elif request.node.name == "test_get_consumption_valid":
+            return {"properties": {"currentValue": 0.58, "totalValue": 125.68}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)
