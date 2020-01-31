@@ -80,7 +80,7 @@ class MprmWebsocket(MprmRest):
         if consumption not in ["current", "total"]:
             raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed!')
         if value is None:
-            self.get_consumption(element_uid=element_uid, consumption_type=consumption)
+            super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
             for consumption_property_name, consumption_property_value in \
                     self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
@@ -91,7 +91,7 @@ class MprmWebsocket(MprmRest):
                         consumption_property_value.current = value
                     else:
                         consumption_property_value.total = value
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+        self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
     def update_voltage(self, element_uid: str, value: float = None):
         """
