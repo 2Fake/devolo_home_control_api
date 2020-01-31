@@ -22,6 +22,15 @@
       "icon": "light-bulb",
       "zone_id": "hz_2",
       "zone_name": "Office",
+      "battery_level": -1,
+      "settings_uids": [
+        "gds.hdm:ZWave:F6BF9812/2", 
+        "cps.hdm:ZWave:F6BF9812/2", 
+        "lis.hdm:ZWave:F6BF9812/2", 
+        "ps.hdm:ZWave:F6BF9812/2"],
+      "element_uids": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/2",
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
       "state": 1,
       "current_consumption": 0.58,
       "total_consumption": 125.68,
