@@ -3,7 +3,6 @@ import threading
 import time
 
 import websocket
-from websocket import WebSocketTimeoutException
 
 from .mprm_rest import MprmRest, get_device_uid_from_element_uid
 
@@ -79,7 +78,7 @@ class MprmWebsocket(MprmRest):
         if not element_uid.startswith("devolo.Meter"):
             raise ValueError("Not a valid uid to set consumption data.")
         if consumption not in ["current", "total"]:
-            raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed!')
+            raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed.')
         if value is None:
             super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
@@ -95,9 +94,15 @@ class MprmWebsocket(MprmRest):
         self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
     def update_gateway_state(self, accessible: bool, online_sync: bool):
+        """
+        Function to update the gateway status. A gateway might go on- or offline while we listen to the websocket.
+
+        :param accessible: Online state of the gateway
+        :param online_sync: Sync state of the gateway
+        """
         self._logger.debug(f"Updating status and state of gateway to status: {accessible} and state: {online_sync}")
-        self._gateway.status = accessible
-        self._gateway.state = online_sync
+        self._gateway.online = accessible
+        self._gateway.sync = online_sync
 
     def update_voltage(self, element_uid: str, value: float = None):
         """
@@ -124,9 +129,8 @@ class MprmWebsocket(MprmRest):
     def _create_pub(self):
         """
         Create a publisher for every element we support at the moment.
-        Actual there are publisher for current consumption and binary state
-        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
-        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        Actually, there are publisher for current consumption and binary state. Current consumption publisher is create as
+        "current_consumption_ELEMENT_UID" and binary state publisher is created as "binary_state_ELEMENT_UID".
         """
         publisher_list = [device for device in self.devices]
         self.publisher = Publisher(publisher_list)
@@ -178,13 +182,10 @@ class MprmWebsocket(MprmRest):
 
     def _on_error(self, error):
         """ Callback function to react on errors. """
-        # TODO: catch error
         for error in error.args:
             if error == "ping/pong timed out":
                 self._logger.error("Connection to gateway lost because of ping/pong timeout")
-                self._logger.error(error)
-            else:
-                self._logger.error(error)
+            self._logger.error(error)
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """

@@ -24,9 +24,16 @@ class Gateway:
         self.local_user = self._mydevolo.uuid
         self.local_passkey = details.get("localPasskey")
         self.external_access = details.get("externalAccess")
-        self.status = details.get("status")
-        self.state = details.get("state")
         self.firmware_version = details.get("firmwareVersion")
+
+        if details.get("status") == "devolo.hc_gateway.status.online":
+            self.online = True
+        else:
+            self.online = False
+        if details.get("state") == "devolo.hc_gateway.state.idle":
+            self.sync = True
+        else:
+            self.sync = False
 
 
     @property
