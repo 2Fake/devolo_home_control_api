@@ -6,6 +6,7 @@ import time
 import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
+from .mydevolo import Mydevolo
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
 from .properties.binary_switch_property import BinarySwitchProperty
@@ -30,6 +31,7 @@ class MprmRest:
         self._data_id = 0
         self._mprm_url = url
 
+        mydevolo = Mydevolo.get_instance()
         local_ip = self._detect_gateway_in_lan()
 
         if local_ip:
@@ -39,7 +41,7 @@ class MprmRest:
             self._token_url = self._session.get(self._mprm_url + "/dhlp/portal/full",
                                                 auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
             self._session.get(self._token_url.get('link'))
-        elif self._gateway.external_access:
+        elif self._gateway.external_access and not mydevolo.maintenance:
             # Get a remote session, if we are allowed to
             self._logger.info("Connecting to gateway via cloud")
             self._session.get(self._gateway.full_url)
@@ -198,6 +200,7 @@ class MprmRest:
         local_ip = None
         zeroconf = Zeroconf()
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
+        self._logger.info("Searching for gateway in LAN")
         # TODO: Optimize the sleep
         time.sleep(2)
         for mdns_name in zeroconf.cache.entries():

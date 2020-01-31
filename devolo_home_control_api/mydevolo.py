@@ -10,7 +10,7 @@ class Mydevolo:
 
     We differentiate between general information like UUID or gateway IDs and information my devolo can provide, if
     you know what you are looking for like gateway details. We treat the frommer as properties and the latter as
-    parametries functions. Althouth they typically start with get, those are not getter function, as the result is
+    parametriesed functions. Althouth they typically start with get, those are not getter function, as the result is
     not stored in the object.
     """
 
@@ -73,6 +73,16 @@ class Mydevolo:
             self._logger.debug("Getting UUID")
             self._uuid = self._call(self.url + "/v1/users/uuid").get("uuid")
         return self._uuid
+
+    @property
+    def maintenance(self) -> bool:
+        """ If devolo Home Control is in maintenance, there is not much we can do via cloud. """
+        state = self._call(self.url + "/v1/hc/maintenance").get("state")
+        if state == "on":
+            return False
+        else:
+            self._logger.warning("devolo Home Control is in maintenance mode.")
+            return True
 
     @property
     def gateway_ids(self) -> list:
