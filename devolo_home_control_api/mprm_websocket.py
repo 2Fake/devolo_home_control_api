@@ -93,6 +93,11 @@ class MprmWebsocket(MprmRest):
                         consumption_property_value.total = value
         self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
 
+    def update_gateway_state(self, accessible: bool, online_sync: bool):
+        self._logger.debug(f"Updating status and state of gateway to status: {accessible} and state: {online_sync}")
+        self._gateway.status = accessible
+        self._gateway.state = online_sync
+
     def update_voltage(self, element_uid: str, value: float = None):
         """
         Function to update the internal voltage of a device.
@@ -161,9 +166,14 @@ class MprmWebsocket(MprmRest):
         elif message.get("properties").get("uid").startswith("devolo.VoltageMultiLevelSensor"):
             self.update_voltage(element_uid=message.get("properties").get("uid"),
                                 value=message.get("properties").get("property.value.new"))
+        elif message.get("properties").get("uid") == "devolo.mprm.gw.GatewayAccessibilityFI" \
+                and message.get("properties").get("property.name") == "gatewayAccessible":
+            self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
+                                      online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
+
         else:
             # Unknown messages shall be ignored
-            pass
+            self._logger.debug(json.dumps(message, indent=4))
 
     def _on_error(self, error):
         """ Callback function to react on errors. """

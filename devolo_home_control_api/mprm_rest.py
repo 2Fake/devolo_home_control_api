@@ -247,6 +247,7 @@ class MprmRest:
         for device in all_devices_list:
             name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = \
                 self._get_name_and_element_uids(uid=device)
+            # Process device uids
             self.devices[device] = Zwave(name=name,
                                          device_uid=device,
                                          zone=zone,
