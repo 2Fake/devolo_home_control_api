@@ -3,6 +3,7 @@ import threading
 import time
 
 import websocket
+from websocket import WebSocketTimeoutException
 
 from .mprm_rest import MprmRest, get_device_uid_from_element_uid
 
@@ -85,7 +86,7 @@ class MprmWebsocket(MprmRest):
             for consumption_property_name, consumption_property_value in \
                     self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
                 if element_uid == consumption_property_name:
-                    self._logger.debug(f"Updating {consumption} consumption of {element_uid}")
+                    self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
                     # TODO : make one liner
                     if consumption == "current":
                         consumption_property_value.current = value
@@ -178,7 +179,12 @@ class MprmWebsocket(MprmRest):
     def _on_error(self, error):
         """ Callback function to react on errors. """
         # TODO: catch error
-        self._logger.error(error)
+        for error in error.args:
+            if error == "ping/pong timed out":
+                self._logger.error("Connection to gateway lost because of ping/pong timeout")
+                self._logger.error(error)
+            else:
+                self._logger.error(error)
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """
@@ -198,7 +204,7 @@ class MprmWebsocket(MprmRest):
                                           on_message=self._on_message,
                                           on_error=self._on_error,
                                           on_close=self._on_close)
-        self._ws.run_forever(ping_interval=30)
+        self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
 
 class Publisher:
