@@ -3,7 +3,7 @@ import logging
 from devolo_home_control_api.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.mydevolo import Mydevolo
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 user = "username"
 password = "password"
@@ -14,7 +14,7 @@ class Subscriber:
         self.name = name
 
     def update(self, message):
-        print('{} got message "{}"'.format(self.name, message))
+        print(f'{self.name} got message "{message}"')
 
 
 mydevolo = Mydevolo.get_instance()
