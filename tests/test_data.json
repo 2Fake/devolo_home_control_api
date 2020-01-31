@@ -1,0 +1,45 @@
+{
+  "user": {
+    "username": "testuser@test.de",
+    "password": "7fee3cdb598b45a459ffe2aa720c8532",
+    "uuid": "535512AB-165D-11E7-A4E2-000C29D76CCA"
+  },
+  "gateway": {
+    "id": "1409301750000598",
+    "full_url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b",
+    "local_passkey": "6b96ad097aa389209f1ceeaed6fe7029",
+    "name": "Home",
+    "role": "owner",
+    "external_access": true,
+    "status": "devolo.hc_gateway.status.online",
+    "state": "devolo.hc_gateway.state.idle",
+    "firmware": "8.0.45_2016-11-17"
+  },
+  "device": {
+    "mains":{
+      "uid": "hdm:ZWave:CBC56091/3",
+      "name": "Light",
+      "icon": "light-bulb",
+      "zone_id": "hz_2",
+      "zone_name": "Office",
+      "battery_level": -1,
+      "settings_uids": [
+        "gds.hdm:ZWave:F6BF9812/2", 
+        "cps.hdm:ZWave:F6BF9812/2", 
+        "lis.hdm:ZWave:F6BF9812/2", 
+        "ps.hdm:ZWave:F6BF9812/2"],
+      "element_uids": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/2",
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
+      "state": 1,
+      "current_consumption": 0.58,
+      "total_consumption": 125.68,
+      "led_setting": true,
+      "param_changed": false,
+      "events_enabled": true,
+      "local_switch": true,
+      "remote_switch": false,
+      "voltage": 237
+    }
+  }
+}
