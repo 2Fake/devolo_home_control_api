@@ -22,7 +22,8 @@ def metering_plug(device_uid):
     device.voltage_property = {}
     device.settings_property = {}
 
-    device.binary_switch_property[f'devolo.BinarySwitch:{device_uid}'] = BinarySwitchProperty(element_uid=f"devolo.BinarySwitch:{device_uid}")
+    device.binary_switch_property[f'devolo.BinarySwitch:{device_uid}'] = \
+        BinarySwitchProperty(element_uid=f"devolo.BinarySwitch:{device_uid}")
     device.consumption_property[f'devolo.Meter:{device_uid}'] = ConsumptionProperty(element_uid=f"devolo.Meter:{device_uid}")
     device.voltage_property[f'devolo.VoltageMultiLevelSensor:{device_uid}'] = \
         VoltageProperty(element_uid=f"devolo.VoltageMultiLevelSensor:{device_uid}")

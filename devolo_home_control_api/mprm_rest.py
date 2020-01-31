@@ -134,9 +134,10 @@ class MprmRest:
         if not setting_uid.startswith("cps.hdm"):
             raise ValueError("Not a valid uid to get the param changed setting")
         response = self._extract_data_from_element_uid(setting_uid)
-        self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("param_changed").param_changed = \
+        device_uid = get_device_uid_from_setting_uid(setting_uid)
+        self.devices.get(device_uid).settings_property.get("param_changed").param_changed = \
             response.get("properties").get("paramChanged")
-        return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("param_changed").param_changed
+        return self.devices.get(device_uid).settings_property.get("param_changed").param_changed
 
     def get_protection_setting(self, setting_uid, protection_setting):
         """
@@ -185,10 +186,11 @@ class MprmRest:
         data = {"method": "FIM/invokeOperation",
                 "params": [element_uid, "turnOn" if state else "turnOff", []]}
         response = self._post(data)
+        device_uid = get_device_uid_from_element_uid(element_uid)
         if response.get("result").get("status") == 1:
-            self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state = state
+            self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
         else:
-            raise MprmDeviceError(f"Could not set state of device {get_device_uid_from_element_uid(element_uid)}.")
+            raise MprmDeviceError(f"Could not set state of device {device_uid}.")
 
 
     def _detect_gateway_in_lan(self):
