@@ -3,7 +3,7 @@ import logging
 from devolo_home_control_api.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.mydevolo import Mydevolo
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 
 user = "username"
 password = "password"
