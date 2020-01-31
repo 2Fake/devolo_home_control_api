@@ -8,7 +8,7 @@ class Gateway:
     Representing object for devolo Home Control Central Units. As it is a gateway from the IP world to the Z-Wave
     world, we call it that way.
 
-    :param id: Gateway ID (aka serial number), typically found on the label of the device
+    :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
     """
 
     def __init__(self, gateway_id: str):
@@ -33,6 +33,7 @@ class Gateway:
     def full_url(self):
         """ The full URL is used to get a valid remote session """
         if self._full_url is None:
+            # TODO: Catch errors like gateway offline
             self._full_url = self._mydevolo.get_full_url(self.id)
             self._logger.debug(f"Setting full URL to {self._full_url}")
         return self._full_url
