@@ -82,6 +82,9 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
                                    "remoteSwitch": test_data.get("device").get("mains").get("remote_switch")}}
         elif request.node.name == "test_get_voltage_valid":
             return {"properties": {"value": test_data.get("device").get("mains").get("voltage")}}
+        elif request.node.name == "test_update_consumption_valid":
+            return {"properties": {"currentValue": test_data.get("device").get("mains").get("current_consumption"),
+                                   "totalValue": test_data.get("device").get("mains").get("total_consumption")}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)
@@ -89,13 +92,13 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 
 @pytest.fixture()
 def mock_mprmrest__post_set(mocker, request):
-    def _post(data):
+    def _post_mock(data):
         if request.node.name == "test_set_binary_switch_valid":
             return {"result": {"status": 1}}
         elif request.node.name == "test_set_binary_switch_error":
             return {"result": {"status": 3}}
 
-    mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post)
+    mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post_mock)
 
 
 @pytest.fixture(autouse=True)
@@ -106,12 +109,28 @@ def test_data_fixture(request):
 
 
 @pytest.fixture()
-def mprm_instance(request, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def mprm_instance(request, mocker, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(test_data.get("gateway").get("id"))
     else:
+        def _websocket_connection_mock():
+            pass
+        mocker.patch("devolo_home_control_api.mprm_websocket.MprmWebsocket._websocket_connection",
+                     side_effect=_websocket_connection_mock)
         request.cls.mprm = MprmWebsocket(test_data.get("gateway").get("id"))
 
+
+@pytest.fixture()
+def fill_device_data(request):
+    consumption_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).consumption_property
+    consumption_property.get(f"devolo.Meter:{request.cls.device.get('mains').get('uid')}").current = 0.58
+    consumption_property.get(f"devolo.Meter:{request.cls.device.get('mains').get('uid')}").total = 125.68
+
+    binary_switch_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).binary_switch_property
+    binary_switch_property.get(f"devolo.BinarySwitch:{request.cls.device.get('mains').get('uid')}").state = False
+
+    voltage_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).voltage_property
+    voltage_property.get(f"devolo.VoltageMultiLevelSensor:{request.cls.device.get('mains').get('uid')}").current = 236
 
 @pytest.fixture(autouse=True)
 def clear_mydevolo():
