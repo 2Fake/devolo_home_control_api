@@ -35,6 +35,14 @@ class TestMydevolo:
 
         assert details.get("gatewayId") == self.gateway.get("id")
 
+    def test_maintenance_on(self, mock_mydevolo__call):
+        mydevolo = Mydevolo.get_instance()
+        assert not mydevolo.maintenance
+
+    def test_maintenance_off(self, mock_mydevolo__call):
+        mydevolo = Mydevolo.get_instance()
+        assert mydevolo.maintenance
+
     def test_set_password(self):
         mydevolo = Mydevolo.get_instance()
         mydevolo._uuid = self.user.get("uuid")

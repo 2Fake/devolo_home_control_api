@@ -5,6 +5,7 @@ from devolo_home_control_api.mprm_rest import MprmDeviceError
 
 @pytest.mark.usefixtures("mprm_instance")
 @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
+@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestMprmRest:
     def test_binary_switch_devices(self):
         assert hasattr(self.mprm.binary_switch_devices[0], "binary_switch_property")
@@ -38,7 +39,8 @@ class TestMprmRest:
             self.mprm.get_general_device_settings("invalid")
 
     def test_get_general_device_settings_valid(self):
-        name, icon, zone_id, events_enabled = self.mprm.get_general_device_settings(setting_uid=f"gds.{self.device.get('mains').get('uid')}")
+        name, icon, zone_id, events_enabled = \
+            self.mprm.get_general_device_settings(setting_uid=f"gds.{self.device.get('mains').get('uid')}")
         assert name == self.device.get('mains').get('name')
         assert icon == self.device.get('mains').get('icon')
         assert zone_id == self.device.get('mains').get('zone_id')

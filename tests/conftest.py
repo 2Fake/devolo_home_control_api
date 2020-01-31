@@ -52,6 +52,11 @@ def mock_mydevolo__call(mocker, request):
                 return {"items": [{"gatewayId": gateway_id}]}
         elif url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}":
             return {"gatewayId": gateway_id}
+        elif url == "https://www.mydevolo.com/v1/hc/maintenance":
+            if request.node.name == "test_maintenance_off":
+                return {"state": "off"}
+            else:
+                return {"state": "on"}
         else:
             raise WrongUrlError(f"This URL was not mocked: {url}")
 
@@ -115,6 +120,7 @@ def mprm_instance(request, mocker, mock_gateway, mock_inspect_devices_metering_p
     else:
         def _websocket_connection_mock():
             pass
+
         mocker.patch("devolo_home_control_api.mprm_websocket.MprmWebsocket._websocket_connection",
                      side_effect=_websocket_connection_mock)
         request.cls.mprm = MprmWebsocket(test_data.get("gateway").get("id"))
@@ -126,11 +132,13 @@ def fill_device_data(request):
     consumption_property.get(f"devolo.Meter:{request.cls.device.get('mains').get('uid')}").current = 0.58
     consumption_property.get(f"devolo.Meter:{request.cls.device.get('mains').get('uid')}").total = 125.68
 
-    binary_switch_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).binary_switch_property
+    binary_switch_property = \
+        request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).binary_switch_property
     binary_switch_property.get(f"devolo.BinarySwitch:{request.cls.device.get('mains').get('uid')}").state = False
 
     voltage_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).voltage_property
     voltage_property.get(f"devolo.VoltageMultiLevelSensor:{request.cls.device.get('mains').get('uid')}").current = 236
+
 
 @pytest.fixture(autouse=True)
 def clear_mydevolo():

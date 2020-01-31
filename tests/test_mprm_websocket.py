@@ -3,6 +3,7 @@ import pytest
 
 @pytest.mark.usefixtures("mprm_instance")
 @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
+@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestMprmWebsocket:
     def test_get_consumption_invalid(self):
         with pytest.raises(ValueError):
@@ -13,8 +14,8 @@ class TestMprmWebsocket:
     def test_get_consumption_valid(self, fill_device_data):
         current = self.mprm.get_consumption(f"devolo.Meter:{self.device.get('mains').get('uid')}", "current")
         total = self.mprm.get_consumption(f"devolo.Meter:{self.device.get('mains').get('uid')}", "total")
-        assert current == 0.58
-        assert total == 125.68
+        assert current == self.device.get('mains').get('current_consumption')
+        assert total == self.device.get('mains').get('total_consumption')
 
     def test_get_binary_switch_state_invalid(self):
         with pytest.raises(ValueError):
@@ -52,8 +53,10 @@ class TestMprmWebsocket:
     def test_update_voltage_valid(self, fill_device_data):
         voltage_property = self.mprm.devices.get(self.device.get("mains").get("uid")).voltage_property
         current_voltage = voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.device.get('mains').get('uid')}").current
-        self.mprm.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{self.device.get('mains').get('uid')}", value=257)
-        assert current_voltage != voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.device.get('mains').get('uid')}").current
+        self.mprm.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{self.device.get('mains').get('uid')}",
+                                 value=257)
+        assert current_voltage != \
+            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.device.get('mains').get('uid')}").current
         assert voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.device.get('mains').get('uid')}").current == 257
 
     def test_update_voltage_invalid(self):
