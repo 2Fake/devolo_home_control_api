@@ -2,6 +2,7 @@ import json
 
 
 class Gateway:
+    """ Represent a gateway in tests """
 
     def __init__(self, gateway_id: str):
         with open('test_data.json') as file:

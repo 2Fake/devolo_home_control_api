@@ -7,15 +7,21 @@ from devolo_home_control_api.properties.voltage_property import VoltageProperty
 from devolo_home_control_api.properties.settings_property import SettingsProperty
 
 
-def metering_plug(device_uid):
+def metering_plug(device_uid: str) -> Zwave:
+    """
+    Represent a metering plug in tests
+
+    :param device_uid: Device UID this mock shall have
+    :return: Metering Plug device
+    """
     with open('test_data.json') as file:
         test_data = json.load(file)
 
-    device = Zwave(name=test_data.get("device").get("mains").get("name"),
+    device = Zwave(name=test_data.get("devices").get("mains").get("name"),
                    device_uid=device_uid,
-                   zone=test_data.get("device").get("mains").get("zone_name"),
+                   zone=test_data.get("devices").get("mains").get("zone_name"),
                    battery_level=-1,
-                   icon=test_data.get("device").get("mains").get("icon"))
+                   icon=test_data.get("devices").get("mains").get("icon"))
 
     device.binary_switch_property = {}
     device.consumption_property = {}
