@@ -46,7 +46,7 @@ class MprmRest:
             self._logger.info("Connecting to gateway via cloud")
             self._session.get(self._gateway.full_url)
         else:
-            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is prohibited.")
+            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
         # create the initial device dict
@@ -78,8 +78,8 @@ class MprmRest:
         """
         Update and return the consumption, specified in consumption_type for the given uid.
 
-        :param element_uid: element UID of the consumption. Usually starts with devolo.Meter
-        :param consumption_type: current or total consumption
+        :param element_uid: Element UID of the consumption. Usually starts with devolo.Meter.
+        :param consumption_type: Current or total consumption
         :return: Consumption
         """
         if not element_uid.startswith("devolo.Meter"):
@@ -96,11 +96,37 @@ class MprmRest:
                 response.get("properties").get("totalValue")
             return self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.get(element_uid).total
 
-    def get_led_setting(self, setting_uid: str):
+    def get_device_uid_from_name(self, name: str, zone: str = "") -> str:
         """
-        Update and return the led setting
-        :param setting_uid:
-        :return:led setting as bool
+        Get device from name. Sometimes, the name is ambiguous. Then hopefully the zone makes it unique.
+
+        :param name: Name of the device
+        :param zone: Zone the device is in. Only needed, if device name is ambiguous.
+        :return: Device UID
+        """
+        device_list = []
+        for device in self.devices.values():
+            if device.name == name:
+                device_list.append(device)
+        if len(device_list) == 0:
+            raise MprmDeviceNotFoundError(f'There is no device "{name}"')
+        elif len(device_list) > 1 and zone == "":
+            raise MprmDeviceNotFoundError(f'The name "{name}" is ambiguous ({len(device_list)} times). Please provide a zone.')
+        elif len(device_list) > 1:
+            for device in device_list:
+                if device.zone == zone:
+                    return device.device_uid
+            else:
+                raise MprmDeviceNotFoundError(f'There is no device "{name}" in zone "{zone}".')
+        else:
+            return device_list[0].device_uid
+
+    def get_led_setting(self, setting_uid: str) -> bool:
+        """
+        Update and return the led setting.
+
+        :param setting_uid: Setting UID of the LED setting. Usually starts with lis.hdm.
+        :return: LED setting
         """
         if not setting_uid.startswith("lis.hdm"):
             raise ValueError("Not a valid uid to get the led setting")
@@ -109,14 +135,15 @@ class MprmRest:
             response.get("properties").get("led")
         return self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("led").led_setting
 
-    def get_general_device_settings(self, setting_uid: str):
+    def get_general_device_settings(self, setting_uid: str) -> bool:
         """
-        Update and return the events enabled setting
-        :param setting_uid:
-        :return: events enabled as bool
+        Update and return the events enabled setting. If a device shall report to the diary, this is true.
+
+        :param setting_uid: Settings UID to look at. Usually starts with gds.hdm.
+        :return: Events enabled or not
         """
         if not setting_uid.startswith("gds.hdm"):
-            raise ValueError("Not a valid uid to get the events enabled setting")
+            raise ValueError("Not a valid uid to get the events enabled setting.")
         response = self._extract_data_from_element_uid(setting_uid)
         gds = self.devices.get(get_device_uid_from_setting_uid(setting_uid)).settings_property.get("general_device_settings")
         gds.name = response.get("properties").get("name")
@@ -125,11 +152,12 @@ class MprmRest:
         gds.events_enabled = response.get("properties").get("eventsEnabled")
         return gds.name, gds.icon, gds.zone_id, gds.events_enabled
 
-    def get_param_changed_setting(self, setting_uid: str):
+    def get_param_changed_setting(self, setting_uid: str) -> bool:
         """
-        Update and return the param changed setting
-        :param setting_uid:
-        :return: param changed as bool
+        Update and return the param changed setting. If a device has modified Z-Wave parameters, this is true.
+
+        :param setting_uid: Settings UID to look at. Usually starts with cps.hdm.
+        :return: Parameter changed or not
         """
         if not setting_uid.startswith("cps.hdm"):
             raise ValueError("Not a valid uid to get the param changed setting")
@@ -142,9 +170,10 @@ class MprmRest:
     def get_protection_setting(self, setting_uid, protection_setting):
         """
         Update and return the protection setting. There are only two protection settings. Local and remote switching.
-        :param setting_uid:
-        :param protection_setting:
-        :return:
+
+        :param setting_uid: Settings UID to look at. Usually starts with ps.hdm.
+        :param protection_setting: Look at local or remote switching.
+        :return: Switching is protected or not
         """
         if not setting_uid.startswith("ps.hdm"):
             raise ValueError("Not a valid uid to get the protection setting")
@@ -162,8 +191,9 @@ class MprmRest:
     def get_voltage(self, element_uid: str) -> float:
         """
         Update and return the voltage
-        :param element_uid: element UID of the voltage. Usually starts with devolo.VoltageMultiLevelSensor
-        :return: voltage
+
+        :param element_uid: Element UID of the voltage. Usually starts with devolo.VoltageMultiLevelSensor
+        :return: Voltage value
         """
         if not element_uid.startswith("devolo.VoltageMultiLevelSensor"):
             raise ValueError("Not a valid uid to get consumption data.")
@@ -245,6 +275,7 @@ class MprmRest:
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
+        self._logger.info("Inspecting devices")
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
         response = self._post(data)
@@ -363,3 +394,7 @@ def get_device_uid_from_setting_uid(setting_uid):
 
 class MprmDeviceError(Exception):
     """ Communicating to a device via mPRM failed """
+
+
+class MprmDeviceNotFoundError(Exception):
+    """ A device like this was not found """
