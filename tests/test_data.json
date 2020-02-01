@@ -15,9 +15,9 @@
     "state": "devolo.hc_gateway.state.idle",
     "firmware": "8.0.45_2016-11-17"
   },
-  "device": {
+  "devices": {
     "mains":{
-      "uid": "hdm:ZWave:CBC56091/3",
+      "uid": "hdm:ZWave:F6BF9812/2",
       "name": "Light",
       "icon": "light-bulb",
       "zone_id": "hz_2",
@@ -40,6 +40,18 @@
       "local_switch": true,
       "remote_switch": false,
       "voltage": 237
+    },
+    "ambiguous_1":{
+      "uid": "hdm:ZWave:F6BF9812/3",
+      "name": "Heating",
+      "icon": "icon_1",
+      "zone_name": "Kitchen"
+    },
+    "ambiguous_2":{
+      "uid": "hdm:ZWave:F6BF9812/4",
+      "name": "Heating",
+      "icon": "icon_1",
+      "zone_name": "Living Room"
     }
   }
 }

@@ -5,6 +5,7 @@ import pytest
 from devolo_home_control_api.mprm_rest import MprmRest
 from devolo_home_control_api.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
+from tests.mock_dummy_device import dummy_device
 from tests.mock_gateway import Gateway
 from tests.mock_metering_plug import metering_plug
 
@@ -20,8 +21,12 @@ def mock_gateway(mocker):
 @pytest.fixture()
 def mock_inspect_devices_metering_plug(mocker):
     def mock__inspect_devices(self):
-        device_uid = test_data.get("device").get("mains").get("uid")
-        self.devices[device_uid] = metering_plug(device_uid=device_uid)
+        for device_type, device in test_data.get("devices").items():
+            device_uid = device.get("uid")
+            if device_type == "mains":
+                self.devices[device_uid] = metering_plug(device_uid=device_uid)
+            else:
+                self.devices[device_uid] = dummy_device(key=device_type)
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._inspect_devices", mock__inspect_devices)
 
@@ -71,25 +76,25 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
         elif request.node.name == "test_get_binary_switch_state_valid_off":
             return {"properties": {"state": 0}}
         elif request.node.name == "test_get_consumption_valid":
-            return {"properties": {"currentValue": test_data.get("device").get("mains").get("current_consumption"),
-                                   "totalValue": test_data.get("device").get("mains").get("total_consumption")}}
+            return {"properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
+                                   "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
         elif request.node.name == "test_get_led_setting_valid":
-            return {"properties": {"led": test_data.get("device").get("mains").get("led_setting")}}
+            return {"properties": {"led": test_data.get("devices").get("mains").get("led_setting")}}
         elif request.node.name == "test_get_param_changed_valid":
-            return {"properties": {"paramChanged": test_data.get("device").get("mains").get("param_changed")}}
+            return {"properties": {"paramChanged": test_data.get("devices").get("mains").get("param_changed")}}
         elif request.node.name == "test_get_general_device_settings_valid":
-            return {"properties": {"eventsEnabled": test_data.get("device").get("mains").get("events_enabled"),
-                                   "name": test_data.get("device").get("mains").get("name"),
-                                   "icon": test_data.get("device").get("mains").get("icon"),
-                                   "zoneID": test_data.get("device").get("mains").get("zone_id")}}
+            return {"properties": {"eventsEnabled": test_data.get("devices").get("mains").get("events_enabled"),
+                                   "name": test_data.get("devices").get("mains").get("name"),
+                                   "icon": test_data.get("devices").get("mains").get("icon"),
+                                   "zoneID": test_data.get("devices").get("mains").get("zone_id")}}
         elif request.node.name == "test_get_protection_setting_valid":
-            return {"properties": {"localSwitch": test_data.get("device").get("mains").get("local_switch"),
-                                   "remoteSwitch": test_data.get("device").get("mains").get("remote_switch")}}
+            return {"properties": {"localSwitch": test_data.get("devices").get("mains").get("local_switch"),
+                                   "remoteSwitch": test_data.get("devices").get("mains").get("remote_switch")}}
         elif request.node.name == "test_get_voltage_valid":
-            return {"properties": {"value": test_data.get("device").get("mains").get("voltage")}}
+            return {"properties": {"value": test_data.get("devices").get("mains").get("voltage")}}
         elif request.node.name == "test_update_consumption_valid":
-            return {"properties": {"currentValue": test_data.get("device").get("mains").get("current_consumption"),
-                                   "totalValue": test_data.get("device").get("mains").get("total_consumption")}}
+            return {"properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
+                                   "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)
@@ -110,7 +115,7 @@ def mock_mprmrest__post_set(mocker, request):
 def test_data_fixture(request):
     request.cls.user = test_data.get("user")
     request.cls.gateway = test_data.get("gateway")
-    request.cls.device = test_data.get("device")
+    request.cls.devices = test_data.get("devices")
 
 
 @pytest.fixture()
@@ -128,16 +133,16 @@ def mprm_instance(request, mocker, mock_gateway, mock_inspect_devices_metering_p
 
 @pytest.fixture()
 def fill_device_data(request):
-    consumption_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).consumption_property
-    consumption_property.get(f"devolo.Meter:{request.cls.device.get('mains').get('uid')}").current = 0.58
-    consumption_property.get(f"devolo.Meter:{request.cls.device.get('mains').get('uid')}").total = 125.68
+    consumption_property = request.cls.mprm.devices.get(test_data.get('devices').get("mains").get("uid")).consumption_property
+    consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").current = 0.58
+    consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").total = 125.68
 
     binary_switch_property = \
-        request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).binary_switch_property
-    binary_switch_property.get(f"devolo.BinarySwitch:{request.cls.device.get('mains').get('uid')}").state = False
+        request.cls.mprm.devices.get(test_data.get('devices').get("mains").get("uid")).binary_switch_property
+    binary_switch_property.get(f"devolo.BinarySwitch:{test_data.get('devices').get('mains').get('uid')}").state = False
 
-    voltage_property = request.cls.mprm.devices.get(test_data.get('device').get("mains").get("uid")).voltage_property
-    voltage_property.get(f"devolo.VoltageMultiLevelSensor:{request.cls.device.get('mains').get('uid')}").current = 236
+    voltage_property = request.cls.mprm.devices.get(test_data.get('devices').get("mains").get("uid")).voltage_property
+    voltage_property.get(f"devolo.VoltageMultiLevelSensor:{test_data.get('devices').get('mains').get('uid')}").current = 236
 
 
 @pytest.fixture(autouse=True)

@@ -8,7 +8,7 @@ from devolo_home_control_api.properties.property import WrongElementError
 
 class TestProperties:
     def test_settings_property_valid(self):
-        setting_property = SettingsProperty(f"lis.{self.device.get('mains').get('uid')}",
+        setting_property = SettingsProperty(f"lis.{self.devices.get('mains').get('uid')}",
                                             led_setting=True,
                                             events_enabled=False,
                                             param_changed=True,
@@ -22,7 +22,7 @@ class TestProperties:
 
     def test_settings_property_invalid(self):
         with pytest.raises(WrongElementError):
-            SettingsProperty(self.device.get('mains').get('uid'))
+            SettingsProperty(self.devices.get('mains').get('uid'))
 
 
     def test_binary_switch_property_invalid(self):
