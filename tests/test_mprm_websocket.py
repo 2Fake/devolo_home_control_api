@@ -52,7 +52,8 @@ class TestMprmWebsocket:
 
     def test_update_voltage_valid(self, fill_device_data):
         voltage_property = self.mprm.devices.get(self.devices.get("mains").get("uid")).voltage_property
-        current_voltage = voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
+        current_voltage = \
+            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
         self.mprm.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}",
                                  value=257)
         assert current_voltage != \
