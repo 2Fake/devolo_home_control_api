@@ -220,7 +220,7 @@ class MprmRest:
         if response.get("result").get("status") == 1:
             self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
         else:
-            raise MprmDeviceError(f"Could not set state of device {device_uid}.")
+            raise MprmDeviceCommunicationError(f"Could not set state of device {device_uid}.")
 
 
     def _detect_gateway_in_lan(self):
@@ -392,7 +392,7 @@ def get_device_uid_from_setting_uid(setting_uid):
     return setting_uid.split(".", 1)[-1]
 
 
-class MprmDeviceError(Exception):
+class MprmDeviceCommunicationError(Exception):
     """ Communicating to a device via mPRM failed """
 
 

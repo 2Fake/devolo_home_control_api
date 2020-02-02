@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.mprm_rest import MprmDeviceError, MprmDeviceNotFoundError
+from devolo_home_control_api.mprm_rest import MprmDeviceCommunicationError, MprmDeviceNotFoundError
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -120,6 +120,6 @@ class TestMprmRest:
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_error(self):
-        with pytest.raises(MprmDeviceError):
+        with pytest.raises(MprmDeviceCommunicationError):
             element_uid = f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"
             self.mprm.set_binary_switch(element_uid=element_uid, state=True)
