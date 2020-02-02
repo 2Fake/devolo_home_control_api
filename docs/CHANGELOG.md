@@ -7,11 +7,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+
+- Lockup methods, if UIDs are unknown
 - React on maintenance mode of mydevolo
+
+### Changed
+
+- Rename MprmDeviceError to MprmDeviceCommunicationError
 
 ## [v0.1.0]
 
 ### Added
+
 - Support for devolo Metering Plug v1
 - Support for devolo Metering Plug v2
 - Support for devolo Switch FM

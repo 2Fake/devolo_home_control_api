@@ -8,7 +8,7 @@ class Zwave:
     :param device_uid: Device UID, something like hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, name, device_uid, zone, battery_level, icon):
+    def __init__(self, name: str, device_uid: str, zone: str, battery_level: int, icon: str):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.name = name
         self.zone = zone
@@ -17,3 +17,13 @@ class Zwave:
         self.icon = icon
         self.device_uid = device_uid
         self.subscriber = None
+
+    def get_property(self, name: str) -> list:
+        """
+        Get element UIDs to a specified property.
+
+        :param name: Name of the property we want to access
+        :return: List of UIDs in this property
+        :raises: AttributeError: The property does not exsit in this device type
+        """
+        return list(getattr(self, f"{name}_property").keys())
