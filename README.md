@@ -1,6 +1,6 @@
 # devolo_home_control_api
 
-![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api)
+![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api) ![Libraries.io SourceRank](https://img.shields.io/librariesio/sourcerank/pypi/devolo-home-control-api)
 
 This project implements parts of the devolo Home Control API in Python. It is based on reverse engineering and therefore may fail with any new devolo update. If you discover a breakage, please feel free to [report an issue](https://github.com/2Fake/devolo_home_control_api/issues).
 
