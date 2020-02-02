@@ -1,9 +1,10 @@
 import pytest
-from devolo_home_control_api.properties.settings_property import SettingsProperty
+
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
-from devolo_home_control_api.properties.voltage_property import VoltageProperty
 from devolo_home_control_api.properties.property import WrongElementError
+from devolo_home_control_api.properties.settings_property import SettingsProperty
+from devolo_home_control_api.properties.voltage_property import VoltageProperty
 
 
 class TestProperties:
