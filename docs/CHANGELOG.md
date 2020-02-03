@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Lockup methods, if UIDs are unknown
+- Lookup methods, if UIDs are unknown
 - React on maintenance mode of mydevolo
 
 ### Changed
