@@ -308,6 +308,8 @@ class MprmRest:
 
     def _post(self, data: dict) -> dict:
         """ Communicate with the RPC interface. """
+        if not self._gateway.online or not self._gateway.sync:
+            raise MprmDeviceCommunicationError("Gateway is offline.")
         self._data_id += 1
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
