@@ -6,13 +6,13 @@ import time
 import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
-from .mydevolo import Mydevolo
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
+from .mydevolo import Mydevolo
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
-from .properties.voltage_property import VoltageProperty
 from .properties.settings_property import SettingsProperty
+from .properties.voltage_property import VoltageProperty
 
 
 class MprmRest:
@@ -22,6 +22,7 @@ class MprmRest:
 
     :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
     :param url: URL of the mPRM (typically leave it at default)
+    :raises: JSONDecodeError: Connecting to the gateway was not possible
     """
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
@@ -253,6 +254,7 @@ class MprmRest:
         return response.get("result").get("items")[0]
 
     def _get_local_session(self):
+        """ Connect to the gateway locally. """
         self._logger.info("Connecting to gateway locally")
         self._mprm_url = "http://" + self.local_ip
         try:
@@ -281,6 +283,7 @@ class MprmRest:
             properties.get("deviceModelUID")
 
     def _get_remote_session(self):
+        """ Connect to the gateway remotely. """
         self._logger.info("Connecting to gateway via cloud")
         self._session.get(self._gateway.full_url)
 
