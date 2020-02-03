@@ -32,19 +32,12 @@ class MprmRest:
         self._mprm_url = url
 
         mydevolo = Mydevolo.get_instance()
-        local_ip = self._detect_gateway_in_lan()
+        self.local_ip = self._detect_gateway_in_lan()
 
-        if local_ip:
-            # Get a local session
-            self._logger.info("Connecting to gateway locally")
-            self._mprm_url = "http://" + local_ip
-            self._token_url = self._session.get(self._mprm_url + "/dhlp/portal/full",
-                                                auth=(self._gateway.local_user, self._gateway.local_passkey)).json()
-            self._session.get(self._token_url.get('link'))
+        if self.local_ip:
+            self._get_local_session()
         elif self._gateway.external_access and not mydevolo.maintenance:
-            # Get a remote session, if we are allowed to
-            self._logger.info("Connecting to gateway via cloud")
-            self._session.get(self._gateway.full_url)
+            self._get_remote_session()
         else:
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
@@ -259,6 +252,20 @@ class MprmRest:
         # TODO: Catch error!
         return response.get("result").get("items")[0]
 
+    def _get_local_session(self):
+        self._logger.info("Connecting to gateway locally")
+        self._mprm_url = "http://" + self.local_ip
+        try:
+            self._token_url = self._session.get(self._mprm_url + "/dhlp/portal/full",
+                                                auth=(self._gateway.local_user, self._gateway.local_passkey), timeout=5).json()
+        except json.JSONDecodeError:
+            self._logger.error("Could not connect to the gateway locally.")
+            raise
+        except requests.ConnectTimeout:
+            self._logger.error("Timeout during connecting to the gateway.")
+            raise
+        self._session.get(self._token_url.get('link'))
+
     def _get_name_and_element_uids(self, uid):
         """ Returns the name, all element UIDs and the device model of the given device UID. """
         data = {"method": "FIM/getFunctionalItems",
@@ -272,6 +279,10 @@ class MprmRest:
             properties.get("elementUIDs"),\
             properties.get("settingUIDs"),\
             properties.get("deviceModelUID")
+
+    def _get_remote_session(self):
+        self._logger.info("Connecting to gateway via cloud")
+        self._session.get(self._gateway.full_url)
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
