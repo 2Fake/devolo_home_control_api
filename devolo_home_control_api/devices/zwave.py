@@ -24,6 +24,6 @@ class Zwave:
 
         :param name: Name of the property we want to access
         :return: List of UIDs in this property
-        :raises: AttributeError: The property does not exsit in this device type
+        :raises: AttributeError: The property does not exist in this device type
         """
-        return list(getattr(self, f"{name}_property").keys())
+        return [*getattr(self, f"{name}_property").keys()]
