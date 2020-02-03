@@ -1,6 +1,8 @@
 import json
 import threading
 import time
+from urllib3.connection import ConnectTimeoutError
+from requests import ReadTimeout, ConnectionError
 
 import websocket
 
@@ -182,14 +184,27 @@ class MprmWebsocket(MprmRest):
 
     def _on_error(self, error):
         """ Callback function to react on errors. """
-        for error in error.args:
-            if error == "ping/pong timed out":
-                self._logger.error("Connection to gateway lost because of ping/pong timeout")
-            self._logger.error(error)
+        self._logger.error(error)
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """
-        self._logger.info("Closed web socket connection")
+        self._logger.error("Closed web socket connection")
+        i = 16
+        while not self._ws.sock.connected:
+            try:
+                self._logger.info("Trying to reconnect to the gateway.")
+                if self.local_ip:
+                    self._get_local_session()
+                else:
+                    self._get_remote_session()
+                self._websocket_connection()
+            except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
+                self._logger.info(f"Sleeping for {i} seconds.")
+                time.sleep(i)
+                if i < 3600:
+                    i *= 2
+                else:
+                    i = 3600
 
     def _websocket_connection(self):
         """ Set up the websocket connection """
