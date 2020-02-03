@@ -1,4 +1,5 @@
 import json
+import sys
 
 import pytest
 
@@ -9,8 +10,12 @@ from tests.mock_dummy_device import dummy_device
 from tests.mock_gateway import Gateway
 from tests.mock_metering_plug import metering_plug
 
-with open('test_data.json') as file:
-    test_data = json.load(file)
+try:
+    with open('test_data.json') as file:
+        test_data = json.load(file)
+except FileNotFoundError:
+    print("Please run tests from within the tests directory.")
+    sys.exit(127)
 
 
 @pytest.fixture()
