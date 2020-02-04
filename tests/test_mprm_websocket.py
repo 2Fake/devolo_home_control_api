@@ -50,6 +50,11 @@ class TestMprmWebsocket:
         assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current == 1.58
         assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total == 254
 
+    def test_update_gateway_state(self):
+        self.mprm.update_gateway_state(accessible=True, online_sync=False)
+        assert self.mprm._gateway.online
+        assert not self.mprm._gateway.sync
+
     def test_update_voltage_valid(self, fill_device_data):
         voltage_property = self.mprm.devices.get(self.devices.get("mains").get("uid")).voltage_property
         current_voltage = \

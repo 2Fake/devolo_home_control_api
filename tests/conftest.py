@@ -61,7 +61,9 @@ def mock_mydevolo__call(mocker, request):
             else:
                 return {"items": [{"gatewayId": gateway_id}]}
         elif url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}":
-            return {"gatewayId": gateway_id}
+            return {"gatewayId": gateway_id,
+                    "status": "devolo.hc_gateway.status.online",
+                    "state": "devolo.hc_gateway.state.idle"}
         elif url == "https://www.mydevolo.com/v1/hc/maintenance":
             if request.node.name == "test_maintenance_off":
                 return {"state": "off"}

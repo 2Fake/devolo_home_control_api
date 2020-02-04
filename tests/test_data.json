@@ -11,8 +11,8 @@
     "name": "Home",
     "role": "owner",
     "external_access": true,
-    "status": "devolo.hc_gateway.status.online",
-    "state": "devolo.hc_gateway.state.idle",
+    "online": true,
+    "sync": true,
     "firmware": "8.0.45_2016-11-17"
   },
   "devices": {
