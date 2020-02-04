@@ -36,6 +36,7 @@ class MprmRest:
         self.local_ip = self._detect_gateway_in_lan()
 
         if self.local_ip:
+            self._gateway.local_connection = True
             self._get_local_session()
         elif self._gateway.external_access and not mydevolo.maintenance:
             self._get_remote_session()
@@ -207,14 +208,18 @@ class MprmRest:
             raise ValueError("Not a valid uid to set binary switch data.")
         if type(state) != bool:
             raise ValueError("Not a valid binary switch state.")
-        data = {"method": "FIM/invokeOperation",
-                "params": [element_uid, "turnOn" if state else "turnOff", []]}
-        response = self._post(data)
-        device_uid = get_device_uid_from_element_uid(element_uid)
-        if response.get("result").get("status") == 1:
-            self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
+        if self._get_online_state_of_device(get_device_uid_from_element_uid(element_uid)):
+            data = {"method": "FIM/invokeOperation",
+                    "params": [element_uid, "turnOn" if state else "turnOff", []]}
+            response = self._post(data)
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            if response.get("result").get("status") == 1:
+                self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
+            else:
+                self._logger.info(f"Could not set state of device {device_uid}. Maybe it is already at this state.")
+                self._logger.info(f"Target state is {state}. Actual state is {self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state}")
         else:
-            raise MprmDeviceCommunicationError(f"Could not set state of device {device_uid}.")
+            raise DeviceCommunicationError("The device is offline.")
 
 
     def _detect_gateway_in_lan(self):
@@ -280,7 +285,12 @@ class MprmRest:
             properties.get("icon"),\
             properties.get("elementUIDs"),\
             properties.get("settingUIDs"),\
-            properties.get("deviceModelUID")
+            properties.get("deviceModelUID"),\
+            properties.get("status")
+
+    def _get_online_state_of_device(self, uid):
+        """ Return the online state of the given device as bool. """
+        return True if self.devices.get(uid).online == "online" else False
 
     def _get_remote_session(self):
         """ Connect to the gateway remotely. """
@@ -295,28 +305,35 @@ class MprmRest:
         response = self._post(data)
         all_devices_list = response.get("result").get("items")[0].get("properties").get("deviceUIDs")
         for device in all_devices_list:
-            name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID = \
+            name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
                 self._get_name_and_element_uids(uid=device)
             # Process device uids
             self.devices[device] = Zwave(name=name,
                                          device_uid=device,
                                          zone=zone,
                                          battery_level=battery_level,
-                                         icon=icon)
+                                         icon=icon,
+                                         online_state=online_state)
             self._process_element_uids(device=device, name=name, element_uids=element_uids)
             self._process_settings_uids(device=device, name=name, setting_uids=setting_uids)
 
     def _post(self, data: dict) -> dict:
         """ Communicate with the RPC interface. """
-        if not self._gateway.online or not self._gateway.sync:
+        if not(self._gateway.online or self._gateway.sync) and not self._gateway.local_connection:
             raise MprmDeviceCommunicationError("Gateway is offline.")
+
         self._data_id += 1
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
-        response = self._session.post(self._mprm_url + "/remote/json-rpc",
-                                      data=json.dumps(data),
-                                      headers={"content-type": "application/json"}).json()
-        # TODO: Catch errors!
+        try:
+            response = self._session.post(self._mprm_url + "/remote/json-rpc",
+                                          data=json.dumps(data),
+                                          headers={"content-type": "application/json"},
+                                          timeout=15).json()
+        except requests.ReadTimeout:
+            self._logger.error("Gateway is offline.")
+            self._gateway.update_state(False)
+            raise MprmDeviceCommunicationError("Gateway is offline.")
         if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
@@ -406,6 +423,10 @@ def get_device_uid_from_setting_uid(setting_uid):
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
     return setting_uid.split(".", 1)[-1]
+
+
+class DeviceCommunicationError(Exception):
+    """ Device is offline """
 
 
 class MprmDeviceCommunicationError(Exception):
