@@ -78,30 +78,32 @@ def mock_mydevolo__call(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):
     def _extract_data_from_element_uid(element_uid):
-        if request.node.name == "test_get_binary_switch_state_valid_on":
-            return {"properties": {"state": 1}}
-        elif request.node.name == "test_get_binary_switch_state_valid_off":
-            return {"properties": {"state": 0}}
-        elif request.node.name == "test_get_consumption_valid":
-            return {"properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
-                                   "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
-        elif request.node.name == "test_get_led_setting_valid":
-            return {"properties": {"led": test_data.get("devices").get("mains").get("led_setting")}}
-        elif request.node.name == "test_get_param_changed_valid":
-            return {"properties": {"paramChanged": test_data.get("devices").get("mains").get("param_changed")}}
-        elif request.node.name == "test_get_general_device_settings_valid":
-            return {"properties": {"eventsEnabled": test_data.get("devices").get("mains").get("events_enabled"),
-                                   "name": test_data.get("devices").get("mains").get("name"),
-                                   "icon": test_data.get("devices").get("mains").get("icon"),
-                                   "zoneID": test_data.get("devices").get("mains").get("zone_id")}}
-        elif request.node.name == "test_get_protection_setting_valid":
-            return {"properties": {"localSwitch": test_data.get("devices").get("mains").get("local_switch"),
-                                   "remoteSwitch": test_data.get("devices").get("mains").get("remote_switch")}}
-        elif request.node.name == "test_get_voltage_valid":
-            return {"properties": {"value": test_data.get("devices").get("mains").get("voltage")}}
-        elif request.node.name == "test_update_consumption_valid":
-            return {"properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
-                                   "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
+        properties = {}
+        properties['test_get_binary_switch_state_valid_on'] = {
+            "properties": {"state": 1}}
+        properties['test_get_binary_switch_state_valid_off'] = {
+            "properties": {"state": 0}}
+        properties['test_get_consumption_valid'] = {
+            "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
+                           "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
+        properties['test_get_led_setting_valid'] = {
+            "properties": {"led": test_data.get("devices").get("mains").get("led_setting")}}
+        properties['test_get_param_changed_valid'] = {
+            "properties": {"paramChanged": test_data.get("devices").get("mains").get("param_changed")}}
+        properties['test_get_general_device_settings_valid'] = {
+            "properties": {"eventsEnabled": test_data.get("devices").get("mains").get("events_enabled"),
+                           "name": test_data.get("devices").get("mains").get("name"),
+                           "icon": test_data.get("devices").get("mains").get("icon"),
+                           "zoneID": test_data.get("devices").get("mains").get("zone_id")}}
+        properties['test_get_protection_setting_valid'] = {
+            "properties": {"localSwitch": test_data.get("devices").get("mains").get("local_switch"),
+                           "remoteSwitch": test_data.get("devices").get("mains").get("remote_switch")}}
+        properties['test_get_voltage_valid'] = {
+            "properties": {"value": test_data.get("devices").get("mains").get("voltage")}}
+        properties['test_update_consumption_valid'] = {
+            "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
+                           "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
+        return properties.get(request.node.name)
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._extract_data_from_element_uid",
                  side_effect=_extract_data_from_element_uid)
