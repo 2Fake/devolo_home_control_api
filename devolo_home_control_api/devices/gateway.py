@@ -34,7 +34,6 @@ class Gateway:
     def full_url(self):
         """ The full URL is used to get a valid remote session """
         if self._full_url is None:
-            # TODO: Catch errors like gateway offline
             self._full_url = self._mydevolo.get_full_url(self.id)
             self._logger.debug(f"Setting full URL to {self._full_url}")
         return self._full_url
@@ -49,8 +48,8 @@ class Gateway:
             details = self._mydevolo.get_gateway(self.id)
             self._update_state(status=details.get("status"), state=details.get("state"))
         else:
-            self.status = online
-            self.state = online
+            self.online = online
+            self.sync = online
 
 
     def _update_state(self, status, state):
