@@ -10,13 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Lookup methods, if UIDs are unknown
 - React on maintenance mode of mydevolo
+- Handle offline gateways
+- Handle offline devices
 
 ### Changed
 
 - Publisher now returns a list of element_uid and value
 - Rename MprmDeviceError to MprmDeviceCommunicationError
 
-## [v0.1.0]
+## [v0.1.0] - 31.01.2020
 
 ### Added
 
