@@ -23,17 +23,11 @@ class Gateway:
         self.role = details.get("role")
         self.local_user = self._mydevolo.uuid
         self.local_passkey = details.get("localPasskey")
+        self.connection_type = "remote"
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
-        if details.get("status") == "devolo.hc_gateway.status.online":
-            self.online = True
-        else:
-            self.online = False
-        if details.get("state") == "devolo.hc_gateway.state.idle":
-            self.sync = True
-        else:
-            self.sync = False
+        self._update_state(status = details.get("status"), state = details.get("state"))
 
 
     @property
@@ -44,3 +38,28 @@ class Gateway:
             self._full_url = self._mydevolo.get_full_url(self.id)
             self._logger.debug(f"Setting full URL to {self._full_url}")
         return self._full_url
+
+    def update_state(self, online: bool = None):
+        """ 
+        Update the state of the gateway. If called without parameter, we will check my devolo.
+
+        :param online: Detected state of the gateway
+        """
+        if online is None:
+            details = self._mydevolo.get_gateway(self.id)
+            self._update_state(status = details.get("status"), state = details.get("state"))
+        else:
+            self.status = online
+            self.state = online
+    
+
+    def _update_state(self, status, state):
+        """ Helper to update the state. """
+        if status == "devolo.hc_gateway.status.online":
+            self.online = True
+        else:
+            self.online = False
+        if state == "devolo.hc_gateway.state.idle":
+            self.sync = True
+        else:
+            self.sync = False
