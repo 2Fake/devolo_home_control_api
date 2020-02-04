@@ -118,9 +118,8 @@ class TestMprmRest:
         self.mprm.set_binary_switch(element_uid=element_uid, state=True)
         assert self.mprm.devices.get(self.devices.get('mains').get('uid')).binary_switch_property.get(element_uid).state
 
-    # TODO: Need rework. It's just an info now.
-    # @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    # def test_set_binary_switch_error(self):
-    #     with pytest.raises(MprmDeviceCommunicationError):
-    #         element_uid = f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"
-    #         self.mprm.set_binary_switch(element_uid=element_uid, state=True)
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    def test_set_binary_switch_error(self):
+        with pytest.raises(MprmDeviceCommunicationError):
+            element_uid = f"devolo.BinarySwitch:{self.devices.get('ambiguous_2').get('uid')}"
+            self.mprm.set_binary_switch(element_uid=element_uid, state=True)

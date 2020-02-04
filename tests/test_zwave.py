@@ -31,6 +31,7 @@ class TestZwave:
             device.get_property("binary_switch")
 
     def test_battery_level(self):
+        # TODO: Use battery driven device
         device = Zwave(name=self.devices.get('mains').get('name'),
                        device_uid=self.devices.get('mains').get('uid'),
                        zone=self.devices.get('mains').get('zone'),

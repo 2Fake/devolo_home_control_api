@@ -39,19 +39,24 @@
       "events_enabled": true,
       "local_switch": true,
       "remote_switch": false,
-      "voltage": 237
+      "voltage": 237,
+      "online": 2
     },
     "ambiguous_1":{
       "uid": "hdm:ZWave:F6BF9812/3",
       "name": "Heating",
       "icon": "icon_1",
-      "zone_name": "Kitchen"
+      "zone_name": "Kitchen",
+      "online": 2
     },
     "ambiguous_2":{
       "uid": "hdm:ZWave:F6BF9812/4",
       "name": "Heating",
       "icon": "icon_1",
-      "zone_name": "Living Room"
+      "zone_name": "Living Room",
+      "element_uids": [
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
+      "online": 1
     }
   }
 }

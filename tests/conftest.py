@@ -111,7 +111,7 @@ def mock_mprmrest__post_set(mocker, request):
         if request.node.name == "test_set_binary_switch_valid":
             return {"result": {"status": 1}}
         elif request.node.name == "test_set_binary_switch_error":
-            return {"result": {"status": 3}}
+            return {"result": {"status": 2}}
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=_post_mock)
 
