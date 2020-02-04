@@ -17,6 +17,7 @@ class Zwave:
         self.icon = icon
         self.device_uid = device_uid
         self.subscriber = None
+
         # Online state is returned as numbers. 1 --> Offline, 2 --> Online, 7 (?) --> Not initialized
         if online_state == 1:
             self.online = "offline"

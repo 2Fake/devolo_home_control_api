@@ -38,6 +38,7 @@ class Gateway:
             self._logger.debug(f"Setting full URL to {self._full_url}")
         return self._full_url
 
+
     def update_state(self, online: bool = None):
         """
         Update the state of the gateway. If called without parameter, we will check my devolo.
