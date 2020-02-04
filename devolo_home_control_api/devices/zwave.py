@@ -23,6 +23,7 @@ class Zwave:
         elif online_state == 2:
             self.online = "online"
         else:
+            self.online = "unknown state"
             self._logger.warning(f"Unknown state {online_state} for device {self.name}")
 
     def get_property(self, name: str) -> list:
