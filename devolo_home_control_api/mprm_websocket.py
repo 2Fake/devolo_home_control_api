@@ -65,7 +65,8 @@ class MprmWebsocket(MprmRest):
                 if binary_switch_name == element_uid:
                     self._logger.debug(f"Updating state of {element_uid}")
                     binary_switch_property_value.state = value
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+            message = (element_uid, value)
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
 
     def update_consumption(self, element_uid: str, consumption: str, value: float = None):
         """
@@ -93,7 +94,8 @@ class MprmWebsocket(MprmRest):
                         consumption_property_value.current = value
                     else:
                         consumption_property_value.total = value
-        self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+        message = (element_uid, value)
+        self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
 
     def update_gateway_state(self, accessible: bool, online_sync: bool):
         """
@@ -125,7 +127,8 @@ class MprmWebsocket(MprmRest):
                 if element_uid == voltage_property_name:
                     self._logger.debug(f"Updating voltage of {element_uid}")
                     voltage_property_value.current = value
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+            message = (element_uid, value)
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
 
 
     def _create_pub(self):
