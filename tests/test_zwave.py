@@ -29,3 +29,38 @@ class TestZwave:
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
+
+    def test_battery_level(self):
+        device = Zwave(name=self.devices.get('mains').get('name'),
+                       device_uid=self.devices.get('mains').get('uid'),
+                       zone=self.devices.get('mains').get('zone'),
+                       battery_level=55,
+                       icon=self.devices.get('mains').get('icon'),
+                       online_state=2)
+
+        assert device.battery_level == 55
+
+    def test_device_online_state_state(self):
+        device = Zwave(name=self.devices.get('mains').get('name'),
+                       device_uid=self.devices.get('mains').get('uid'),
+                       zone=self.devices.get('mains').get('zone'),
+                       battery_level=-1,
+                       icon=self.devices.get('mains').get('icon'),
+                       online_state=1)
+        assert device.online == "offline"
+
+        device = Zwave(name=self.devices.get('mains').get('name'),
+                       device_uid=self.devices.get('mains').get('uid'),
+                       zone=self.devices.get('mains').get('zone'),
+                       battery_level=-1,
+                       icon=self.devices.get('mains').get('icon'),
+                       online_state=2)
+        assert device.online == "online"
+
+        device = Zwave(name=self.devices.get('mains').get('name'),
+                       device_uid=self.devices.get('mains').get('uid'),
+                       zone=self.devices.get('mains').get('zone'),
+                       battery_level=-1,
+                       icon=self.devices.get('mains').get('icon'),
+                       online_state=27)
+        device.online = "unknown state"
