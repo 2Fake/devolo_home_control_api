@@ -14,7 +14,7 @@ class TestProperties:
                                             events_enabled=False,
                                             param_changed=True,
                                             local_switching=False,
-                                            remote_switching=True)
+                                            remote_switching=True,)
         assert setting_property.led_setting
         assert not setting_property.events_enabled
         assert setting_property.param_changed

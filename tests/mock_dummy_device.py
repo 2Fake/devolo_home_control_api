@@ -17,6 +17,7 @@ def dummy_device(key: str) -> Zwave:
                    device_uid=test_data.get("devices").get(key).get("uid"),
                    zone=test_data.get("devices").get(key).get("zone_name"),
                    battery_level=-1,
-                   icon=test_data.get("devices").get(key).get("icon"))
+                   icon=test_data.get("devices").get(key).get("icon"),
+                   online_state=2)
 
     return device

@@ -10,7 +10,8 @@ class TestZwave:
                        device_uid=self.devices.get('mains').get('uid'),
                        zone=self.devices.get('mains').get('zone'),
                        battery_level=-1,
-                       icon=self.devices.get('mains').get('icon'))
+                       icon=self.devices.get('mains').get('icon'),
+                       online_state=2)
 
         device.binary_switch_property = {}
         element_uid = f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"
@@ -23,7 +24,8 @@ class TestZwave:
                        device_uid=self.devices.get('mains').get('uid'),
                        zone=self.devices.get('mains').get('zone'),
                        battery_level=-1,
-                       icon=self.devices.get('mains').get('icon'))
+                       icon=self.devices.get('mains').get('icon'),
+                       online_state=2)
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
