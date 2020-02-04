@@ -214,11 +214,13 @@ class MprmRest:
         response = self._post(data)
         if response.get("result").get("status") == 1:
             self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
-        elif response.get("result").get("status") == 2 and not self._device_usable(get_device_uid_from_element_uid(element_uid)):
+        elif response.get("result").get("status") == 2 \
+                and not self._device_usable(get_device_uid_from_element_uid(element_uid)):
             raise MprmDeviceCommunicationError("The device is offline.")
         else:
             self._logger.info(f"Could not set state of device {device_uid}. Maybe it is already at this state.")
-            self._logger.info(f"Target state is {state}. Actual state is {self.devices.get(device_uid).binary_switch_property.get(element_uid).state}")
+            self._logger.info(f"Target state is {state}.")
+            self._logger.info(f"Actual state is {self.devices.get(device_uid).binary_switch_property.get(element_uid).state}.")
 
 
     def _detect_gateway_in_lan(self):
