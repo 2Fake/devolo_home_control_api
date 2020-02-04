@@ -317,7 +317,7 @@ class MprmRest:
                                       data=json.dumps(data),
                                       headers={"content-type": "application/json"}).json()
         # TODO: Catch errors!
-        if response['id'] != self._data_id:
+        if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
