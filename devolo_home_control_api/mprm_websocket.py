@@ -1,10 +1,10 @@
 import json
 import threading
 import time
-from urllib3.connection import ConnectTimeoutError
-from requests import ReadTimeout, ConnectionError
 
 import websocket
+from requests import ConnectionError, ReadTimeout
+from urllib3.connection import ConnectTimeoutError
 
 from .mprm_rest import MprmRest, get_device_uid_from_element_uid
 
