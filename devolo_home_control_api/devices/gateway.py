@@ -27,7 +27,7 @@ class Gateway:
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
-        self._update_state(status = details.get("status"), state = details.get("state"))
+        self._update_state(status=details.get("status"), state=details.get("state"))
 
 
     @property
@@ -40,18 +40,18 @@ class Gateway:
         return self._full_url
 
     def update_state(self, online: bool = None):
-        """ 
+        """
         Update the state of the gateway. If called without parameter, we will check my devolo.
 
         :param online: Detected state of the gateway
         """
         if online is None:
             details = self._mydevolo.get_gateway(self.id)
-            self._update_state(status = details.get("status"), state = details.get("state"))
+            self._update_state(status=details.get("status"), state=details.get("state"))
         else:
             self.status = online
             self.state = online
-    
+
 
     def _update_state(self, status, state):
         """ Helper to update the state. """
