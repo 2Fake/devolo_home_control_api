@@ -23,7 +23,7 @@ class Gateway:
         self.role = details.get("role")
         self.local_user = self._mydevolo.uuid
         self.local_passkey = details.get("localPasskey")
-        self.connection_type = "remote"
+        self.local_connection = False
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
