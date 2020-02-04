@@ -337,7 +337,7 @@ class MprmRest:
         except requests.ReadTimeout:
             self._logger.error("Gateway is offline.")
             self._gateway.update_state(False)
-            raise MprmDeviceCommunicationError("Gateway is offline.")
+            raise MprmDeviceCommunicationError("Gateway is offline.") from None
         if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
