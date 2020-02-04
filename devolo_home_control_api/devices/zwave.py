@@ -8,7 +8,7 @@ class Zwave:
     :param device_uid: Device UID, something like hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, name: str, device_uid: str, zone: str, battery_level: int, icon: str, online_state: str):
+    def __init__(self, name: str, device_uid: str, zone: str, battery_level: int, icon: str, online_state: int):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.name = name
         self.zone = zone
