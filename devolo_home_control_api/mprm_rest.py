@@ -208,18 +208,17 @@ class MprmRest:
             raise ValueError("Not a valid uid to set binary switch data.")
         if type(state) != bool:
             raise ValueError("Not a valid binary switch state.")
-        if self._get_online_state_of_device(get_device_uid_from_element_uid(element_uid)):
-            data = {"method": "FIM/invokeOperation",
-                    "params": [element_uid, "turnOn" if state else "turnOff", []]}
-            response = self._post(data)
-            device_uid = get_device_uid_from_element_uid(element_uid)
-            if response.get("result").get("status") == 1:
-                self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
-            else:
-                self._logger.info(f"Could not set state of device {device_uid}. Maybe it is already at this state.")
-                self._logger.info(f"Target state is {state}. Actual state is {self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.get(element_uid).state}")
+        data = {"method": "FIM/invokeOperation",
+                "params": [element_uid, "turnOn" if state else "turnOff", []]}
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        response = self._post(data)
+        if response.get("result").get("status") == 1:
+            self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
+        elif response.get("result").get("status") == 2 and not self._device_usable(get_device_uid_from_element_uid(element_uid)):
+            raise MprmDeviceCommunicationError("The device is offline.")
         else:
-            raise DeviceCommunicationError("The device is offline.")
+            self._logger.info(f"Could not set state of device {device_uid}. Maybe it is already at this state.")
+            self._logger.info(f"Target state is {state}. Actual state is {self.devices.get(device_uid).binary_switch_property.get(element_uid).state}")
 
 
     def _detect_gateway_in_lan(self):
@@ -249,6 +248,13 @@ class MprmRest:
                     self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
         zeroconf.close()
         return local_ip
+
+    def _device_usable(self, uid):
+        """
+        Return the 'online' state of the given device as bool.
+        We consider everything as 'online' if the device can receive new values.
+        """
+        return True if self.devices.get(uid).online in ["online"] else False
 
     def _extract_data_from_element_uid(self, element_uid):
         """ Returns data from an element_uid using a RPC call """
@@ -287,10 +293,6 @@ class MprmRest:
             properties.get("settingUIDs"),\
             properties.get("deviceModelUID"),\
             properties.get("status")
-
-    def _get_online_state_of_device(self, uid):
-        """ Return the online state of the given device as bool. """
-        return True if self.devices.get(uid).online == "online" else False
 
     def _get_remote_session(self):
         """ Connect to the gateway remotely. """
@@ -423,10 +425,6 @@ def get_device_uid_from_setting_uid(setting_uid):
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
     return setting_uid.split(".", 1)[-1]
-
-
-class DeviceCommunicationError(Exception):
-    """ Device is offline """
 
 
 class MprmDeviceCommunicationError(Exception):
