@@ -121,7 +121,7 @@ class Mydevolo:
                           + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").get("url")
 
 
-    def _call(self, url: str) -> requests.Response:
+    def _call(self, url: str) -> dict:
         """
         Make a call to any entry point with the user's context.
         """
