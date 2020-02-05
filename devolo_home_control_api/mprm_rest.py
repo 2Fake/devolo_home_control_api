@@ -275,7 +275,7 @@ class MprmRest:
                                                 auth=(self._gateway.local_user, self._gateway.local_passkey), timeout=5).json()
         except json.JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
-            raise
+            raise MprmDeviceCommunicationError("Could not connect to the gateway locally.") from None
         except requests.ConnectTimeout:
             self._logger.error("Timeout during connecting to the gateway.")
             raise
@@ -299,7 +299,10 @@ class MprmRest:
     def _get_remote_session(self):
         """ Connect to the gateway remotely. """
         self._logger.info("Connecting to gateway via cloud")
-        self._session.get(self._gateway.full_url)
+        try:
+            self._session.get(self._gateway.full_url)
+        except json.JSONDecodeError:
+            raise MprmDeviceCommunicationError("Gateway is offline.") from None
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
