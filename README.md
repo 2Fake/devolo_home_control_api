@@ -1,5 +1,7 @@
 # devolo_home_control_api
 
+![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api) ![Libraries.io SourceRank](https://img.shields.io/librariesio/sourcerank/pypi/devolo-home-control-api)
+
 This project implements parts of the devolo Home Control API in Python. It is based on reverse engineering and therefore may fail with any new devolo update. If you discover a breakage, please feel free to [report an issue](https://github.com/2Fake/devolo_home_control_api/issues).
 
 ## System requirements
@@ -21,6 +23,14 @@ Other versions and even other operating systems might work. Feel free to tell us
 ## Versioning
 
 In our versioning we follow [Semantic Versioning](https://semver.org/).
+
+## Installing for usage
+
+The Python Package Index takes care for you. Just use pip.
+
+```bash
+pip install devolo-home-control-api
+```
 
 ## Installing for development
 
@@ -45,7 +55,7 @@ pytest
 
 ## Quick start
 
-To see that basic functionality, please look at our [small example](example.py). For this example, a working Home Control Central Unit must be attached to your my devolo account. After entering your my devolo username and password, simply run it:
+To see that basic functionality, please look at our [small example](https://github.com/2Fake/devolo_home_control_api/blob/master/example.py). For this example, a working Home Control Central Unit must be attached to your my devolo account. After entering your my devolo username and password, simply run it:
 
 ```bash
 python3 example.py
@@ -101,4 +111,4 @@ To execute this example, you again need a configured instance of Mydevolo.
 
 #### Using subscriber
 
-This preferred usage is shown in our [small example](example.py). On every websocket event, ```update()``` will be called. That way you can react to changes right away.
+This preferred usage is shown in our [small example](https://github.com/2Fake/devolo_home_control_api/blob/master/example.py). On every websocket event, ```update()``` will be called. That way you can react to changes right away.

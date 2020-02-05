@@ -11,13 +11,13 @@
     "name": "Home",
     "role": "owner",
     "external_access": true,
-    "status": "devolo.hc_gateway.status.online",
-    "state": "devolo.hc_gateway.state.idle",
+    "online": true,
+    "sync": true,
     "firmware": "8.0.45_2016-11-17"
   },
-  "device": {
+  "devices": {
     "mains":{
-      "uid": "hdm:ZWave:CBC56091/3",
+      "uid": "hdm:ZWave:F6BF9812/2",
       "name": "Light",
       "icon": "light-bulb",
       "zone_id": "hz_2",
@@ -39,7 +39,24 @@
       "events_enabled": true,
       "local_switch": true,
       "remote_switch": false,
-      "voltage": 237
+      "voltage": 237,
+      "online": 2
+    },
+    "ambiguous_1":{
+      "uid": "hdm:ZWave:F6BF9812/3",
+      "name": "Heating",
+      "icon": "icon_1",
+      "zone_name": "Kitchen",
+      "online": 2
+    },
+    "ambiguous_2":{
+      "uid": "hdm:ZWave:F6BF9812/4",
+      "name": "Heating",
+      "icon": "icon_1",
+      "zone_name": "Living Room",
+      "element_uids": [
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
+      "online": 1
     }
   }
 }

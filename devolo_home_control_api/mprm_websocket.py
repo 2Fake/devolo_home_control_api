@@ -3,7 +3,8 @@ import threading
 import time
 
 import websocket
-from websocket import WebSocketTimeoutException
+from requests import ConnectionError, ReadTimeout
+from urllib3.connection import ConnectTimeoutError
 
 from .mprm_rest import MprmRest, get_device_uid_from_element_uid
 
@@ -64,7 +65,8 @@ class MprmWebsocket(MprmRest):
                 if binary_switch_name == element_uid:
                     self._logger.debug(f"Updating state of {element_uid}")
                     binary_switch_property_value.state = value
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+            message = (element_uid, value)
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
 
     def update_consumption(self, element_uid: str, consumption: str, value: float = None):
         """
@@ -79,7 +81,7 @@ class MprmWebsocket(MprmRest):
         if not element_uid.startswith("devolo.Meter"):
             raise ValueError("Not a valid uid to set consumption data.")
         if consumption not in ["current", "total"]:
-            raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed!')
+            raise ValueError(f'Consumption value "{consumption}" is not valid. Only "current" and "total" are allowed.')
         if value is None:
             super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
@@ -92,12 +94,19 @@ class MprmWebsocket(MprmRest):
                         consumption_property_value.current = value
                     else:
                         consumption_property_value.total = value
-        self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+        message = (element_uid, value)
+        self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
 
     def update_gateway_state(self, accessible: bool, online_sync: bool):
+        """
+        Function to update the gateway status. A gateway might go on- or offline while we listen to the websocket.
+
+        :param accessible: Online state of the gateway
+        :param online_sync: Sync state of the gateway
+        """
         self._logger.debug(f"Updating status and state of gateway to status: {accessible} and state: {online_sync}")
-        self._gateway.status = accessible
-        self._gateway.state = online_sync
+        self._gateway.online = accessible
+        self._gateway.sync = online_sync
 
     def update_voltage(self, element_uid: str, value: float = None):
         """
@@ -118,15 +127,15 @@ class MprmWebsocket(MprmRest):
                 if element_uid == voltage_property_name:
                     self._logger.debug(f"Updating voltage of {element_uid}")
                     voltage_property_value.current = value
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), value)
+            message = (element_uid, value)
+            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
 
 
     def _create_pub(self):
         """
         Create a publisher for every element we support at the moment.
-        Actual there are publisher for current consumption and binary state
-        Current consumption publisher is create as "current_consumption_ELEMENT_UID"
-        Binary state publisher is created as "binary_state_ELEMENT_UID"
+        Actually, there are publisher for current consumption and binary state. Current consumption publisher is create as
+        "current_consumption_ELEMENT_UID" and binary state publisher is created as "binary_state_ELEMENT_UID".
         """
         publisher_list = [device for device in self.devices]
         self.publisher = Publisher(publisher_list)
@@ -177,18 +186,29 @@ class MprmWebsocket(MprmRest):
             self._logger.debug(json.dumps(message, indent=4))
 
     def _on_error(self, error):
-        """ Callback function to react on errors. """
-        # TODO: catch error
-        for error in error.args:
-            if error == "ping/pong timed out":
-                self._logger.error("Connection to gateway lost because of ping/pong timeout")
-                self._logger.error(error)
-            else:
-                self._logger.error(error)
+        """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
+        self._logger.error(error)
+
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """
         self._logger.info("Closed web socket connection")
+        i = 16
+        while not self._ws.sock.connected:
+            try:
+                self._logger.info("Trying to reconnect to the gateway.")
+                if self.local_ip:
+                    self._get_local_session()
+                else:
+                    self._get_remote_session()
+                self._websocket_connection()
+            except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
+                self._logger.info(f"Sleeping for {i} seconds.")
+                time.sleep(i)
+                if i < 3600:
+                    i *= 2
+                else:
+                    i = 3600
 
     def _websocket_connection(self):
         """ Set up the websocket connection """
