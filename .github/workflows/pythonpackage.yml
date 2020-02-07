@@ -29,10 +29,11 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=E303,W503 --statistics
     - name: Test with pytest
       run: |
-        pip install pytest pytest-mock
+        pip install pytest pytest-mock pytest-cov
         cd tests
         pytest
     - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pip install coveralls
+        export COVERALLS_REPO_TOKEN=${{ secrets.GITHUB_TOKEN }}
+        coveralls
