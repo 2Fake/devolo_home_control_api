@@ -31,9 +31,10 @@ jobs:
       run: |
         pip install pytest pytest-mock pytest-cov
         cd tests
-        pytest
+        pytest --cov
     - name: Coveralls
       run: |
         pip install coveralls
         export COVERALLS_REPO_TOKEN=${{ secrets.GITHUB_TOKEN }}
+        cd tests
         coveralls
