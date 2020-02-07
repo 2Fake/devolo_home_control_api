@@ -60,13 +60,10 @@ class MprmWebsocket(MprmRest):
         if value is None:
             self.get_binary_switch_state(element_uid=element_uid)
         else:
-            for binary_switch_name, binary_switch_property_value in \
-                    self.devices.get(get_device_uid_from_element_uid(element_uid)).binary_switch_property.items():
-                if binary_switch_name == element_uid:
-                    self._logger.debug(f"Updating state of {element_uid}")
-                    binary_switch_property_value.state = value
-            message = (element_uid, value)
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
+            self._logger.debug(f"Updating state of {element_uid}")
+            self.publisher.dispatch(device_uid, (element_uid, value))
 
     def update_consumption(self, element_uid: str, consumption: str, value: float = None):
         """
@@ -85,17 +82,13 @@ class MprmWebsocket(MprmRest):
         if value is None:
             super().get_consumption(element_uid=element_uid, consumption_type=consumption)
         else:
-            for consumption_property_name, consumption_property_value in \
-                    self.devices.get(get_device_uid_from_element_uid(element_uid)).consumption_property.items():
-                if element_uid == consumption_property_name:
-                    self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
-                    # TODO : make one liner
-                    if consumption == "current":
-                        consumption_property_value.current = value
-                    else:
-                        consumption_property_value.total = value
-        message = (element_uid, value)
-        self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            if consumption == "current":
+                self.devices.get(device_uid).consumption_property.get(element_uid).current = value
+            else:
+                self.devices.get(device_uid).consumption_property.get(element_uid).total = value
+            self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
+            self.publisher.dispatch(device_uid, (element_uid, value))
 
     def update_gateway_state(self, accessible: bool, online_sync: bool):
         """
@@ -122,13 +115,10 @@ class MprmWebsocket(MprmRest):
         if value is None:
             self.get_voltage(element_uid=element_uid)
         else:
-            for voltage_property_name, voltage_property_value in \
-                    self.devices.get(get_device_uid_from_element_uid(element_uid)).voltage_property.items():
-                if element_uid == voltage_property_name:
-                    self._logger.debug(f"Updating voltage of {element_uid}")
-                    voltage_property_value.current = value
-            message = (element_uid, value)
-            self.publisher.dispatch(get_device_uid_from_element_uid(element_uid), message)
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            self.devices.get(device_uid).voltage_property.get(element_uid).current = value
+            self._logger.debug(f"Updating voltage of {element_uid}")
+            self.publisher.dispatch(device_uid, (element_uid, value))
 
 
     def _create_pub(self):
@@ -192,23 +182,16 @@ class MprmWebsocket(MprmRest):
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """
-        self._logger.info("Closed web socket connection")
+        self._logger.info("Closed web socket connection.")
         i = 16
         while not self._ws.sock.connected:
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
-                if self.local_ip:
-                    self._get_local_session()
-                else:
-                    self._get_remote_session()
-                self._websocket_connection()
+                self._get_local_session() if self.local_ip else self._get_remote_session()
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
                 self._logger.info(f"Sleeping for {i} seconds.")
                 time.sleep(i)
-                if i < 3600:
-                    i *= 2
-                else:
-                    i = 3600
+                i = i * 2 if i < 2048 else 3600
 
     def _websocket_connection(self):
         """ Set up the websocket connection """
