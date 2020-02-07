@@ -413,7 +413,7 @@ def get_device_uid_from_element_uid(element_uid: str) -> str:
     return element_uid.split(":", 1)[1].split("#")[0]
 
 
-def get_device_type_from_element_uid(element_uid):
+def get_device_type_from_element_uid(element_uid: str) -> str:
     """
     Return the device type of the given element uid
 
@@ -423,13 +423,22 @@ def get_device_type_from_element_uid(element_uid):
     return element_uid.split(":")[0]
 
 
-def get_device_uid_from_setting_uid(setting_uid):
+def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     """
     Return the device uid of the given setting uid
     :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
     return setting_uid.split(".", 1)[-1]
+
+
+def get_sub_device_uid_from_element_uid(element_uid: str) -> int:
+    """
+    Return the sub device uid of the given element uid
+    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+    :return: Sub device UID, something like 2
+    """
+    return None if "#" not in element_uid else int(element_uid.split("#")[-1])
 
 
 class MprmDeviceCommunicationError(Exception):
