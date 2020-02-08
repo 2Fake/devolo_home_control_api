@@ -206,8 +206,6 @@ class MprmRest:
         """
         if not element_uid.startswith("devolo.BinarySwitch"):
             raise ValueError("Not a valid uid to set binary switch data.")
-        if type(state) != bool:
-            raise ValueError("Not a valid binary switch state.")
         data = {"method": "FIM/invokeOperation",
                 "params": [element_uid, "turnOn" if state else "turnOff", []]}
         device_uid = get_device_uid_from_element_uid(element_uid)
@@ -314,6 +312,7 @@ class MprmRest:
         for device in all_devices_list:
             name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
                 self._get_name_and_element_uids(uid=device)
+            self._logger.debug(f"Adding {name} ({device}) to device list.")
             # Process device uids
             self.devices[device] = Zwave(name=name,
                                          device_uid=device,
@@ -321,8 +320,8 @@ class MprmRest:
                                          battery_level=battery_level,
                                          icon=icon,
                                          online_state=online_state)
-            self._process_element_uids(device=device, name=name, element_uids=element_uids)
-            self._process_settings_uids(device=device, name=name, setting_uids=setting_uids)
+            self._process_element_uids(device=device, element_uids=element_uids)
+            self._process_settings_uids(device=device, setting_uids=setting_uids)
 
     def _post(self, data: dict) -> dict:
         """ Communicate with the RPC interface. """
@@ -346,42 +345,55 @@ class MprmRest:
             raise ValueError("Got an unexpected response after posting data.")
         return response
 
-    def _process_element_uids(self, device, name, element_uids):
+    def _process_element_uids(self, device: str, element_uids: list):
         """ Generate properties depending on the element uid """
+        def binary_switch(element_uid: str):
+            device = get_device_uid_from_element_uid(element_uid)
+            if not hasattr(self.devices[device], "binary_switch_property"):
+                self.devices[device].binary_switch_property = {}
+            self._logger.debug(f"Adding binary switch property to {device}.")
+            self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
+            self.get_binary_switch_state(element_uid)
+
+        def meter(element_uid: str):
+            device = get_device_uid_from_element_uid(element_uid)
+            if not hasattr(self.devices[device], "consumption_property"):
+                self.devices[device].consumption_property = {}
+            self._logger.debug(f"Adding consumption property to {device}.")
+            self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
+            self.get_consumption(element_uid, 'current')
+            self.get_consumption(element_uid, 'total')
+
+        def voltage_multi_level_sensor(element_uid: str):
+            device = get_device_uid_from_element_uid(element_uid)
+            if not hasattr(self.devices[device], "voltage_property"):
+                self.devices[device].voltage_property = {}
+            self._logger.debug(f"Adding voltage property to {device}.")
+            self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
+            self.get_voltage(element_uid)
+
+        device_type = {"devolo.BinarySwitch": binary_switch,
+                       "devolo.Meter": meter,
+                       "devolo.VoltageMultiLevelSensor": voltage_multi_level_sensor}
+
         for element_uid in element_uids:
-            if get_device_type_from_element_uid(element_uid) == "devolo.BinarySwitch":
-                if not hasattr(self.devices[device], "binary_switch_property"):
-                    self.devices[device].binary_switch_property = {}
-                self._logger.debug(f"Adding {name} ({device}) to device list as binary switch property.")
-                self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
-                self.get_binary_switch_state(element_uid)
-            elif get_device_type_from_element_uid(element_uid) == "devolo.Meter":
-                if not hasattr(self.devices[device], "consumption_property"):
-                    self.devices[device].consumption_property = {}
-                self._logger.debug(f"Adding {name} ({device}) to device list as consumption property.")
-                self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
-                for consumption in ['current', 'total']:
-                    self.get_consumption(element_uid, consumption)
-            elif get_device_type_from_element_uid(element_uid) == "devolo.VoltageMultiLevelSensor":
-                if not hasattr(self.devices[device], "voltage_property"):
-                    self.devices[device].voltage_property = {}
-                self._logger.debug(f"Adding {name} ({device}) to device list as voltage property.")
-                self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
-                self.get_voltage(element_uid)
-            else:
+            try:
+                device_type[get_device_type_from_element_uid(element_uid)](element_uid)
+            except KeyError:
                 self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
-    def _process_settings_uids(self, device, name, setting_uids):
+    def _process_settings_uids(self, device, setting_uids):
         """Generate properties depending on the setting uid"""
+        if not hasattr(self.devices[device], "settings_property"):
+            self.devices[device].settings_property = {}
         for setting_uid in setting_uids:
-            if not hasattr(self.devices[device], "settings_property"):
-                self.devices[device].settings_property = {}
             if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
-                self._logger.debug(f"Adding {name} ({device}) to device list as settings property")
+                self._logger.debug(f"Adding led settings to {device}.")
                 self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid,
                                                                                  led_setting=None)
                 self.get_led_setting(setting_uid)
             elif get_device_type_from_element_uid(setting_uid) == "gds.hdm":
+                self._logger.debug(f"Adding general device settings to {device}.")
                 self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
                                                                                                      events_enabled=None,
                                                                                                      name=None,
@@ -389,16 +401,17 @@ class MprmRest:
                                                                                                      icon=None)
                 self.get_general_device_settings(setting_uid)
             elif get_device_type_from_element_uid(setting_uid) == "cps.hdm":
+                self._logger.debug(f"Adding parameter settings to {device}.")
                 self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
                                                                                            param_changed=None)
                 self.get_param_changed_setting(setting_uid)
             elif get_device_type_from_element_uid(setting_uid) == "ps.hdm":
+                self._logger.debug(f"Adding protection settings to {device}.")
                 self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
                                                                                         local_switching=None,
                                                                                         remote_switching=None)
-                for protection in ["local", "remote"]:
-                    # TODO: find a better way for this loop.
-                    self.get_protection_setting(setting_uid=setting_uid, protection_setting=protection)
+                self.get_protection_setting(setting_uid=setting_uid, protection_setting="local")
+                self.get_protection_setting(setting_uid=setting_uid, protection_setting="remote")
             else:
                 self._logger.debug(f"Found an unexpected element uid: {setting_uid}")
 
@@ -426,6 +439,7 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
 def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     """
     Return the device uid of the given setting uid
+
     :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
@@ -435,6 +449,7 @@ def get_device_uid_from_setting_uid(setting_uid: str) -> str:
 def get_sub_device_uid_from_element_uid(element_uid: str) -> int:
     """
     Return the sub device uid of the given element uid
+
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Sub device UID, something like 2
     """

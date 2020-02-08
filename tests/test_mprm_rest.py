@@ -108,9 +108,6 @@ class TestMprmRest:
     def test_set_binary_switch_invalid(self):
         with pytest.raises(ValueError):
             self.mprm.set_binary_switch(element_uid="invalid", state=True)
-        with pytest.raises(ValueError):
-            self.mprm.set_binary_switch(element_uid=f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}",
-                                        state="invalid")
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_valid(self):
