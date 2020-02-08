@@ -122,9 +122,7 @@ class Mydevolo:
 
 
     def _call(self, url: str) -> dict:
-        """
-        Make a call to any entry point with the user's context.
-        """
+        """ Make a call to any entry point with the user's context. """
         responds = requests.get(url,
                                 auth=(self._user, self._password),
                                 headers={'content-type': 'application/json'},
