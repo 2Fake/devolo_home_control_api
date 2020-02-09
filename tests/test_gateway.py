@@ -12,6 +12,13 @@ class TestGateway:
         assert not gateway.online
         assert not gateway.sync
 
+    def test_update_state_offline(self):
+        gateway = Gateway(self.gateway.get("id"))
+        gateway._update_state(status="devolo.hc_gateway.status.offline", state="devolo.hc_gateway.state.update")
+
+        assert not gateway.online
+        assert not gateway.sync
+
     def test_update_state_unknow(self):
         gateway = Gateway(self.gateway.get("id"))
         gateway.online = False
