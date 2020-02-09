@@ -99,22 +99,19 @@ class MprmRest:
         :param zone: Zone the device is in. Only needed, if device name is ambiguous.
         :return: Device UID
         """
-        device_list = []
-        for device in self.devices.values():
-            if device.name == name:
-                device_list.append(device)
+        device_list = [device for device in self.devices.values() if device.name == name]
         if len(device_list) == 0:
             raise MprmDeviceNotFoundError(f'There is no device "{name}"')
-        elif len(device_list) > 1 and zone == "":
-            raise MprmDeviceNotFoundError(f'The name "{name}" is ambiguous ({len(device_list)} times). Please provide a zone.')
-        elif len(device_list) > 1:
-            for device in device_list:
-                if device.zone == zone:
-                    return device.device_uid
-            else:
-                raise MprmDeviceNotFoundError(f'There is no device "{name}" in zone "{zone}".')
-        else:
+        if len(device_list) == 1:
             return device_list[0].device_uid
+        if zone == "":
+            raise MprmDeviceNotFoundError(f'The name "{name}" is ambiguous. Please provide a zone.')
+        try:
+            device_in_zone = [device.device_uid for device in device_list if device.zone == zone]
+            return device_in_zone[0]
+        except IndexError:
+            raise MprmDeviceNotFoundError(f'There is no device "{name}" in zone "{zone}".')
+
 
     def get_led_setting(self, setting_uid: str) -> bool:
         """
@@ -210,11 +207,11 @@ class MprmRest:
                 "params": [element_uid, "turnOn" if state else "turnOff", []]}
         device_uid = get_device_uid_from_element_uid(element_uid)
         response = self._post(data)
-        if response.get("result").get("status") == 1:
-            self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
-        elif response.get("result").get("status") == 2 \
+        if response.get("result").get("status") == 2 \
                 and not self._device_usable(get_device_uid_from_element_uid(element_uid)):
             raise MprmDeviceCommunicationError("The device is offline.")
+        if response.get("result").get("status") == 1:
+            self.devices.get(device_uid).binary_switch_property.get(element_uid).state = state
         else:
             self._logger.info(f"Could not set state of device {device_uid}. Maybe it is already at this state.")
             self._logger.info(f"Target state is {state}.")
@@ -234,18 +231,20 @@ class MprmRest:
         # TODO: Optimize the sleep
         time.sleep(2)
         for mdns_name in zeroconf.cache.entries():
-            if hasattr(mdns_name, "address"):
-                try:
-                    ip = socket.inet_ntoa(mdns_name.address)
-                    if requests.get("http://" + ip + "/dhlp/port/full",
-                                    auth=(self._gateway.local_user, self._gateway.local_passkey),
-                                    timeout=0.5).status_code == requests.codes.ok:
-                        self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
-                        local_ip = ip
-                        break
-                except OSError:
-                    # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
-                    self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
+            try:
+                ip = socket.inet_ntoa(mdns_name.address)
+                if requests.get("http://" + ip + "/dhlp/port/full",
+                                auth=(self._gateway.local_user, self._gateway.local_passkey),
+                                timeout=0.5).status_code == requests.codes.ok:
+                    self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                    local_ip = ip
+                    break
+            except OSError:
+                # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
+                self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
+            except AttributeError:
+                # The MDNS entry does not provide address information
+                pass
         zeroconf.close()
         return local_ip
 
@@ -384,35 +383,50 @@ class MprmRest:
 
     def _process_settings_uids(self, device, setting_uids):
         """Generate properties depending on the setting uid"""
+        def led(setting_uid):
+            device = get_device_uid_from_setting_uid(setting_uid)
+            self._logger.debug(f"Adding led settings to {device}.")
+            self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid, led_setting=None)
+            self.get_led_setting(setting_uid)
+
+        def general_device(setting_uid):
+            device = get_device_uid_from_setting_uid(setting_uid)
+            self._logger.debug(f"Adding general device settings to {device}.")
+            self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
+                                                                                                 events_enabled=None,
+                                                                                                 name=None,
+                                                                                                 zone_id=None,
+                                                                                                 icon=None)
+            self.get_general_device_settings(setting_uid)
+
+        def parameter(setting_uid):
+            device = get_device_uid_from_setting_uid(setting_uid)
+            self._logger.debug(f"Adding parameter settings to {device}.")
+            self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
+                                                                                       param_changed=None)
+            self.get_param_changed_setting(setting_uid)
+
+        def protection(setting_uid):
+            device = get_device_uid_from_setting_uid(setting_uid)
+            self._logger.debug(f"Adding protection settings to {device}.")
+            self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
+                                                                                    local_switching=None,
+                                                                                    remote_switching=None)
+            self.get_protection_setting(setting_uid=setting_uid, protection_setting="local")
+            self.get_protection_setting(setting_uid=setting_uid, protection_setting="remote")
+
         if not hasattr(self.devices[device], "settings_property"):
             self.devices[device].settings_property = {}
+
+        setting = {"lis.hdm": led,
+                   "gds.hdm": general_device,
+                   "cps.hdm": parameter,
+                   "ps.hdm": protection}
+
         for setting_uid in setting_uids:
-            if get_device_type_from_element_uid(setting_uid) == "lis.hdm":
-                self._logger.debug(f"Adding led settings to {device}.")
-                self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid,
-                                                                                 led_setting=None)
-                self.get_led_setting(setting_uid)
-            elif get_device_type_from_element_uid(setting_uid) == "gds.hdm":
-                self._logger.debug(f"Adding general device settings to {device}.")
-                self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
-                                                                                                     events_enabled=None,
-                                                                                                     name=None,
-                                                                                                     zone_id=None,
-                                                                                                     icon=None)
-                self.get_general_device_settings(setting_uid)
-            elif get_device_type_from_element_uid(setting_uid) == "cps.hdm":
-                self._logger.debug(f"Adding parameter settings to {device}.")
-                self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
-                                                                                           param_changed=None)
-                self.get_param_changed_setting(setting_uid)
-            elif get_device_type_from_element_uid(setting_uid) == "ps.hdm":
-                self._logger.debug(f"Adding protection settings to {device}.")
-                self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
-                                                                                        local_switching=None,
-                                                                                        remote_switching=None)
-                self.get_protection_setting(setting_uid=setting_uid, protection_setting="local")
-                self.get_protection_setting(setting_uid=setting_uid, protection_setting="remote")
-            else:
+            try:
+                setting[get_device_type_from_element_uid(setting_uid)](setting_uid)
+            except KeyError:
                 self._logger.debug(f"Found an unexpected element uid: {setting_uid}")
 
 

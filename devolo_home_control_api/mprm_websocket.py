@@ -138,16 +138,20 @@ class MprmWebsocket(MprmRest):
                 time.sleep(1)
         threading.Thread(target=run).start()
 
-    def _on_message(self, message):
+    def _on_message(self, message: str):
         """ Callback function to react on a message. """
-        message = json.loads(message)
-        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
-        if event_sequence == self._event_sequence:
-            self._event_sequence += 1
-        else:
-            self._logger.warning("We missed a websocket message.")
-            self._event_sequence = event_sequence
-        if message.get("properties").get("uid").startswith("devolo.Meter"):
+        def binary_switch(message):
+            if message.get("properties").get("property.name") == "state":
+                self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
+                                                value=True if message.get("properties").get("property.value.new") == 1
+                                                else False)
+
+        def gateway_accessible(message):
+            if message.get("properties").get("property.name") == "gatewayAccessible":
+                self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
+                                          online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
+
+        def meter(message):
             if message.get("properties").get("property.name") == "currentValue":
                 self.update_consumption(element_uid=message.get("properties").get("uid"),
                                         consumption="current",
@@ -155,30 +159,33 @@ class MprmWebsocket(MprmRest):
             elif message.get("properties").get("property.name") == "totalValue":
                 self.update_consumption(element_uid=message.get("properties").get("uid"),
                                         consumption="total", value=message.get("properties").get("property.value.new"))
-            else:
-                self._logger.info(f'Unknown meter message received for {message.get("properties").get("uid")}.')
-                self._logger.info(message.get("properties"))
-        elif message.get("properties").get("uid").startswith("devolo.BinarySwitch") \
-                and message.get("properties").get("property.name") == "state":
-            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
-                                            value=True if message.get("properties").get("property.value.new") == 1
-                                            else False)
-        elif message.get("properties").get("uid").startswith("devolo.VoltageMultiLevelSensor"):
+
+        def voltage_multi_level_sensor(message):
             self.update_voltage(element_uid=message.get("properties").get("uid"),
                                 value=message.get("properties").get("property.value.new"))
-        elif message.get("properties").get("uid") == "devolo.mprm.gw.GatewayAccessibilityFI" \
-                and message.get("properties").get("property.name") == "gatewayAccessible":
-            self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
-                                      online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
 
+        message = json.loads(message)
+
+        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
+        if event_sequence == self._event_sequence:
+            self._event_sequence += 1
         else:
-            # Unknown messages shall be ignored
+            self._logger.warning("We missed a websocket message.")
+            self._event_sequence = event_sequence
+
+        message_type = {"devolo.BinarySwitch": binary_switch,
+                        "devolo.mprm.gw.GatewayAccessibilityFI": gateway_accessible,
+                        "devolo.Meter": meter,
+                        "devolo.VoltageMultiLevelSensor": voltage_multi_level_sensor}
+
+        try:
+            message_type[message.get("properties").get("uid")](message)
+        except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
 
     def _on_error(self, error):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
         self._logger.error(error)
-
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """
