@@ -34,4 +34,4 @@ If you find code where we violated our own rules, feel free to [tell us](https:/
 
 ## Testing
 
-We cover our code with unit tests written in pytest, but we do not push them to hard. We want public methods covered, but we skip internal and trivial methods. If you want to contribute, please make sure to keep the unit tests green and to deliver new once, if you extend the functionality.
+We cover our code with unit tests written in pytest, but we do not push them to hard. We want public and internal methods covered, but we skip nested and trivial methods. Often we also skip constructors. If you want to contribute, please make sure to keep the unit tests green and to deliver new ones, if you extend the functionality.
