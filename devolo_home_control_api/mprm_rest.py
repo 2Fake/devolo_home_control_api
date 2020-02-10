@@ -232,14 +232,13 @@ class MprmRest:
         time.sleep(2)
         for mdns_name in zeroconf.cache.entries():
             try:
-                if mdns_name.key.startswith("devolo-homecontrol"):
-                    ip = socket.inet_ntoa(mdns_name.address)
-                    if requests.get("http://" + ip + "/dhlp/port/full",
-                                    auth=(self._gateway.local_user, self._gateway.local_passkey),
-                                    timeout=0.5).status_code == requests.codes.ok:
-                        self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
-                        local_ip = ip
-                        break
+                ip = socket.inet_ntoa(mdns_name.address)
+                if mdns_name.key.startswith("devolo-homecontrol") and requests.get("http://" + ip + "/dhlp/port/full",
+                                                                                   auth=(self._gateway.local_user, self._gateway.local_passkey),
+                                                                                   timeout=0.5).status_code == requests.codes.ok:
+                    self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                    local_ip = ip
+                    break
             except OSError:
                 # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
                 self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
