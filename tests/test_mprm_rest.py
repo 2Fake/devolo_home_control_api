@@ -116,7 +116,7 @@ class TestMprmRest:
     def test_set_binary_switch_valid(self):
         element_uid = f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"
         self.mprm.set_binary_switch(element_uid=element_uid, state=True)
-        assert self.mprm.devices.get(self.devices.get('mains').get('uid')).binary_switch_property.get(element_uid).state
+        assert self.mprm.devices.get(self.devices.get("mains").get("uid")).binary_switch_property.get(element_uid).state
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_error(self):
@@ -126,7 +126,6 @@ class TestMprmRest:
 
     @pytest.mark.usefixtures("mock_mprmrest__post")
     def test__get_name_and_element_uids(self):
-
         name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
             self.mprm._get_name_and_element_uids("test")
         assert name == "test_name"

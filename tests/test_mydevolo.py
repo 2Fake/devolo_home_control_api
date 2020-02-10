@@ -1,5 +1,4 @@
 import pytest
-import requests
 
 from devolo_home_control_api.mydevolo import Mydevolo
 

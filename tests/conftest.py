@@ -79,17 +79,19 @@ def mock_mydevolo__call(mocker, request):
 def mock_mprmrest__post(mocker, request):
     def mock__post(data):
         properties = {}
-        properties['test__get_name_and_element_uids'] = {"result": {"items": [{"properties":{"itemName": "test_name",
-                                                                                             "zone": "test_zone",
-                                                                                             "batteryLevel": "test_battery",
-                                                                                             "icon": "test_icon",
-                                                                                             "elementUIDs": "test_element_uids",
-                                                                                             "settingUIDs": "test_setting_uids",
-                                                                                             "deviceModelUID": "test_device_model_uid",
-                                                                                             "status": "test_status"}}]}}
+        properties['test__get_name_and_element_uids'] = {"result":
+                                                         {"items": [{"properties": {"itemName": "test_name",
+                                                                                    "zone": "test_zone",
+                                                                                    "batteryLevel": "test_battery",
+                                                                                    "icon": "test_icon",
+                                                                                    "elementUIDs": "test_element_uids",
+                                                                                    "settingUIDs": "test_setting_uids",
+                                                                                    "deviceModelUID": "test_device_model_uid",
+                                                                                    "status": "test_status"}}]}}
         return properties.get(request.node.name)
 
     mocker.patch("devolo_home_control_api.mprm_rest.MprmRest._post", side_effect=mock__post)
+
 
 @pytest.fixture()
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):
