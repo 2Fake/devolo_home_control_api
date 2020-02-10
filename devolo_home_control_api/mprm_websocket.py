@@ -6,7 +6,7 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
-from .mprm_rest import MprmRest, get_device_uid_from_element_uid
+from .mprm_rest import MprmRest, get_device_uid_from_element_uid, get_device_type_from_element_uid
 
 
 class MprmWebsocket(MprmRest):
@@ -179,7 +179,7 @@ class MprmWebsocket(MprmRest):
                         "devolo.VoltageMultiLevelSensor": voltage_multi_level_sensor}
 
         try:
-            message_type[message.get("properties").get("uid")](message)
+            message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
 
