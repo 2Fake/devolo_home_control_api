@@ -120,3 +120,17 @@ class TestMprmRest:
         with pytest.raises(MprmDeviceCommunicationError):
             element_uid = f"devolo.BinarySwitch:{self.devices.get('ambiguous_2').get('uid')}"
             self.mprm.set_binary_switch(element_uid=element_uid, state=True)
+
+    @pytest.mark.usefixtures("mock_mprmrest__post")
+    def test__get_name_and_element_uids(self):
+
+        name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
+            self.mprm._get_name_and_element_uids("test")
+        assert name == "test_name"
+        assert zone == "test_zone"
+        assert battery_level == "test_battery"
+        assert icon == "test_icon"
+        assert element_uids == "test_element_uids"
+        assert setting_uids == "test_setting_uids"
+        assert deviceModelUID == "test_device_model_uid"
+        assert online_state == "test_status"
