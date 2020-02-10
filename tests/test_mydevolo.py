@@ -1,4 +1,5 @@
 import pytest
+import requests
 
 from devolo_home_control_api.mydevolo import Mydevolo
 
@@ -62,6 +63,16 @@ class TestMydevolo:
 
         assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
+
+    def test_get_user(self):
+        mydevolo = Mydevolo.get_instance()
+        mydevolo.user = "test_user"
+        assert mydevolo.user == "test_user"
+
+    def test_get_password(self):
+        mydevolo = Mydevolo.get_instance()
+        mydevolo.password = "test_password"
+        assert mydevolo.password == "test_password"
 
     def test_singleton_mydevolo(self):
         Mydevolo.get_instance()
