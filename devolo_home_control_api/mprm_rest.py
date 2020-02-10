@@ -233,9 +233,10 @@ class MprmRest:
         for mdns_name in zeroconf.cache.entries():
             try:
                 ip = socket.inet_ntoa(mdns_name.address)
-                if mdns_name.key.startswith("devolo-homecontrol") and requests.get("http://" + ip + "/dhlp/port/full",
-                                                                                   auth=(self._gateway.local_user, self._gateway.local_passkey),
-                                                                                   timeout=0.5).status_code == requests.codes.ok:
+                if mdns_name.key.startswith("devolo-homecontrol") and \
+                        requests.get("http://" + ip + "/dhlp/port/full",
+                                     auth=(self._gateway.local_user, self._gateway.local_passkey),
+                                     timeout=0.5).status_code == requests.codes.ok:
                     self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                     local_ip = ip
                     break
