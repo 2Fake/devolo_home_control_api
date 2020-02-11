@@ -1,6 +1,7 @@
 import pytest
 
-from devolo_home_control_api.mprm_rest import MprmDeviceCommunicationError, \
+from devolo_home_control_api.mprm_rest import MprmRest, \
+    MprmDeviceCommunicationError, \
     MprmDeviceNotFoundError, \
     get_sub_device_uid_from_element_uid, \
     get_device_type_from_element_uid
@@ -123,6 +124,20 @@ class TestMprmRest:
         with pytest.raises(MprmDeviceCommunicationError):
             element_uid = f"devolo.BinarySwitch:{self.devices.get('ambiguous_2').get('uid')}"
             self.mprm.set_binary_switch(element_uid=element_uid, state=True)
+
+    def test_singleton(self):
+        MprmRest.del_instance()
+
+        with pytest.raises(SyntaxError):
+            MprmRest.get_instance()
+
+        first = MprmRest(self.gateway.get("id"))
+        with pytest.raises(SyntaxError):
+            MprmRest(self.gateway.get("id"))
+
+        second = MprmRest.get_instance()
+        assert first is second
+
 
     @pytest.mark.usefixtures("mock_mprmrest__post")
     def test__get_name_and_element_uids(self):

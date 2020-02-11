@@ -19,7 +19,7 @@ class Mydevolo:
     @classmethod
     def get_instance(cls):
         if cls.__instance is None:
-            cls()
+            raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to my devolo.")
         return cls.__instance
 
     @classmethod
@@ -29,17 +29,17 @@ class Mydevolo:
 
     def __init__(self):
         if self.__class__.__instance is not None:
-            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to connect to my devolo.")
-        else:
-            self._logger = logging.getLogger(self.__class__.__name__)
-            self._user = None
-            self._password = None
-            self._uuid = None
-            self._gateway_ids = []
+            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() and reuse the connection to my devolo.")
 
-            self.url = "https://www.mydevolo.com"
+        self._logger = logging.getLogger(self.__class__.__name__)
+        self._user = None
+        self._password = None
+        self._uuid = None
+        self._gateway_ids = []
 
-            self.__class__.__instance = self
+        self.url = "https://www.mydevolo.com"
+
+        self.__class__.__instance = self
 
 
     @property
@@ -130,7 +130,7 @@ class Mydevolo:
         if responds.status_code == requests.codes.forbidden:
             self._logger.error("Could not get full URL. Wrong username or password?")
             raise WrongCredentialsError("Wrong username or password.")
-        elif responds.status_code == requests.codes.not_found:
+        if responds.status_code == requests.codes.not_found:
             self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise WrongUrlError(f"Wrong URL: {url}")
         return responds.json()

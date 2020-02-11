@@ -30,7 +30,7 @@ class MprmRest:
     @classmethod
     def get_instance(cls):
         if cls.__instance is None:
-            raise SyntaxError(f"Please init {cls.__name__}() once.")
+            raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to the gateway's backend.")
         return cls.__instance
 
     @classmethod
@@ -40,7 +40,7 @@ class MprmRest:
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         if self.__class__.__instance is not None:
-            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to connect to my devolo.")
+            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
