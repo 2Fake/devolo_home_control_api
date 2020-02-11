@@ -16,20 +16,20 @@ class Mydevolo:
 
     __instance = None
 
-    @staticmethod
-    def get_instance():
-        if Mydevolo.__instance is None:
-            Mydevolo()
-        return Mydevolo.__instance
+    @classmethod
+    def get_instance(cls):
+        if cls.__instance is None:
+            cls()
+        return cls.__instance
 
-    @staticmethod
-    def del_instance():
-        Mydevolo.__instance = None
+    @classmethod
+    def del_instance(cls):
+        cls.__instance = None
 
 
     def __init__(self):
-        if Mydevolo.__instance is not None:
-            raise SyntaxError("Please use Mydevolo.get_instance() to connect to my devolo.")
+        if self.__class__.__instance is not None:
+            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to connect to my devolo.")
         else:
             self._logger = logging.getLogger(self.__class__.__name__)
             self._user = None
@@ -39,7 +39,7 @@ class Mydevolo:
 
             self.url = "https://www.mydevolo.com"
 
-            Mydevolo.__instance = self
+            self.__class__.__instance = self
 
 
     @property
