@@ -195,10 +195,13 @@ class MprmWebsocket(MprmRest):
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
                 self._get_local_session() if self.local_ip else self._get_remote_session()
+                self._websocket_connection()
+                # TODO: Reset data id counter after reconnect
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
                 self._logger.info(f"Sleeping for {i} seconds.")
                 time.sleep(i)
                 i = i * 2 if i < 2048 else 3600
+
 
     def _websocket_connection(self):
         """ Set up the websocket connection """
