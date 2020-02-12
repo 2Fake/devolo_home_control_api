@@ -1,7 +1,9 @@
 import logging
 import requests
+import threading
 
 from .mprm_websocket import MprmWebsocket
+from .mprm_websocket import Publisher
 from .mydevolo import Mydevolo
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
@@ -10,9 +12,11 @@ from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
 
+from .updater import Updater
+
 
 class Devices:
-    def __init__(self, gateway_id, url= "https://homecontrol.mydevolo.com"):
+    def __init__(self, gateway_id, url="https://homecontrol.mydevolo.com"):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
@@ -20,7 +24,9 @@ class Devices:
         self._mprm_url = url
 
         mydevolo = Mydevolo.get_instance()
+
         self.mprm = MprmWebsocket(gateway_id=gateway_id, url=self._mprm_url)
+        self.mprm.on_update = self.update
         self.local_ip = self.mprm.detect_gateway_in_lan()
 
         if self.local_ip:
@@ -35,8 +41,34 @@ class Devices:
         # Create the initial device dict
         self.devices = {}
         self._inspect_devices()
+        self.device_names = dict(zip([self.devices.get(device).name for device in self.devices],
+                                     [self.devices.get(device).device_uid for device in self.devices]))
+
+
+        self.create_pub()
+        self.updater = Updater(devices=self.devices, publisher=self.mprm.publisher)
+
+        threading.Thread(target=self.mprm.websocket_connection).start()
         print()
 
+    @property
+    def binary_switch_devices(self):
+        """Returns all binary switch devices."""
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid),
+                                                                         "binary_switch_property")]
+
+    def update(self, message):
+        self.updater.update(message)
+
+    def create_pub(self):
+        """
+        # TODO: Correct docstring
+        Create a publisher for every element we support at the moment.
+        Actually, there are publisher for current consumption and binary state. Current consumption publisher is create as
+        "current_consumption_ELEMENT_UID" and binary state publisher is created as "binary_state_ELEMENT_UID".
+        """
+        publisher_list = [device for device in self.devices]
+        self.mprm.publisher = Publisher(publisher_list)
 
     def _inspect_devices(self):
         """ Create the initial internal device dict. """

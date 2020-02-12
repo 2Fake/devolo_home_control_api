@@ -6,9 +6,7 @@ import time
 import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
-from .devices.gateway import Gateway
-from .devices.zwave import Zwave
-from .mydevolo import Mydevolo
+from ..devices.gateway import Gateway
 
 
 class MprmRest:
@@ -44,36 +42,6 @@ class MprmRest:
         self._mprm_url = url
 
         self.__class__.__instance = self
-
-
-        self.__class__.__instance = self
-
-    @property
-    def binary_switch_devices(self):
-        """Returns all binary switch devices."""
-        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid),
-                                                                         "binary_switch_property")]
-
-    def get_device_uid_from_name(self, name: str, zone: str = "") -> str:
-        """
-        Get device from name. Sometimes, the name is ambiguous. Then hopefully the zone makes it unique.
-
-        :param name: Name of the device
-        :param zone: Zone the device is in. Only needed, if device name is ambiguous.
-        :return: Device UID
-        """
-        device_list = [device for device in self.devices.values() if device.name == name]
-        if len(device_list) == 0:
-            raise MprmDeviceNotFoundError(f'There is no device "{name}"')
-        if len(device_list) == 1:
-            return device_list[0].device_uid
-        if zone == "":
-            raise MprmDeviceNotFoundError(f'The name "{name}" is ambiguous. Please provide a zone.')
-        try:
-            device_in_zone = [device.device_uid for device in device_list if device.zone == zone]
-            return device_in_zone[0]
-        except IndexError:
-            raise MprmDeviceNotFoundError(f'There is no device "{name}" in zone "{zone}".')
 
 
     def detect_gateway_in_lan(self):
