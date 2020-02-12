@@ -1,6 +1,6 @@
 import logging
 
-from devolo_home_control_api.mprm_websocket import MprmWebsocket
+from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.mydevolo import Mydevolo
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
