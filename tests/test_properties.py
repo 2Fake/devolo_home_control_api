@@ -30,6 +30,7 @@ class TestProperties:
         with pytest.raises(WrongElementError):
             BinarySwitchProperty("invalid")
 
+
     def test_consumption_property_invalid(self):
         with pytest.raises(WrongElementError):
             ConsumptionProperty("invalid")
