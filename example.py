@@ -1,6 +1,6 @@
 import logging
 
-from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
+from devolo_home_control_api.homecontrol import HomeControl
 from devolo_home_control_api.mydevolo import Mydevolo
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
@@ -17,13 +17,13 @@ class Subscriber:
         print(f'{self.name} got message "{message}"')
 
 
-mydevolo = Mydevolo.get_instance()
+mydevolo = Mydevolo()
 mydevolo.user = user
 mydevolo.password = password
 
 gateway_id = mydevolo.gateway_ids[0]
-mprm_websocket = MprmWebsocket(gateway_id=gateway_id)
+homecontrol = HomeControl(gateway_id=gateway_id)
 
-for device in mprm_websocket.devices:
-    mprm_websocket.devices[device].subscriber = Subscriber(device)
-    mprm_websocket.publisher.register(device, mprm_websocket.devices[device].subscriber)
+for device in homecontrol.devices:
+    homecontrol.devices[device].subscriber = Subscriber(device)
+    homecontrol.mprm.publisher.register(device, homecontrol.devices[device].subscriber))
