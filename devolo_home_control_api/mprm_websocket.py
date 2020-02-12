@@ -123,12 +123,14 @@ class MprmWebsocket(MprmRest):
 
     def _create_pub(self):
         """
+        # TODO: Correct docstring
         Create a publisher for every element we support at the moment.
         Actually, there are publisher for current consumption and binary state. Current consumption publisher is create as
         "current_consumption_ELEMENT_UID" and binary state publisher is created as "binary_state_ELEMENT_UID".
         """
-        publisher_list = [device for device in self.devices]
-        self.publisher = Publisher(publisher_list)
+        # publisher_list = [device for device in self.devices]
+        # self.publisher = Publisher(publisher_list)
+        pass
 
     def _on_open(self):
         """ Callback function to keep the websocket open. """
@@ -194,7 +196,7 @@ class MprmWebsocket(MprmRest):
         while not self._ws.sock.connected:
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
-                self._get_local_session() if self.local_ip else self._get_remote_session()
+                self.get_local_session() if self.local_ip else self.get_remote_session()
                 self._websocket_connection()
                 # TODO: Reset data id counter after reconnect
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):

@@ -1,4 +1,6 @@
 import logging
+from ..mprm_websocket import MprmWebsocket
+from ..mprm_rest import MprmDeviceCommunicationError
 
 
 class Property:
@@ -11,6 +13,9 @@ class Property:
     def __init__(self, element_uid):
         self._logger = logging.getLogger(self.__class__.__name__)
         self.element_uid = element_uid
+        self.device_uid = element_uid.split(":", 1)[1].split("#")[0]
+        self.mprm = MprmWebsocket.get_instance()
+
 
 
 class WrongElementError(Exception):
