@@ -3,8 +3,8 @@ import sys
 
 import pytest
 
-from devolo_home_control_api.mprm_rest import MprmRest
-from devolo_home_control_api.mprm_websocket import MprmWebsocket
+from devolo_home_control_api.backend.mprm_rest import MprmRest
+from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
 from tests.mock_dummy_device import dummy_device
 from tests.mock_gateway import Gateway
