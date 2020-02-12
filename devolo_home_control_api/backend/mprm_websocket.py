@@ -85,4 +85,3 @@ class MprmWebsocket(MprmRest):
                                           on_error=self._on_error,
                                           on_close=self._on_close)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
-

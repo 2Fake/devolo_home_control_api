@@ -1,6 +1,6 @@
 import logging
 import json
-from devolo_home_control_api.devices.zwave import get_device_type_from_element_uid,get_device_uid_from_element_uid
+from devolo_home_control_api.devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
 
 
 class Updater:
