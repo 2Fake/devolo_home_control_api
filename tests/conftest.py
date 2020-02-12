@@ -182,7 +182,7 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect
 def home_control_instance(request, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
     yield
-    del request.cls.homecontrol
+    MprmWebsocket.del_instance()
 
 
 @pytest.fixture(autouse=True)

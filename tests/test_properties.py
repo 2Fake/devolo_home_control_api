@@ -7,6 +7,8 @@ from devolo_home_control_api.properties.settings_property import SettingsPropert
 from devolo_home_control_api.properties.voltage_property import VoltageProperty
 
 
+@pytest.mark.usefixtures("home_control_instance")
+@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestProperties:
     def test_settings_property_valid(self):
         setting_property = SettingsProperty(f"lis.{self.devices.get('mains').get('uid')}",

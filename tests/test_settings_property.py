@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
 @pytest.mark.usefixtures("mock_mydevolo__call")
