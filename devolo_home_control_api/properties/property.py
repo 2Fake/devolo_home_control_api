@@ -1,6 +1,5 @@
 import logging
-from ..mprm_websocket import MprmWebsocket
-from ..mprm_rest import MprmDeviceCommunicationError
+from ..backend.mprm_websocket import MprmWebsocket
 
 
 class Property:

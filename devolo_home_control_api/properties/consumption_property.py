@@ -33,7 +33,6 @@ class ConsumptionProperty(Property):
         response = self.mprm.extract_data_from_element_uid(self.element_uid)
         if consumption_type == "current":
             self.current = response.get("properties").get("currentValue")
-            print(self.current)
             return self.current
         else:
             self.total = response.get("properties").get("totalValue")

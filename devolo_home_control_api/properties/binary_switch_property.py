@@ -1,4 +1,5 @@
-from .property import Property, WrongElementError, MprmDeviceCommunicationError
+from .property import Property, WrongElementError
+from ..backend.mprm_rest import MprmDeviceCommunicationError
 
 
 class BinarySwitchProperty(Property):
@@ -39,6 +40,8 @@ class BinarySwitchProperty(Property):
         response = self.mprm.post(data)
         if response.get("result").get("status") == 2:
             raise MprmDeviceCommunicationError("The device is offline.")
+        # TODO: Make this work again ;)
+        # and not self._device_usable(get_device_uid_from_element_uid(element_uid)):
         if response.get("result").get("status") == 1:
             self.state = state
         else:
