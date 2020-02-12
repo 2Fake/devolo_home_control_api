@@ -86,28 +86,3 @@ class MprmWebsocket(MprmRest):
                                           on_close=self._on_close)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
-
-class Publisher:
-    def __init__(self, events):
-        # maps event names to subscribers
-        # str -> dict
-        self.events = {event: dict()
-                       for event in events}
-
-    def dispatch(self, event, message):
-        for callback in self.get_subscribers(event).values():
-            callback(message)
-
-    def get_events(self):
-        return self.events
-
-    def get_subscribers(self, event):
-        return self.events[event]
-
-    def register(self, event, who, callback=None):
-        if callback is None:
-            callback = getattr(who, 'update')
-        self.get_subscribers(event)[who] = callback
-
-    def unregister(self, event, who):
-        del self.get_subscribers(event)[who]
