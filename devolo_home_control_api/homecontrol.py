@@ -2,8 +2,8 @@ import logging
 import requests
 import threading
 
-from .mprm_websocket import MprmWebsocket
-from .mprm_websocket import Publisher
+from .backend.mprm_websocket import MprmWebsocket
+from .publisher.publisher import Publisher
 from .mydevolo import Mydevolo
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
@@ -12,10 +12,10 @@ from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
 
-from .updater import Updater
+from devolo_home_control_api.publisher.updater import Updater
 
 
-class Devices:
+class HomeControl:
     def __init__(self, gateway_id, url="https://homecontrol.mydevolo.com"):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
