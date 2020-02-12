@@ -167,8 +167,6 @@ def mock_mydevolo__call(mocker, request):
 def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(test_data.get("gateway").get("id"))
-        yield
-        request.cls.mprm.del_instance()
     else:
         def _websocket_connection_mock():
             pass
@@ -177,14 +175,14 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect
                      side_effect=_websocket_connection_mock)
         request.cls.mprm = MprmWebsocket(test_data.get("gateway").get("id"))
     yield
-    request.cls.mprm.__instance = None
+    request.cls.mprm.del_instance()
 
 
 @pytest.fixture()
 def home_control_instance(request, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
     yield
-    request.cls.homecontrol = None
+    del request.cls.homecontrol
 
 
 @pytest.fixture(autouse=True)

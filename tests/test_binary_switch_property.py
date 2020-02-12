@@ -1,4 +1,5 @@
 import pytest
+
 from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError
 
 
