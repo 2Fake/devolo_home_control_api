@@ -35,4 +35,24 @@ class Zwave:
         :return: List of UIDs in this property
         :raises: AttributeError: The property does not exist in this device type
         """
-        return [*getattr(self, f"{name}_property").keys()]
+        return [*getattr(self, f"{name}_property").values()]
+
+
+def get_device_type_from_element_uid(element_uid: str) -> str:
+    """
+    Return the device type of the given element uid
+
+    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+    :return: Device type, something like devolo.MultiLevelSensor
+    """
+    return element_uid.split(":")[0]
+
+
+def get_device_uid_from_element_uid(element_uid: str) -> str:
+    """
+    Return device UID from the given element UID
+
+    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+    :return: Device UID, something like hdm:ZWave:CBC56091/24
+    """
+    return element_uid.split(":", 1)[1].split("#")[0]
