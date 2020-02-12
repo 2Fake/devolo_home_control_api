@@ -48,7 +48,7 @@ class MprmWebsocket(MprmRest):
         try:
             self.on_update(message)
         except TypeError:
-            self._logger.error("on_update not set!")
+            self._logger.error("on_update is not set.")
 
     def _on_error(self, error):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
@@ -61,9 +61,9 @@ class MprmWebsocket(MprmRest):
         while not self._ws.sock.connected:
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
+                self._event_sequence = 0
                 self.get_local_session() if self.local_ip else self.get_remote_session()
                 self.websocket_connection()
-                # TODO: Reset data id counter after reconnect
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
                 self._logger.info(f"Sleeping for {i} seconds.")
                 time.sleep(i)

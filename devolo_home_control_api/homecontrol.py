@@ -1,18 +1,18 @@
 import logging
-import requests
 import threading
 
+import requests
+
 from .backend.mprm_websocket import MprmWebsocket
-from .publisher.publisher import Publisher
-from .mydevolo import Mydevolo
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
+from .mydevolo import Mydevolo
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
-
-from devolo_home_control_api.publisher.updater import Updater
+from .publisher.publisher import Publisher
+from .publisher.updater import Updater
 
 
 class HomeControl:
@@ -20,12 +20,10 @@ class HomeControl:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
-        self._data_id = 0
-        self._mprm_url = url
 
         mydevolo = Mydevolo.get_instance()
 
-        self.mprm = MprmWebsocket(gateway_id=gateway_id, url=self._mprm_url)
+        self.mprm = MprmWebsocket(gateway_id=gateway_id, url=url)
         self.mprm.on_update = self.update
         self.local_ip = self.mprm.detect_gateway_in_lan()
 
@@ -49,7 +47,7 @@ class HomeControl:
         self.updater = Updater(devices=self.devices, publisher=self.mprm.publisher)
 
         threading.Thread(target=self.mprm.websocket_connection).start()
-        print()
+
 
     @property
     def binary_switch_devices(self):
