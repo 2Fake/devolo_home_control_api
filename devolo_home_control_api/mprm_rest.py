@@ -21,7 +21,22 @@ class MprmRest:
     :raises: JSONDecodeError: Connecting to the gateway was not possible
     """
 
+    __instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if cls.__instance is None:
+            raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to the gateway's backend.")
+        return cls.__instance
+
+    @classmethod
+    def del_instance(cls):
+        cls.__instance = None
+
+
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
+        if self.__class__.__instance is not None:
+            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
@@ -30,6 +45,8 @@ class MprmRest:
 
         self.__class__.__instance = self
 
+
+        self.__class__.__instance = self
 
     @property
     def binary_switch_devices(self):
