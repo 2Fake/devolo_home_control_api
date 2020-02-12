@@ -113,7 +113,7 @@ class HomeControl:
                 self.devices[device].voltage_property = {}
             self._logger.debug(f"Adding voltage property to {device}.")
             self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
-            self.devices[device].voltage_property[element_uid].get_voltage(element_uid)
+            self.devices[device].voltage_property[element_uid].get_voltage()
 
         device_type = {"devolo.BinarySwitch": binary_switch,
                        "devolo.Meter": meter,
