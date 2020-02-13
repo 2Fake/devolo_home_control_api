@@ -55,24 +55,24 @@ class MprmRest:
         zeroconf = Zeroconf()
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
         self._logger.info("Searching for gateway in LAN")
-        # TODO: Optimize the sleep
-        time.sleep(2)
-        for mdns_name in zeroconf.cache.entries():
-            try:
-                ip = socket.inet_ntoa(mdns_name.address)
-                if mdns_name.key.startswith("devolo-homecontrol") and \
-                        requests.get("http://" + ip + "/dhlp/port/full",
-                                     auth=(self._gateway.local_user, self._gateway.local_passkey),
-                                     timeout=0.5).status_code == requests.codes.ok:
-                    self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
-                    self._local_ip = ip
-                    break
-            except OSError:
-                # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
-                self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
-            except AttributeError:
-                # The MDNS entry does not provide address information
-                pass
+        start_time = time.time()
+        while not time.time() > start_time + 3:
+            for mdns_name in zeroconf.cache.entries():
+                try:
+                    ip = socket.inet_ntoa(mdns_name.address)
+                    if mdns_name.key.startswith("devolo-homecontrol") and \
+                            requests.get("http://" + ip + "/dhlp/port/full",
+                                         auth=(self._gateway.local_user, self._gateway.local_passkey),
+                                         timeout=0.5).status_code == requests.codes.ok:
+                        self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                        self._local_ip = ip
+                        break
+                except OSError:
+                    # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
+                    self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
+                except AttributeError:
+                    # The MDNS entry does not provide address information
+                    pass
         else:
             self._logger.debug("Could not find a gateway in local LAN with provided user and password.")
         zeroconf.close()
