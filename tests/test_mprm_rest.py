@@ -18,9 +18,9 @@ class TestMprmRest:
         with pytest.raises(SyntaxError):
             MprmRest.get_instance()
 
-        first = MprmRest(self.gateway.get("id"))
+        first = MprmRest(gateway_id=self.gateway.get("id"), url="https://homecontrol.mydevolo.com")
         with pytest.raises(SyntaxError):
-            MprmRest(self.gateway.get("id"))
+            MprmRest(gateway_id=self.gateway.get("id"), url="https://homecontrol.mydevolo.com")
 
         second = MprmRest.get_instance()
         assert first is second

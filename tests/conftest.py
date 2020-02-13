@@ -182,14 +182,14 @@ def mock_mydevolo__call(mocker, request):
 @pytest.fixture()
 def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
-        request.cls.mprm = MprmRest(test_data.get("gateway").get("id"))
+        request.cls.mprm = MprmRest(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
     else:
         def _websocket_connection_mock():
             pass
 
         mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection",
                      side_effect=_websocket_connection_mock)
-        request.cls.mprm = MprmWebsocket(test_data.get("gateway").get("id"))
+        request.cls.mprm = MprmWebsocket(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
     yield
     request.cls.mprm.del_instance()
 
