@@ -55,6 +55,9 @@ class HomeControl:
     def update(self, message):
         self.updater.update(message)
 
+    def is_online(self, device_uid):
+        return True if self.devices.get(device_uid).online in ["online"] else False
+
     def create_pub(self):
         """
         Create a publisher for every device.
@@ -90,6 +93,7 @@ class HomeControl:
                 self.devices[device].binary_switch_property = {}
             self._logger.debug(f"Adding binary switch property to {device}.")
             self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
+            self.devices[device].binary_switch_property[element_uid].is_online = self.is_online
             self.devices[device].binary_switch_property[element_uid].get_binary_switch_state()
 
         def meter(element_uid: str):
