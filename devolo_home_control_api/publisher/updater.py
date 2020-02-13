@@ -9,41 +9,16 @@ class Updater:
         self._devices = devices
         self._publisher = publisher
 
-    def update(self, message):
-        def binary_switch():
-            if message.get("properties").get("property.name") == "state":
-                self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
-                                                value=True if message.get("properties").get("property.value.new") == 1
-                                                else False)
 
-        def gateway_accessible():
-            if message.get("properties").get("property.name") == "gatewayAccessible":
-                self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
-                                          online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
-
-        def meter():
-            if message.get("properties").get("property.name") == "currentValue":
-                self.update_consumption(element_uid=message.get("properties").get("uid"),
-                                        consumption="current",
-                                        value=message.get("properties").get("property.value.new"))
-            elif message.get("properties").get("property.name") == "totalValue":
-                self.update_consumption(element_uid=message.get("properties").get("uid"),
-                                        consumption="total", value=message.get("properties").get("property.value.new"))
-
-        def voltage_multi_level_sensor():
-            self.update_voltage(element_uid=message.get("properties").get("uid"),
-                                value=message.get("properties").get("property.value.new"))
-
-
-        message_type = {"devolo.BinarySwitch": binary_switch,
-                        "devolo.mprm.gw.GatewayAccessibilityFI": gateway_accessible,
-                        "devolo.Meter": meter,
-                        "devolo.VoltageMultiLevelSensor": voltage_multi_level_sensor}
+    def update(self, message: dict):
+        message_type = {"devolo.BinarySwitch": self._binary_switch,
+                        "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
+                        "devolo.Meter": self._meter,
+                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor}
         try:
-            message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))]()
+            message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
-
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
         """
@@ -100,3 +75,28 @@ class Updater:
         self._logger.debug(f"Updating status and state of gateway to status: {accessible} and state: {online_sync}")
         self._gateway.online = accessible
         self._gateway.sync = online_sync
+
+
+    def _binary_switch(self, message):
+        if message.get("properties").get("property.name") == "state":
+            self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
+                                            value=True if message.get("properties").get("property.value.new") == 1
+                                            else False)
+
+    def _gateway_accessible(self, message):
+        if message.get("properties").get("property.name") == "gatewayAccessible":
+            self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
+                                      online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
+
+    def _meter(self, message):
+        if message.get("properties").get("property.name") == "currentValue":
+            self.update_consumption(element_uid=message.get("properties").get("uid"),
+                                    consumption="current",
+                                    value=message.get("properties").get("property.value.new"))
+        elif message.get("properties").get("property.name") == "totalValue":
+            self.update_consumption(element_uid=message.get("properties").get("uid"),
+                                    consumption="total", value=message.get("properties").get("property.value.new"))
+
+    def _voltage_multi_level_sensor(self, message):
+        self.update_voltage(element_uid=message.get("properties").get("uid"),
+                            value=message.get("properties").get("property.value.new"))
