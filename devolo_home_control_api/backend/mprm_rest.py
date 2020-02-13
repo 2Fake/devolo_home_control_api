@@ -57,7 +57,6 @@ class MprmRest:
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
         self._logger.info("Searching for gateway in LAN")
         start_time = time.time()
-        searching = True
         while not time.time() > start_time + 3 and self._local_ip is None:
             for mdns_name in zeroconf.cache.entries():
                 try:
@@ -76,7 +75,7 @@ class MprmRest:
                     # The MDNS entry does not provide address information
                     pass
             else:
-                time.sleep(0.1)
+                time.sleep(0.05)
         threading.Thread(target=close_zeroconf).start()
         return self._local_ip
 
