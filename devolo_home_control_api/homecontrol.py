@@ -48,6 +48,11 @@ class HomeControl:
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid),
                                                                          "binary_switch_property")]
 
+
+    @property
+    def publisher(self):
+        return self.mprm.publisher
+
     def update(self, message):
         self.updater.update(message)
 
