@@ -130,6 +130,14 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
 
 
 @pytest.fixture()
+def mock_homecontrol_is_online(mocker):
+    def mock_is_online(device_uid):
+        return False
+
+    mocker.patch("devolo_home_control_api.homecontrol.HomeControl.is_online", side_effect=mock_is_online)
+
+
+@pytest.fixture()
 def mock_mprmrest__post_set(mocker, request):
     def _post_mock(data):
         if request.node.name == "test_set_binary_switch_valid":
@@ -189,6 +197,7 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect
 @pytest.fixture()
 def home_control_instance(request, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
+    request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'].is_online = request.cls.homecontrol.is_online
     yield
     MprmWebsocket.del_instance()
 
