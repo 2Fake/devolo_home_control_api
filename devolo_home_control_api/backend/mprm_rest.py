@@ -103,7 +103,6 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[element_uid], 0]}
         response = self.post(data)
-        # TODO: Catch error!
         return response.get("result").get("items")[0]
 
     def get_local_session(self):
