@@ -24,7 +24,6 @@ class ConsumptionProperty(Property):
         """
         Update and return the consumption, specified in consumption_type for the given uid.
 
-        :param element_uid: Element UID of the consumption. Usually starts with devolo.Meter.
         :param consumption_type: Current or total consumption
         :return: Consumption
         """

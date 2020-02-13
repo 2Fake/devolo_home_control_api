@@ -6,7 +6,6 @@ import requests
 from .backend.mprm_websocket import MprmWebsocket
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
-from .mydevolo import Mydevolo
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
@@ -16,12 +15,18 @@ from .publisher.updater import Updater
 
 
 class HomeControl:
+    """
+    Representing object for your Home Control setup. This is more or less the glue between your devolo Home Control Central
+    Unit, your devices and their properties.
+
+    :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
+    :param url: URL of the mPRM (typically leave it at default)
+    """
+
     def __init__(self, gateway_id, url="https://homecontrol.mydevolo.com"):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
-
-        mydevolo = Mydevolo.get_instance()
 
         self.mprm = MprmWebsocket(gateway_id=gateway_id, url=url)
         self.mprm.on_update = self.update
@@ -33,7 +38,6 @@ class HomeControl:
         self._inspect_devices()
         self.device_names = dict(zip([self.devices.get(device).name for device in self.devices],
                                      [self.devices.get(device).device_uid for device in self.devices]))
-
 
         self.create_pub()
         self.updater = Updater(devices=self.devices, publisher=self.mprm.publisher)
@@ -71,6 +75,7 @@ class HomeControl:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
         response = self.mprm.post(data)
+        # TODO: Move lines above to MprmRest as own method, e.g. get_devices
         all_devices_list = response.get("result").get("items")[0].get("properties").get("deviceUIDs")
         for device in all_devices_list:
             name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
@@ -121,15 +126,15 @@ class HomeControl:
             except KeyError:
                 self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
-    def _process_settings_uids(self, device, setting_uids):
+    def _process_settings_uids(self, device: str, setting_uids: list):
         """Generate properties depending on the setting uid"""
-        def led(setting_uid):
+        def led(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding led settings to {device}.")
             self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid, led_setting=None)
             self.devices[device].settings_property["led"].get_led_setting()
 
-        def general_device(setting_uid):
+        def general_device(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding general device settings to {device}.")
             self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
@@ -139,14 +144,14 @@ class HomeControl:
                                                                                                  icon=None)
             self.devices[device].settings_property["general_device_settings"].get_general_device_settings()
 
-        def parameter(setting_uid):
+        def parameter(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding parameter settings to {device}.")
             self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
                                                                                        param_changed=None)
             self.devices[device].settings_property["param_changed"].get_param_changed_setting()
 
-        def protection(setting_uid):
+        def protection(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding protection settings to {device}.")
             self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,

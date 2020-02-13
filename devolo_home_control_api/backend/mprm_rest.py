@@ -12,12 +12,12 @@ from ..mydevolo import Mydevolo
 
 class MprmRest:
     """
-    The MprmRest object handles calls to the so called mPRM. It does not cover all API calls, just those requested
-    up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway.
+    The MprmRest object handles calls to the so called mPRM as singleton. It does not cover all API calls, just those
+    requested up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway.
 
-    :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
-    :param url: URL of the mPRM (typically leave it at default)
-    :raises: JSONDecodeError: Connecting to the gateway was not possible
+    :param gateway_id: Gateway ID
+    :param url: URL of the mPRM
+    .. todo:: Make __instance a dict to handle multiple gateways at the same time
     """
 
     __instance = None
@@ -33,7 +33,7 @@ class MprmRest:
         cls.__instance = None
 
 
-    def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
+    def __init__(self, gateway_id: str, url: str):
         if self.__class__.__instance is not None:
             raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -53,8 +53,6 @@ class MprmRest:
             if state_change is ServiceStateChange.Added:
                 zeroconf.get_service_info(service_type, name)
 
-        def close_zeroconf():
-            zeroconf.close()
         zeroconf = Zeroconf()
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
         self._logger.info("Searching for gateway in LAN")
@@ -78,10 +76,11 @@ class MprmRest:
                     pass
             else:
                 time.sleep(0.05)
-        threading.Thread(target=close_zeroconf).start()
+        threading.Thread(target=zeroconf.close).start()
         return self._local_ip
 
     def create_connection(self):
+        """ Create session, either locally or via cloud. """
         if self._local_ip:
             self._gateway.local_connection = True
             self.get_local_session()
@@ -91,10 +90,15 @@ class MprmRest:
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def extract_data_from_element_uid(self, element_uid):
-        """ Returns data from an element_uid using a RPC call """
+    def extract_data_from_element_uid(self, uid: str) -> dict:
+        """
+        Returns data from an element UID using an RPC call.
+
+        :param uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :return: Data connected to the element UID, payload so to say
+        """
         data = {"method": "FIM/getFunctionalItems",
-                "params": [[element_uid], 0]}
+                "params": [[uid], 0]}
         response = self.post(data)
         return response.get("result").get("items")[0]
 
@@ -113,8 +117,12 @@ class MprmRest:
             raise
         self._session.get(self._token_url.get('link'))
 
-    def get_name_and_element_uids(self, uid):
-        """ Returns the name, all element UIDs and the device model of the given device UID. """
+    def get_name_and_element_uids(self, uid: str):
+        """
+        Returns the name, all element UIDs and the device model of the given device UID.
+
+        :param uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        """
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
         response = self.post(data)
@@ -137,7 +145,12 @@ class MprmRest:
             raise MprmDeviceCommunicationError("Gateway is offline.") from None
 
     def post(self, data: dict) -> dict:
-        """ Communicate with the RPC interface. """
+        """
+        Communicate with the RPC interface.
+
+        :param data: Data to be send
+        :return: Response to the data
+        """
         if not(self._gateway.online or self._gateway.sync) and not self._gateway.local_connection:
             raise MprmDeviceCommunicationError("Gateway is offline.")
 

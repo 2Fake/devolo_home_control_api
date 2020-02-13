@@ -52,7 +52,7 @@ class SettingsProperty(Property):
         self.param_changed = response.get("properties").get("paramChanged")
         return self.param_changed
 
-    def get_protection_setting(self, protection_setting):
+    def get_protection_setting(self, protection_setting: str) -> bool:
         """
         Update and return the protection setting. There are only two protection settings. Local and remote switching.
 

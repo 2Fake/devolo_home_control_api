@@ -19,7 +19,7 @@ class VoltageProperty(Property):
 
     def get_voltage(self) -> float:
         """
-        Update and return the voltage
+        Update and return the current voltage.
 
         :param element_uid: Element UID of the voltage. Usually starts with devolo.VoltageMultiLevelSensor
         :return: Voltage value
