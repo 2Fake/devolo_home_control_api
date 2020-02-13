@@ -5,6 +5,9 @@ from devolo_home_control_api.properties.binary_switch_property import BinarySwit
 
 
 class TestZwave:
+    @pytest.mark.usefixtures("home_control_instance")
+    @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
+    @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_property(self):
         device = Zwave(name=self.devices.get("mains").get("name"),
                        device_uid=self.devices.get("mains").get("uid"),
@@ -17,7 +20,7 @@ class TestZwave:
         element_uid = f'devolo.BinarySwitch:{self.devices.get("mains").get("uid")}'
         device.binary_switch_property[element_uid] = BinarySwitchProperty(element_uid=element_uid)
 
-        assert device.get_property("binary_switch")[0] == f'devolo.BinarySwitch:{self.devices.get("mains").get("uid")}'
+        assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
     def test_get_property_invalid(self):
         device = Zwave(name=self.devices.get("mains").get("name"),
