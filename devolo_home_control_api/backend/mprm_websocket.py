@@ -45,29 +45,9 @@ class MprmWebsocket(MprmRest):
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
 
-    def _on_open(self):
-        """ Callback function to keep the websocket open. """
-        def run(*args):
-            self._logger.info("Starting web socket connection")
-            while self._ws.sock.connected:
-                time.sleep(1)
-        threading.Thread(target=run).start()
-
-    def _on_message(self, message: str):
-        """ Callback function to react on a message. """
-        message = json.loads(message)
-
-        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
-        if event_sequence == self._event_sequence:
-            self._event_sequence += 1
-        else:
-            self._logger.warning("We missed a websocket message.")
-            self._event_sequence = event_sequence
-
-        try:
-            self.on_update(message)
-        except TypeError:
-            self._logger.error("on_update is not set.")
+    def _on_close(self):
+        """ Callback function to react on closing the websocket. """
+        self._logger.info("Closed web socket connection.")
 
     def _on_error(self, error: str):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
@@ -87,6 +67,26 @@ class MprmWebsocket(MprmRest):
                 i = i * 2 if i < 2048 else 3600
         self.websocket_connection()
 
-    def _on_close(self):
-        """ Callback function to react on closing the websocket. """
-        self._logger.info("Closed web socket connection.")
+    def _on_message(self, message: str):
+        """ Callback function to react on a message. """
+        message = json.loads(message)
+
+        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
+        if event_sequence == self._event_sequence:
+            self._event_sequence += 1
+        else:
+            self._logger.warning("We missed a websocket message.")
+            self._event_sequence = event_sequence
+
+        try:
+            self.on_update(message)
+        except TypeError:
+            self._logger.error("on_update is not set.")
+
+    def _on_open(self):
+        """ Callback function to keep the websocket open. """
+        def run(*args):
+            self._logger.info("Starting web socket connection")
+            while self._ws.sock.connected:
+                time.sleep(1)
+        threading.Thread(target=run).start()

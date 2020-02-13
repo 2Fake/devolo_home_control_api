@@ -17,6 +17,5 @@ class Property:
         self.is_online = None
 
 
-
 class WrongElementError(Exception):
-    """ This element was not meant for this property """
+    """ This element was not meant for this property. """

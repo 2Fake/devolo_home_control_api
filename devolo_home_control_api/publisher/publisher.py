@@ -1,24 +1,33 @@
 class Publisher:
-    def __init__(self, events):
-        # maps event names to subscribers
-        # str -> dict
-        self.events = {event: dict()
-                       for event in events}
+    """
+    The Publisher send messages to attached subscribers.
+    """
 
-    def dispatch(self, event, message):
-        for callback in self.get_subscribers(event).values():
+    def __init__(self, events: list):
+        self._events = {event: dict() for event in events}
+
+
+    def dispatch(self, event: str, message: str):
+        """ Dispatch the message to the subscribers. """
+        for callback in self._subscribers(event).values():
             callback(message)
 
-    def get_events(self):
-        return self.events
+    def register(self, event: str, who: object, callback: callable = None):
+        """
+        As a new subscriber for an event, add a callback function to call on new message.
+        If no callback is given, it registers update().
 
-    def get_subscribers(self, event):
-        return self.events[event]
-
-    def register(self, event, who, callback=None):
+        :raises AttributeError: The supposed callback is not callable.
+        """
         if callback is None:
             callback = getattr(who, 'update')
-        self.get_subscribers(event)[who] = callback
+        self._subscribers(event)[who] = callback
 
-    def unregister(self, event, who):
+    def unregister(self, event: str, who: object):
+        """ Remove a subscriber for a specific event. """
         del self.get_subscribers(event)[who]
+
+
+    def _subscribers(self, event: str):
+        """ All subscribers listening to an event. """
+        return self._events[event]

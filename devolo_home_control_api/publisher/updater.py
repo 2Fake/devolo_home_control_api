@@ -1,16 +1,29 @@
-import logging
 import json
-from devolo_home_control_api.devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
+import logging
+
+from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
+from .publisher import Publisher
 
 
 class Updater:
-    def __init__(self, devices, publisher):
+    """
+    The Updater takes care of new states and values of devices and sends them to the Publisher object.
+
+    :param devices: List of devices to await updates for
+    :param publisher: Instance of the Publisher object
+    """
+    def __init__(self, devices: dict, publisher: Publisher):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._devices = devices
         self._publisher = publisher
 
 
     def update(self, message: dict):
+        """
+        Update states and values depending on the message type.
+
+        :param message: Message to process
+        """
         message_type = {"devolo.BinarySwitch": self._binary_switch,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
@@ -22,8 +35,7 @@ class Updater:
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
         """
-        Function to update the internal binary switch state of a device.
-        If a value is given, e.g. from a websocket, the value is written into the internal dict.
+        Update the binary switch state of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
         :param value: Value so be set
@@ -35,9 +47,7 @@ class Updater:
 
     def update_consumption(self, element_uid: str, consumption: str, value: float):
         """
-        Function to update the internal consumption of a device.
-        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
-        the value is written into the internal dict.
+        Update the consumption of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like , something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
         :param consumption: current or total consumption
@@ -53,9 +63,7 @@ class Updater:
 
     def update_voltage(self, element_uid: str, value: float):
         """
-        Function to update the internal voltage of a device.
-        If value is None, it uses a RPC-Call to retrieve the value. If a value is given, e.g. from a websocket,
-        the value is written into the internal dict.
+        Update the voltage of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
         :param value: Value so be set
@@ -67,7 +75,7 @@ class Updater:
 
     def update_gateway_state(self, accessible: bool, online_sync: bool):
         """
-        Function to update the gateway status. A gateway might go on- or offline while we listen to the websocket.
+        Update the gateway status externally. A gateway might go on- or offline while we listen to the websocket.
 
         :param accessible: Online state of the gateway
         :param online_sync: Sync state of the gateway
@@ -78,17 +86,20 @@ class Updater:
 
 
     def _binary_switch(self, message):
+        """ Update a binary switch's state. """
         if message.get("properties").get("property.name") == "state":
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
                                             value=True if message.get("properties").get("property.value.new") == 1
                                             else False)
 
     def _gateway_accessible(self, message):
+        """ Update the gateway's state. """
         if message.get("properties").get("property.name") == "gatewayAccessible":
             self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
                                       online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
 
     def _meter(self, message):
+        """ Update a meter value. """
         if message.get("properties").get("property.name") == "currentValue":
             self.update_consumption(element_uid=message.get("properties").get("uid"),
                                     consumption="current",
@@ -98,5 +109,6 @@ class Updater:
                                     consumption="total", value=message.get("properties").get("property.value.new"))
 
     def _voltage_multi_level_sensor(self, message):
+        """ Update a voltage value. """
         self.update_voltage(element_uid=message.get("properties").get("uid"),
                             value=message.get("properties").get("property.value.new"))

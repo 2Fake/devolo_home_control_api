@@ -41,7 +41,7 @@ class Zwave:
 
 def get_device_type_from_element_uid(element_uid: str) -> str:
     """
-    Return the device type of the given element uid
+    Return the device type of the given element UID.
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Device type, something like devolo.MultiLevelSensor
@@ -51,7 +51,7 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
 
 def get_device_uid_from_element_uid(element_uid: str) -> str:
     """
-    Return device UID from the given element UID
+    Return device UID from the given element UID.
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Device UID, something like hdm:ZWave:CBC56091/24

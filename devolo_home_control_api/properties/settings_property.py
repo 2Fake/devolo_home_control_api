@@ -43,10 +43,10 @@ class SettingsProperty(Property):
 
     def get_param_changed_setting(self) -> bool:
         """
-        Update and return the param changed setting. If a device has modified Z-Wave parameters, this is true.
+        Update and return the param changed setting.
 
         :param setting_uid: Settings UID to look at. Usually starts with cps.hdm.
-        :return: Parameter changed or not
+        :return: True, if parameter was changed
         """
         response = self.mprm.extract_data_from_element_uid(self.setting_uid)
         self.param_changed = response.get("properties").get("paramChanged")
@@ -54,7 +54,7 @@ class SettingsProperty(Property):
 
     def get_protection_setting(self, protection_setting: str) -> bool:
         """
-        Update and return the protection setting. There are only two protection settings. Local and remote switching.
+        Update and return the protection setting. There are only two protection settings: local and remote switching.
 
         :param protection_setting: Look at local or remote switching.
         :return: Switching is protected or not
