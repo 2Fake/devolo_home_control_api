@@ -26,7 +26,6 @@ class HomeControl:
         self.mprm = MprmWebsocket(gateway_id=gateway_id, url=url)
         self.mprm.on_update = self.update
         self.local_ip = self.mprm.detect_gateway_in_lan()
-
         self.mprm.create_connection()
 
         # Create the initial device dict
@@ -58,10 +57,7 @@ class HomeControl:
 
     def create_pub(self):
         """
-        # TODO: Correct docstring
-        Create a publisher for every element we support at the moment.
-        Actually, there are publisher for current consumption and binary state. Current consumption publisher is create as
-        "current_consumption_ELEMENT_UID" and binary state publisher is created as "binary_state_ELEMENT_UID".
+        Create a publisher for every device.
         """
         publisher_list = [device for device in self.devices]
         self.mprm.publisher = Publisher(publisher_list)
