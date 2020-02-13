@@ -40,6 +40,7 @@ class MprmRest:
         self._session = requests.Session()
         self._data_id = 0
         self._mprm_url = url
+        self._local_ip = None
 
         self.__class__.__instance = self
 
@@ -64,7 +65,7 @@ class MprmRest:
                                      auth=(self._gateway.local_user, self._gateway.local_passkey),
                                      timeout=0.5).status_code == requests.codes.ok:
                     self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
-                    local_ip = ip
+                    self._local_ip = ip
                     break
             except OSError:
                 # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
@@ -75,7 +76,19 @@ class MprmRest:
         else:
             self._logger.debug("Could not find a gateway in local LAN with provided user and password.")
         zeroconf.close()
-        return local_ip
+        return self._local_ip
+
+    def create_connection(self):
+        if self._local_ip:
+            self._gateway.local_connection = True
+            self.get_local_session()
+        elif self._gateway.external_access:
+            # TODO: get maintenance check back
+            # elif self._gateway.external_access and not mydevolo.maintenance:
+            self.get_remote_session()
+        else:
+            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
+            raise ConnectionError("Cannot connect to gateway.")
 
     def _device_usable(self, uid):
         """
@@ -92,10 +105,10 @@ class MprmRest:
         # TODO: Catch error!
         return response.get("result").get("items")[0]
 
-    def get_local_session(self, ip):
+    def get_local_session(self):
         """ Connect to the gateway locally. """
         self._logger.info("Connecting to gateway locally")
-        self._mprm_url = "http://" + ip
+        self._mprm_url = "http://" + self._local_ip
         try:
             self._token_url = self._session.get(self._mprm_url + "/dhlp/portal/full",
                                                 auth=(self._gateway.local_user, self._gateway.local_passkey), timeout=5).json()

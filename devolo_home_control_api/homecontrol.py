@@ -27,14 +27,7 @@ class HomeControl:
         self.mprm.on_update = self.update
         self.local_ip = self.mprm.detect_gateway_in_lan()
 
-        if self.local_ip:
-            self._gateway.local_connection = True
-            self.mprm.get_local_session(ip=self.local_ip)
-        elif self._gateway.external_access and not mydevolo.maintenance:
-            self.mprm.get_remote_session()
-        else:
-            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
-            raise ConnectionError("Cannot connect to gateway.")
+        self.mprm.create_connection()
 
         # Create the initial device dict
         self.devices = {}

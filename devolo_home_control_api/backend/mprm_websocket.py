@@ -62,7 +62,7 @@ class MprmWebsocket(MprmRest):
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
                 self._event_sequence = 0
-                self.get_local_session() if self.local_ip else self.get_remote_session()
+                self.get_local_session() if self._local_ip else self.get_remote_session()
                 self.websocket_connection()
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
                 self._logger.info(f"Sleeping for {i} seconds.")
