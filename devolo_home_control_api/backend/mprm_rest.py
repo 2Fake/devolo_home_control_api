@@ -96,7 +96,9 @@ class MprmRest:
         Return the 'online' state of the given device as bool.
         We consider everything as 'online' if the device can receive new values.
         """
-        return True if self.devices.get(uid).online in ["online"] else False
+        # TODO: Make this work again. Rest doesn't know the devices anymore.
+        # return True if self.devices.get(uid).online in ["online"] else False
+        return True
 
     def extract_data_from_element_uid(self, element_uid):
         """ Returns data from an element_uid using a RPC call """
