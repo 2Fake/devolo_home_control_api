@@ -121,6 +121,14 @@ def mock_mprmrest__post(mocker, request):
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", side_effect=mock_post)
 
 
+@pytest.fixture(autouse=True)
+def mock_mprmwebsocket_websocket_connection(mocker, request):
+    def mock_websocket_connection():
+        pass
+
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", side_effect=mock_websocket_connection)
+
+
 @pytest.fixture()
 def mock_mprmrest__post_set(mocker, request):
     def _post_mock(data):
