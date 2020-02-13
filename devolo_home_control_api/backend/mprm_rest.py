@@ -7,6 +7,7 @@ import threading
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..devices.gateway import Gateway
+from ..mydevolo import Mydevolo
 
 
 class MprmRest:
@@ -37,6 +38,7 @@ class MprmRest:
             raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
+        self._mydevolo = Mydevolo.get_instance()
         self._session = requests.Session()
         self._data_id = 0
         self._mprm_url = url
@@ -83,9 +85,7 @@ class MprmRest:
         if self._local_ip:
             self._gateway.local_connection = True
             self.get_local_session()
-        elif self._gateway.external_access:
-            # TODO: get maintenance check back
-            # elif self._gateway.external_access and not mydevolo.maintenance:
+        elif self._gateway.external_access and not self._mydevolo.maintenance:
             self.get_remote_session()
         else:
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
