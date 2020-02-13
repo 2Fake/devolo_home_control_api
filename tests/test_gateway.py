@@ -1,7 +1,6 @@
 import pytest
 
 from devolo_home_control_api.devices.gateway import Gateway
-from devolo_home_control_api.mydevolo import Mydevolo
 
 
 @pytest.mark.usefixtures("instance_mydevolo")

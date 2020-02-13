@@ -7,17 +7,20 @@ import pytest
 class TestSettingsProperty:
     def test_get_general_device_settings_valid(self):
         name, icon, zone_id, events_enabled = \
-            self.homecontrol.devices.get(self.devices.get("mains").get("uid")).settings_property.get("general_device_settings").get_general_device_settings()
+            self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
+                .settings_property.get("general_device_settings").get_general_device_settings()
         assert name == self.devices.get('mains').get('name')
         assert icon == self.devices.get('mains').get('icon')
         assert zone_id == self.devices.get('mains').get('zone_id')
         assert events_enabled
 
     def test_get_led_setting_valid(self):
-        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid")).settings_property.get("led").get_led_setting()
+        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
+            .settings_property.get("led").get_led_setting()
 
     def test_get_param_changed_valid(self):
-        assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid")).settings_property.get("param_changed").get_param_changed_setting()
+        assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
+            .settings_property.get("param_changed").get_param_changed_setting()
 
     def test_get_protection_setting_valid(self):
         local_switch = self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\

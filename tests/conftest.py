@@ -26,7 +26,8 @@ def clear_mydevolo():
 
 @pytest.fixture()
 def fill_device_data(request):
-    consumption_property = request.cls.homecontrol.devices.get(test_data.get('devices').get("mains").get("uid")).consumption_property
+    consumption_property = request.cls.homecontrol.devices.get(test_data.get('devices').get("mains").get("uid"))\
+        .consumption_property
     consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").current = 0.58
     consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").total = 125.68
 
@@ -108,14 +109,14 @@ def mock_mprmrest__post(mocker, request):
     def mock_post(data):
         properties = {}
         properties['test_get_name_and_element_uids'] = {"result":
-                                                         {"items": [{"properties": {"itemName": "test_name",
-                                                                                    "zone": "test_zone",
-                                                                                    "batteryLevel": "test_battery",
-                                                                                    "icon": "test_icon",
-                                                                                    "elementUIDs": "test_element_uids",
-                                                                                    "settingUIDs": "test_setting_uids",
-                                                                                    "deviceModelUID": "test_device_model_uid",
-                                                                                    "status": "test_status"}}]}}
+                                                        {"items": [{"properties": {"itemName": "test_name",
+                                                                                   "zone": "test_zone",
+                                                                                   "batteryLevel": "test_battery",
+                                                                                   "icon": "test_icon",
+                                                                                   "elementUIDs": "test_element_uids",
+                                                                                   "settingUIDs": "test_setting_uids",
+                                                                                   "deviceModelUID": "test_device_model_uid",
+                                                                                   "status": "test_status"}}]}}
         return properties.get(request.node.name)
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", side_effect=mock_post)
@@ -126,7 +127,8 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
     def mock_websocket_connection():
         pass
 
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", side_effect=mock_websocket_connection)
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection",
+                 side_effect=mock_websocket_connection)
 
 
 @pytest.fixture()
@@ -197,7 +199,8 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect
 @pytest.fixture()
 def home_control_instance(request, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
-    request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'].is_online = request.cls.homecontrol.is_online
+    request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4']\
+        .is_online = request.cls.homecontrol.is_online
     yield
     MprmWebsocket.del_instance()
 

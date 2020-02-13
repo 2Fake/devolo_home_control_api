@@ -1,7 +1,5 @@
 import pytest
 
-from devolo_home_control_api.homecontrol import HomeControl
-
 
 @pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
 @pytest.mark.usefixtures("home_control_instance")

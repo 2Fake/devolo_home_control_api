@@ -1,10 +1,7 @@
 import pytest
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest, \
-    MprmDeviceCommunicationError, \
-    MprmDeviceNotFoundError, \
-    get_sub_device_uid_from_element_uid, \
-    get_device_type_from_element_uid
+    get_sub_device_uid_from_element_uid, get_device_type_from_element_uid
 
 
 @pytest.mark.usefixtures("mprm_instance")
