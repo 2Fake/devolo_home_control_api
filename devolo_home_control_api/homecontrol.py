@@ -23,7 +23,7 @@ class HomeControl:
     :param url: URL of the mPRM (typically leave it at default)
     """
 
-    def __init__(self, gateway_id, url="https://homecontrol.mydevolo.com"):
+    def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
@@ -46,38 +46,38 @@ class HomeControl:
 
 
     @property
-    def binary_switch_devices(self):
-        """Returns all binary switch devices."""
-        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid),
-                                                                         "binary_switch_property")]
-
+    def binary_switch_devices(self) -> list:
+        """ Get all binary switch devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
     @property
-    def publisher(self):
+    def publisher(self) -> Publisher:
+        """ Get all publisher. """
         return self.mprm.publisher
 
-    def update(self, message):
-        self.updater.update(message)
-
-    def is_online(self, device_uid):
-        return True if self.devices.get(device_uid).online in ["online"] else False
 
     def create_pub(self):
-        """
-        Create a publisher for every device.
-        """
+        """ Create a publisher for every device. """
         publisher_list = [device for device in self.devices]
         self.mprm.publisher = Publisher(publisher_list)
 
+    def is_online(self, uid: str) -> bool:
+        """
+        Get the online state of a device.
+
+        :param uid: Device UID, something like hdm:ZWave:CBC56091/24
+        :return: True, if device is online
+        """
+        return True if self.devices.get(uid).online == "online" else False
+
+    def update(self, message: str):
+        """ Initialize steps needed to update properties on a new message. """
+        self.updater.update(message)
+
+
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
-        self._logger.info("Inspecting devices")
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [['devolo.DevicesPage'], 0]}
-        response = self.mprm.post(data)
-        # TODO: Move lines above to MprmRest as own method, e.g. get_devices
-        all_devices_list = response.get("result").get("items")[0].get("properties").get("deviceUIDs")
-        for device in all_devices_list:
+        for device in self.mprm.get_all_devices():
             name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
                 self.mprm.get_name_and_element_uids(uid=device)
             self._logger.debug(f"Adding {name} ({device}) to device list.")
@@ -92,7 +92,7 @@ class HomeControl:
             self._process_settings_uids(device=device, setting_uids=setting_uids)
 
     def _process_element_uids(self, device: str, element_uids: list):
-        """ Generate properties depending on the element uid """
+        """ Generate properties depending on the element uid. """
         def binary_switch(element_uid: str):
             if not hasattr(self.devices[device], "binary_switch_property"):
                 self.devices[device].binary_switch_property = {}
@@ -127,7 +127,7 @@ class HomeControl:
                 self._logger.debug(f"Found an unexpected element uid: {element_uid}")
 
     def _process_settings_uids(self, device: str, setting_uids: list):
-        """Generate properties depending on the setting uid"""
+        """ Generate properties depending on the setting uid. """
         def led(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding led settings to {device}.")
@@ -177,7 +177,7 @@ class HomeControl:
 
 def get_device_uid_from_element_uid(element_uid: str) -> str:
     """
-    Return device UID from the given element UID
+    Return device UID from the given element UID.
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Device UID, something like hdm:ZWave:CBC56091/24
@@ -187,7 +187,7 @@ def get_device_uid_from_element_uid(element_uid: str) -> str:
 
 def get_device_type_from_element_uid(element_uid: str) -> str:
     """
-    Return the device type of the given element uid
+    Return the device type of the given element UID.
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Device type, something like devolo.MultiLevelSensor
@@ -197,7 +197,7 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
 
 def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     """
-    Return the device uid of the given setting uid
+    Return the device uid of the given setting UID.
 
     :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
@@ -207,7 +207,7 @@ def get_device_uid_from_setting_uid(setting_uid: str) -> str:
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> int:
     """
-    Return the sub device uid of the given element uid
+    Return the sub device uid of the given element UID.
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Sub device UID, something like 2
