@@ -14,6 +14,7 @@ class Property:
         self.element_uid = element_uid
         self.device_uid = element_uid.split(":", 1)[1].split("#")[0]
         self.mprm = MprmWebsocket.get_instance()
+        self.is_online = None
 
 
 
