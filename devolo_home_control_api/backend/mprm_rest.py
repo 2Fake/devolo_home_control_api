@@ -2,8 +2,8 @@ import json
 import logging
 import socket
 import time
-
 import requests
+import threading
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..devices.gateway import Gateway
@@ -51,12 +51,14 @@ class MprmRest:
             if state_change is ServiceStateChange.Added:
                 zeroconf.get_service_info(service_type, name)
 
-        local_ip = None
+        def close_zeroconf():
+            zeroconf.close()
         zeroconf = Zeroconf()
         ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
         self._logger.info("Searching for gateway in LAN")
         start_time = time.time()
-        while not time.time() > start_time + 3:
+        searching = True
+        while not time.time() > start_time + 3 and self._local_ip is None:
             for mdns_name in zeroconf.cache.entries():
                 try:
                     ip = socket.inet_ntoa(mdns_name.address)
@@ -73,9 +75,9 @@ class MprmRest:
                 except AttributeError:
                     # The MDNS entry does not provide address information
                     pass
-        else:
-            self._logger.debug("Could not find a gateway in local LAN with provided user and password.")
-        zeroconf.close()
+            else:
+                time.sleep(0.1)
+        threading.Thread(target=close_zeroconf).start()
         return self._local_ip
 
     def create_connection(self):
