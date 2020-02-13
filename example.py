@@ -3,7 +3,7 @@ import logging
 from devolo_home_control_api.homecontrol import HomeControl
 from devolo_home_control_api.mydevolo import Mydevolo
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
 
 user = "username"
 password = "password"
