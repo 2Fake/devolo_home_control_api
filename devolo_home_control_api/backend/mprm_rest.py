@@ -102,6 +102,18 @@ class MprmRest:
         response = self.post(data)
         return response.get("result").get("items")[0]
 
+    def get_all_devices(self) -> dict:
+        """
+        Get all devices.
+
+        :return: Dict with all devices and their properties.
+        """
+        self._logger.info("Inspecting devices")
+        data = {"method": "FIM/getFunctionalItems",
+                "params": [['devolo.DevicesPage'], 0]}
+        response = self.post(data)
+        return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+
     def get_local_session(self):
         """ Connect to the gateway locally. """
         self._logger.info("Connecting to gateway locally")
