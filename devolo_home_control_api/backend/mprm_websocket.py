@@ -53,21 +53,24 @@ class MprmWebsocket(MprmRest):
     def _on_error(self, error):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
         self._logger.error(error)
-
-    def _on_close(self):
-        """ Callback function to react on closing the websocket. """
-        self._logger.info("Closed web socket connection.")
         i = 16
-        while not self._ws.sock.connected:
+        connected = False
+        self._ws.close()
+        while not connected:
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
                 self._event_sequence = 0
                 self.get_local_session() if self._local_ip else self.get_remote_session()
-                self.websocket_connection()
+                connected = True
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, websocket.WebSocketException):
                 self._logger.info(f"Sleeping for {i} seconds.")
                 time.sleep(i)
                 i = i * 2 if i < 2048 else 3600
+        self.websocket_connection()
+
+    def _on_close(self):
+        """ Callback function to react on closing the websocket. """
+        self._logger.info("Closed web socket connection.")
 
 
     def websocket_connection(self):
