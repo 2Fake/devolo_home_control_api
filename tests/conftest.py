@@ -3,13 +3,14 @@ import sys
 
 import pytest
 
-from devolo_home_control_api.homecontrol import HomeControl
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
+from devolo_home_control_api.homecontrol import HomeControl
 from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
-from tests.mock_dummy_device import dummy_device
-from tests.mock_gateway import Gateway
-from tests.mock_metering_plug import metering_plug
+
+from .mocks.mock_gateway import Gateway
+from .mocks.mock_homecontrol import mock__inspect_devices
+
 
 try:
     with open('test_data.json') as file:
@@ -51,23 +52,12 @@ def mock_gateway(mocker):
 
 @pytest.fixture()
 def mock_inspect_devices_metering_plug(mocker):
-    def mock__inspect_devices(self):
-        for device_type, device in test_data.get("devices").items():
-            device_uid = device.get("uid")
-            if device_type == "mains":
-                self.devices[device_uid] = metering_plug(device_uid=device_uid)
-            else:
-                self.devices[device_uid] = dummy_device(key=device_type)
-
     mocker.patch("devolo_home_control_api.homecontrol.HomeControl._inspect_devices", mock__inspect_devices)
 
 
 @pytest.fixture()
 def mock_mprmrest__detect_gateway_in_lan(mocker):
-    def _detect_gateway_in_lan(self):
-        return None
-
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", _detect_gateway_in_lan)
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
 
 
 @pytest.fixture()
@@ -133,10 +123,7 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
 
 @pytest.fixture()
 def mock_homecontrol_is_online(mocker):
-    def mock_is_online(device_uid):
-        return False
-
-    mocker.patch("devolo_home_control_api.homecontrol.HomeControl.is_online", side_effect=mock_is_online)
+    mocker.patch("devolo_home_control_api.homecontrol.HomeControl.is_online", return_value=False)
 
 
 @pytest.fixture()
@@ -152,10 +139,8 @@ def mock_mprmrest__post_set(mocker, request):
 
 @pytest.fixture()
 def mock_publisher_dispatch(mocker):
-    def mock_dispatch(event, message):
-        return None
+    mocker.patch("devolo_home_control_api.publisher.publisher.Publisher.dispatch", return_value=None)
 
-    mocker.patch("devolo_home_control_api.publisher.publisher.Publisher.dispatch", side_effect=mock_dispatch)
 
 @pytest.fixture()
 def mock_mydevolo__call(mocker, request):
