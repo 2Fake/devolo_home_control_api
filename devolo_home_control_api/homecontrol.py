@@ -5,7 +5,7 @@ import requests
 
 from .backend.mprm_websocket import MprmWebsocket
 from .devices.gateway import Gateway
-from .devices.zwave import Zwave
+from .devices.zwave import Zwave, get_device_type_from_element_uid
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
@@ -129,13 +129,11 @@ class HomeControl:
     def _process_settings_uids(self, device: str, setting_uids: list):
         """ Generate properties depending on the setting uid. """
         def led(setting_uid: str):
-            device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding led settings to {device}.")
             self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid, led_setting=None)
             self.devices[device].settings_property["led"].fetch_led_setting()
 
         def general_device(setting_uid: str):
-            device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding general device settings to {device}.")
             self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
                                                                                                  events_enabled=None,
@@ -145,14 +143,12 @@ class HomeControl:
             self.devices[device].settings_property["general_device_settings"].fetch_general_device_settings()
 
         def parameter(setting_uid: str):
-            device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding parameter settings to {device}.")
             self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
                                                                                        param_changed=None)
             self.devices[device].settings_property["param_changed"].fetch_param_changed_setting()
 
         def protection(setting_uid: str):
-            device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding protection settings to {device}.")
             self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
                                                                                     local_switching=None,
@@ -173,36 +169,6 @@ class HomeControl:
                 setting[get_device_type_from_element_uid(setting_uid)](setting_uid)
             except KeyError:
                 self._logger.debug(f"Found an unexpected element uid: {setting_uid}")
-
-
-def get_device_uid_from_element_uid(element_uid: str) -> str:
-    """
-    Return device UID from the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Device UID, something like hdm:ZWave:CBC56091/24
-    """
-    return element_uid.split(":", 1)[1].split("#")[0]
-
-
-def get_device_type_from_element_uid(element_uid: str) -> str:
-    """
-    Return the device type of the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Device type, something like devolo.MultiLevelSensor
-    """
-    return element_uid.split(":")[0]
-
-
-def get_device_uid_from_setting_uid(setting_uid: str) -> str:
-    """
-    Return the device uid of the given setting UID.
-
-    :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
-    :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
-    """
-    return setting_uid.split(".", 1)[-1]
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> int:
