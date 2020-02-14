@@ -17,9 +17,9 @@ class TestUpdater:
         current_before = consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current
         total_before = consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
         self.homecontrol.updater.update_consumption(element_uid=f"devolo.Meter:{self.devices.get('mains').get('uid')}",
-                                     consumption="current", value=1.58)
+                                                    consumption="current", value=1.58)
         self.homecontrol.updater.update_consumption(element_uid=f"devolo.Meter:{self.devices.get('mains').get('uid')}",
-                                     consumption="total", value=254)
+                                                    consumption="total", value=254)
         assert current_before != consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current
         assert total_before != consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
         assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current == 1.58
@@ -39,3 +39,6 @@ class TestUpdater:
         assert current_voltage != \
             voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
         assert voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current == 257
+
+    def test_update(self):
+        self.homecontrol.updater.update(message={"properties":  {"uid": f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"}})

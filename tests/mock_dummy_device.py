@@ -14,12 +14,7 @@ def dummy_device(key: str) -> Zwave:
     with open('test_data.json') as file:
         test_data = json.load(file)
 
-    device = Zwave(name=test_data.get("devices").get(key).get("name"),
-                   device_uid=test_data.get("devices").get(key).get("uid"),
-                   zone=test_data.get("devices").get(key).get("zone_name"),
-                   battery_level=-1,
-                   icon=test_data.get("devices").get(key).get("icon"),
-                   online_state=test_data.get("devices").get(key).get("online"))
+    device = Zwave(**test_data.get("devices").get(key))
 
     device.binary_switch_property = {}
     device.binary_switch_property[f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}'] = \

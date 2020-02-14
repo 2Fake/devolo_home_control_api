@@ -9,12 +9,7 @@ class TestZwave:
     @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_property(self):
-        device = Zwave(name=self.devices.get("mains").get("name"),
-                       device_uid=self.devices.get("mains").get("uid"),
-                       zone=self.devices.get("mains").get("zone"),
-                       battery_level=-1,
-                       icon=self.devices.get("mains").get("icon"),
-                       online_state=2)
+        device = Zwave(**self.devices.get("mains"))
 
         device.binary_switch_property = {}
         element_uid = f'devolo.BinarySwitch:{self.devices.get("mains").get("uid")}'
@@ -23,51 +18,26 @@ class TestZwave:
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
     def test_get_property_invalid(self):
-        device = Zwave(name=self.devices.get("mains").get("name"),
-                       device_uid=self.devices.get("mains").get("uid"),
-                       zone=self.devices.get("mains").get("zone"),
-                       battery_level=-1,
-                       icon=self.devices.get("mains").get("icon"),
-                       online_state=2)
+        device = Zwave(**self.devices.get("mains"))
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
 
     def test_battery_level(self):
         # TODO: Use battery driven device
-        device = Zwave(name=self.devices.get("mains").get("name"),
-                       device_uid=self.devices.get("mains").get("uid"),
-                       zone=self.devices.get("mains").get("zone"),
-                       battery_level=55,
-                       icon=self.devices.get("mains").get("icon"),
-                       online_state=2)
+        device = Zwave(**self.devices.get("ambiguous_1"))
 
-        assert device.battery_level == 55
+        assert device.batteryLevel == 55
 
     def test_device_online_state_state(self):
-        device = Zwave(name=self.devices.get("mains").get("name"),
-                       device_uid=self.devices.get("mains").get("uid"),
-                       zone=self.devices.get("mains").get("zone"),
-                       battery_level=-1,
-                       icon=self.devices.get("mains").get("icon"),
-                       online_state=1)
-        assert device.online == "offline"
+        device = Zwave(**self.devices.get("ambiguous_2"))
+        assert device.online == 1
 
-        device = Zwave(name=self.devices.get("mains").get("name"),
-                       device_uid=self.devices.get("mains").get("uid"),
-                       zone=self.devices.get("mains").get("zone"),
-                       battery_level=-1,
-                       icon=self.devices.get("mains").get("icon"),
-                       online_state=2)
-        assert device.online == "online"
+        device = Zwave(**self.devices.get("mains"))
+        assert device.online == 2
 
-        device = Zwave(name=self.devices.get("mains").get("name"),
-                       device_uid=self.devices.get("mains").get("uid"),
-                       zone=self.devices.get("mains").get("zone"),
-                       battery_level=-1,
-                       icon=self.devices.get("mains").get("icon"),
-                       online_state=27)
-        device.online = "unknown state"
+        device = Zwave(**self.devices.get("ambiguous_1"))
+        assert device.online not in [1, 2]
 
 
 

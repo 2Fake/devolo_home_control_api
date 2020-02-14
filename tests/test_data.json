@@ -19,6 +19,8 @@
     "mains":{
       "uid": "hdm:ZWave:F6BF9812/2",
       "name": "Light",
+      "batteryLevel": -1,
+      "batteryLow": null,
       "icon": "light-bulb",
       "zone_id": "hz_2",
       "zone_name": "Office",
@@ -45,13 +47,17 @@
     "ambiguous_1":{
       "uid": "hdm:ZWave:F6BF9812/3",
       "name": "Heating",
+      "batteryLevel": 55,
+      "batteryLow": true,
       "icon": "icon_1",
       "zone_name": "Kitchen",
-      "online": 2
+      "online": 25
     },
     "ambiguous_2":{
       "uid": "hdm:ZWave:F6BF9812/4",
       "name": "Heating",
+      "batteryLevel": -1,
+      "batteryLow": null,
       "icon": "icon_1",
       "zone_name": "Living Room",
       "element_uids": [

@@ -5,18 +5,20 @@ from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_fro
 from .publisher import Publisher
 from ..devices.gateway import Gateway
 
+
 class Updater:
     """
     The Updater takes care of new states and values of devices and sends them to the Publisher object.
 
     :param devices: List of devices to await updates for
-    :param publisher: Instance of the Publisher object
+    :param gateway: Instance of a Gateway object
+    :param publisher: Instance of a Publisher object
     """
-    def __init__(self, devices: dict, publisher: Publisher, gateway: Gateway):
+    def __init__(self, devices: dict, gateway: Gateway, publisher: Publisher):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._devices = devices
-        self._publisher = publisher
         self._gateway = gateway
+        self._publisher = publisher
 
 
     def update(self, message: dict):

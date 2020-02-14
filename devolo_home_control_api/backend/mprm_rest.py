@@ -139,14 +139,15 @@ class MprmRest:
                 "params": [[uid], 0]}
         response = self.post(data)
         properties = response.get("result").get("items")[0].get("properties")
-        return properties.get("itemName"),\
-            properties.get("zone"),\
-            properties.get("batteryLevel"),\
-            properties.get("icon"),\
-            properties.get("elementUIDs"),\
-            properties.get("settingUIDs"),\
-            properties.get("deviceModelUID"),\
-            properties.get("status")
+        return properties
+        # return properties.get("itemName"),\
+        #     properties.get("zone"),\
+        #     properties.get("batteryLevel"),\
+        #     properties.get("icon"),\
+        #     properties.get("elementUIDs"),\
+        #     properties.get("settingUIDs"),\
+        #     properties.get("deviceModelUID"),\
+        #     properties.get("status")
 
     def get_remote_session(self):
         """ Connect to the gateway remotely. """

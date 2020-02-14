@@ -37,10 +37,10 @@ class HomeControl:
         self.devices = {}
         self._inspect_devices()
         self.device_names = dict(zip([self.devices.get(device).name for device in self.devices],
-                                     [self.devices.get(device).device_uid for device in self.devices]))
+                                     [self.devices.get(device).uid for device in self.devices]))
 
         self.create_pub()
-        self.updater = Updater(devices=self.devices, publisher=self.mprm.publisher, gateway=self._gateway)
+        self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.mprm.publisher)
 
         threading.Thread(target=self.mprm.websocket_connection).start()
 
@@ -68,7 +68,7 @@ class HomeControl:
         :param uid: Device UID, something like hdm:ZWave:CBC56091/24
         :return: True, if device is online
         """
-        return True if self.devices.get(uid).online == "online" else False
+        return True if self.devices.get(uid).online == 2 else False
 
     def update(self, message: str):
         """ Initialize steps needed to update properties on a new message. """
@@ -78,18 +78,21 @@ class HomeControl:
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
         for device in self.mprm.get_all_devices():
-            name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
-                self.mprm.get_name_and_element_uids(uid=device)
-            self._logger.debug(f"Adding {name} ({device}) to device list.")
+            # name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
+            #     self.mprm.get_name_and_element_uids(uid=device)
+            # self._logger.debug(f"Adding {name} ({device}) to device list.")
             # Process device uids
-            self.devices[device] = Zwave(name=name,
-                                         device_uid=device,
-                                         zone=zone,
-                                         battery_level=battery_level,
-                                         icon=icon,
-                                         online_state=online_state)
-            self._process_element_uids(device=device, element_uids=element_uids)
-            self._process_settings_uids(device=device, setting_uids=setting_uids)
+             # = [value for value in properties.items()]
+            properties = dict([(key, value) for key, value in self.mprm.get_name_and_element_uids(uid=device).items()])
+            self.devices[device] = Zwave(**properties)
+            # self.devices[device] = Zwave(name=name,
+            #                              device_uid=device,
+            #                              zone=zone,
+            #                              battery_level=battery_level,
+            #                              icon=icon,
+            #                              online_state=online_state)
+            self._process_element_uids(device=device, element_uids=properties.get("element_uids"))
+            self._process_settings_uids(device=device, setting_uids=properties.get("setting_uids"))
 
     def _process_element_uids(self, device: str, element_uids: list):
         """ Generate properties depending on the element uid. """

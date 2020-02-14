@@ -8,25 +8,13 @@ class Zwave:
     :param device_uid: Device UID, something like hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, name: str, device_uid: str, zone: str, battery_level: int, icon: str, online_state: int):
-        # TODO: Change to kwargs
-        self._logger = logging.getLogger(self.__class__.__name__)
-        self.name = name
-        self.zone = zone
-        if battery_level != -1:
-            self.battery_level = battery_level
-        self.icon = icon
-        self.device_uid = device_uid
-        self.subscriber = None
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        if self.batteryLevel == -1:
+            delattr(self, "batteryLevel")
+            delattr(self, "batteryLow")
 
-        # Online state is returned as numbers. 1 --> Offline, 2 --> Online, 7 --> Not initialized
-        if online_state == 1:
-            self.online = "offline"
-        elif online_state == 2:
-            self.online = "online"
-        else:
-            self.online = "unknown state"
-            self._logger.warning(f"Unknown state {online_state} for device {self.name}")
 
     def get_property(self, name: str) -> list:
         """
