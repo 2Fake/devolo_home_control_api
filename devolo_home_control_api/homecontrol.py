@@ -78,21 +78,10 @@ class HomeControl:
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
         for device in self.mprm.get_all_devices():
-            # name, zone, battery_level, icon, element_uids, setting_uids, deviceModelUID, online_state = \
-            #     self.mprm.get_name_and_element_uids(uid=device)
-            # self._logger.debug(f"Adding {name} ({device}) to device list.")
-            # Process device uids
-             # = [value for value in properties.items()]
             properties = dict([(key, value) for key, value in self.mprm.get_name_and_element_uids(uid=device).items()])
             self.devices[device] = Zwave(**properties)
-            # self.devices[device] = Zwave(name=name,
-            #                              device_uid=device,
-            #                              zone=zone,
-            #                              battery_level=battery_level,
-            #                              icon=icon,
-            #                              online_state=online_state)
-            self._process_element_uids(device=device, element_uids=properties.get("element_uids"))
-            self._process_settings_uids(device=device, setting_uids=properties.get("setting_uids"))
+            self._process_element_uids(device=device, element_uids=properties.get("elementUIDs"))
+            self._process_settings_uids(device=device, setting_uids=properties.get("settingUIDs"))
 
     def _process_element_uids(self, device: str, element_uids: list):
         """ Generate properties depending on the element uid. """
