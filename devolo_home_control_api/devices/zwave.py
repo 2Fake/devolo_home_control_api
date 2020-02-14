@@ -49,6 +49,16 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
     return element_uid.split(":")[0]
 
 
+def get_device_uid_from_setting_uid(setting_uid: str) -> str:
+    """
+    Return the device uid of the given setting UID.
+
+    :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
+    :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
+    """
+    return setting_uid.split(".", 1)[-1]
+
+
 def get_device_uid_from_element_uid(element_uid: str) -> str:
     """
     Return device UID from the given element UID.
