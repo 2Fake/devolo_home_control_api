@@ -151,6 +151,13 @@ def mock_mprmrest__post_set(mocker, request):
 
 
 @pytest.fixture()
+def mock_publisher_dispatch(mocker):
+    def mock_dispatch(event, message):
+        return None
+
+    mocker.patch("devolo_home_control_api.publisher.publisher.Publisher.dispatch", side_effect=mock_dispatch)
+
+@pytest.fixture()
 def mock_mydevolo__call(mocker, request):
     def _call_mock(url):
         uuid = test_data.get("user").get("uuid")
