@@ -140,14 +140,6 @@ class MprmRest:
         response = self.post(data)
         properties = response.get("result").get("items")[0].get("properties")
         return properties
-        # return properties.get("itemName"),\
-        #     properties.get("zone"),\
-        #     properties.get("batteryLevel"),\
-        #     properties.get("icon"),\
-        #     properties.get("elementUIDs"),\
-        #     properties.get("settingUIDs"),\
-        #     properties.get("deviceModelUID"),\
-        #     properties.get("status")
 
     def get_remote_session(self):
         """ Connect to the gateway remotely. """
@@ -183,26 +175,6 @@ class MprmRest:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
-
-
-def get_device_uid_from_setting_uid(setting_uid: str) -> str:
-    """
-    Return the device uid of the given setting uid
-
-    :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
-    :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
-    """
-    return setting_uid.split(".", 1)[-1]
-
-
-def get_sub_device_uid_from_element_uid(element_uid: str) -> int:
-    """
-    Return the sub device uid of the given element uid
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Sub device UID, something like 2
-    """
-    return None if "#" not in element_uid else int(element_uid.split("#")[-1])
 
 
 class MprmDeviceCommunicationError(Exception):
