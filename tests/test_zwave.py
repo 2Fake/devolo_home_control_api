@@ -1,6 +1,7 @@
 import pytest
 
-from devolo_home_control_api.devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_element_uid
+from devolo_home_control_api.devices.zwave import Zwave,\
+    get_device_type_from_element_uid, get_device_uid_from_element_uid, get_device_uid_from_setting_uid
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 
 
@@ -39,10 +40,11 @@ class TestZwave:
         device = Zwave(**self.devices.get("ambiguous_1"))
         assert device.online not in [1, 2]
 
-
-
     def test_get_device_type_from_element_uid(self):
         assert get_device_type_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "devolo.Meter"
+
+    def test_get_device_uid_from_setting_uid(self):
+        assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2") == "hdm:ZWave:EB5A9F6C/2"
 
     def test_get_device_uid_from_element_uid(self):
         assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "hdm:ZWave:F6BF9812/2"
