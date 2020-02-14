@@ -9,11 +9,13 @@ class Zwave:
     """
 
     def __init__(self, **kwargs):
+        self._logger = logging.getLogger(self.__class__.__name__)
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
-        
+
         if self.batteryLevel == -1:
             delattr(self, "batteryLevel")
             delattr(self, "batteryLow")
