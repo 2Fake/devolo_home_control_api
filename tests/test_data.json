@@ -18,19 +18,19 @@
   "devices": {
     "mains":{
       "uid": "hdm:ZWave:F6BF9812/2",
-      "name": "Light",
+      "itemName": "Light",
       "batteryLevel": -1,
       "batteryLow": null,
       "icon": "light-bulb",
       "zone_id": "hz_2",
       "zone_name": "Office",
       "battery_level": -1,
-      "settings_uids": [
+      "settingsUIDs": [
         "gds.hdm:ZWave:F6BF9812/2", 
         "cps.hdm:ZWave:F6BF9812/2", 
         "lis.hdm:ZWave:F6BF9812/2", 
         "ps.hdm:ZWave:F6BF9812/2"],
-      "element_uids": [
+      "elementUIDs": [
         "devolo.Meter:hdm:ZWave:F6BF9812/2",
         "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
       "state": 1,
@@ -46,22 +46,24 @@
     },
     "ambiguous_1":{
       "uid": "hdm:ZWave:F6BF9812/3",
-      "name": "Heating",
+      "itemName": "Heating",
       "batteryLevel": 55,
       "batteryLow": true,
+      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/2"],
       "icon": "icon_1",
       "zone_name": "Kitchen",
       "online": 25
     },
     "ambiguous_2":{
       "uid": "hdm:ZWave:F6BF9812/4",
-      "name": "Heating",
+      "itemName": "Heating",
       "batteryLevel": -1,
       "batteryLow": null,
+      "elementUIDs": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/2",
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
       "icon": "icon_1",
       "zone_name": "Living Room",
-      "element_uids": [
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
       "online": 1
     }
   }

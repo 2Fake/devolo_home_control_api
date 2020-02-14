@@ -9,22 +9,22 @@ from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationErr
 class TestBinarySwitchProperty:
     def test_fetch_binary_switch_state_valid_on(self):
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).fetch_binary_switch_state()
+            .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).fetch_binary_switch_state()
 
     def test_fetch_binary_switch_state_valid_off(self):
         assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).fetch_binary_switch_state()
+            .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).fetch_binary_switch_state()
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_valid(self):
         self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).set_binary_switch(True)
+            .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).set_binary_switch(True)
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).state
+            .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).state
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     @pytest.mark.usefixtures("mock_homecontrol_is_online")
     def test_set_binary_switch_error(self):
         with pytest.raises(MprmDeviceCommunicationError):
             self.homecontrol.devices.get(self.devices.get("ambiguous_2").get("uid"))\
-                .binary_switch_property.get(self.devices.get("ambiguous_2").get("element_uids")[0]).set_binary_switch(True)
+                .binary_switch_property.get(self.devices.get("ambiguous_2").get("elementUIDs")[0]).set_binary_switch(True)
