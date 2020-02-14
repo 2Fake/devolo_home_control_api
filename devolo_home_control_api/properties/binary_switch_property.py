@@ -17,7 +17,7 @@ class BinarySwitchProperty(Property):
         self.state = None
 
 
-    def get_binary_switch_state(self) -> bool:
+    def fetch_binary_switch_state(self) -> bool:
         """
         Update and return the binary switch state for the given uid.
 

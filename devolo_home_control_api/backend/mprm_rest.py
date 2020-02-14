@@ -184,26 +184,6 @@ class MprmRest:
         return response
 
 
-def get_device_uid_from_element_uid(element_uid: str) -> str:
-    """
-    Return device UID from the given element UID
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Device UID, something like hdm:ZWave:CBC56091/24
-    """
-    return element_uid.split(":", 1)[1].split("#")[0]
-
-
-def get_device_type_from_element_uid(element_uid: str) -> str:
-    """
-    Return the device type of the given element uid
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Device type, something like devolo.MultiLevelSensor
-    """
-    return element_uid.split(":")[0]
-
-
 def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     """
     Return the device uid of the given setting uid

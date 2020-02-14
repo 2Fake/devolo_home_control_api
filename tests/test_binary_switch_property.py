@@ -9,11 +9,11 @@ from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationErr
 class TestBinarySwitchProperty:
     def test_get_binary_switch_state_valid_on(self):
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).get_binary_switch_state()
+            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).fetch_binary_switch_state()
 
     def test_get_binary_switch_state_valid_off(self):
         assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).get_binary_switch_state()
+            .binary_switch_property.get(self.devices.get("mains").get("element_uids")[1]).fetch_binary_switch_state()
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_binary_switch_valid(self):

@@ -99,22 +99,22 @@ class HomeControl:
             self._logger.debug(f"Adding binary switch property to {device}.")
             self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
             self.devices[device].binary_switch_property[element_uid].is_online = self.is_online
-            self.devices[device].binary_switch_property[element_uid].get_binary_switch_state()
+            self.devices[device].binary_switch_property[element_uid].fetch_binary_switch_state()
 
         def meter(element_uid: str):
             if not hasattr(self.devices[device], "consumption_property"):
                 self.devices[device].consumption_property = {}
             self._logger.debug(f"Adding consumption property to {device}.")
             self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
-            self.devices[device].consumption_property[element_uid].get_consumption('current')
-            self.devices[device].consumption_property[element_uid].get_consumption('total')
+            self.devices[device].consumption_property[element_uid].fetch_consumption('current')
+            self.devices[device].consumption_property[element_uid].fetch_consumption('total')
 
         def voltage_multi_level_sensor(element_uid: str):
             if not hasattr(self.devices[device], "voltage_property"):
                 self.devices[device].voltage_property = {}
             self._logger.debug(f"Adding voltage property to {device}.")
             self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
-            self.devices[device].voltage_property[element_uid].get_voltage()
+            self.devices[device].voltage_property[element_uid].fetch_voltage()
 
         device_type = {"devolo.BinarySwitch": binary_switch,
                        "devolo.Meter": meter,
@@ -132,7 +132,7 @@ class HomeControl:
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding led settings to {device}.")
             self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid, led_setting=None)
-            self.devices[device].settings_property["led"].get_led_setting()
+            self.devices[device].settings_property["led"].fetch_led_setting()
 
         def general_device(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
@@ -142,14 +142,14 @@ class HomeControl:
                                                                                                  name=None,
                                                                                                  zone_id=None,
                                                                                                  icon=None)
-            self.devices[device].settings_property["general_device_settings"].get_general_device_settings()
+            self.devices[device].settings_property["general_device_settings"].fetch_general_device_settings()
 
         def parameter(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
             self._logger.debug(f"Adding parameter settings to {device}.")
             self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
                                                                                        param_changed=None)
-            self.devices[device].settings_property["param_changed"].get_param_changed_setting()
+            self.devices[device].settings_property["param_changed"].fetch_param_changed_setting()
 
         def protection(setting_uid: str):
             device = get_device_uid_from_setting_uid(setting_uid)
@@ -157,8 +157,8 @@ class HomeControl:
             self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
                                                                                     local_switching=None,
                                                                                     remote_switching=None)
-            self.devices[device].settings_property["protection"].get_protection_setting(protection_setting="local")
-            self.devices[device].settings_property["protection"].get_protection_setting(protection_setting="remote")
+            self.devices[device].settings_property["protection"].fetch_protection_setting(protection_setting="local")
+            self.devices[device].settings_property["protection"].fetch_protection_setting(protection_setting="remote")
 
         if not hasattr(self.devices[device], "settings_property"):
             self.devices[device].settings_property = {}

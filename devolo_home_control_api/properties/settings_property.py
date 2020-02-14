@@ -18,7 +18,7 @@ class SettingsProperty(Property):
             setattr(self, key, value)
 
 
-    def get_general_device_settings(self) -> bool:
+    def fetch_general_device_settings(self) -> bool:
         """
         Update and return the events enabled setting. If a device shall report to the diary, this is true.
 
@@ -31,7 +31,7 @@ class SettingsProperty(Property):
         self.events_enabled = response.get("properties").get("eventsEnabled")
         return self.name, self.icon, self.zone_id, self.events_enabled
 
-    def get_led_setting(self) -> bool:
+    def fetch_led_setting(self) -> bool:
         """
         Update and return the led setting.
 
@@ -41,7 +41,7 @@ class SettingsProperty(Property):
         self.led_setting = response.get("properties").get("led")
         return self.led_setting
 
-    def get_param_changed_setting(self) -> bool:
+    def fetch_param_changed_setting(self) -> bool:
         """
         Update and return the param changed setting.
 
@@ -52,7 +52,7 @@ class SettingsProperty(Property):
         self.param_changed = response.get("properties").get("paramChanged")
         return self.param_changed
 
-    def get_protection_setting(self, protection_setting: str) -> bool:
+    def fetch_protection_setting(self, protection_setting: str) -> bool:
         """
         Update and return the protection setting. There are only two protection settings: local and remote switching.
 

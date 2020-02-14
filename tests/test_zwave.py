@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.devices.zwave import Zwave
+from devolo_home_control_api.devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_element_uid
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 
 
@@ -68,3 +68,8 @@ class TestZwave:
                        icon=self.devices.get("mains").get("icon"),
                        online_state=27)
         device.online = "unknown state"
+
+
+
+    def test_get_device_type_from_element_uid(self):
+        assert get_device_type_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "devolo.Meter"

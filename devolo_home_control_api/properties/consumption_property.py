@@ -20,7 +20,7 @@ class ConsumptionProperty(Property):
         self.total_unit = "kWh"
 
 
-    def get_consumption(self, consumption_type: str = "current") -> float:
+    def fetch_consumption(self, consumption_type: str = "current") -> float:
         """
         Update and return the consumption, specified in consumption_type for the given uid.
 
