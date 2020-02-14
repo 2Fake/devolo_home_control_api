@@ -40,7 +40,7 @@ class HomeControl:
                                      [self.devices.get(device).device_uid for device in self.devices]))
 
         self.create_pub()
-        self.updater = Updater(devices=self.devices, publisher=self.mprm.publisher)
+        self.updater = Updater(devices=self.devices, publisher=self.mprm.publisher, gateway=self._gateway)
 
         threading.Thread(target=self.mprm.websocket_connection).start()
 

@@ -3,7 +3,7 @@ import logging
 
 from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
 from .publisher import Publisher
-
+from ..devices.gateway import Gateway
 
 class Updater:
     """
@@ -12,10 +12,11 @@ class Updater:
     :param devices: List of devices to await updates for
     :param publisher: Instance of the Publisher object
     """
-    def __init__(self, devices: dict, publisher: Publisher):
+    def __init__(self, devices: dict, publisher: Publisher, gateway: Gateway):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._devices = devices
         self._publisher = publisher
+        self._gateway = gateway
 
 
     def update(self, message: dict):
