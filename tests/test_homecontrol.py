@@ -1,6 +1,7 @@
 import pytest
 from devolo_home_control_api.homecontrol import get_sub_device_uid_from_element_uid
 
+
 @pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_mydevolo__call")
@@ -16,4 +17,5 @@ class TestHomeControl:
         assert not self.homecontrol.is_online(self.devices.get("ambiguous_2").get("uid"))
 
     def test_get_sub_device_uid_from_element_uid(self):
-        assert get_sub_device_uid_from_element_uid("hdm:ZWave:F6BF9812/4#2") == 2
+        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
+        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None

@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.backend.mprm_rest import MprmRest, get_sub_device_uid_from_element_uid
+from devolo_home_control_api.backend.mprm_rest import MprmRest
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -32,7 +32,3 @@ class TestMprmRest:
                               "settingUIDs": "test_setting_uids",
                               "deviceModelUID": "test_device_model_uid",
                               "status": "test_status"}
-
-    def test_get_sub_device_uid_from_element_uid(self):
-        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
-        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
