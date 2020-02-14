@@ -7,9 +7,9 @@ class Publisher:
         self._events = {event: dict() for event in events}
 
 
-    def dispatch(self, event: str, message: str):
+    def dispatch(self, event: str, message: tuple):
         """ Dispatch the message to the subscribers. """
-        for callback in self._subscribers(event).values():
+        for callback in self._get_subscribers_for_specific_event(event).values():
             callback(message)
 
     def register(self, event: str, who: object, callback: callable = None):
@@ -21,7 +21,7 @@ class Publisher:
         """
         if callback is None:
             callback = getattr(who, 'update')
-        self._subscribers(event)[who] = callback
+        self._get_subscribers_for_specific_event(event)[who] = callback
 
     def unregister(self, event: str, who: object):
         """ Remove a subscriber for a specific event. """
