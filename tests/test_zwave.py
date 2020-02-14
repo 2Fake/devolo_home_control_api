@@ -73,3 +73,6 @@ class TestZwave:
 
     def test_get_device_type_from_element_uid(self):
         assert get_device_type_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "devolo.Meter"
+
+    def test_get_device_uid_from_element_uid(self):
+        assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "hdm:ZWave:F6BF9812/2"
