@@ -74,26 +74,26 @@ def mock_mprmrest__detect_gateway_in_lan(mocker):
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):
     def _extract_data_from_element_uid(element_uid):
         properties = {}
-        properties['test_get_binary_switch_state_valid_on'] = {
+        properties['test_fetch_binary_switch_state_valid_on'] = {
             "properties": {"state": 1}}
-        properties['test_get_binary_switch_state_valid_off'] = {
+        properties['test_fetch_binary_switch_state_valid_off'] = {
             "properties": {"state": 0}}
-        properties['test_get_consumption_valid'] = {
+        properties['test_fetch_consumption_valid'] = {
             "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
                            "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
-        properties['test_get_led_setting_valid'] = {
+        properties['test_fetch_led_setting_valid'] = {
             "properties": {"led": test_data.get("devices").get("mains").get("led_setting")}}
-        properties['test_get_param_changed_valid'] = {
+        properties['test_fetch_param_changed_valid'] = {
             "properties": {"paramChanged": test_data.get("devices").get("mains").get("param_changed")}}
-        properties['test_get_general_device_settings_valid'] = {
+        properties['test_fetch_general_device_settings_valid'] = {
             "properties": {"eventsEnabled": test_data.get("devices").get("mains").get("events_enabled"),
                            "name": test_data.get("devices").get("mains").get("name"),
                            "icon": test_data.get("devices").get("mains").get("icon"),
                            "zoneID": test_data.get("devices").get("mains").get("zone_id")}}
-        properties['test_get_protection_setting_valid'] = {
+        properties['test_fetch_protection_setting_valid'] = {
             "properties": {"localSwitch": test_data.get("devices").get("mains").get("local_switch"),
                            "remoteSwitch": test_data.get("devices").get("mains").get("remote_switch")}}
-        properties['test_get_voltage_valid'] = {
+        properties['test_fetch_voltage_valid'] = {
             "properties": {"value": test_data.get("devices").get("mains").get("voltage")}}
         properties['test_update_consumption_valid'] = {
             "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
