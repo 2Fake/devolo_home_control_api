@@ -25,8 +25,8 @@ class Publisher:
 
     def unregister(self, event: str, who: object):
         """ Remove a subscriber for a specific event. """
-        del self.get_subscribers(event)[who]
-
+        del self._subscribers(event)[who]
+ 
 
     def _subscribers(self, event: str):
         """ All subscribers listening to an event. """
