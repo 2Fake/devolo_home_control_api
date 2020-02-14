@@ -36,7 +36,7 @@ class HomeControl:
         # Create the initial device dict
         self.devices = {}
         self._inspect_devices()
-        self.device_names = dict(zip([self.devices.get(device).name for device in self.devices],
+        self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
 
         self.create_pub()
