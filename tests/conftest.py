@@ -174,7 +174,8 @@ def mock_mydevolo__call(mocker, request):
 
 
 @pytest.fixture()
-def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def mprm_instance(request, mocker, instance_mydevolo, mock_gateway,
+                  mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
     else:
@@ -189,7 +190,8 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect
 
 
 @pytest.fixture()
-def home_control_instance(request, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def home_control_instance(request, instance_mydevolo, mock_gateway,
+                          mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
     request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4']\
         .is_online = request.cls.homecontrol.is_online

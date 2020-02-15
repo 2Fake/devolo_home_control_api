@@ -9,7 +9,8 @@ class TestUpdater:
     def test_update_binary_switch_state_valid(self, fill_device_data):
         binary_switch_property = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).binary_switch_property
         state = binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
-        self.homecontrol.updater.update_binary_switch_state(element_uid=f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}",
+        self.homecontrol.updater.update_binary_switch_state(element_uid=f"devolo.BinarySwitch:"
+                                                                        f"{self.devices.get('mains').get('uid')}",
                                                             value=True)
         assert state != binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
 
@@ -35,7 +36,8 @@ class TestUpdater:
         voltage_property = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).voltage_property
         current_voltage = \
             voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
-        self.homecontrol.updater.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}",
+        self.homecontrol.updater.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:"
+                                                            f"{self.devices.get('mains').get('uid')}",
                                                 value=257)
         assert current_voltage != \
             voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
