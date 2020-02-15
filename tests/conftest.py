@@ -157,7 +157,8 @@ def mock_mydevolo__call(mocker, request):
 
 
 @pytest.fixture()
-def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def mprm_instance(request, mocker, instance_mydevolo, mock_gateway,
+                  mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
     else:
@@ -172,7 +173,8 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway, mock_inspect
 
 
 @pytest.fixture()
-def home_control_instance(request, instance_mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def home_control_instance(request, instance_mydevolo, mock_gateway,
+                          mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
     request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4']\
         .is_online = request.cls.homecontrol.is_online
@@ -185,3 +187,8 @@ def test_data_fixture(request):
     request.cls.user = test_data.get("user")
     request.cls.gateway = test_data.get("gateway")
     request.cls.devices = test_data.get("devices")
+
+
+@pytest.fixture(autouse=True)
+def mock_mprm_create_connection(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.create_connection", return_value=None)
