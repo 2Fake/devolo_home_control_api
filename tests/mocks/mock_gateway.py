@@ -18,3 +18,4 @@ class Gateway:
         self.status = test_data.get("gateway").get("status")
         self.state = test_data.get("gateway").get("state")
         self.firmware_version = test_data.get("gateway").get("firmware_version")
+        self.online = True

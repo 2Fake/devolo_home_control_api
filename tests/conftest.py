@@ -6,7 +6,7 @@ import pytest
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.homecontrol import HomeControl
-from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
+from devolo_home_control_api.mydevolo import Mydevolo
 
 from .mocks.mock_gateway import Gateway
 from .mocks.mock_homecontrol import mock__inspect_devices
@@ -62,54 +62,48 @@ def mock_mprmrest__detect_gateway_in_lan(mocker):
 
 @pytest.fixture()
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):
-    def _extract_data_from_element_uid(element_uid):
-        properties = {}
-        properties['test_fetch_binary_switch_state_valid_on'] = {
-            "properties": {"state": 1}}
-        properties['test_fetch_binary_switch_state_valid_off'] = {
-            "properties": {"state": 0}}
-        properties['test_fetch_consumption_valid'] = {
-            "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
-                           "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
-        properties['test_fetch_led_setting_valid'] = {
-            "properties": {"led": test_data.get("devices").get("mains").get("led_setting")}}
-        properties['test_fetch_param_changed_valid'] = {
-            "properties": {"paramChanged": test_data.get("devices").get("mains").get("param_changed")}}
-        properties['test_fetch_general_device_settings_valid'] = {
-            "properties": {"eventsEnabled": test_data.get("devices").get("mains").get("events_enabled"),
-                           "name": test_data.get("devices").get("mains").get("name"),
-                           "icon": test_data.get("devices").get("mains").get("icon"),
-                           "zoneID": test_data.get("devices").get("mains").get("zone_id")}}
-        properties['test_fetch_protection_setting_valid'] = {
-            "properties": {"localSwitch": test_data.get("devices").get("mains").get("local_switch"),
-                           "remoteSwitch": test_data.get("devices").get("mains").get("remote_switch")}}
-        properties['test_fetch_voltage_valid'] = {
-            "properties": {"value": test_data.get("devices").get("mains").get("voltage")}}
-        properties['test_update_consumption_valid'] = {
-            "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
-                           "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
-        return properties.get(request.node.name)
+    properties = {}
+    properties['test_fetch_binary_switch_state_valid_on'] = {"properties": {"state": 1}}
+    properties['test_fetch_binary_switch_state_valid_off'] = {"properties": {"state": 0}}
+    properties['test_fetch_consumption_valid'] = {
+        "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
+                       "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
+    properties['test_fetch_led_setting_valid'] = {
+        "properties": {"led": test_data.get("devices").get("mains").get("led_setting")}}
+    properties['test_fetch_param_changed_valid'] = {
+        "properties": {"paramChanged": test_data.get("devices").get("mains").get("param_changed")}}
+    properties['test_fetch_general_device_settings_valid'] = {
+        "properties": {"eventsEnabled": test_data.get("devices").get("mains").get("events_enabled"),
+                       "name": test_data.get("devices").get("mains").get("name"),
+                       "icon": test_data.get("devices").get("mains").get("icon"),
+                       "zoneID": test_data.get("devices").get("mains").get("zone_id")}}
+    properties['test_fetch_protection_setting_valid'] = {
+        "properties": {"localSwitch": test_data.get("devices").get("mains").get("local_switch"),
+                       "remoteSwitch": test_data.get("devices").get("mains").get("remote_switch")}}
+    properties['test_fetch_voltage_valid'] = {
+        "properties": {"value": test_data.get("devices").get("mains").get("voltage")}}
+    properties['test_update_consumption_valid'] = {
+        "properties": {"currentValue": test_data.get("devices").get("mains").get("current_consumption"),
+                       "totalValue": test_data.get("devices").get("mains").get("total_consumption")}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.extract_data_from_element_uid",
-                 side_effect=_extract_data_from_element_uid)
+                 return_value=properties.get(request.node.name))
 
 
 @pytest.fixture()
 def mock_mprmrest__post(mocker, request):
-    def mock_post(data):
-        properties = {}
-        properties['test_get_name_and_element_uids'] = {"result":
-                                                        {"items": [{"properties": {"itemName": "test_name",
-                                                                                   "zone": "test_zone",
-                                                                                   "batteryLevel": "test_battery",
-                                                                                   "icon": "test_icon",
-                                                                                   "elementUIDs": "test_element_uids",
-                                                                                   "settingUIDs": "test_setting_uids",
-                                                                                   "deviceModelUID": "test_device_model_uid",
-                                                                                   "status": "test_status"}}]}}
-        return properties.get(request.node.name)
+    properties = {}
+    properties['test_get_name_and_element_uids'] = {"result":
+                                                    {"items": [{"properties": {"itemName": "test_name",
+                                                                               "zone": "test_zone",
+                                                                               "batteryLevel": "test_battery",
+                                                                               "icon": "test_icon",
+                                                                               "elementUIDs": "test_element_uids",
+                                                                               "settingUIDs": "test_setting_uids",
+                                                                               "deviceModelUID": "test_device_model_uid",
+                                                                               "status": "test_status"}}]}}
 
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", side_effect=mock_post)
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
 
 
 @pytest.fixture(autouse=True)
@@ -128,13 +122,11 @@ def mock_homecontrol_is_online(mocker):
 
 @pytest.fixture()
 def mock_mprmrest__post_set(mocker, request):
-    def _post_mock(data):
-        if request.node.name == "test_set_binary_switch_valid":
-            return {"result": {"status": 1}}
-        elif request.node.name == "test_set_binary_switch_error":
-            return {"result": {"status": 2}}
+    status = {}
+    status['test_set_binary_switch_valid'] = {"result": {"status": 1}}
+    status['test_set_binary_switch_error'] = {"result": {"status": 2}}
 
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", side_effect=_post_mock)
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
 
 
 @pytest.fixture()
@@ -149,26 +141,17 @@ def mock_mydevolo__call(mocker, request):
         gateway_id = test_data.get("gateway").get("id")
         full_url = test_data.get("gateway").get("full_url")
 
-        if url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL":
-            return {"url": full_url}
-        elif url == "https://www.mydevolo.com/v1/users/uuid":
-            return {"uuid": uuid}
-        elif url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status":
-            if request.node.name == "test_gateway_ids_empty":
-                return {"items": []}
-            else:
-                return {"items": [{"gatewayId": gateway_id}]}
-        elif url == f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}":
-            return {"gatewayId": gateway_id,
-                    "status": "devolo.hc_gateway.status.online",
-                    "state": "devolo.hc_gateway.state.idle"}
-        elif url == "https://www.mydevolo.com/v1/hc/maintenance":
-            if request.node.name == "test_maintenance_off":
-                return {"state": "off"}
-            else:
-                return {"state": "on"}
-        else:
-            raise WrongUrlError(f"This URL was not mocked: {url}")
+        response = {}
+        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL'] = {"url": full_url}
+        response['https://www.mydevolo.com/v1/users/uuid'] = {"uuid": uuid}
+        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status'] = {"items": []}\
+            if request.node.name == "test_gateway_ids_empty" else {"items": [{"gatewayId": gateway_id}]}
+        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}'] =\
+            {"gatewayId": gateway_id, "status": "devolo.hc_gateway.status.online", "state": "devolo.hc_gateway.state.idle"}
+        response["https://www.mydevolo.com/v1/hc/maintenance"] = {"state": "off"}\
+            if request.node.name == "test_maintenance_off" else {"state": "on"}
+
+        return response[url]
 
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)
 
