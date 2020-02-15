@@ -202,3 +202,8 @@ def test_data_fixture(request):
     request.cls.user = test_data.get("user")
     request.cls.gateway = test_data.get("gateway")
     request.cls.devices = test_data.get("devices")
+
+
+@pytest.fixture(autouse=True)
+def mock_mprm_create_connection(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.create_connection", return_value=None)
