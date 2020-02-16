@@ -148,9 +148,18 @@ def mock_mydevolo__call(mocker, request):
             if request.node.name == "test_gateway_ids_empty" else {"items": [{"gatewayId": gateway_id}]}
         response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}'] =\
             {"gatewayId": gateway_id, "status": "devolo.hc_gateway.status.online", "state": "devolo.hc_gateway.state.idle"}
-        response["https://www.mydevolo.com/v1/hc/maintenance"] = {"state": "off"}\
+        response['https://www.mydevolo.com/v1/hc/maintenance'] = {"state": "off"}\
             if request.node.name == "test_maintenance_off" else {"state": "on"}
-
+        response['https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000'] = {"brand": "Everspring",
+                                                                                      "deviceType": "Door Lock Keypad",
+                                                                                      "genericDeviceClass": "Entry Control",
+                                                                                      "identifier": "SP814-US",
+                                                                                      "isZWavePlus": True,
+                                                                                      "manufacturerId": "0x0060",
+                                                                                      "name": "Everspring PIR Sensor SP814",
+                                                                                      "productId": "0x0002",
+                                                                                      "productTypeId": "0x0001",
+                                                                                      "zwaveVersion": "6.51.07"}
         return response[url]
 
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)

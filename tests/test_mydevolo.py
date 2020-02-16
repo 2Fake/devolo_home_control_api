@@ -35,6 +35,14 @@ class TestMydevolo:
 
         assert details.get("gatewayId") == self.gateway.get("id")
 
+    def test_get_zwave_products(self, mock_mydevolo__call):
+        mydevolo = Mydevolo()
+        mydevolo._uuid = self.user.get("uuid")
+
+        product = mydevolo.get_zwave_products(manufacturer="0x0060", product_type="0x0001", product="0x000")
+
+        assert product.get("name") == "Everspring PIR Sensor SP814"
+
     def test_maintenance_on(self, mock_mydevolo__call):
         mydevolo = Mydevolo()
         assert not mydevolo.maintenance

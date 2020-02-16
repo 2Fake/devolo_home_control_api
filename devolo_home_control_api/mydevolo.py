@@ -71,13 +71,13 @@ class Mydevolo:
         """ The uuid is a central attribute in my devolo. Most URLs in the user context contain it. """
         if self._uuid is None:
             self._logger.debug("Getting UUID")
-            self._uuid = self._call(self.url + "/v1/users/uuid").get("uuid")
+            self._uuid = self._call(f"{self.url}/v1/users/uuid").get("uuid")
         return self._uuid
 
     @property
     def maintenance(self) -> bool:
         """ If devolo Home Control is in maintenance, there is not much we can do via cloud. """
-        state = self._call(self.url + "/v1/hc/maintenance").get("state")
+        state = self._call(f"{self.url}/v1/hc/maintenance").get("state")
         if state == "on":
             return False
         else:
@@ -89,7 +89,7 @@ class Mydevolo:
         """ Get gateway IDs. """
         if not self._gateway_ids:
             self._logger.debug(f"Getting list of gateways")
-            items = self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/status").get("items")
+            items = self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/status").get("items")
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
                 self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
@@ -107,7 +107,7 @@ class Mydevolo:
         :return: Gateway object
         """
         self._logger.debug(f"Getting details for gateway {gateway_id}")
-        return self._call(self.url + "/v1/users/" + self.uuid + "/hc/gateways/" + gateway_id)
+        return self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/{gateway_id}")
 
     def get_full_url(self, gateway_id: str) -> str:
         """
@@ -117,8 +117,19 @@ class Mydevolo:
         :return: URL
         """
         self._logger.debug("Getting full URL of gateway.")
-        return self._call(self.url + "/v1/users/"
-                          + self.uuid + "/hc/gateways/" + gateway_id + "/fullURL").get("url")
+        return self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/{gateway_id}/fullURL").get("url")
+
+    def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> dict:
+        """
+        Get information about a Z-Wave device.
+
+        :param manufacturer: The manufacturer ID in hex.
+        :param product_type: The product type ID in hex.
+        :param product: The product ID in hex.
+        :return: All known product information.
+        """
+        self._logger.debug(f"Getting information for {manufacturer}/{product_type}/{product}")
+        return self._call(f"{self.url}/v1/zwave/products/{manufacturer}/{product_type}/{product}")
 
 
     def _call(self, url: str) -> dict:
