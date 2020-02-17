@@ -416,3 +416,11 @@ def mock_response_valid(mocker):
             return self.json_data
 
     mocker.patch("requests.get", return_value=MockResponse({"response": "response"}, status_code=200))
+
+
+@pytest.fixture()
+def mock_mydevolo_full_url(mocker):
+    def full_URL(gateway_id):
+        return gateway_id
+
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_full_url", side_effect=full_URL)

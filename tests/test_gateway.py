@@ -20,7 +20,7 @@ class TestGateway:
         assert not gateway.online
         assert not gateway.sync
 
-    def test_update_state_unknow(self):
+    def test_update_state_unknown(self):
         gateway = Gateway(self.gateway.get("id"))
         gateway.online = False
         gateway.sync = False
@@ -28,3 +28,8 @@ class TestGateway:
 
         assert gateway.online
         assert gateway.sync
+
+    @pytest.mark.usefixtures("mock_mydevolo_full_url")
+    def test_full_url(self):
+        gateway = Gateway(self.gateway.get("id"))
+        assert gateway.full_url == "1409301750000598"
