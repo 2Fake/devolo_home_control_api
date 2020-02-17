@@ -1,6 +1,7 @@
 import pytest
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
+from devolo_home_control_api.mydevolo import Mydevolo
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -32,3 +33,17 @@ class TestMprmRest:
 
         second = MprmRest.get_instance()
         assert first is second
+
+    def test_create_connection_local(self, mock_get_local_session):
+        self.mprm._local_ip = "123.456.789.123"
+        self.mprm.create_connection()
+
+    def test_create_connection_remote(self, mock_get_remote_session, instance_mydevolo):
+        self.mprm._gateway.external_access = True
+        self._mydevolo = Mydevolo.get_instance()
+        self.mprm.create_connection()
+
+    def test_create_connection_invalid(self):
+        with pytest.raises(ConnectionError):
+            self.mprm._gateway.external_access = False
+            self.mprm.create_connection()

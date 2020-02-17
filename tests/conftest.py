@@ -46,7 +46,7 @@ def instance_mydevolo():
 
 @pytest.fixture(autouse=True)
 def mock_mydevolo_get_zwave_products(mocker):
-     return_dict = {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
+    return_dict = {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
                    'manufacturerId': '0x0175',
                    'productTypeId': '0x0001',
                    'productId': '0x0011',
@@ -58,8 +58,17 @@ def mock_mydevolo_get_zwave_products(mocker):
                    'zwaveVersion': '6.51.00',
                    'specificDeviceClass': None,
                    'genericDeviceClass': None}
-     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value=return_dict)
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value=return_dict)
 
+
+@pytest.fixture()
+def mock_get_local_session(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", return_value=True)
+
+
+@pytest.fixture()
+def mock_get_remote_session(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
 
 @pytest.fixture()
 def mock_gateway(mocker):
