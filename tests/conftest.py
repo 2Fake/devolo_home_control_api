@@ -2,6 +2,7 @@ import json
 import sys
 
 import pytest
+from requests import ConnectTimeout
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
@@ -70,6 +71,7 @@ def mock_get_local_session(mocker):
 def mock_get_remote_session(mocker):
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
 
+
 @pytest.fixture()
 def mock_gateway(mocker):
     mocker.patch("devolo_home_control_api.devices.gateway.Gateway.__init__", Gateway.__init__)
@@ -118,18 +120,125 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__post(mocker, request):
     properties = {}
-    properties['test_get_name_and_element_uids'] = {"result":
-                                                        {"items": [{"properties": {"itemName": "test_name",
-                                                                                   "zone": "test_zone",
-                                                                                   "batteryLevel": "test_battery",
-                                                                                   "icon": "test_icon",
-                                                                                   "elementUIDs": "test_element_uids",
-                                                                                   "settingUIDs": "test_setting_uids",
-                                                                                   "deviceModelUID": "test_device_model_uid",
-                                                                                   "status": "test_status"}}]}}
+    properties["test_get_name_and_element_uids"] = {"result": {"items": [{"properties":
+                                                                              {"itemName": "test_name",
+                                                                               "zone": "test_zone",
+                                                                               "batteryLevel": "test_battery",
+                                                                               "icon": "test_icon",
+                                                                               "elementUIDs": "test_element_uids",
+                                                                               "settingUIDs": "test_setting_uids",
+                                                                               "deviceModelUID": "test_device_model_uid",
+                                                                               "status": "test_status"}}]}}
+    properties["test_extract_data_from_element_uid"] = {"result": {"items": [{"properties": {"itemName": "test_name"}}]}}
+    properties["test_get_all_devices"] = {"result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
 
+
+@pytest.fixture()
+def mock_session_post(mocker, request):
+    properties = {}
+    properties["test_get_local_session_valid"] = {"link": "test_link"}
+
+
+    mocker.patch("requests.Session.get", return_value=properties.get(request.node.name))
+
+
+@pytest.fixture()
+def mock_response_json(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def get(self, url, auth=None, timeout=None):
+            return MockResponse({"link": "test_link"}, status_code=200)
+
+        def json(self):
+            return self.json_data
+
+    mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
+
+
+@pytest.fixture()
+def mock_response_json_ConnectTimeout(mocker):
+    class MockResponse:
+        from requests import ConnectTimeout
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def get(self, url, auth=None, timeout=None):
+            raise ConnectTimeout
+
+
+    mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
+
+
+@pytest.fixture()
+def mock_response_json_JSONDecodeError(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def get(self, url, auth=None, timeout=None):
+            from json import JSONDecodeError
+            raise JSONDecodeError(msg="message", doc="doc", pos=1)
+
+
+
+
+    mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
+
+
+@pytest.fixture()
+def mock_response_requests_ReadTimeout(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def post(self, url, auth=None, timeout=None, headers=None, data=None):
+            from requests import ReadTimeout
+            raise ReadTimeout
+
+
+    mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
+
+
+@pytest.fixture()
+def mock_response_requests_invalid_id(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def post(self, url, auth=None, timeout=None, headers=None, data=None):
+            return MockResponse({"link": "test_link"}, status_code=200)
+
+        def json(self):
+            return {"id": 2}
+
+
+    mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
+
+
+@pytest.fixture()
+def mock_response_requests_valid(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def post(self, url, auth=None, timeout=None, headers=None, data=None):
+            return MockResponse({"link": "test_link"}, status_code=200)
+
+        def json(self):
+            return {"id": 2}
+
+
+    mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
 
 @pytest.fixture(autouse=True)
 def mock_mprmwebsocket_websocket_connection(mocker, request):

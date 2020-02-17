@@ -1,14 +1,14 @@
 import pytest
 
-from devolo_home_control_api.backend.mprm_rest import MprmRest
+from devolo_home_control_api.backend.mprm_rest import MprmRest, MprmDeviceCommunicationError
 from devolo_home_control_api.mydevolo import Mydevolo
 
 
 @pytest.mark.usefixtures("mprm_instance")
-@pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
 @pytest.mark.usefixtures("mock_mydevolo__call")
 class TestMprmRest:
 
+    @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
     @pytest.mark.usefixtures("mock_mprmrest__post")
     def test_get_name_and_element_uids(self):
         properties = self.mprm.get_name_and_element_uids("test")
@@ -47,3 +47,62 @@ class TestMprmRest:
         with pytest.raises(ConnectionError):
             self.mprm._gateway.external_access = False
             self.mprm.create_connection()
+
+    @pytest.mark.usefixtures("mock_mprmrest__post")
+    def test_extract_data_from_element_uid(self):
+        properties = self.mprm.extract_data_from_element_uid(uid="test")
+        assert properties.get("properties").get("itemName") == "test_name"
+
+    @pytest.mark.usefixtures("mock_mprmrest__post")
+    def test_get_all_devices(self):
+        devices = self.mprm.get_all_devices()
+        assert devices == "deviceUIDs"
+
+    @pytest.mark.usefixtures("mock_session_post")
+    @pytest.mark.usefixtures("mock_response_json")
+    def test_get_local_session_valid(self):
+        self.mprm._local_ip = "123.456.789.123"
+        self.mprm.get_local_session()
+
+    @pytest.mark.usefixtures("mock_response_json_ConnectTimeout")
+    def test_get_local_session_ConnectTimeout(self):
+        from requests import ConnectTimeout
+        self.mprm._local_ip = "123.456.789.123"
+
+        with pytest.raises(ConnectTimeout):
+            self.mprm.get_local_session()
+
+    @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
+    def test_get_local_session_JSONDecodeError(self):
+        self.mprm._local_ip = "123.456.789.123"
+
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.get_local_session()
+
+    @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
+    def test_get_remote_session_JSONDecodeError(self):
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.get_remote_session()
+
+    @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
+    def test_post_ReadTimeOut(self):
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.post({"data": "test"})
+
+    def test_post_gateway_offline(self):
+        self.mprm._gateway.online = False
+        self.mprm._gateway.sync = False
+        self.mprm._gateway.local_connection = False
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.post({"data": "test"})
+
+    @pytest.mark.usefixtures("mock_response_requests_invalid_id")
+    def test_post_invalid_id(self):
+        self.mprm._data_id = 0
+        with pytest.raises(ValueError):
+            self.mprm.post({"data": "test"})
+
+    @pytest.mark.usefixtures("mock_response_requests_valid")
+    def test_post_valid(self):
+        self.mprm._data_id = 1
+        assert self.mprm.post({"data": "test"}).get("id") == 2
