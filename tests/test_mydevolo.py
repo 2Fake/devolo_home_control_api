@@ -41,7 +41,7 @@ class TestMydevolo:
 
         product = mydevolo.get_zwave_products(manufacturer="0x0060", product_type="0x0001", product="0x000")
 
-        assert product.get("name") == "Everspring PIR Sensor SP814"
+        assert product.get("name") == "Metering Plug"
 
     def test_maintenance_on(self, mock_mydevolo__call):
         mydevolo = Mydevolo()

@@ -18,19 +18,19 @@ class TestZwave:
 
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
-    def test_get_property_invalid(self):
+    def test_get_property_invalid(self, instance_mydevolo):
         device = Zwave(**self.devices.get("mains"))
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
 
-    def test_battery_level(self):
+    def test_battery_level(self, instance_mydevolo):
         # TODO: Use battery driven device
         device = Zwave(**self.devices.get("ambiguous_1"))
 
         assert device.batteryLevel == 55
 
-    def test_device_online_state_state(self):
+    def test_device_online_state_state(self, instance_mydevolo):
         device = Zwave(**self.devices.get("ambiguous_2"))
         assert device.online == 1
 

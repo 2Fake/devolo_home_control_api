@@ -1,5 +1,5 @@
 import logging
-
+from ..mydevolo import Mydevolo
 
 class Zwave:
     """
@@ -12,6 +12,13 @@ class Zwave:
         self._logger = logging.getLogger(self.__class__.__name__)
 
         for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        self.mydevolo = Mydevolo.get_instance()
+        device_info = self.mydevolo.get_zwave_products(manufacturer=self.manID,
+                                                       product_type=self.prodTypeID,
+                                                       product=self.prodID)
+        for key, value in device_info.items():
             setattr(self, key, value)
 
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])

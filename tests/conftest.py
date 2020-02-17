@@ -45,6 +45,25 @@ def instance_mydevolo():
     Mydevolo()
 
 
+@pytest.fixture(autouse=True)
+def mock_mydevolo_get_zwave_products(mocker):
+    def mock_get_zwave_products(manufacturer, product_type, product):
+        return {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
+                'manufacturerId': '0x0175',
+                'productTypeId': '0x0001',
+                'productId': '0x0011',
+                'name': 'Metering Plug',
+                'brand': 'devolo',
+                'identifier': 'MT02646',
+                'isZWavePlus': True,
+                'deviceType': 'On/Off Power Switch',
+                'zwaveVersion': '6.51.00',
+                'specificDeviceClass': None,
+                'genericDeviceClass': None}
+
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", side_effect=mock_get_zwave_products)
+
+
 @pytest.fixture()
 def mock_gateway(mocker):
     mocker.patch("devolo_home_control_api.devices.gateway.Gateway.__init__", Gateway.__init__)
