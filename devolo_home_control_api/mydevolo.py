@@ -132,7 +132,6 @@ class Mydevolo:
         device_info = {}
         try:
             device_info = self._call(f"{self.url}/v1/zwave/products/{manufacturer}/{product_type}/{product}")
-            print(device_info)
         except WrongUrlError:
             # At some devices no device information are returned
             self._logger.debug("No device info found")
