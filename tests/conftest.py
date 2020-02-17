@@ -368,3 +368,51 @@ def mock_properties(mocker):
                  return_value=None)
     mocker.patch("devolo_home_control_api.properties.settings_property.SettingsProperty.fetch_led_setting",
                  return_value=None)
+
+
+@pytest.fixture()
+def mock_response_wrong_credentials_error(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def get(self, url, auth=None, timeout=None):
+            return MockResponse({"link": "test_link"}, status_code=self.status_code)
+
+        def json(self):
+            return self.json_data
+
+    mocker.patch("requests.get", return_value=MockResponse({"link": "test_link"}, status_code=403))
+
+
+@pytest.fixture()
+def mock_response_wrong_url_error(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def get(self, url, auth=None, timeout=None):
+            return MockResponse({"link": "test_link"}, status_code=self.status_code)
+
+        def json(self):
+            return self.json_data
+
+    mocker.patch("requests.get", return_value=MockResponse({"link": "test_link"}, status_code=404))
+
+
+@pytest.fixture()
+def mock_response_valid(mocker):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def get(self, url, auth=None, timeout=None):
+            return MockResponse({"link": "test_link"}, status_code=self.status_code)
+
+        def json(self):
+            return self.json_data
+
+    mocker.patch("requests.get", return_value=MockResponse({"response": "response"}, status_code=200))

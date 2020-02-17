@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
+from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError, WrongCredentialsError
 
 
 class TestMydevolo:
@@ -103,3 +103,24 @@ class TestMydevolo:
     def test_uuid(self, mock_mydevolo__call):
         mydevolo = Mydevolo()
         assert mydevolo.uuid == self.user.get("uuid")
+
+    @pytest.mark.usefixtures("mock_response_wrong_credentials_error")
+    def test_call_WrongCredentialsError(self):
+        mydevolo = Mydevolo()
+        with pytest.raises(WrongCredentialsError):
+            mydevolo._call("test")
+
+    @pytest.mark.usefixtures("mock_response_wrong_url_error")
+    def test_call_WrongUrlError(self):
+        mydevolo = Mydevolo()
+        with pytest.raises(WrongUrlError):
+            mydevolo._call("test")
+
+
+    @pytest.mark.usefixtures("mock_response_valid")
+    def test_call_valid(self):
+        mydevolo = Mydevolo()
+        assert mydevolo._call("test").get("response") == "response"
+
+
+
