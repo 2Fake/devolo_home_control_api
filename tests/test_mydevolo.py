@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.mydevolo import Mydevolo
+from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
 
 
 class TestMydevolo:
@@ -35,13 +35,21 @@ class TestMydevolo:
 
         assert details.get("gatewayId") == self.gateway.get("id")
 
-    def test_get_zwave_products(self, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_get_zwave_products(self):
         mydevolo = Mydevolo()
         mydevolo._uuid = self.user.get("uuid")
 
         product = mydevolo.get_zwave_products(manufacturer="0x0060", product_type="0x0001", product="0x000")
 
-        assert product.get("name") == "Metering Plug"
+        assert product.get("name") == "Everspring PIR Sensor SP814"
+
+    @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
+    def test_get_zwave_products_invalid(self):
+        mydevolo = Mydevolo()
+        mydevolo._uuid = self.user.get("uuid")
+        device_infos = mydevolo.get_zwave_products(manufacturer="0x0070", product_type="0x0001", product="0x000")
+        assert len(device_infos) == 0
 
     def test_maintenance_on(self, mock_mydevolo__call):
         mydevolo = Mydevolo()

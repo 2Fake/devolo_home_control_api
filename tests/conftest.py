@@ -46,7 +46,7 @@ def instance_mydevolo():
 
 
 @pytest.fixture(autouse=True)
-def mock_mydevolo_get_zwave_products(mocker):
+def mock_mydevolo_get_zwave_products(mocker, request):
     return_dict = {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
                    'manufacturerId': '0x0175',
                    'productTypeId': '0x0001',
@@ -59,7 +59,9 @@ def mock_mydevolo_get_zwave_products(mocker):
                    'zwaveVersion': '6.51.00',
                    'specificDeviceClass': None,
                    'genericDeviceClass': None}
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value=return_dict)
+
+    if request.node.name not in ["test_get_zwave_products", "test_get_zwave_products_invalid"]:
+        mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value=return_dict)
 
 
 @pytest.fixture()
@@ -299,6 +301,15 @@ def mock_mydevolo__call(mocker, request):
         return response[url]
 
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)
+
+
+@pytest.fixture()
+def mock_mydevolo__call_raise_WrongUrlError(mocker):
+    from devolo_home_control_api.mydevolo import WrongUrlError
+    def mock_call(url):
+        raise WrongUrlError
+
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=mock_call)
 
 
 @pytest.fixture()
