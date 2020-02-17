@@ -11,7 +11,6 @@ from devolo_home_control_api.mydevolo import Mydevolo
 from .mocks.mock_gateway import Gateway
 from .mocks.mock_homecontrol import mock__inspect_devices
 
-
 try:
     with open('test_data.json') as file:
         test_data = json.load(file)
@@ -27,7 +26,7 @@ def clear_mydevolo():
 
 @pytest.fixture()
 def fill_device_data(request):
-    consumption_property = request.cls.homecontrol.devices.get(test_data.get('devices').get("mains").get("uid"))\
+    consumption_property = request.cls.homecontrol.devices.get(test_data.get('devices').get("mains").get("uid")) \
         .consumption_property
     consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").current = 0.58
     consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").total = 125.68
@@ -47,21 +46,19 @@ def instance_mydevolo():
 
 @pytest.fixture(autouse=True)
 def mock_mydevolo_get_zwave_products(mocker):
-    def mock_get_zwave_products(manufacturer, product_type, product):
-        return {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
-                'manufacturerId': '0x0175',
-                'productTypeId': '0x0001',
-                'productId': '0x0011',
-                'name': 'Metering Plug',
-                'brand': 'devolo',
-                'identifier': 'MT02646',
-                'isZWavePlus': True,
-                'deviceType': 'On/Off Power Switch',
-                'zwaveVersion': '6.51.00',
-                'specificDeviceClass': None,
-                'genericDeviceClass': None}
-
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", side_effect=mock_get_zwave_products)
+     return_dict = {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
+                   'manufacturerId': '0x0175',
+                   'productTypeId': '0x0001',
+                   'productId': '0x0011',
+                   'name': 'Metering Plug',
+                   'brand': 'devolo',
+                   'identifier': 'MT02646',
+                   'isZWavePlus': True,
+                   'deviceType': 'On/Off Power Switch',
+                   'zwaveVersion': '6.51.00',
+                   'specificDeviceClass': None,
+                   'genericDeviceClass': None}
+     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value=return_dict)
 
 
 @pytest.fixture()
@@ -113,14 +110,14 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 def mock_mprmrest__post(mocker, request):
     properties = {}
     properties['test_get_name_and_element_uids'] = {"result":
-                                                    {"items": [{"properties": {"itemName": "test_name",
-                                                                               "zone": "test_zone",
-                                                                               "batteryLevel": "test_battery",
-                                                                               "icon": "test_icon",
-                                                                               "elementUIDs": "test_element_uids",
-                                                                               "settingUIDs": "test_setting_uids",
-                                                                               "deviceModelUID": "test_device_model_uid",
-                                                                               "status": "test_status"}}]}}
+                                                        {"items": [{"properties": {"itemName": "test_name",
+                                                                                   "zone": "test_zone",
+                                                                                   "batteryLevel": "test_battery",
+                                                                                   "icon": "test_icon",
+                                                                                   "elementUIDs": "test_element_uids",
+                                                                                   "settingUIDs": "test_setting_uids",
+                                                                                   "deviceModelUID": "test_device_model_uid",
+                                                                                   "status": "test_status"}}]}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
 
@@ -163,11 +160,11 @@ def mock_mydevolo__call(mocker, request):
         response = {}
         response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL'] = {"url": full_url}
         response['https://www.mydevolo.com/v1/users/uuid'] = {"uuid": uuid}
-        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status'] = {"items": []}\
+        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status'] = {"items": []} \
             if request.node.name == "test_gateway_ids_empty" else {"items": [{"gatewayId": gateway_id}]}
-        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}'] =\
+        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}'] = \
             {"gatewayId": gateway_id, "status": "devolo.hc_gateway.status.online", "state": "devolo.hc_gateway.state.idle"}
-        response['https://www.mydevolo.com/v1/hc/maintenance'] = {"state": "off"}\
+        response['https://www.mydevolo.com/v1/hc/maintenance'] = {"state": "off"} \
             if request.node.name == "test_maintenance_off" else {"state": "on"}
         response['https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000'] = {"brand": "Everspring",
                                                                                       "deviceType": "Door Lock Keypad",
@@ -204,7 +201,7 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway,
 def home_control_instance(request, instance_mydevolo, mock_gateway,
                           mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
-    request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4']\
+    request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'] \
         .is_online = request.cls.homecontrol.is_online
     yield
     MprmWebsocket.del_instance()
