@@ -32,7 +32,8 @@
         "ps.hdm:ZWave:F6BF9812/2"],
       "elementUIDs": [
         "devolo.Meter:hdm:ZWave:F6BF9812/2",
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
+        "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"],
       "state": 1,
       "current_consumption": 0.58,
       "total_consumption": 125.68,

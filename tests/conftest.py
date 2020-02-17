@@ -83,8 +83,9 @@ def mock_inspect_devices_metering_plug(mocker):
 
 
 @pytest.fixture()
-def mock_mprmrest__detect_gateway_in_lan(mocker):
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
+def mock_mprmrest__detect_gateway_in_lan(mocker, request):
+    if request.node.name not in ["test_detect_gateway_in_lan_valid"]:
+        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
 
 
 @pytest.fixture()
@@ -240,6 +241,7 @@ def mock_response_requests_valid(mocker):
 
     mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
 
+
 @pytest.fixture(autouse=True)
 def mock_mprmwebsocket_websocket_connection(mocker, request):
     def mock_websocket_connection():
@@ -304,6 +306,8 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway,
                   mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
+    elif "TestMprmWebsocket" in request.node.nodeid:
+        request.cls.mprm = MprmWebsocket(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
     else:
         def _websocket_connection_mock():
             pass
@@ -335,3 +339,21 @@ def test_data_fixture(request):
 @pytest.fixture(autouse=True)
 def mock_mprm_create_connection(mocker):
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.create_connection", return_value=None)
+
+
+@pytest.fixture()
+def mock_properties(mocker):
+    mocker.patch("devolo_home_control_api.properties.consumption_property.ConsumptionProperty.fetch_consumption",
+                 return_value=None)
+    mocker.patch("devolo_home_control_api.properties.binary_switch_property.BinarySwitchProperty.fetch_binary_switch_state",
+                 return_value=None)
+    mocker.patch("devolo_home_control_api.properties.voltage_property.VoltageProperty.fetch_voltage",
+                 return_value=None)
+    mocker.patch("devolo_home_control_api.properties.settings_property.SettingsProperty.fetch_general_device_settings",
+                 return_value=None)
+    mocker.patch("devolo_home_control_api.properties.settings_property.SettingsProperty.fetch_param_changed_setting",
+                 return_value=None)
+    mocker.patch("devolo_home_control_api.properties.settings_property.SettingsProperty.fetch_protection_setting",
+                 return_value=None)
+    mocker.patch("devolo_home_control_api.properties.settings_property.SettingsProperty.fetch_led_setting",
+                 return_value=None)

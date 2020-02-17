@@ -19,3 +19,50 @@ class TestHomeControl:
     def test_get_sub_device_uid_from_element_uid(self):
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
+
+    @pytest.mark.usefixtures("mock_properties")
+    def test_process_element_uids(self):
+        device = self.devices.get("mains").get("uid")
+        element_uids = self.devices.get("mains").get("elementUIDs")
+        del self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].binary_switch_property
+        del self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property
+        del self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].voltage_property
+        assert not hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "binary_switch_property")
+        assert not hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "consumption_property")
+        assert not hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "voltage_property")
+        self.homecontrol._process_element_uids(device, element_uids)
+        assert hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "binary_switch_property")
+        assert hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "consumption_property")
+        assert hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "voltage_property")
+
+    def test_process_element_uids_invalid(self):
+        device = self.devices.get("mains").get("uid")
+        element_uids = ['fibaro:hdm:ZWave:F6BF9812/2']
+        self.homecontrol._process_element_uids(device, element_uids)
+
+
+    @pytest.mark.usefixtures("mock_properties")
+    def test_process_settings_uids(self):
+        device = self.devices.get("mains").get("uid")
+        setting_uids = self.devices.get("mains").get("settingsUIDs")
+        self.homecontrol._process_settings_uids(device, setting_uids)
+
+
+    def test_process_settings_uids_invalid(self):
+        device = self.devices.get("mains").get("uid")
+        settings_uids = ['fibaro:hdm:ZWave:F6BF9812/2']
+        self.homecontrol._process_settings_uids(device, settings_uids)
+
+    @pytest.mark.usefixtures("mock_properties")
+    def test_process_settings_property_empty(self):
+        del self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].settings_property
+        assert not hasattr(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'], "settings_property")
+        device = self.devices.get("mains").get("uid")
+        setting_uids = self.devices.get("mains").get("settingsUIDs")
+        self.homecontrol._process_settings_uids(device, setting_uids)
+        assert len(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].settings_property) > 0
+
+
+
+
+
