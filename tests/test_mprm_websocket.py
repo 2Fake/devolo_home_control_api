@@ -55,10 +55,14 @@ class TestWebsocket:
         def inner_func():
             self.mprm._on_error("error")
 
+        def inner_raise():
+            pass
+
         self.mprm._local_ip = "123.456.789.123"
         threading.Thread(target=inner_func).start()
         # local ip is set --> self.get_local_session() will throw an error because of the fixture.
         # After first run we remove the local ip and self.get_remote_session() will pass
-        # TODO: There are 403 logged in thread. Mock them.
         time.sleep(2)
         self.mprm._local_ip = None
+
+        self.mprm.websocket_connection = inner_raise
