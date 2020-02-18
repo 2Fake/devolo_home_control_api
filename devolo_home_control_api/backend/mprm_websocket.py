@@ -55,10 +55,10 @@ class MprmWebsocket(MprmRest):
         i = 16
         connected = False
         self._ws.close()
+        self._event_sequence = 0
         while not connected:
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
-                self._event_sequence = 0
                 self.get_local_session() if self._local_ip else self.get_remote_session()
                 connected = True
             except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError):

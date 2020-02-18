@@ -30,11 +30,22 @@ class Updater:
         message_type = {"devolo.BinarySwitch": self._binary_switch,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
-                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor}
+                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                        "hdm": self._device_online_state}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
+
+    def update_device_online_state(self, uid: str, value: int):
+        """
+
+        :param uid:
+        :param value:
+        """
+        self._logger.debug(f"Updating device online state of {uid} to {value}")
+        self._devices.get(uid).status = value
+        self._publisher.dispatch(uid, (uid, value))
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
         """
@@ -94,6 +105,11 @@ class Updater:
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
                                             value=True if message.get("properties").get("property.value.new") == 1
                                             else False)
+
+    def _device_online_state(self, message):
+        """ Update the device online state. """
+        self.update_device_online_state(uid=message.get("properties").get("uid"),
+                                        value=message.get("properties").get("property.value.new"))
 
     def _gateway_accessible(self, message):
         """ Update the gateway's state. """

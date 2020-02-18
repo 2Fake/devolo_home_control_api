@@ -27,6 +27,13 @@ class TestUpdater:
         assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current == 1.58
         assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total == 254
 
+    def test_device_online_state(self):
+        online_state = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
+        self.homecontrol.updater.update_device_online_state(uid=self.devices.get('mains').get('uid'),
+                                                            value=1)
+        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status == 1
+        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status != online_state
+
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
         assert self.homecontrol._gateway.online
@@ -62,6 +69,13 @@ class TestUpdater:
         state_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property \
             .get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
         assert state != state_new
+
+    def test__device_online_state(self):
+        online_state = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
+        self.homecontrol.updater._device_online_state(message={"properties": {"uid": self.devices.get('mains').get('uid'),
+                                                                               "property.value.new": 1}})
+        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status == 1
+        assert online_state != self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
 
     def test__gateway_accessible(self):
         self.homecontrol._gateway.online = True
@@ -111,7 +125,6 @@ class TestUpdater:
             .get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current = 231
         current = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property \
             .get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
-        print(current)
         self.homecontrol.updater._voltage_multi_level_sensor(message={"properties": {"uid": f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}",
                                                                                      "property.value.new": 234}})
         current_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property \
@@ -119,3 +132,4 @@ class TestUpdater:
 
         assert current_new == 234
         assert current != current_new
+
