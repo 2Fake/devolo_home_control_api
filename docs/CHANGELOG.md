@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Support for Fibaro Double Relay Switch
 - Lookup for Z-Wave device information
+- React on device online state
 
 ### Changed
 
