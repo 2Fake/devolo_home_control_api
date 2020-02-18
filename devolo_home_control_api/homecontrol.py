@@ -68,7 +68,7 @@ class HomeControl:
         :param uid: Device UID, something like hdm:ZWave:CBC56091/24
         :return: True, if device is online
         """
-        return True if self.devices.get(uid).online == 2 else False
+        return True if self.devices.get(uid).status == 2 else False
 
     def update(self, message: str):
         """ Initialize steps needed to update properties on a new message. """

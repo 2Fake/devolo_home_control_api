@@ -32,13 +32,13 @@ class TestZwave:
 
     def test_device_online_state_state(self, instance_mydevolo):
         device = Zwave(**self.devices.get("ambiguous_2"))
-        assert device.online == 1
+        assert device.status == 1
 
         device = Zwave(**self.devices.get("mains"))
-        assert device.online == 2
+        assert device.status == 2
 
         device = Zwave(**self.devices.get("ambiguous_1"))
-        assert device.online not in [1, 2]
+        assert device.status not in [1, 2]
 
     def test_get_device_type_from_element_uid(self):
         assert get_device_type_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "devolo.Meter"

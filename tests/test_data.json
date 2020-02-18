@@ -43,7 +43,7 @@
       "local_switch": true,
       "remote_switch": false,
       "voltage": 237,
-      "online": 2,
+      "status": 2,
       "manID": "0x0175",
       "prodTypeID": "0x0001",
       "prodID": "0x0011"
@@ -56,7 +56,7 @@
       "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/2"],
       "icon": "icon_1",
       "zone_name": "Kitchen",
-      "online": 25,
+      "status": 25,
       "manID": "0x0175",
       "prodTypeID": "0x0001",
       "prodID": "0x0011"
@@ -71,7 +71,7 @@
         "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
       "icon": "icon_1",
       "zone_name": "Living Room",
-      "online": 1,
+      "status": 1,
       "manID": "0x0175",
       "prodTypeID": "0x0001",
       "prodID": "0x0011"
