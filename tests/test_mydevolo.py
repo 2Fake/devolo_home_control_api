@@ -116,11 +116,7 @@ class TestMydevolo:
         with pytest.raises(WrongUrlError):
             mydevolo._call("test")
 
-
     @pytest.mark.usefixtures("mock_response_valid")
     def test_call_valid(self):
         mydevolo = Mydevolo()
         assert mydevolo._call("test").get("response") == "response"
-
-
-

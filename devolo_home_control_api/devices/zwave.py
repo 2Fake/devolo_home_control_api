@@ -1,5 +1,7 @@
 import logging
+
 from ..mydevolo import Mydevolo
+
 
 class Zwave:
     """

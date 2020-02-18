@@ -124,14 +124,14 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 def mock_mprmrest__post(mocker, request):
     properties = {}
     properties["test_get_name_and_element_uids"] = {"result": {"items": [{"properties":
-                                                                              {"itemName": "test_name",
-                                                                               "zone": "test_zone",
-                                                                               "batteryLevel": "test_battery",
-                                                                               "icon": "test_icon",
-                                                                               "elementUIDs": "test_element_uids",
-                                                                               "settingUIDs": "test_setting_uids",
-                                                                               "deviceModelUID": "test_device_model_uid",
-                                                                               "status": "test_status"}}]}}
+                                                                          {"itemName": "test_name",
+                                                                           "zone": "test_zone",
+                                                                           "batteryLevel": "test_battery",
+                                                                           "icon": "test_icon",
+                                                                           "elementUIDs": "test_element_uids",
+                                                                           "settingUIDs": "test_setting_uids",
+                                                                           "deviceModelUID": "test_device_model_uid",
+                                                                           "status": "test_status"}}]}}
     properties["test_extract_data_from_element_uid"] = {"result": {"items": [{"properties": {"itemName": "test_name"}}]}}
     properties["test_get_all_devices"] = {"result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}}
 
@@ -167,6 +167,7 @@ def mock_response_json(mocker):
 def mock_response_json_ConnectTimeout(mocker):
     class MockResponse:
         from requests import ConnectTimeout
+
         def __init__(self, json_data, status_code):
             self.json_data = json_data
             self.status_code = status_code
@@ -188,8 +189,6 @@ def mock_response_json_JSONDecodeError(mocker):
         def get(self, url, auth=None, timeout=None):
             from json import JSONDecodeError
             raise JSONDecodeError(msg="message", doc="doc", pos=1)
-
-
 
 
     mocker.patch("requests.Session", return_value=MockResponse({"link": "test_link"}, status_code=200))
@@ -306,6 +305,7 @@ def mock_mydevolo__call(mocker, request):
 @pytest.fixture()
 def mock_mydevolo__call_raise_WrongUrlError(mocker):
     from devolo_home_control_api.mydevolo import WrongUrlError
+
     def mock_call(url):
         raise WrongUrlError
 
@@ -424,11 +424,6 @@ def mock_mydevolo_full_url(mocker):
         return gateway_id
 
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_full_url", side_effect=full_URL)
-
-
-@pytest.fixture()
-def mock_get_remote_session(mocker):
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=None)
 
 
 @pytest.fixture()
