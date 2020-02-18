@@ -60,7 +60,7 @@ class TestWebsocket:
 
         self.mprm._local_ip = "123.456.789.123"
         threading.Thread(target=inner_func).start()
-        # local ip is set --> self.get_local_session() will throw an error because of the fixture.
+        # local ip is set --> self.get_local_session() will throw an error because of the fixture mock_get_local_session_json_decode_error.
         # After first run we remove the local ip and self.get_remote_session() will pass
         time.sleep(2)
         self.mprm._local_ip = None
