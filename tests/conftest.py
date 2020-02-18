@@ -424,3 +424,22 @@ def mock_mydevolo_full_url(mocker):
         return gateway_id
 
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_full_url", side_effect=full_URL)
+
+
+@pytest.fixture()
+def mock_get_remote_session(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=None)
+
+
+@pytest.fixture()
+def mock_get_local_session_json_decode_error(mocker):
+    def inner():
+        from json import JSONDecodeError
+        raise JSONDecodeError(msg="message", doc="doc", pos=1)
+
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", side_effect=inner)
+
+
+@pytest.fixture()
+def mock_websocket_connection(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)
