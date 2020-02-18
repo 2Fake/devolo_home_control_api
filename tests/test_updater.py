@@ -52,12 +52,15 @@ class TestUpdater:
                                         {"uid": "fibaro"}})
 
     def test__binary_switch(self):
-        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state = True
-        state = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
+        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property \
+            .get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state = True
+        state = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property \
+            .get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
         self.homecontrol.updater._binary_switch(message={"properties": {"property.name": "state",
                                                                         "uid": f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}",
                                                                         "property.value.new": 0}})
-        state_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
+        state_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).binary_switch_property \
+            .get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
         assert state != state_new
 
     def test__gateway_accessible(self):
@@ -74,35 +77,45 @@ class TestUpdater:
         assert online_sync != online_sync_new
 
     def test__meter(self):
-        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current = 5
-        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total = 230
-        total = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
+        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current = 5
+        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total = 230
+        total = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
         # Changing current value
         self.homecontrol.updater._meter(message={"properties": {"property.name": "currentValue",
                                                                 "uid": f"devolo.Meter:{self.devices.get('mains').get('uid')}",
                                                                 "property.value.new": 7}})
-        current_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current
+        current_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current
         # Check if current value has changed
         assert current_new == 7
         # Check if total has not changed
-        assert total == self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
+        assert total == self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
         # Changing total value
         self.homecontrol.updater._meter(message={"properties": {"property.name": "totalValue",
                                                                 "uid": f"devolo.Meter:{self.devices.get('mains').get('uid')}",
                                                                 "property.value.new": 235}})
-        total_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
+        total_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
         # Check if total value has changed
         assert total_new == 235
         # Check if current value has not changed
-        assert self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current == current_new
+        assert self.homecontrol.devices.get(self.devices.get('mains').get("uid")).consumption_property \
+            .get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current == current_new
 
     def test__voltage_multi_level_sensor(self):
-        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current = 231
-        current = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
+        self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property \
+            .get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current = 231
+        current = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property \
+            .get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
         print(current)
         self.homecontrol.updater._voltage_multi_level_sensor(message={"properties": {"uid": f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}",
                                                                                      "property.value.new": 234}})
-        current_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
+        current_new = self.homecontrol.devices.get(self.devices.get('mains').get("uid")).voltage_property \
+            .get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
 
         assert current_new == 234
         assert current != current_new

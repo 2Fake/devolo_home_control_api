@@ -61,8 +61,3 @@ class TestHomeControl:
         setting_uids = self.devices.get("mains").get("settingsUIDs")
         self.homecontrol._process_settings_uids(device, setting_uids)
         assert len(self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].settings_property) > 0
-
-
-
-
-

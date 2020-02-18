@@ -1,4 +1,3 @@
-from devolo_home_control_api.publisher.publisher import Publisher
 import pytest
 
 
