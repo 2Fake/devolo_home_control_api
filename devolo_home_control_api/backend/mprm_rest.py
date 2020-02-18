@@ -163,7 +163,7 @@ class MprmRest:
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
         try:
-            response = self._session.post(self._mprm_url + "remote/json-rpc",
+            response = self._session.post(self._mprm_url + "/remote/json-rpc",
                                           data=json.dumps(data),
                                           headers={"content-type": "application/json"},
                                           timeout=15).json()
