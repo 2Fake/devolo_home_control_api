@@ -35,6 +35,12 @@ class TestMydevolo:
 
         assert details.get("gatewayId") == self.gateway.get("id")
 
+    def test_get_gateway_invalid(self, mock_mydevolo__call_raise_WrongUrlError):
+        mydevolo = Mydevolo()
+        mydevolo._uuid = self.user.get("uuid")
+        with pytest.raises(WrongUrlError):
+            details = mydevolo.get_gateway(self.gateway.get("id"))
+
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_zwave_products(self):
         mydevolo = Mydevolo()

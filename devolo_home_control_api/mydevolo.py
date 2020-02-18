@@ -107,7 +107,13 @@ class Mydevolo:
         :return: Gateway object
         """
         self._logger.debug(f"Getting details for gateway {gateway_id}")
-        return self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/{gateway_id}")
+        details = {}
+        try:
+            details = self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/{gateway_id}")
+        except WrongUrlError:
+            self._logger.error("Could not get full URL. Wrong gateway ID used?")
+            raise
+        return details
 
     def get_full_url(self, gateway_id: str) -> str:
         """
@@ -148,7 +154,6 @@ class Mydevolo:
             self._logger.error("Could not get full URL. Wrong username or password?")
             raise WrongCredentialsError("Wrong username or password.")
         if responds.status_code == requests.codes.not_found:
-            self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise WrongUrlError(f"Wrong URL: {url}")
         return responds.json()
 
