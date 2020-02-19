@@ -30,7 +30,7 @@ class HomeControl:
 
         self.mprm = MprmWebsocket(gateway_id=gateway_id, url=url)
         self.mprm.on_update = self.update
-        self.local_ip = self.mprm.detect_gateway_in_lan()
+        self.mprm.detect_gateway_in_lan()
         self.mprm.create_connection()
 
         # Create the initial device dict
