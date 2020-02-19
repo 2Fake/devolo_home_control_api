@@ -38,7 +38,7 @@ class TestMprmRest:
         self.mprm._local_ip = "123.456.789.123"
         self.mprm.create_connection()
 
-    def test_create_connection_remote(self, mock_get_remote_session, instance_mydevolo):
+    def test_create_connection_remote(self, mock_get_remote_session, mydevolo):
         self.mprm._gateway.external_access = True
         self._mydevolo = Mydevolo.get_instance()
         self.mprm.create_connection()

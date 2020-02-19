@@ -5,11 +5,9 @@ from devolo_home_control_api.devices.zwave import Zwave,\
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 
 
+@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestZwave:
-    @pytest.mark.usefixtures("home_control_instance")
-    @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_get_property(self):
+    def test_get_property(self, home_control_instance, mock_mprmrest__extract_data_from_element_uid):
         device = Zwave(**self.devices.get("mains"))
 
         device.binary_switch_property = {}
@@ -18,19 +16,19 @@ class TestZwave:
 
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
-    def test_get_property_invalid(self, instance_mydevolo):
+    def test_get_property_invalid(self, mydevolo):
         device = Zwave(**self.devices.get("mains"))
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
 
-    def test_battery_level(self, instance_mydevolo):
+    def test_battery_level(self, mydevolo):
         # TODO: Use battery driven device
         device = Zwave(**self.devices.get("ambiguous_1"))
 
         assert device.batteryLevel == 55
 
-    def test_device_online_state_state(self, instance_mydevolo):
+    def test_device_online_state_state(self, mydevolo):
         device = Zwave(**self.devices.get("ambiguous_2"))
         assert device.status == 1
 

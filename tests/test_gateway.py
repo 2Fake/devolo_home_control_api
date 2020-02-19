@@ -3,7 +3,7 @@ import pytest
 from devolo_home_control_api.devices.gateway import Gateway
 
 
-@pytest.mark.usefixtures("instance_mydevolo")
+@pytest.mark.usefixtures("mydevolo")
 @pytest.mark.usefixtures("mock_mydevolo__call")
 class TestGateway:
     def test_update_state_known(self):

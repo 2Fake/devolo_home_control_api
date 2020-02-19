@@ -6,23 +6,20 @@ import pytest
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.homecontrol import HomeControl
-from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
 
+from .confs.mydevolo import *  # noqa
 from .mocks.mock_gateway import Gateway
 from .mocks.mock_homecontrol import mock__inspect_devices
-from .mocks.mock_response import MockResponseConnectTimeout, MockResponseGet, MockResponseJsonError, MockResponsePost, MockResponseReadTimeout
+from .mocks.mock_response import MockResponseConnectTimeout, MockResponseGet, MockResponseJsonError, MockResponsePost, \
+                                  MockResponseReadTimeout
+
 
 try:
-    with open('test_data.json') as file:
+    with open("test_data.json") as file:
         test_data = json.load(file)
 except FileNotFoundError:
     print("Please run tests from within the tests directory.")
     sys.exit(127)
-
-
-@pytest.fixture(autouse=True)
-def clear_mydevolo():
-    Mydevolo.del_instance()
 
 
 @pytest.fixture()
@@ -41,30 +38,6 @@ def fill_device_data(request):
 
 
 @pytest.fixture()
-def instance_mydevolo():
-    Mydevolo()
-
-
-@pytest.fixture(autouse=True)
-def mock_mydevolo_get_zwave_products(mocker, request):
-    return_dict = {'href': 'https://dcloud-test.devolo.net/v1/zwave/products/0x0175/0x0001/0x0011',
-                   'manufacturerId': '0x0175',
-                   'productTypeId': '0x0001',
-                   'productId': '0x0011',
-                   'name': 'Metering Plug',
-                   'brand': 'devolo',
-                   'identifier': 'MT02646',
-                   'isZWavePlus': True,
-                   'deviceType': 'On/Off Power Switch',
-                   'zwaveVersion': '6.51.00',
-                   'specificDeviceClass': None,
-                   'genericDeviceClass': None}
-
-    if request.node.name not in ["test_get_zwave_products", "test_get_zwave_products_invalid"]:
-        mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value=return_dict)
-
-
-@pytest.fixture()
 def mock_get_local_session(mocker):
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", return_value=True)
 
@@ -80,7 +53,7 @@ def mock_gateway(mocker):
 
 
 @pytest.fixture()
-def mock_inspect_devices_metering_plug(mocker):
+def mock_inspect_devices_metering_plug(mocker, mock_mydevolo__call):
     mocker.patch("devolo_home_control_api.homecontrol.HomeControl._inspect_devices", mock__inspect_devices)
 
 
@@ -203,48 +176,8 @@ def mock_mprmrest__post_set(mocker, request):
 def mock_publisher_dispatch(mocker):
     mocker.patch("devolo_home_control_api.publisher.publisher.Publisher.dispatch", return_value=None)
 
-
 @pytest.fixture()
-def mock_mydevolo__call(mocker, request):
-    def _call_mock(url):
-        uuid = test_data.get("user").get("uuid")
-        gateway_id = test_data.get("gateway").get("id")
-        full_url = test_data.get("gateway").get("full_url")
-
-        response = {}
-        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL'] = {"url": full_url}
-        response['https://www.mydevolo.com/v1/users/uuid'] = {"uuid": uuid}
-        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status'] = {"items": []} \
-            if request.node.name == "test_gateway_ids_empty" else {"items": [{"gatewayId": gateway_id}]}
-        response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}'] = \
-            {"gatewayId": gateway_id, "status": "devolo.hc_gateway.status.online", "state": "devolo.hc_gateway.state.idle"}
-        response['https://www.mydevolo.com/v1/hc/maintenance'] = {"state": "off"} \
-            if request.node.name == "test_maintenance_off" else {"state": "on"}
-        response['https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000'] = {"brand": "Everspring",
-                                                                                      "deviceType": "Door Lock Keypad",
-                                                                                      "genericDeviceClass": "Entry Control",
-                                                                                      "identifier": "SP814-US",
-                                                                                      "isZWavePlus": True,
-                                                                                      "manufacturerId": "0x0060",
-                                                                                      "name": "Everspring PIR Sensor SP814",
-                                                                                      "productId": "0x0002",
-                                                                                      "productTypeId": "0x0001",
-                                                                                      "zwaveVersion": "6.51.07"}
-        return response[url]
-
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)
-
-
-@pytest.fixture()
-def mock_mydevolo__call_raise_WrongUrlError(mocker):
-    def mock_call(url):
-        raise WrongUrlError
-
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=mock_call)
-
-
-@pytest.fixture()
-def mprm_instance(request, mocker, instance_mydevolo, mock_gateway,
+def mprm_instance(request, mocker, mydevolo, mock_gateway,
                   mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(gateway_id=test_data.get("gateway").get("id"), url="https://homecontrol.mydevolo.com")
@@ -262,7 +195,7 @@ def mprm_instance(request, mocker, instance_mydevolo, mock_gateway,
 
 
 @pytest.fixture()
-def home_control_instance(request, instance_mydevolo, mock_gateway,
+def home_control_instance(request, mydevolo, mock_gateway,
                           mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     request.cls.homecontrol = HomeControl(test_data.get("gateway").get("id"))
     request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'] \
@@ -314,14 +247,6 @@ def mock_response_wrong_url_error(mocker):
 @pytest.fixture()
 def mock_response_valid(mocker):
     mocker.patch("requests.get", return_value=MockResponseGet({"response": "response"}, status_code=200))
-
-
-@pytest.fixture()
-def mock_mydevolo_full_url(mocker):
-    def full_URL(gateway_id):
-        return gateway_id
-
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_full_url", side_effect=full_URL)
 
 
 @pytest.fixture()
