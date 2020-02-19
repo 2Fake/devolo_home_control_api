@@ -145,7 +145,7 @@ class MprmRest:
         """ Connect to the gateway remotely. """
         self._logger.info("Connecting to gateway via cloud")
         try:
-            self._session.get(self._gateway.full_url)
+            self._session.get(self._gateway.full_url, timeout=15)
         except json.JSONDecodeError:
             raise MprmDeviceCommunicationError("Gateway is offline.") from None
 
