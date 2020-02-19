@@ -6,7 +6,7 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
-from devolo_home_control_api.backend.mprm_rest import MprmRest
+from devolo_home_control_api.backend.mprm_rest import MprmRest, MprmDeviceCommunicationError
 
 
 class MprmWebsocket(MprmRest):
@@ -55,13 +55,16 @@ class MprmWebsocket(MprmRest):
         i = 16
         connected = False
         self._ws.close()
+
         self._event_sequence = 0
+
         while not connected:
             try:
                 self._logger.info("Trying to reconnect to the gateway.")
+                # TODO: Check if local_ip is still correct after lost connection
                 self.get_local_session() if self._local_ip else self.get_remote_session()
                 connected = True
-            except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError):
+            except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, MprmDeviceCommunicationError):
                 self._logger.info(f"Sleeping for {i} seconds.")
                 time.sleep(i)
                 i = i * 2 if i < 2048 else 3600
@@ -87,6 +90,6 @@ class MprmWebsocket(MprmRest):
         """ Callback function to keep the websocket open. """
         def run(*args):
             self._logger.info("Starting web socket connection")
-            while self._ws.sock.connected:
+            while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
