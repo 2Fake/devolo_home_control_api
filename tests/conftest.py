@@ -7,11 +7,8 @@ from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.homecontrol import HomeControl
 
-from .confs.mydevolo import *  # noqa
 from .mocks.mock_gateway import Gateway
 from .mocks.mock_homecontrol import mock__inspect_devices
-from .mocks.mock_response import MockResponseConnectTimeout, MockResponseGet, MockResponseJsonError, MockResponsePost, \
-                                  MockResponseReadTimeout
 
 
 try:
@@ -20,6 +17,9 @@ try:
 except FileNotFoundError:
     print("Please run tests from within the tests directory.")
     sys.exit(127)
+
+
+pytest_plugins = ['tests.fixtures.mydevolo', 'tests.fixtures.requests']
 
 
 @pytest.fixture()
@@ -111,44 +111,6 @@ def mock_mprmrest__post(mocker, request):
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
 
 
-@pytest.fixture()
-def mock_session_post(mocker, request):
-    properties = {}
-    properties["test_get_local_session_valid"] = {"link": "test_link"}
-
-    mocker.patch("requests.Session.get", return_value=properties.get(request.node.name))
-
-
-@pytest.fixture()
-def mock_response_json(mocker):
-    mocker.patch("requests.Session", return_value=MockResponseGet({"link": "test_link"}, status_code=200))
-
-
-@pytest.fixture()
-def mock_response_json_ConnectTimeout(mocker):
-    mocker.patch("requests.Session", return_value=MockResponseConnectTimeout({"link": "test_link"}, status_code=200))
-
-
-@pytest.fixture()
-def mock_response_json_JSONDecodeError(mocker):
-    mocker.patch("requests.Session", return_value=MockResponseJsonError({"link": "test_link"}, status_code=200))
-
-
-@pytest.fixture()
-def mock_response_requests_ReadTimeout(mocker):
-    mocker.patch("requests.Session", return_value=MockResponseReadTimeout({"link": "test_link"}, status_code=200))
-
-
-@pytest.fixture()
-def mock_response_requests_invalid_id(mocker):
-    mocker.patch("requests.Session", return_value=MockResponsePost({"link": "test_link"}, status_code=200))
-
-
-@pytest.fixture()
-def mock_response_requests_valid(mocker):
-    mocker.patch("requests.Session", return_value=MockResponsePost({"link": "test_link"}, status_code=200))
-
-
 @pytest.fixture(autouse=True)
 def mock_mprmwebsocket_websocket_connection(mocker, request):
     def mock_websocket_connection():
@@ -175,6 +137,7 @@ def mock_mprmrest__post_set(mocker, request):
 @pytest.fixture()
 def mock_publisher_dispatch(mocker):
     mocker.patch("devolo_home_control_api.publisher.publisher.Publisher.dispatch", return_value=None)
+
 
 @pytest.fixture()
 def mprm_instance(request, mocker, mydevolo, mock_gateway,
@@ -232,21 +195,6 @@ def mock_properties(mocker):
                  return_value=None)
     mocker.patch("devolo_home_control_api.properties.settings_property.SettingsProperty.fetch_led_setting",
                  return_value=None)
-
-
-@pytest.fixture()
-def mock_response_wrong_credentials_error(mocker):
-    mocker.patch("requests.get", return_value=MockResponseGet({"link": "test_link"}, status_code=403))
-
-
-@pytest.fixture()
-def mock_response_wrong_url_error(mocker):
-    mocker.patch("requests.get", return_value=MockResponseGet({"link": "test_link"}, status_code=404))
-
-
-@pytest.fixture()
-def mock_response_valid(mocker):
-    mocker.patch("requests.get", return_value=MockResponseGet({"response": "response"}, status_code=200))
 
 
 @pytest.fixture()
