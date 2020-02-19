@@ -39,7 +39,7 @@ class TestMydevolo:
         mydevolo = Mydevolo()
         mydevolo._uuid = self.user.get("uuid")
         with pytest.raises(WrongUrlError):
-            details = mydevolo.get_gateway(self.gateway.get("id"))
+            mydevolo.get_gateway(self.gateway.get("id"))
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_zwave_products(self):
