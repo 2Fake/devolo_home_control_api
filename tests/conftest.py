@@ -19,7 +19,7 @@ except FileNotFoundError:
     sys.exit(127)
 
 
-pytest_plugins = ['tests.fixtures.mydevolo', 'tests.fixtures.requests', 'tests.mocks.mock_mydevolo']
+pytest_plugins = ['tests.fixtures.mydevolo', 'tests.fixtures.requests']
 
 
 @pytest.fixture()

@@ -1,29 +1,27 @@
-import pytest
-
-
 class MockMydevolo:
-
     @staticmethod
     def get_full_url(gateway_id):
         return gateway_id
 
 
-@pytest.fixture()
-def mock_mydevolo__call(mocker, request):
-    def _call_mock(url):
-        uuid = request.cls.user.get("uuid")
-        gateway_id = request.cls.gateway.get("id")
-        full_url = request.cls.gateway.get("full_url")
+    def __init__(self, request):
+        self._request = request
+
+
+    def _call(self, url):
+        uuid = self._request.cls.user.get("uuid")
+        gateway_id = self._request.cls.gateway.get("id")
+        full_url = self._request.cls.gateway.get("full_url")
 
         response = {}
         response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL'] = {"url": full_url}
         response['https://www.mydevolo.com/v1/users/uuid'] = {"uuid": uuid}
         response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status'] = {"items": []} \
-            if request.node.name == "test_gateway_ids_empty" else {"items": [{"gatewayId": gateway_id}]}
+            if self._request.node.name == "test_gateway_ids_empty" else {"items": [{"gatewayId": gateway_id}]}
         response[f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}'] = \
             {"gatewayId": gateway_id, "status": "devolo.hc_gateway.status.online", "state": "devolo.hc_gateway.state.idle"}
         response['https://www.mydevolo.com/v1/hc/maintenance'] = {"state": "off"} \
-            if request.node.name == "test_maintenance_off" else {"state": "on"}
+            if self._request.node.name == "test_maintenance_off" else {"state": "on"}
         response['https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000'] = {"brand": "Everspring",
                                                                                       "deviceType": "Door Lock Keypad",
                                                                                       "genericDeviceClass": "Entry Control",
@@ -46,5 +44,3 @@ def mock_mydevolo__call(mocker, request):
                                                                                        "specificDeviceClass": None,
                                                                                        "genericDeviceClass": None}
         return response[url]
-
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=_call_mock)
