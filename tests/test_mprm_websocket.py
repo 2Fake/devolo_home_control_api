@@ -1,18 +1,23 @@
+import threading
+import time
+
 import pytest
 
+from .mocks.mock_websocket import MockWebsocket
 
+
+@pytest.mark.usefixtures("mprm_instance")
 class TestWebsocket:
-    @pytest.mark.usefixtures("mprm_instance")
-    def test__on_message(self):
-        # We raise an error here, for which we can check in test
-        def inner(message):
-            raise FileExistsError
-        self.mprm.on_update = inner
-        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
-        with pytest.raises(FileExistsError):
-            self.mprm._on_message(message)
 
-    @pytest.mark.usefixtures("mprm_instance")
+    def test__on_message(self):
+        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
+        self.mprm.on_update = lambda: AssertionError()
+        try:
+            self.mprm._on_message(message)
+            assert False
+        except AssertionError:
+            assert True
+
     def test__on_message_event_sequence(self):
         event_sequence = self.mprm._event_sequence
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 5}}'
@@ -20,49 +25,26 @@ class TestWebsocket:
         assert event_sequence != self.mprm._event_sequence
         assert self.mprm._event_sequence == 5
 
-    @pytest.mark.usefixtures("mprm_instance")
     def test__on_update_not_set(self):
         # TypeError should be caught by _on_message
         self.mprm.on_update = None
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
         self.mprm._on_message(message)
 
-    @pytest.mark.usefixtures("mprm_instance")
-    @pytest.mark.usefixtures("mock_get_remote_session")
-    @pytest.mark.usefixtures("mock_websocket_connection")
-    def test__on_error(self):
-        class Inner:
-            def close(self):
-                pass
-
-        self.mprm._ws = Inner()
+    def test__on_error(self, mock_mprmrest_get_remote_session, mock_mprmwebsocket_websocket_connection):
+        self.mprm._ws = MockWebsocket()
         self.mprm._on_error("error")
 
-    @pytest.mark.usefixtures("mprm_instance")
-    @pytest.mark.usefixtures("mock_get_remote_session")
-    @pytest.mark.usefixtures("mock_websocket_connection")
-    @pytest.mark.usefixtures("mock_get_local_session_json_decode_error")
-    def test__on_error_errors(self):
-        import threading
-        import time
-
-        class Inner:
-            def close(self):
-                pass
-
-        self.mprm._ws = Inner()
-
-        def inner_func():
-            self.mprm._on_error("error")
-
-        def inner_raise():
-            pass
+    def test__on_error_errors(self, mock_mprmrest_get_remote_session, mock_mprmwebsocket_websocket_connection,
+                              mock_mprmrest_get_local_session_json_decode_error):
+        self.mprm._ws = MockWebsocket()
 
         self.mprm._local_ip = "123.456.789.123"
-        threading.Thread(target=inner_func).start()
-        # local ip is set --> self.get_local_session() will throw an error because of the fixture mock_get_local_session_json_decode_error.
-        # After first run we remove the local ip and self.get_remote_session() will pass
+        threading.Thread(target=self.mprm._on_error).start()
+        # local ip is set --> self.get_local_session() will throw an error because of the fixture
+        # mock_get_local_session_json_decode_error.
+        # After first run we remove the local ip and self.get_remote_session() will pass.
         time.sleep(2)
         self.mprm._local_ip = None
 
-        self.mprm.websocket_connection = inner_raise
+        self.mprm.websocket_connection = lambda: None

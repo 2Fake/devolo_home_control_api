@@ -15,16 +15,13 @@ class TestBinarySwitchProperty:
         assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).fetch_binary_switch_state()
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    def test_set_binary_switch_valid(self):
+    def test_set_binary_switch_valid(self, mock_mprmrest__post_set):
         self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).set_binary_switch(True)
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).state
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    @pytest.mark.usefixtures("mock_homecontrol_is_online")
-    def test_set_binary_switch_error(self):
+    def test_set_binary_switch_error(self, mock_mprmrest__post_set, mock_homecontrol_is_online):
         with pytest.raises(MprmDeviceCommunicationError):
             # TODO: Make this dynamic again
             self.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'].set_binary_switch(True)
