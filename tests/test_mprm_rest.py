@@ -6,7 +6,6 @@ from devolo_home_control_api.mydevolo import Mydevolo
 
 
 @pytest.mark.usefixtures("mprm_instance")
-@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestMprmRest:
 
     def test_get_name_and_element_uids(self, mock_mprmrest__extract_data_from_element_uid, mock_mprmrest__post):

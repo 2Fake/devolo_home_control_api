@@ -2,8 +2,6 @@ import pytest
 
 
 @pytest.mark.usefixtures("home_control_instance")
-@pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
-@pytest.mark.usefixtures("mock_mydevolo__call")
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
     def test_update_binary_switch_state_valid(self, fill_device_data):
@@ -73,7 +71,7 @@ class TestUpdater:
     def test__device_online_state(self):
         online_state = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
         self.homecontrol.updater._device_online_state(message={"properties": {"uid": self.devices.get('mains').get('uid'),
-                                                                               "property.value.new": 1}})
+                                                                              "property.value.new": 1}})
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status == 1
         assert online_state != self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
 
@@ -132,4 +130,3 @@ class TestUpdater:
 
         assert current_new == 234
         assert current != current_new
-

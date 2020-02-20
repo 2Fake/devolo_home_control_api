@@ -1,9 +1,7 @@
 import json
 
 
-class Gateway:
-    """ Represent a gateway in tests """
-
+class MockGateway:
     def __init__(self, gateway_id: str):
         with open('test_data.json') as file:
             test_data = json.load(file)
