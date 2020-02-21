@@ -13,7 +13,8 @@
     "external_access": true,
     "online": true,
     "sync": true,
-    "firmware": "8.0.45_2016-11-17"
+    "firmware": "8.0.45_2016-11-17",
+    "local_ip": "123.456.789.123"
   },
   "devices": {
     "mains":{
@@ -53,7 +54,7 @@
       "itemName": "Heating",
       "batteryLevel": 55,
       "batteryLow": true,
-      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/2"],
+      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/3"],
       "icon": "icon_1",
       "zone_name": "Kitchen",
       "status": 25,
@@ -67,8 +68,8 @@
       "batteryLevel": -1,
       "batteryLow": null,
       "elementUIDs": [
-        "devolo.Meter:hdm:ZWave:F6BF9812/2",
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
+        "devolo.Meter:hdm:ZWave:F6BF9812/4",
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
       "icon": "icon_1",
       "zone_name": "Living Room",
       "status": 1,

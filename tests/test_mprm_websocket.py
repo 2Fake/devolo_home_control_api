@@ -7,7 +7,7 @@ from .mocks.mock_websocket import MockWebsocket
 
 
 @pytest.mark.usefixtures("mprm_instance")
-class TestWebsocket:
+class TestMprmWebsocket:
 
     def test_websocket_connection(self, mock_mprmwebsocket_websocketapp):
         with pytest.raises(AssertionError):

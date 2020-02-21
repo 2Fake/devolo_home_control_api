@@ -21,5 +21,5 @@ class TestBinarySwitchProperty:
 
     def test_set_binary_switch_error(self, mock_mprmrest__post_set, mock_homecontrol_is_online):
         with pytest.raises(MprmDeviceCommunicationError):
-            # TODO: Make this dynamic again
-            self.homecontrol.devices['hdm:ZWave:F6BF9812/4'].binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'].set_binary_switch(True)
+            self.homecontrol.devices[self.devices.get("ambiguous_2").get("uid")]\
+                .binary_switch_property[self.devices.get("ambiguous_2").get("elementUIDs")[1]].set_binary_switch(True)

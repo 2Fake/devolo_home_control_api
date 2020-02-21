@@ -57,21 +57,18 @@ class TestMprmRest:
     @pytest.mark.usefixtures("mock_session_post")
     @pytest.mark.usefixtures("mock_response_json")
     def test_get_local_session_valid(self):
-        # TODO: Move IP to test_data
-        self.mprm._local_ip = "123.456.789.123"
+        self.mprm._local_ip = self.gateway.get("local_ip")
         self.mprm.get_local_session()
 
-    @pytest.mark.usefixtures("mock_response_json_ConnectTimeout")
+    @pytest.mark.usefixtures("mock_response_requests_ConnectTimeout")
     def test_get_local_session_ConnectTimeout(self):
-        # TODO: Move IP to test_data
-        self.mprm._local_ip = "123.456.789.123"
+        self.mprm._local_ip = self.gateway.get("local_ip")
         with pytest.raises(ConnectTimeout):
             self.mprm.get_local_session()
 
     @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
     def test_get_local_session_JSONDecodeError(self):
-        # TODO: Move IP to test_data
-        self.mprm._local_ip = "123.456.789.123"
+        self.mprm._local_ip = self.gateway.get("local_ip")
         with pytest.raises(MprmDeviceCommunicationError):
             self.mprm.get_local_session()
 

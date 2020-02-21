@@ -11,7 +11,7 @@ def mock_response_json(mocker):
 
 
 @pytest.fixture()
-def mock_response_json_ConnectTimeout(mocker):
+def mock_response_requests_ConnectTimeout(mocker):
     mocker.patch("requests.Session", return_value=MockResponseConnectTimeout({"link": "test_link"}, status_code=200))
 
 

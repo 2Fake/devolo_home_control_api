@@ -9,8 +9,7 @@ from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
 @pytest.fixture()
-def mprm_instance(request, mocker, mydevolo, mock_mprmwebsocket_websocket_connection,
-                  mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(gateway_id=request.cls.gateway.get("id"), url="https://homecontrol.mydevolo.com")
     elif "TestMprmWebsocket" in request.node.nodeid:
