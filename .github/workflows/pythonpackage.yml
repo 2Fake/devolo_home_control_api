@@ -29,6 +29,12 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=E303,W503 --statistics
     - name: Test with pytest
       run: |
-        pip install pytest pytest-mock
+        pip install pytest pytest-mock pytest-cov
         cd tests
-        pytest
+        pytest --cov=devolo_home_control_api
+    - name: Coveralls
+      run: |
+        pip install coveralls==1.10.0
+        export COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }}
+        cd tests
+        coveralls

@@ -17,12 +17,7 @@ def metering_plug(device_uid: str) -> Zwave:
     with open('test_data.json') as file:
         test_data = json.load(file)
 
-    device = Zwave(name=test_data.get("devices").get("mains").get("name"),
-                   device_uid=test_data.get("devices").get("mains").get("uid"),
-                   zone=test_data.get("devices").get("mains").get("zone_name"),
-                   battery_level=test_data.get("devices").get("mains").get("battery_level"),
-                   icon=test_data.get("devices").get("mains").get("icon"),
-                   online_state=test_data.get("devices").get("mains").get("online"))
+    device = Zwave(**test_data.get("devices").get("mains"))
 
     device.binary_switch_property = {}
     device.consumption_property = {}

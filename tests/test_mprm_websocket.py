@@ -1,70 +1,54 @@
+import threading
+import time
+
 import pytest
+
+from .mocks.mock_websocket import MockWebsocket
 
 
 @pytest.mark.usefixtures("mprm_instance")
-@pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
-@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestMprmWebsocket:
-    def test_get_consumption_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_consumption("invalid", "invalid")
-        with pytest.raises(ValueError):
-            self.mprm.get_consumption("devolo.Meter:", "invalid")
 
-    def test_get_consumption_valid(self, fill_device_data):
-        current = self.mprm.get_consumption(f"devolo.Meter:{self.devices.get('mains').get('uid')}", "current")
-        total = self.mprm.get_consumption(f"devolo.Meter:{self.devices.get('mains').get('uid')}", "total")
-        assert current == self.devices.get('mains').get('current_consumption')
-        assert total == self.devices.get('mains').get('total_consumption')
+    def test_websocket_connection(self, mock_mprmwebsocket_websocketapp):
+        with pytest.raises(AssertionError):
+            self.mprm.websocket_connection()
 
-    def test_get_binary_switch_state_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_binary_switch_state("invalid")
+    def test__on_message(self):
+        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
+        self.mprm.on_update = lambda: AssertionError()
+        try:
+            self.mprm._on_message(message)
+            assert False
+        except AssertionError:
+            assert True
 
-    def test_update_binary_switch_state_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.update_binary_switch_state("invalid")
+    def test__on_message_event_sequence(self):
+        event_sequence = self.mprm._event_sequence
+        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 5}}'
+        self.mprm._on_message(message)
+        assert event_sequence != self.mprm._event_sequence
+        assert self.mprm._event_sequence == 5
 
-    def test_update_binary_switch_state_valid(self, fill_device_data):
-        binary_switch_property = self.mprm.devices.get(self.devices.get("mains").get("uid")).binary_switch_property
-        state = binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
-        self.mprm.update_binary_switch_state(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}", value=True)
-        assert state != binary_switch_property.get(f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}").state
+    def test__on_update_not_set(self):
+        # TypeError should be caught by _on_message
+        self.mprm.on_update = None
+        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
+        self.mprm._on_message(message)
 
-    def test_update_consumption_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.update_consumption("invalid", "current")
-        with pytest.raises(ValueError):
-            self.mprm.update_consumption("devolo.Meter", "invalid")
+    def test__on_error(self, mock_mprmrest_get_remote_session, mock_mprmwebsocket_websocket_connection):
+        self.mprm._ws = MockWebsocket()
+        self.mprm._on_error("error")
 
-    def test_update_consumption_valid(self, fill_device_data):
-        consumption_property = self.mprm.devices.get(self.devices.get("mains").get("uid")).consumption_property
-        current_before = consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current
-        total_before = consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
-        self.mprm.update_consumption(element_uid=f"devolo.Meter:{self.devices.get('mains').get('uid')}",
-                                     consumption="current", value=1.58)
-        self.mprm.update_consumption(element_uid=f"devolo.Meter:{self.devices.get('mains').get('uid')}",
-                                     consumption="total", value=254)
-        assert current_before != consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current
-        assert total_before != consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total
-        assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").current == 1.58
-        assert consumption_property.get(f"devolo.Meter:{self.devices.get('mains').get('uid')}").total == 254
+    def test__on_error_errors(self, mock_mprmrest_get_remote_session, mock_mprmwebsocket_websocket_connection,
+                              mock_mprmrest_get_local_session_json_decode_error):
+        self.mprm._ws = MockWebsocket()
 
-    def test_update_gateway_state(self):
-        self.mprm.update_gateway_state(accessible=True, online_sync=False)
-        assert self.mprm._gateway.online
-        assert not self.mprm._gateway.sync
+        self.mprm._local_ip = "123.456.789.123"
+        threading.Thread(target=self.mprm._on_error).start()
+        # local ip is set --> self.get_local_session() will throw an error because of the fixture
+        # mock_get_local_session_json_decode_error.
+        # After first run we remove the local ip and self.get_remote_session() will pass.
+        time.sleep(2)
+        self.mprm._local_ip = None
 
-    def test_update_voltage_valid(self, fill_device_data):
-        voltage_property = self.mprm.devices.get(self.devices.get("mains").get("uid")).voltage_property
-        current_voltage = \
-            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
-        self.mprm.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}",
-                                 value=257)
-        assert current_voltage != \
-            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current
-        assert voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").current == 257
-
-    def test_update_voltage_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.update_voltage(element_uid="invalid", value=123)
+        self.mprm.websocket_connection = lambda: None

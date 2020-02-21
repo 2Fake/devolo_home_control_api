@@ -32,7 +32,7 @@ class Gateway:
 
     @property
     def full_url(self):
-        """ The full URL is used to get a valid remote session """
+        """ The full URL is used to get a valid remote session. """
         if self._full_url is None:
             self._full_url = self._mydevolo.get_full_url(self.id)
             self._logger.debug(f"Setting full URL to {self._full_url}")

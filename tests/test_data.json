@@ -13,24 +13,28 @@
     "external_access": true,
     "online": true,
     "sync": true,
-    "firmware": "8.0.45_2016-11-17"
+    "firmware": "8.0.45_2016-11-17",
+    "local_ip": "123.456.789.123"
   },
   "devices": {
     "mains":{
       "uid": "hdm:ZWave:F6BF9812/2",
-      "name": "Light",
+      "itemName": "Light",
+      "batteryLevel": -1,
+      "batteryLow": null,
       "icon": "light-bulb",
       "zone_id": "hz_2",
       "zone_name": "Office",
       "battery_level": -1,
-      "settings_uids": [
+      "settingsUIDs": [
         "gds.hdm:ZWave:F6BF9812/2", 
         "cps.hdm:ZWave:F6BF9812/2", 
         "lis.hdm:ZWave:F6BF9812/2", 
         "ps.hdm:ZWave:F6BF9812/2"],
-      "element_uids": [
+      "elementUIDs": [
         "devolo.Meter:hdm:ZWave:F6BF9812/2",
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2"],
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
+        "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"],
       "state": 1,
       "current_consumption": 0.58,
       "total_consumption": 125.68,
@@ -40,23 +44,38 @@
       "local_switch": true,
       "remote_switch": false,
       "voltage": 237,
-      "online": 2
+      "status": 2,
+      "manID": "0x0175",
+      "prodTypeID": "0x0001",
+      "prodID": "0x0011"
     },
     "ambiguous_1":{
       "uid": "hdm:ZWave:F6BF9812/3",
-      "name": "Heating",
+      "itemName": "Heating",
+      "batteryLevel": 55,
+      "batteryLow": true,
+      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/3"],
       "icon": "icon_1",
       "zone_name": "Kitchen",
-      "online": 2
+      "status": 25,
+      "manID": "0x0175",
+      "prodTypeID": "0x0001",
+      "prodID": "0x0011"
     },
     "ambiguous_2":{
       "uid": "hdm:ZWave:F6BF9812/4",
-      "name": "Heating",
+      "itemName": "Heating",
+      "batteryLevel": -1,
+      "batteryLow": null,
+      "elementUIDs": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/4",
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
       "icon": "icon_1",
       "zone_name": "Living Room",
-      "element_uids": [
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
-      "online": 1
+      "status": 1,
+      "manID": "0x0175",
+      "prodTypeID": "0x0001",
+      "prodID": "0x0011"
     }
   }
 }

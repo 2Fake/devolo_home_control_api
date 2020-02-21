@@ -15,3 +15,14 @@ class VoltageProperty(Property):
         super().__init__(element_uid=element_uid)
         self.current = None
         self.current_unit = "V"
+
+
+    def fetch_voltage(self) -> float:
+        """
+        Update and return the current voltage.
+
+        :return: Voltage value
+        """
+        response = self.mprm.extract_data_from_element_uid(self.element_uid)
+        self.current = response.get("properties").get("value")
+        return self.current

@@ -7,6 +7,7 @@ from devolo_home_control_api.properties.settings_property import SettingsPropert
 from devolo_home_control_api.properties.voltage_property import VoltageProperty
 
 
+@pytest.mark.usefixtures("home_control_instance")
 class TestProperties:
     def test_settings_property_valid(self):
         setting_property = SettingsProperty(f"lis.{self.devices.get('mains').get('uid')}",
@@ -29,6 +30,7 @@ class TestProperties:
     def test_binary_switch_property_invalid(self):
         with pytest.raises(WrongElementError):
             BinarySwitchProperty("invalid")
+
 
     def test_consumption_property_invalid(self):
         with pytest.raises(WrongElementError):

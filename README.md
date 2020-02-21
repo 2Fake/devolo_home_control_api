@@ -1,6 +1,10 @@
 # devolo_home_control_api
 
-![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api) ![Libraries.io SourceRank](https://img.shields.io/librariesio/sourcerank/pypi/devolo-home-control-api)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/2Fake/devolo_home_control_api/Python%20package)](https://github.com/2Fake/devolo_home_control_api/actions?query=workflow%3A%22Python+package%22)
+[![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api)](https://pypi.org/project/devolo-home-control-api/)
+[![Libraries.io SourceRank](https://img.shields.io/librariesio/sourcerank/pypi/devolo-home-control-api)](https://libraries.io/pypi/devolo-home-control-api)
+[![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/2Fake/devolo_home_control_api)](https://codeclimate.com/github/2Fake/devolo_home_control_api)
+[![Coverage Status](https://coveralls.io/repos/github/2Fake/devolo_home_control_api/badge.svg?branch=master)](https://coveralls.io/github/2Fake/devolo_home_control_api?branch=master)
 
 This project implements parts of the devolo Home Control API in Python. It is based on reverse engineering and therefore may fail with any new devolo update. If you discover a breakage, please feel free to [report an issue](https://github.com/2Fake/devolo_home_control_api/issues).
 
@@ -77,31 +81,17 @@ for gateway_id in mydevolo.gateway_ids:
 
 ### Collecting Home Control data
 
-There are three ways of getting data:
+There are two ways of getting data:
 
-1. Poll the gateway
 1. Let the websocket push data into your object, but still poll the object
 1. Subscribe to the publisher and let it push (preferred)
 
-#### Poll the gateway
-
-When polling the gateway, each property will be checked at the time of accessing it.
-
-```python
-mprm = MprmRest(gateway_id=gateway_id)
-for binary_switch in mprm.binary_switch_devices:
-    for state in binary_switch.binary_switch_property:
-        print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")
-```
-
-To execute this example, you need a configured instance of Mydevolo.
-
 #### Using websockets
 
-Your way of accessing the data is more or less the same. Websocket events will keep the object up to date. This method uses less resources on the devolo Home Control Central Unit.
+When using websocket events, messages will keep the object up to date. Nevertheless, no further action is triggered. So you have to ask yourself. The following example will list the current state of all binary switches. If the state changes, you will not notice unless you ask again.
 
 ```python
-mprm = MprmWebsocket(gateway_id=gateway_id)
+homecontrol = HomeControl(gateway_id=gateway_id)
 for binary_switch in mprm.binary_switch_devices:
     for state in binary_switch.binary_switch_property:
         print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")

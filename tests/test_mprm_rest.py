@@ -1,125 +1,100 @@
 import pytest
+from requests import ConnectTimeout
 
-from devolo_home_control_api.mprm_rest import MprmDeviceCommunicationError, MprmDeviceNotFoundError
+from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError, MprmRest
+from devolo_home_control_api.mydevolo import Mydevolo
 
 
 @pytest.mark.usefixtures("mprm_instance")
-@pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
-@pytest.mark.usefixtures("mock_mydevolo__call")
 class TestMprmRest:
-    def test_binary_switch_devices(self):
-        assert hasattr(self.mprm.binary_switch_devices[0], "binary_switch_property")
 
-    def test_get_binary_switch_state_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_binary_switch_state("invalid")
+    def test_get_name_and_element_uids(self, mock_mprmrest__extract_data_from_element_uid, mock_mprmrest__post):
+        properties = self.mprm.get_name_and_element_uids("test")
+        assert properties == {"itemName": "test_name",
+                              "zone": "test_zone",
+                              "batteryLevel": "test_battery",
+                              "icon": "test_icon",
+                              "elementUIDs": "test_element_uids",
+                              "settingUIDs": "test_setting_uids",
+                              "deviceModelUID": "test_device_model_uid",
+                              "status": "test_status"}
 
-    def test_get_binary_switch_state_valid_on(self):
-        assert self.mprm.get_binary_switch_state(element_uid=f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}")
+    def test_singleton(self):
+        MprmRest.del_instance()
 
-    def test_get_binary_switch_state_valid_off(self):
-        assert not self.mprm.get_binary_switch_state(element_uid=f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}")
+        with pytest.raises(SyntaxError):
+            MprmRest.get_instance()
 
-    def test_get_device_uid_from_name_unique(self):
-        uid = self.mprm.get_device_uid_from_name(name=self.devices.get("mains").get("name"))
-        assert uid == self.devices.get("mains").get("uid")
+        first = MprmRest(gateway_id=self.gateway.get("id"), url="https://homecontrol.mydevolo.com")
+        with pytest.raises(SyntaxError):
+            MprmRest(gateway_id=self.gateway.get("id"), url="https://homecontrol.mydevolo.com")
 
-    def test_get_device_uid_from_name_unknow(self):
-        with pytest.raises(MprmDeviceNotFoundError):
-            self.mprm.get_device_uid_from_name(name="unknown")
+        second = MprmRest.get_instance()
+        assert first is second
 
-    def test_get_device_uid_from_name_ambiguous(self):
-        with pytest.raises(MprmDeviceNotFoundError):
-            self.mprm.get_device_uid_from_name(name=self.devices.get("ambiguous_1").get("name"))
+    def test_create_connection_local(self, mock_mprmrest_get_local_session):
+        self.mprm._local_ip = "123.456.789.123"
+        self.mprm.create_connection()
 
-    def test_get_device_uid_from_name_ambiguous_with_zone(self):
-        uid = self.mprm.get_device_uid_from_name(name=self.devices.get("ambiguous_1").get("name"),
-                                                 zone=self.devices.get("ambiguous_1").get("zone_name"))
-        assert uid == self.devices.get("ambiguous_1").get("uid")
+    def test_create_connection_remote(self, mock_mprmrest_get_remote_session, mydevolo):
+        self.mprm._gateway.external_access = True
+        self._mydevolo = Mydevolo.get_instance()
+        self.mprm.create_connection()
 
-    def test_get_device_uid_from_name_ambiguous_with_zone_invalid(self):
-        with pytest.raises(MprmDeviceNotFoundError):
-            self.mprm.get_device_uid_from_name(name=self.devices.get("ambiguous_1").get("name"), zone="invalid")
+    def test_create_connection_invalid(self):
+        with pytest.raises(ConnectionError):
+            self.mprm._gateway.external_access = False
+            self.mprm.create_connection()
 
-    def test_get_consumption_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_consumption(element_uid="invalid", consumption_type="invalid")
-        with pytest.raises(ValueError):
-            self.mprm.get_consumption(element_uid="devolo.Meter:", consumption_type="invalid")
+    def test_extract_data_from_element_uid(self, mock_mprmrest__post):
+        properties = self.mprm.extract_data_from_element_uid(uid="test")
+        assert properties.get("properties").get("itemName") == "test_name"
 
-    def test_get_consumption_valid(self):
-        current = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.devices.get('mains').get('uid')}",
-                                            consumption_type="current")
-        total = self.mprm.get_consumption(element_uid=f"devolo.Meter:{self.devices.get('mains').get('uid')}",
-                                          consumption_type="total")
-        assert current == 0.58
-        assert total == 125.68
+    def test_get_all_devices(self, mock_mprmrest__post):
+        devices = self.mprm.get_all_devices()
+        assert devices == "deviceUIDs"
 
-    def test_get_general_device_settings_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_general_device_settings(setting_uid="invalid")
+    @pytest.mark.usefixtures("mock_session_post")
+    @pytest.mark.usefixtures("mock_response_json")
+    def test_get_local_session_valid(self):
+        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm.get_local_session()
 
-    def test_get_general_device_settings_valid(self):
-        name, icon, zone_id, events_enabled = \
-            self.mprm.get_general_device_settings(setting_uid=f"gds.{self.devices.get('mains').get('uid')}")
-        assert name == self.devices.get('mains').get('name')
-        assert icon == self.devices.get('mains').get('icon')
-        assert zone_id == self.devices.get('mains').get('zone_id')
-        assert events_enabled
+    @pytest.mark.usefixtures("mock_response_requests_ConnectTimeout")
+    def test_get_local_session_ConnectTimeout(self):
+        self.mprm._local_ip = self.gateway.get("local_ip")
+        with pytest.raises(ConnectTimeout):
+            self.mprm.get_local_session()
 
-    def test_get_led_setting_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_led_setting("invalid")
-
-    def test_get_led_setting_valid(self):
-        assert self.mprm.get_led_setting(setting_uid=f"lis.{self.devices.get('mains').get('uid')}")
-
-    def test_get_param_changed_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_param_changed_setting(setting_uid="invalid")
-
-    def test_get_param_changed_valid(self):
-        assert not self.mprm.get_param_changed_setting(setting_uid=f"cps.{self.devices.get('mains').get('uid')}")
-
-    def test_get_protection_setting_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_protection_setting(setting_uid="invalid", protection_setting="local")
-
-        with pytest.raises(ValueError):
-            self.mprm.get_protection_setting(setting_uid=f"ps.{self.devices.get('mains').get('uid')}",
-                                             protection_setting="invalid")
-
-    def test_get_protection_setting_valid(self):
-        local_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.devices.get('mains').get('uid')}",
-                                                        protection_setting="local")
-        remote_switch = self.mprm.get_protection_setting(setting_uid=f"ps.{self.devices.get('mains').get('uid')}",
-                                                         protection_setting="remote")
-        assert local_switch
-        assert not remote_switch
-
-    def test_get_voltage_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.get_voltage(element_uid="invalid")
-
-    def test_get_voltage_valid(self):
-        voltage = self.mprm.get_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}")
-        assert voltage == 237
-
-    def test_set_binary_switch_invalid(self):
-        with pytest.raises(ValueError):
-            self.mprm.set_binary_switch(element_uid="invalid", state=True)
-        with pytest.raises(ValueError):
-            self.mprm.set_binary_switch(element_uid=f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}",
-                                        state="invalid")
-
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    def test_set_binary_switch_valid(self):
-        element_uid = f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"
-        self.mprm.set_binary_switch(element_uid=element_uid, state=True)
-        assert self.mprm.devices.get(self.devices.get('mains').get('uid')).binary_switch_property.get(element_uid).state
-
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    def test_set_binary_switch_error(self):
+    @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
+    def test_get_local_session_JSONDecodeError(self):
+        self.mprm._local_ip = self.gateway.get("local_ip")
         with pytest.raises(MprmDeviceCommunicationError):
-            element_uid = f"devolo.BinarySwitch:{self.devices.get('ambiguous_2').get('uid')}"
-            self.mprm.set_binary_switch(element_uid=element_uid, state=True)
+            self.mprm.get_local_session()
+
+    @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
+    def test_get_remote_session_JSONDecodeError(self):
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.get_remote_session()
+
+    @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
+    def test_post_ReadTimeOut(self):
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.post({"data": "test"})
+
+    def test_post_gateway_offline(self):
+        self.mprm._gateway.online = False
+        self.mprm._gateway.sync = False
+        self.mprm._gateway.local_connection = False
+        with pytest.raises(MprmDeviceCommunicationError):
+            self.mprm.post({"data": "test"})
+
+    @pytest.mark.usefixtures("mock_response_requests_invalid_id")
+    def test_post_invalid_id(self):
+        self.mprm._data_id = 0
+        with pytest.raises(ValueError):
+            self.mprm.post({"data": "test"})
+
+    def test_post_valid(self, mock_response_requests_valid):
+        self.mprm._data_id = 1
+        assert self.mprm.post({"data": "test"}).get("id") == 2
