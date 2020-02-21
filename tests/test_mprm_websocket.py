@@ -9,6 +9,10 @@ from .mocks.mock_websocket import MockWebsocket
 @pytest.mark.usefixtures("mprm_instance")
 class TestWebsocket:
 
+    def test_websocket_connection(self, mock_mprmwebsocket_websocketapp):
+        with pytest.raises(AssertionError):
+            self.mprm.websocket_connection()
+
     def test__on_message(self):
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
         self.mprm.on_update = lambda: AssertionError()

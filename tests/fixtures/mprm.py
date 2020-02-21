@@ -5,6 +5,8 @@ import pytest
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
+from ..mocks.mock_websocketapp import MockWebsocketapp
+
 
 @pytest.fixture()
 def mprm_instance(request, mocker, mydevolo, mock_mprmwebsocket_websocket_connection,
@@ -96,6 +98,12 @@ def mock_mprmrest__post_set(mocker, request):
     status['test_set_binary_switch_error'] = {"result": {"status": 2}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
+
+
+@pytest.fixture()
+def mock_mprmwebsocket_websocketapp(mocker):
+    mocker.patch("websocket.WebSocketApp.__init__", MockWebsocketapp.__init__)
+    mocker.patch("websocket.WebSocketApp.run_forever", MockWebsocketapp.run_forever)
 
 
 @pytest.fixture()
