@@ -1,10 +1,11 @@
 import json
 import logging
 import socket
-import time
-import requests
 import threading
-from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
+import time
+
+import requests
+from zeroconf import DNSRecord, ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..devices.gateway import Gateway
 from ..mydevolo import Mydevolo
@@ -49,31 +50,13 @@ class MprmRest:
 
     def detect_gateway_in_lan(self):
         """ Detects a gateway in local network and check if it is the desired one. """
-        def on_service_state_change(zeroconf, service_type, name, state_change):
-            if state_change is ServiceStateChange.Added:
-                zeroconf.get_service_info(service_type, name)
-
         zeroconf = Zeroconf()
-        ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[on_service_state_change])
+        ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN")
         start_time = time.time()
         while not time.time() > start_time + 3 and self._local_ip is None:
             for mdns_name in zeroconf.cache.entries():
-                try:
-                    ip = socket.inet_ntoa(mdns_name.address)
-                    if mdns_name.key.startswith("devolo-homecontrol") and \
-                            requests.get("http://" + ip + "/dhlp/port/full",
-                                         auth=(self._gateway.local_user, self._gateway.local_passkey),
-                                         timeout=0.5).status_code == requests.codes.ok:
-                        self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
-                        self._local_ip = ip
-                        break
-                except OSError:
-                    # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
-                    self._logger.debug(f"Found an IPv6 address. This cannot be a gateway.")
-                except AttributeError:
-                    # The MDNS entry does not provide address information
-                    pass
+                self._try_local_connection(mdns_name)
             else:
                 time.sleep(0.05)
         threading.Thread(target=zeroconf.close).start()
@@ -175,6 +158,29 @@ class MprmRest:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
+
+
+    def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
+        """ Service handler for Zeroconf state changes. """
+        if state_change is ServiceStateChange.Added:
+            zeroconf.get_service_info(service_type, name)
+
+    def _try_local_connection(self, mdns_name: DNSRecord):
+        """ Try to connect to an MDNS hostname. If connection was successfull, save local IP. """
+        try:
+            ip = socket.inet_ntoa(mdns_name.address)
+            if mdns_name.key.startswith("devolo-homecontrol") and \
+                requests.get("http://" + ip + "/dhlp/port/full",
+                             auth=(self._gateway.local_user, self._gateway.local_passkey),
+                             timeout=0.5).status_code == requests.codes.ok:
+                self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                self._local_ip = ip
+        except OSError:
+            # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
+            pass
+        except AttributeError:
+            # The MDNS entry does not provide address information
+            pass
 
 
 class MprmDeviceCommunicationError(Exception):
