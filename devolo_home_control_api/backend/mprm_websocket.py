@@ -52,22 +52,14 @@ class MprmWebsocket(MprmRest):
     def _on_error(self, error: str):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
         self._logger.error(error)
-        i = 16
-        connected = False
+        self.connected = False
         self._ws.close()
-
+        self._interval = 16
         self._event_sequence = 0
 
-        while not connected:
-            try:
-                self._logger.info("Trying to reconnect to the gateway.")
-                # TODO: Check if local_ip is still correct after lost connection
-                self.get_local_session() if self._local_ip else self.get_remote_session()
-                connected = True
-            except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, MprmDeviceCommunicationError):
-                self._logger.info(f"Sleeping for {i} seconds.")
-                time.sleep(i)
-                i = i * 2 if i < 2048 else 3600
+        while not self.connected:
+            self._try_reconnect()
+
         self.websocket_connection()
 
     def _on_message(self, message: str):
@@ -93,3 +85,14 @@ class MprmWebsocket(MprmRest):
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
+
+    def _try_reconnect(self):
+        try:
+            self._logger.info("Trying to reconnect to the gateway.")
+            # TODO: Check if local_ip is still correct after lost connection
+            self.get_local_session() if self._local_ip else self.get_remote_session()
+            self.connected = True
+        except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, MprmDeviceCommunicationError):
+            self._logger.info(f"Sleeping for {self._interval} seconds.")
+            time.sleep(self._interval)
+            self._interval = self._interval * 2 if self._interval < 2048 else 3600
