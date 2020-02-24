@@ -18,7 +18,7 @@ class SettingsProperty(Property):
             setattr(self, key, value)
 
 
-    def fetch_general_device_settings(self) -> bool:
+    def fetch_general_device_settings(self) -> tuple:
         """
         Update and return the events enabled setting. If a device shall report to the diary, this is true.
 
