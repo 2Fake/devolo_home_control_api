@@ -65,7 +65,7 @@ class HomeControl:
         Get the online state of a device.
 
         :param uid: Device UID, something like hdm:ZWave:CBC56091/24
-        :return: True, if device is online
+        :return: False, if device is offline, else True
         """
         return False if self.devices.get(uid).status == 1 else True
 
