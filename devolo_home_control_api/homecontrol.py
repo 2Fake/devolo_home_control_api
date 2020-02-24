@@ -69,7 +69,7 @@ class HomeControl:
         """
         return False if self.devices.get(uid).status == 1 else True
 
-    def update(self, message: str):
+    def update(self, message: dict):
         """ Initialize steps needed to update properties on a new message. """
         self.updater.update(message)
 
