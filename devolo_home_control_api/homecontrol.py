@@ -98,26 +98,20 @@ class HomeControl:
             self.devices[device] = Zwave(**properties)
             self.devices[device].settings_property = {}
 
-            device_type = {"devolo.BinarySwitch": self._binary_switch,
-                           "devolo.Meter": self._meter,
-                           "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor}
+            elements = {"devolo.BinarySwitch": self._binary_switch,
+                        "devolo.Meter": self._meter,
+                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                        "lis.hdm": self._led,
+                        "gds.hdm": self._general_device,
+                        "cps.hdm": self._parameter,
+                        "ps.hdm": self._protection
+                        }
 
-            for element_uid in properties.get("elementUIDs"):
-                try:
-                    device_type[get_device_type_from_element_uid(element_uid)](device, element_uid)
-                except KeyError:
-                    self._logger.debug(f"Found an unexpected element uid: {element_uid}")
+            for element_uid in properties.get("elementUIDs") + properties.get("settingUIDs"):
+                elements.get(get_device_type_from_element_uid(element_uid), self._unknown)(device, element_uid)
 
-            setting = {"lis.hdm": self._led,
-                       "gds.hdm": self._general_device,
-                       "cps.hdm": self._parameter,
-                       "ps.hdm": self._protection}
-
-            for setting_uid in properties.get("settingUIDs"):
-                try:
-                    setting[get_device_type_from_element_uid(element_uid)](device, setting_uid)
-                except KeyError:
-                    self._logger.debug(f"Found an unexpected element uid: {setting_uid}")
+    def _unknown(self, *args):
+        self._logger.debug(f"Found an unexpected element uid: {args[1]}")
 
     def _led(self, device: str, setting_uid: str):
         self._logger.debug(f"Adding led settings to {device}.")
