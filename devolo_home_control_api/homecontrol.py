@@ -58,8 +58,7 @@ class HomeControl:
 
     def create_pub(self):
         """ Create a publisher for every device. """
-        publisher_list = [device for device in self.devices]
-        self.mprm.publisher = Publisher(publisher_list)
+        self.mprm.publisher = Publisher([device for device in self.devices])
 
     def is_online(self, uid: str) -> bool:
         """
