@@ -166,7 +166,7 @@ class MprmRest:
             zeroconf.get_service_info(service_type, name)
 
     def _try_local_connection(self, mdns_name: DNSRecord):
-        """ Try to connect to an MDNS hostname. If connection was successfull, save local IP. """
+        """ Try to connect to an MDNS hostname. If connection was successful, save local IP. """
         try:
             ip = socket.inet_ntoa(mdns_name.address)
             if mdns_name.key.startswith("devolo-homecontrol") and \
