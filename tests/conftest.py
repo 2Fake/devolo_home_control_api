@@ -18,7 +18,8 @@ pytest_plugins = ['tests.fixtures.gateway',
                   'tests.fixtures.mydevolo',
                   'tests.fixtures.properties',
                   'tests.fixtures.publisher',
-                  'tests.fixtures.requests']
+                  'tests.fixtures.requests',
+                  'tests.fixtures.socket']
 
 
 @pytest.fixture(autouse=True)
