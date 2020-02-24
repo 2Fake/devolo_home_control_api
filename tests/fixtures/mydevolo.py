@@ -28,3 +28,8 @@ def mock_mydevolo__call(mocker, request):
 @pytest.fixture()
 def mock_mydevolo__call_raise_WrongUrlError(mocker):
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=WrongUrlError)
+
+
+@pytest.fixture()
+def mock_get_zwave_products(mocker):
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value={})

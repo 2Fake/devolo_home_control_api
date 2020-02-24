@@ -31,9 +31,10 @@ def mock_mprmrest_get_local_session(mocker):
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", return_value=True)
 
 
-@pytest.fixture()
-def mock_mprmrest_get_remote_session(mocker):
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
+@pytest.fixture(autouse=True)
+def mock_mprmrest_get_remote_session(mocker, request):
+    if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
+        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
 
 
 @pytest.fixture()
