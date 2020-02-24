@@ -53,7 +53,7 @@ class Gateway:
             self.sync = online
 
 
-    def _update_state(self, status, state):
+    def _update_state(self, status: str, state: str):
         """ Helper to update the state. """
         if status == "devolo.hc_gateway.status.online":
             self.online = True
