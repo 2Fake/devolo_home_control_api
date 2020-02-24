@@ -110,8 +110,8 @@ class HomeControl:
             for element_uid in properties.get("elementUIDs") + properties.get("settingUIDs"):
                 elements.get(get_device_type_from_element_uid(element_uid), self._unknown)(device, element_uid)
 
-    def _unknown(self, *args):
-        self._logger.debug(f"Found an unexpected element uid: {args[1]}")
+    def _unknown(self, device, element_uid):
+        self._logger.debug(f"Found an unexpected element uid: {element_uid} at device {device}")
 
     def _led(self, device: str, setting_uid: str):
         self._logger.debug(f"Adding led settings to {device}.")
