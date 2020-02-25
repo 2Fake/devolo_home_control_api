@@ -75,7 +75,7 @@ class HomeControl:
             devices = [device for device in self.devices if device not in uids]
             self._logger.debug(f"Device {devices} removed")
             del self.devices[devices[0]]
-        self.updater._devices = self.devices
+        self.updater.devices = self.devices
 
     def is_online(self, uid: str) -> bool:
         """

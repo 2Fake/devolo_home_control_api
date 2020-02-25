@@ -17,10 +17,10 @@ class Updater:
 
     def __init__(self, devices: dict, gateway: Gateway, publisher: Publisher):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._devices = devices
         self._gateway = gateway
         self._publisher = publisher
 
+        self.devices = devices
         self.on_device_change = None
 
     def update(self, message: dict):
@@ -47,7 +47,7 @@ class Updater:
         :param value:
         """
         self._logger.debug(f"Updating device online state of {uid} to {value}")
-        self._devices.get(uid).status = value
+        self.devices.get(uid).status = value
         self._publisher.dispatch(uid, (uid, value))
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
@@ -58,7 +58,7 @@ class Updater:
         :param value: Value so be set
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self._devices.get(device_uid).binary_switch_property.get(element_uid).state = value
+        self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
         self._logger.debug(f"Updating state of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -72,9 +72,9 @@ class Updater:
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         if consumption == "current":
-            self._devices.get(device_uid).consumption_property.get(element_uid).current = value
+            self.devices.get(device_uid).consumption_property.get(element_uid).current = value
         else:
-            self._devices.get(device_uid).consumption_property.get(element_uid).total = value
+            self.devices.get(device_uid).consumption_property.get(element_uid).total = value
         self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -86,7 +86,7 @@ class Updater:
         :param value: Value so be set
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self._devices.get(device_uid).voltage_property.get(element_uid).current = value
+        self.devices.get(device_uid).voltage_property.get(element_uid).current = value
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -114,7 +114,7 @@ class Updater:
                 and type(message.get("properties").get("property.value.new")) == list \
                 and message.get("properties").get("uid") == "devolo.DevicesPage":
             self.on_device_change(uids=message.get("properties").get("property.value.new"))
-        else:
+        elif not callable(self.on_device_change):
             self._logger.error("on_device_change is not set.")
 
     def _device_online_state(self, message: dict):
