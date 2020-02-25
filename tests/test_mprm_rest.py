@@ -4,6 +4,8 @@ from requests import ConnectTimeout
 from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError, MprmRest
 from devolo_home_control_api.mydevolo import Mydevolo
 
+from .mocks.mock_dnsrecord import MockDNSRecord
+
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprmRest:
@@ -33,7 +35,7 @@ class TestMprmRest:
         assert first is second
 
     def test_create_connection_local(self, mock_mprmrest_get_local_session):
-        self.mprm._local_ip = "123.456.789.123"
+        self.mprm._local_ip = self.gateway.get("local_ip")
         self.mprm.create_connection()
 
     def test_create_connection_remote(self, mock_mprmrest_get_remote_session, mydevolo):
@@ -98,3 +100,9 @@ class TestMprmRest:
     def test_post_valid(self, mock_response_requests_valid):
         self.mprm._data_id = 1
         assert self.mprm.post({"data": "test"}).get("id") == 2
+
+    def test__try_local_connection_success(self, mock_socket_inet_ntoa, mock_response_valid):
+        mdns_name = MockDNSRecord()
+        mdns_name.address = self.gateway.get("local_ip")
+        self.mprm._try_local_connection(mdns_name)
+        assert self.mprm._local_ip == self.gateway.get("local_ip")

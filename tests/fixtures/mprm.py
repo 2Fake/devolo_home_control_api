@@ -9,7 +9,9 @@ from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
 @pytest.fixture()
-def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
+def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
+                  mock_mprmrest__detect_gateway_in_lan):
+    """ Create a mocked mPRM instance with static test data. """
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest(gateway_id=request.cls.gateway.get("id"), url="https://homecontrol.mydevolo.com")
     elif "TestMprmWebsocket" in request.node.nodeid:
@@ -23,28 +25,33 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
 
 @pytest.fixture()
 def mock_mprmrest_get_local_session_json_decode_error(mocker):
+    """ Create an JSONDecodeError on getting a local session. """
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", side_effect=json.JSONDecodeError)
 
 
 @pytest.fixture()
 def mock_mprmrest_get_local_session(mocker):
+    """ Mock getting a local session. """
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", return_value=True)
 
 
 @pytest.fixture(autouse=True)
 def mock_mprmrest_get_remote_session(mocker, request):
+    """ Mock getting a remote session. """
     if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
 
 
 @pytest.fixture()
 def mock_mprmrest__detect_gateway_in_lan(mocker, request):
+    """ Mock detecting a gateway in the local area network. """
     if request.node.name not in ["test_detect_gateway_in_lan_valid"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
 
 
 @pytest.fixture()
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):
+    """ Mock extracting device data. """
     properties = {}
     properties['test_fetch_binary_switch_state_valid_on'] = {"properties": {"state": 1}}
     properties['test_fetch_binary_switch_state_valid_off'] = {"properties": {"state": 0}}
@@ -75,6 +82,7 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 
 @pytest.fixture()
 def mock_mprmrest__post(mocker, request):
+    """ Mock getting properties from the mPRM. """
     properties = {}
     properties["test_get_name_and_element_uids"] = {"result": {"items": [{"properties":
                                                                           {"itemName": "test_name",
@@ -93,6 +101,7 @@ def mock_mprmrest__post(mocker, request):
 
 @pytest.fixture()
 def mock_mprmrest__post_set(mocker, request):
+    """ Mock setting values. """
     status = {}
     status['test_set_binary_switch_valid'] = {"result": {"status": 1}}
     status['test_set_binary_switch_error'] = {"result": {"status": 2}}
@@ -102,10 +111,12 @@ def mock_mprmrest__post_set(mocker, request):
 
 @pytest.fixture()
 def mock_mprmwebsocket_websocketapp(mocker):
+    """ Mock a websocket connection init. """
     mocker.patch("websocket.WebSocketApp.__init__", MockWebsocketapp.__init__)
     mocker.patch("websocket.WebSocketApp.run_forever", MockWebsocketapp.run_forever)
 
 
 @pytest.fixture()
 def mock_mprmwebsocket_websocket_connection(mocker, request):
+    """ Mock a running websocket connection. """
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)

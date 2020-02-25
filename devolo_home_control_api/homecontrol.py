@@ -1,5 +1,6 @@
 import logging
 import threading
+from typing import Optional
 
 import requests
 
@@ -170,7 +171,7 @@ class HomeControl:
         self.devices[device].voltage_property[element_uid].fetch_voltage()
 
 
-def get_sub_device_uid_from_element_uid(element_uid: str) -> int:
+def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
     """
     Return the sub device uid of the given element UID.
 
