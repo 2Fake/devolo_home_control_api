@@ -56,7 +56,7 @@ class TestMprmRest:
         devices = self.mprm.get_all_devices()
         assert devices == "deviceUIDs"
 
-    @pytest.mark.usefixtures("mock_session_post")
+    @pytest.mark.usefixtures("mock_session_get")
     @pytest.mark.usefixtures("mock_response_json")
     def test_get_local_session_valid(self):
         self.mprm._local_ip = self.gateway.get("local_ip")
