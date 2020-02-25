@@ -63,6 +63,21 @@ class HomeControl:
         """ Create a publisher for every device. """
         self.mprm.publisher = Publisher([device for device in self.devices])
 
+    def device_change(self, uids: list):
+        if len(uids) > len(self.devices):
+            # more uids than already known --> new device
+            new_device = [device for device in uids if device not in self.devices]
+            self._logger.debug(f"New device found {new_device}")
+            self._inspect_device(new_device[0])
+            # Update publisher
+            self.mprm.publisher = Publisher([device for device in self.devices])
+        else:
+            # less device --> device deleted
+            devices = [device for device in self.devices if device not in uids]
+            self._logger.debug(f"Device {devices} removed")
+            del self.devices[devices[0]]
+        self.updater._devices = self.devices
+        
     def is_online(self, uid: str) -> bool:
         """
         Get the online state of a device.
@@ -75,23 +90,6 @@ class HomeControl:
     def update(self, message: dict):
         """ Initialize steps needed to update properties on a new message. """
         self.updater.update(message)
-
-    def device_change(self, uids: list):
-        if len(uids) > len(self.devices):
-            # more uids than already known --> new device
-            new_device = [device for device in uids if device not in self.devices]
-            self._logger.debug(f"New device found {new_device}")
-            for device in new_device:
-                self._inspect_device(device)
-            # Update publisher
-            self.mprm.publisher = Publisher([device for device in self.devices])
-        else:
-            # less device --> device deleted
-            devices = [device for device in self.devices if device not in uids]
-            self._logger.debug(f"Device {devices} removed")
-            for device in devices:
-                del self.devices[device]
-        self.updater._devices = self.devices
 
 
     def _binary_switch(self, device: str, element_uid: str):
