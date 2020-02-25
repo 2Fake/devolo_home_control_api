@@ -41,9 +41,9 @@ class HomeControl:
                                      [self.devices.get(device).uid for device in self.devices]))
 
         self.create_pub()
-        self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.mprm.publisher)
 
-        self.updater.device_change = self.device_change
+        self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.mprm.publisher)
+        self.updater.on_device_change = self.device_change
 
         threading.Thread(target=self.mprm.websocket_connection).start()
 
@@ -69,7 +69,6 @@ class HomeControl:
             new_device = [device for device in uids if device not in self.devices]
             self._logger.debug(f"New device found {new_device}")
             self._inspect_device(new_device[0])
-            # Update publisher
             self.mprm.publisher = Publisher([device for device in self.devices])
         else:
             # less device --> device deleted
@@ -77,7 +76,7 @@ class HomeControl:
             self._logger.debug(f"Device {devices} removed")
             del self.devices[devices[0]]
         self.updater._devices = self.devices
-        
+
     def is_online(self, uid: str) -> bool:
         """
         Get the online state of a device.

@@ -21,7 +21,7 @@ class Updater:
         self._gateway = gateway
         self._publisher = publisher
 
-        self.device_change = None
+        self.on_device_change = None
 
     def update(self, message: dict):
         """
@@ -101,31 +101,35 @@ class Updater:
         self._gateway.online = accessible
         self._gateway.sync = online_sync
 
-    def _binary_switch(self, message):
+
+    def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
         if message.get("properties").get("property.name") == "state":
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
                                             value=True if message.get("properties").get("property.value.new") == 1
                                             else False)
 
-    def _device_change(self, message):
-        if type(message.get("properties").get("property.value.new")) == list \
+    def _device_change(self, message: dict):
+        if callable(self.on_device_change) \
+                and type(message.get("properties").get("property.value.new")) == list \
                 and message.get("properties").get("uid") == "devolo.DevicesPage":
-            self.device_change(uids=message.get("properties").get("property.value.new"))
+            self.on_device_change(uids=message.get("properties").get("property.value.new"))
+        else:
+            self._logger.error("on_device_change is not set.")
 
-    def _device_online_state(self, message):
+    def _device_online_state(self, message: dict):
         """ Update the device online state. """
         if message.get("properties").get("property.name") == "status":
             self.update_device_online_state(uid=message.get("properties").get("uid"),
                                             value=message.get("properties").get("property.value.new"))
 
-    def _gateway_accessible(self, message):
+    def _gateway_accessible(self, message: dict):
         """ Update the gateway's state. """
         if message.get("properties").get("property.name") == "gatewayAccessible":
             self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
                                       online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
 
-    def _meter(self, message):
+    def _meter(self, message: dict):
         """ Update a meter value. """
         if message.get("properties").get("property.name") == "currentValue":
             self.update_consumption(element_uid=message.get("properties").get("uid"),
@@ -135,7 +139,7 @@ class Updater:
             self.update_consumption(element_uid=message.get("properties").get("uid"),
                                     consumption="total", value=message.get("properties").get("property.value.new"))
 
-    def _voltage_multi_level_sensor(self, message):
+    def _voltage_multi_level_sensor(self, message: dict):
         """ Update a voltage value. """
         self.update_voltage(element_uid=message.get("properties").get("uid"),
                             value=message.get("properties").get("property.value.new"))
