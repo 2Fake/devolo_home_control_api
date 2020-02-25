@@ -110,12 +110,12 @@ class Updater:
                                             else False)
 
     def _device_change(self, message: dict):
-        if callable(self.on_device_change) \
-                and type(message.get("properties").get("property.value.new")) == list \
-                and message.get("properties").get("uid") == "devolo.DevicesPage":
-            self.on_device_change(uids=message.get("properties").get("property.value.new"))
-        elif not callable(self.on_device_change):
+        if not callable(self.on_device_change):
             self._logger.error("on_device_change is not set.")
+            return
+        if type(message.get("properties").get("property.value.new")) == list \
+           and message.get("properties").get("uid") == "devolo.DevicesPage":
+            self.on_device_change(uids=message.get("properties").get("property.value.new"))
 
     def _device_online_state(self, message: dict):
         """ Update the device online state. """
