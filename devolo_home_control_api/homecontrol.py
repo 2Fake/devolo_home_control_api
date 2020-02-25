@@ -64,14 +64,19 @@ class HomeControl:
         self.mprm.publisher = Publisher([device for device in self.devices])
 
     def device_change(self, uids: list):
+        """
+        React on new devices or removed devices. As the Z-Wave controller can only be in inclusion or exclusion mode, we
+        assume, that you cannot add and remove devices at the same time. So if the number of devices increases, there is
+        a new one and if the number decreases, a device was removed.
+
+        :param uids: List of UIDs known by the backend
+        """
         if len(uids) > len(self.devices):
-            # more uids than already known --> new device
             new_device = [device for device in uids if device not in self.devices]
             self._logger.debug(f"New device found {new_device}")
             self._inspect_device(new_device[0])
             self.mprm.publisher = Publisher([device for device in self.devices])
         else:
-            # less device --> device deleted
             devices = [device for device in self.devices if device not in uids]
             self._logger.debug(f"Device {devices} removed")
             del self.devices[devices[0]]
@@ -87,7 +92,11 @@ class HomeControl:
         return False if self.devices.get(uid).status == 1 else True
 
     def update(self, message: dict):
-        """ Initialize steps needed to update properties on a new message. """
+        """
+        Initialize steps needed to update properties on a new message.
+
+        :param message: Message because of which we need to update properties
+        """
         self.updater.update(message)
 
 
@@ -109,7 +118,6 @@ class HomeControl:
         self.devices[device].settings_property["general_device_settings"].fetch_general_device_settings()
 
     def _inspect_devices(self):
-        """ Create the initial internal device dict. """
         for device in self.mprm.get_all_devices():
             self._inspect_device(device)
 
@@ -129,9 +137,6 @@ class HomeControl:
 
         for element_uid in properties.get("elementUIDs") + properties.get("settingUIDs"):
             elements.get(get_device_type_from_element_uid(element_uid), self._unknown)(device, element_uid)
-
-    def _unknown(self, device, element_uid):
-        self._logger.debug(f"Found an unexpected element uid: {element_uid} at device {device}")
 
     def _led(self, device: str, setting_uid: str):
         self._logger.debug(f"Adding led settings to {device}.")
@@ -159,6 +164,9 @@ class HomeControl:
                                                                                 remote_switching=None)
         self.devices[device].settings_property["protection"].fetch_protection_setting(protection_setting="local")
         self.devices[device].settings_property["protection"].fetch_protection_setting(protection_setting="remote")
+
+    def _unknown(self, device: str, element_uid: str):
+        self._logger.debug(f"Found an unexpected element uid: {element_uid} at device {device}")
 
     def _voltage_multi_level_sensor(self, device: str, element_uid: str):
         if not hasattr(self.devices[device], "voltage_property"):
