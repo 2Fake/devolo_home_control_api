@@ -71,6 +71,7 @@ class TestUpdater:
     def test__device_online_state(self):
         online_state = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
         self.homecontrol.updater._device_online_state(message={"properties": {"uid": self.devices.get('mains').get('uid'),
+                                                                              "property.name": "status",
                                                                               "property.value.new": 1}})
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status == 1
         assert online_state != self.homecontrol.devices.get(self.devices.get("mains").get("uid")).status
