@@ -34,7 +34,7 @@ class Updater:
                         "devolo.Meter": self._meter,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                         "hdm": self._device_online_state,
-                        "devolo.PairDevice": self._device_change}
+                        "devolo.DevicesPage": self._device_change}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
@@ -109,15 +109,15 @@ class Updater:
                                             else False)
 
     def _device_change(self, message):
-        if type(message.get("properties").get("property.value.new")) == dict \
-            and message.get("properties").get("uid") == "devolo.PairDevice" and \
-                message.get("properties").get("property.value.new").get("status") == 2:
-            self.device_change(uid=message.get("properties").get("property.value.new").get("result").get("uid"))
+        if type(message.get("properties").get("property.value.new")) == list \
+                and message.get("properties").get("uid") == "devolo.DevicesPage":
+            self.device_change(uids=message.get("properties").get("property.value.new"))
 
     def _device_online_state(self, message):
         """ Update the device online state. """
-        self.update_device_online_state(uid=message.get("properties").get("uid"),
-                                        value=message.get("properties").get("property.value.new"))
+        if message.get("properties").get("property.name") == "status":
+            self.update_device_online_state(uid=message.get("properties").get("uid"),
+                                            value=message.get("properties").get("property.value.new"))
 
     def _gateway_accessible(self, message):
         """ Update the gateway's state. """

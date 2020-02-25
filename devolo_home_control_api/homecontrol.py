@@ -75,11 +75,23 @@ class HomeControl:
         """ Initialize steps needed to update properties on a new message. """
         self.updater.update(message)
 
-    def device_change(self, uid):
-        self._logger.debug(f"Change of device {uid} detected")
-        self._inspect_device(uid)
+    def device_change(self, uids: list):
+        if len(uids) > len(self.devices):
+            # more uids than already known --> new device
+            new_device = [device for device in uids if device not in self.devices]
+            self._logger.debug(f"New device found {new_device}")
+            for device in new_device:
+                self._inspect_device(device)
+            # Update publisher
+            self.mprm.publisher = Publisher([device for device in self.devices])
+        else:
+            # less device --> device deleted
+            devices = [device for device in self.devices if device not in uids]
+            self._logger.debug(f"Device {devices} removed")
+            for device in devices:
+                del self.devices[device]
         self.updater._devices = self.devices
-        self.mprm.publisher = Publisher([device for device in self.devices])
+
 
     def _binary_switch(self, device: str, element_uid: str):
         if not hasattr(self.devices[device], "binary_switch_property"):
