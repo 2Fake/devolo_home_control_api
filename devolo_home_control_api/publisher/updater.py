@@ -14,12 +14,14 @@ class Updater:
     :param gateway: Instance of a Gateway object
     :param publisher: Instance of a Publisher object
     """
+
     def __init__(self, devices: dict, gateway: Gateway, publisher: Publisher):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._devices = devices
         self._gateway = gateway
         self._publisher = publisher
 
+        self.device_change = None
 
     def update(self, message: dict):
         """
@@ -31,7 +33,8 @@ class Updater:
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
-                        "hdm": self._device_online_state}
+                        "hdm": self._device_online_state,
+                        "devolo.PairDevice": self._device_change}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
@@ -98,13 +101,18 @@ class Updater:
         self._gateway.online = accessible
         self._gateway.sync = online_sync
 
-
     def _binary_switch(self, message):
         """ Update a binary switch's state. """
         if message.get("properties").get("property.name") == "state":
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
                                             value=True if message.get("properties").get("property.value.new") == 1
                                             else False)
+
+    def _device_change(self, message):
+        if type(message.get("properties").get("property.value.new")) == dict \
+            and message.get("properties").get("uid") == "devolo.PairDevice" and \
+                message.get("properties").get("property.value.new").get("status") == 2:
+            self.device_change(uid=message.get("properties").get("property.value.new").get("result").get("uid"))
 
     def _device_online_state(self, message):
         """ Update the device online state. """

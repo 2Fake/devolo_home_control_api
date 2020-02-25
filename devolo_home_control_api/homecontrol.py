@@ -42,6 +42,8 @@ class HomeControl:
         self.create_pub()
         self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.mprm.publisher)
 
+        self.updater.device_change = self.device_change
+
         threading.Thread(target=self.mprm.websocket_connection).start()
 
 
@@ -73,6 +75,11 @@ class HomeControl:
         """ Initialize steps needed to update properties on a new message. """
         self.updater.update(message)
 
+    def device_change(self, uid):
+        self._logger.debug(f"Change of device {uid} detected")
+        self._inspect_device(uid)
+        self.updater._devices = self.devices
+        self.mprm.publisher = Publisher([device for device in self.devices])
 
     def _binary_switch(self, device: str, element_uid: str):
         if not hasattr(self.devices[device], "binary_switch_property"):
@@ -94,21 +101,24 @@ class HomeControl:
     def _inspect_devices(self):
         """ Create the initial internal device dict. """
         for device in self.mprm.get_all_devices():
-            properties = dict([(key, value) for key, value in self.mprm.get_name_and_element_uids(uid=device).items()])
-            self.devices[device] = Zwave(**properties)
-            self.devices[device].settings_property = {}
+            self._inspect_device(device)
 
-            elements = {"devolo.BinarySwitch": self._binary_switch,
-                        "devolo.Meter": self._meter,
-                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
-                        "lis.hdm": self._led,
-                        "gds.hdm": self._general_device,
-                        "cps.hdm": self._parameter,
-                        "ps.hdm": self._protection
-                        }
+    def _inspect_device(self, device: str):
+        properties = dict([(key, value) for key, value in self.mprm.get_name_and_element_uids(uid=device).items()])
+        self.devices[device] = Zwave(**properties)
+        self.devices[device].settings_property = {}
 
-            for element_uid in properties.get("elementUIDs") + properties.get("settingUIDs"):
-                elements.get(get_device_type_from_element_uid(element_uid), self._unknown)(device, element_uid)
+        elements = {"devolo.BinarySwitch": self._binary_switch,
+                    "devolo.Meter": self._meter,
+                    "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                    "lis.hdm": self._led,
+                    "gds.hdm": self._general_device,
+                    "cps.hdm": self._parameter,
+                    "ps.hdm": self._protection
+                    }
+
+        for element_uid in properties.get("elementUIDs") + properties.get("settingUIDs"):
+            elements.get(get_device_type_from_element_uid(element_uid), self._unknown)(device, element_uid)
 
     def _unknown(self, device, element_uid):
         self._logger.debug(f"Found an unexpected element uid: {element_uid} at device {device}")
