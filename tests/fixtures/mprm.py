@@ -6,6 +6,7 @@ from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 from ..mocks.mock_websocketapp import MockWebsocketapp
+from ..mocks.mock_mprm_rest import try_local_connection
 
 
 @pytest.fixture()
@@ -45,7 +46,7 @@ def mock_mprmrest_get_remote_session(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__detect_gateway_in_lan(mocker, request):
     """ Mock detecting a gateway in the local area network to speed up tests. """
-    if request.node.name not in ["test_detect_gateway_in_lan_valid"]:
+    if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
 
 
@@ -107,6 +108,12 @@ def mock_mprmrest__post_set(mocker, request):
     status['test_set_binary_switch_error'] = {"result": {"status": 2}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
+
+
+@pytest.fixture()
+def mock_mprmrest__try_local_connection(mocker, request):
+    """ Mock finding gateway's IP. """
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._try_local_connection", try_local_connection)
 
 
 @pytest.fixture()
