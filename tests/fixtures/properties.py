@@ -3,6 +3,7 @@ import pytest
 
 @pytest.fixture()
 def mock_properties(mocker):
+    """ Mock device properties to speed up tests. """
     mocker.patch("devolo_home_control_api.properties.consumption_property.ConsumptionProperty.fetch_consumption",
                  return_value=None)
     mocker.patch("devolo_home_control_api.properties.binary_switch_property.BinarySwitchProperty.fetch_binary_switch_state",

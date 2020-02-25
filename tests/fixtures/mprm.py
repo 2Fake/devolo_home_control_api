@@ -31,20 +31,20 @@ def mock_mprmrest_get_local_session_json_decode_error(mocker):
 
 @pytest.fixture()
 def mock_mprmrest_get_local_session(mocker):
-    """ Mock getting a local session. """
+    """ Mock getting a local session to speed up tests. """
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", return_value=True)
 
 
 @pytest.fixture(autouse=True)
 def mock_mprmrest_get_remote_session(mocker, request):
-    """ Mock getting a remote session. """
+    """ Mock getting a remote session to speed up tests. """
     if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
 
 
 @pytest.fixture()
 def mock_mprmrest__detect_gateway_in_lan(mocker, request):
-    """ Mock detecting a gateway in the local area network. """
+    """ Mock detecting a gateway in the local area network to speed up tests. """
     if request.node.name not in ["test_detect_gateway_in_lan_valid"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
 
@@ -118,5 +118,5 @@ def mock_mprmwebsocket_websocketapp(mocker):
 
 @pytest.fixture()
 def mock_mprmwebsocket_websocket_connection(mocker, request):
-    """ Mock a running websocket connection. """
+    """ Mock a running websocket connection to speed up tests. """
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)
