@@ -32,13 +32,13 @@ class TestHomeControl:
 
     def test__general_device(self, mock_properties):
         device = self.devices.get("mains").get("uid")
-        settings_uids = self.devices.get("mains").get("settingsUIDs")
+        settings_uids = self.devices.get("mains").get("settingUIDs")
         self.homecontrol._general_device(device, settings_uids[0])
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("general_device_settings"), "events_enabled")
 
     def test__led(self, mock_properties):
         device = self.devices.get("mains").get("uid")
-        settings_uids = self.devices.get("mains").get("settingsUIDs")
+        settings_uids = self.devices.get("mains").get("settingUIDs")
         self.homecontrol._led(device, settings_uids[2])
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
 
@@ -52,13 +52,13 @@ class TestHomeControl:
 
     def test__parameter(self, mock_properties):
         device = self.devices.get("mains").get("uid")
-        settings_uids = self.devices.get("mains").get("settingsUIDs")
+        settings_uids = self.devices.get("mains").get("settingUIDs")
         self.homecontrol._parameter(device, settings_uids[1])
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("param_changed"), "param_changed")
 
     def test__protection(self, mock_properties):
         device = self.devices.get("mains").get("uid")
-        settings_uids = self.devices.get("mains").get("settingsUIDs")
+        settings_uids = self.devices.get("mains").get("settingUIDs")
         self.homecontrol._protection(device, settings_uids[3])
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "local_switching")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "remote_switching")
@@ -70,3 +70,10 @@ class TestHomeControl:
         assert not hasattr(self.homecontrol.devices.get(device), "voltage_property")
         self.homecontrol._voltage_multi_level_sensor(device, element_uids[2])
         assert hasattr(self.homecontrol.devices.get(device), "voltage_property")
+
+    def test__inspect_device(self, mock_get_name_and_element_uid, mock_mprmrest__extract_data_from_element_uid, mock_properties):
+        del self.homecontrol.devices
+        self.homecontrol.devices = {}
+        assert len(self.homecontrol.devices) == 0
+        self.homecontrol._inspect_device("hdm.ZWave:F6BF9812/2")
+        assert len(self.homecontrol.devices) == 1

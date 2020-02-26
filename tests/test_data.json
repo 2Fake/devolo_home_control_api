@@ -26,7 +26,7 @@
       "zone_id": "hz_2",
       "zone_name": "Office",
       "battery_level": -1,
-      "settingsUIDs": [
+      "settingUIDs": [
         "gds.hdm:ZWave:F6BF9812/2", 
         "cps.hdm:ZWave:F6BF9812/2", 
         "lis.hdm:ZWave:F6BF9812/2", 
