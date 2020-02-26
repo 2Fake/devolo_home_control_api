@@ -71,7 +71,8 @@ class TestHomeControl:
         self.homecontrol._voltage_multi_level_sensor(device, element_uids[2])
         assert hasattr(self.homecontrol.devices.get(device), "voltage_property")
 
-    def test__inspect_device(self, mock_get_name_and_element_uid, mock_mprmrest__extract_data_from_element_uid, mock_properties):
+    def test__inspect_device(self, mock_get_name_and_element_uid, mock_mprmrest__extract_data_from_element_uid,
+                             mock_properties):
         del self.homecontrol.devices
         self.homecontrol.devices = {}
         assert len(self.homecontrol.devices) == 0

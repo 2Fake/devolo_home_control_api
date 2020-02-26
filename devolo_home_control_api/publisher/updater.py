@@ -23,6 +23,7 @@ class Updater:
         self.devices = devices
         self.on_device_change = None
 
+
     def update(self, message: dict):
         """
         Update states and values depending on the message type.

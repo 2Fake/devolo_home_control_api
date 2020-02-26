@@ -48,6 +48,17 @@ class MprmRest:
         self.__class__.__instance = self
 
 
+    def create_connection(self):
+        """ Create session, either locally or via cloud. """
+        if self._local_ip:
+            self._gateway.local_connection = True
+            self.get_local_session()
+        elif self._gateway.external_access and not self._mydevolo.maintenance:
+            self.get_remote_session()
+        else:
+            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
+            raise ConnectionError("Cannot connect to gateway.")
+
     def detect_gateway_in_lan(self):
         """ Detects a gateway in local network and check if it is the desired one. """
         zeroconf = Zeroconf()
@@ -61,17 +72,6 @@ class MprmRest:
                 time.sleep(0.05)
         threading.Thread(target=zeroconf.close).start()
         return self._local_ip
-
-    def create_connection(self):
-        """ Create session, either locally or via cloud. """
-        if self._local_ip:
-            self._gateway.local_connection = True
-            self.get_local_session()
-        elif self._gateway.external_access and not self._mydevolo.maintenance:
-            self.get_remote_session()
-        else:
-            self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
-            raise ConnectionError("Cannot connect to gateway.")
 
     def extract_data_from_element_uid(self, uid: str) -> dict:
         """
