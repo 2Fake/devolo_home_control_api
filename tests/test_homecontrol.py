@@ -98,13 +98,6 @@ class TestHomeControl:
         self.homecontrol._inspect_devices()
         assert spy.call_count == 2
 
-    def test__unknown(self, mocker):
-        spy = mocker.spy(self.homecontrol._logger, "debug")
-        device = "test_device"
-        element_uid="element_uid"
-        self.homecontrol._unknown(device=device, element_uid=element_uid)
-        spy.assert_called_once_with(f"Found an unexpected element uid: {element_uid} at device {device}")
-
     def test__update(self, mocker):
         spy = mocker.spy(self.homecontrol.updater, "update")
         self.homecontrol.update({"properties": {"uid": self.devices.get("mains").get("uid")}})

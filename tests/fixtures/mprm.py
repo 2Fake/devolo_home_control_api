@@ -113,6 +113,7 @@ def mock_mprmrest__post_set(mocker, request):
     status = {}
     status['test_set_binary_switch_valid'] = {"result": {"status": 1}}
     status['test_set_binary_switch_error'] = {"result": {"status": 2}}
+    status['test_set_binary_switch_same'] = {"result": {"status": 3}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
 

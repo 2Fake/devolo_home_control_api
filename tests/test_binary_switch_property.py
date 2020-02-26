@@ -23,3 +23,12 @@ class TestBinarySwitchProperty:
         with pytest.raises(MprmDeviceCommunicationError):
             self.homecontrol.devices[self.devices.get("ambiguous_2").get("uid")]\
                 .binary_switch_property[self.devices.get("ambiguous_2").get("elementUIDs")[1]].set_binary_switch(True)
+
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    def test_set_binary_switch_same(self, mocker):
+        spy = mocker.spy(self.homecontrol.devices[self.devices.get("ambiguous_2").get("uid")] \
+                         .binary_switch_property.get(self.devices.get("ambiguous_2").get("elementUIDs")[1])._logger, "info")
+        self.homecontrol.devices[self.devices.get("ambiguous_2").get("uid")].status = 2
+        self.homecontrol.devices[self.devices.get("ambiguous_2").get("uid")] \
+            .binary_switch_property[self.devices.get("ambiguous_2").get("elementUIDs")[1]].set_binary_switch(True)
+        assert spy.call_count == 2
