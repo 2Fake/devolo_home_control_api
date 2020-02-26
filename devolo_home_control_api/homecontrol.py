@@ -122,7 +122,6 @@ class HomeControl:
             self._inspect_device(device)
 
     def _inspect_device(self, device: str):
-        # properties = dict([(key, value) for key, value in self.mprm.get_name_and_element_uids(uid=device).items()])
         properties = self.mprm.get_name_and_element_uids(uid=device)
         self.devices[device] = Zwave(**properties)
         self.devices[device].settings_property = {}
