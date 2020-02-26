@@ -77,3 +77,16 @@ class TestHomeControl:
         assert len(self.homecontrol.devices) == 0
         self.homecontrol._inspect_device("hdm.ZWave:F6BF9812/2")
         assert len(self.homecontrol.devices) == 1
+
+    def test_device_change_add(self, mocker, mock_inspect_device):
+        uids = [self.devices.get(device).get("uid") for device in self.devices]
+        uids.append("test_uid")
+        spy = mocker.spy(self.homecontrol, '_inspect_device')
+        self.homecontrol.device_change(uids)
+        spy.assert_called_once_with("test_uid")
+
+    def test_device_change_remove(self):
+        uids = [self.devices.get(device).get("uid") for device in self.devices]
+        del uids[0]
+        self.homecontrol.device_change(uids)
+        assert self.devices.get("mains").get("uid") not in self.homecontrol.devices
