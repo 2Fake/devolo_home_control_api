@@ -82,6 +82,12 @@ class TestUpdater:
         except AssertionError:
             assert True
 
+    def test__device_change_error(self, mocker):
+        self.homecontrol.updater.on_device_change = None
+        spy = mocker.spy(self.homecontrol.updater._logger, "error")
+        self.homecontrol.updater._device_change({})
+        spy.assert_called_once_with("on_device_change is not set.")
+
     def test__device_online_state(self):
         uid = self.devices.get('mains').get("uid")
         online_state = self.homecontrol.devices.get(uid).status
