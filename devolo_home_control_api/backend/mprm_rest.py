@@ -55,7 +55,6 @@ class MprmRest:
         self._logger.info("Searching for gateway in LAN")
         start_time = time.time()
         while not time.time() > start_time + 3 and self._local_ip is None:
-            print(zeroconf.cache.entries())
             for mdns_name in zeroconf.cache.entries():
                 self._try_local_connection(mdns_name)
             else:

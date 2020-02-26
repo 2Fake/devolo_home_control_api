@@ -5,8 +5,8 @@ import pytest
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
-from ..mocks.mock_websocketapp import MockWebsocketapp
 from ..mocks.mock_mprm_rest import try_local_connection
+from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
 @pytest.fixture()
@@ -41,6 +41,12 @@ def mock_mprmrest_get_remote_session(mocker, request):
     """ Mock getting a remote session to speed up tests. """
     if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
+
+
+@pytest.fixture()
+def mock_mprmrest_zeroconf_cache_entries(mocker):
+    """ Mock Zeroconf entries. """
+    mocker.patch("zeroconf.DNSCache.entries", return_value=[1])
 
 
 @pytest.fixture()
