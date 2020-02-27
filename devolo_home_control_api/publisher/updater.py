@@ -1,9 +1,9 @@
 import json
 import logging
 
-from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
 from .publisher import Publisher
 from ..devices.gateway import Gateway
+from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
 
 
 class Updater:
@@ -14,11 +14,14 @@ class Updater:
     :param gateway: Instance of a Gateway object
     :param publisher: Instance of a Publisher object
     """
+
     def __init__(self, devices: dict, gateway: Gateway, publisher: Publisher):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._devices = devices
         self._gateway = gateway
         self._publisher = publisher
+
+        self.devices = devices
+        self.on_device_change = None
 
 
     def update(self, message: dict):
@@ -31,7 +34,8 @@ class Updater:
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
-                        "hdm": self._device_online_state}
+                        "hdm": self._device_online_state,
+                        "devolo.DevicesPage": self._device_change}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
@@ -44,7 +48,7 @@ class Updater:
         :param value:
         """
         self._logger.debug(f"Updating device online state of {uid} to {value}")
-        self._devices.get(uid).status = value
+        self.devices.get(uid).status = value
         self._publisher.dispatch(uid, (uid, value))
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
@@ -55,7 +59,7 @@ class Updater:
         :param value: Value so be set
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self._devices.get(device_uid).binary_switch_property.get(element_uid).state = value
+        self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
         self._logger.debug(f"Updating state of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -69,9 +73,9 @@ class Updater:
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         if consumption == "current":
-            self._devices.get(device_uid).consumption_property.get(element_uid).current = value
+            self.devices.get(device_uid).consumption_property.get(element_uid).current = value
         else:
-            self._devices.get(device_uid).consumption_property.get(element_uid).total = value
+            self.devices.get(device_uid).consumption_property.get(element_uid).total = value
         self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -83,7 +87,7 @@ class Updater:
         :param value: Value so be set
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self._devices.get(device_uid).voltage_property.get(element_uid).current = value
+        self.devices.get(device_uid).voltage_property.get(element_uid).current = value
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -99,25 +103,34 @@ class Updater:
         self._gateway.sync = online_sync
 
 
-    def _binary_switch(self, message):
+    def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
         if message.get("properties").get("property.name") == "state":
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
                                             value=True if message.get("properties").get("property.value.new") == 1
                                             else False)
 
-    def _device_online_state(self, message):
-        """ Update the device online state. """
-        self.update_device_online_state(uid=message.get("properties").get("uid"),
-                                        value=message.get("properties").get("property.value.new"))
+    def _device_change(self, message: dict):
+        if not callable(self.on_device_change):
+            self._logger.error("on_device_change is not set.")
+            return
+        if type(message.get("properties").get("property.value.new")) == list \
+           and message.get("properties").get("uid") == "devolo.DevicesPage":
+            self.on_device_change(uids=message.get("properties").get("property.value.new"))
 
-    def _gateway_accessible(self, message):
+    def _device_online_state(self, message: dict):
+        """ Update the device online state. """
+        if message.get("properties").get("property.name") == "status":
+            self.update_device_online_state(uid=message.get("properties").get("uid"),
+                                            value=message.get("properties").get("property.value.new"))
+
+    def _gateway_accessible(self, message: dict):
         """ Update the gateway's state. """
         if message.get("properties").get("property.name") == "gatewayAccessible":
             self.update_gateway_state(accessible=message.get("properties").get("property.value.new").get("accessible"),
                                       online_sync=message.get("properties").get("property.value.new").get("onlineSync"))
 
-    def _meter(self, message):
+    def _meter(self, message: dict):
         """ Update a meter value. """
         if message.get("properties").get("property.name") == "currentValue":
             self.update_consumption(element_uid=message.get("properties").get("uid"),
@@ -127,7 +140,7 @@ class Updater:
             self.update_consumption(element_uid=message.get("properties").get("uid"),
                                     consumption="total", value=message.get("properties").get("property.value.new"))
 
-    def _voltage_multi_level_sensor(self, message):
+    def _voltage_multi_level_sensor(self, message: dict):
         """ Update a voltage value. """
         self.update_voltage(element_uid=message.get("properties").get("uid"),
                             value=message.get("properties").get("property.value.new"))

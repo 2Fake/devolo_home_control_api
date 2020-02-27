@@ -1,3 +1,6 @@
+from typing import Callable
+
+
 class Publisher:
     """
     The Publisher send messages to attached subscribers.
@@ -12,7 +15,7 @@ class Publisher:
         for callback in self._get_subscribers_for_specific_event(event).values():
             callback(message)
 
-    def register(self, event: str, who: object, callback: callable = None):
+    def register(self, event: str, who: object, callback: Callable = None):
         """
         As a new subscriber for an event, add a callback function to call on new message.
         If no callback is given, it registers update().

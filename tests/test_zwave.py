@@ -5,6 +5,7 @@ from devolo_home_control_api.devices.zwave import Zwave,\
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 
 
+@pytest.mark.usefixtures("mock_get_zwave_products")
 class TestZwave:
     def test_get_property(self, home_control_instance, mock_mprmrest__extract_data_from_element_uid):
         device = Zwave(**self.devices.get("mains"))

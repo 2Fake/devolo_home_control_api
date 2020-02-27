@@ -1,4 +1,3 @@
-import threading
 import time
 
 import pytest
@@ -39,16 +38,10 @@ class TestMprmWebsocket:
         self.mprm._ws = MockWebsocket()
         self.mprm._on_error("error")
 
-    def test__on_error_errors(self, mock_mprmrest_get_remote_session, mock_mprmwebsocket_websocket_connection,
-                              mock_mprmrest_get_local_session_json_decode_error):
+    def test__try_reconnect(self, mocker):
+        spy = mocker.spy(time, "sleep")
         self.mprm._ws = MockWebsocket()
 
-        self.mprm._local_ip = "123.456.789.123"
-        threading.Thread(target=self.mprm._on_error).start()
-        # local ip is set --> self.get_local_session() will throw an error because of the fixture
-        # mock_get_local_session_json_decode_error.
-        # After first run we remove the local ip and self.get_remote_session() will pass.
-        time.sleep(2)
-        self.mprm._local_ip = None
-
-        self.mprm.websocket_connection = lambda: None
+        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._try_reconnect(0.1)
+        spy.assert_called_once_with(0.1)

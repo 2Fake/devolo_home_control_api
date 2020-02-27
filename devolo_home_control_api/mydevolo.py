@@ -9,8 +9,8 @@ class Mydevolo:
     those requested up to now. All calls are done in a user context, so you need to provide credentials of that user.
 
     We differentiate between general information like UUID or gateway IDs and information my devolo can provide, if
-    you know what you are looking for like gateway details. We treat the frommer as properties and the latter as
-    parametriesed functions. Althouth they typically start with get, those are not getter function, as the result is
+    you know what you are looking for like gateway details. We treat the former as properties and the latter as
+    parametrised functions. Although they typically start with get, those are not getter function, as the result is
     not stored in the object.
     """
 

@@ -74,6 +74,7 @@ class TestMydevolo:
         Mydevolo.del_instance()
 
     def test_uuid(self, mydevolo, mock_mydevolo__call):
+        mydevolo._uuid = None
         assert mydevolo.uuid == self.user.get("uuid")
 
     def test_call_WrongCredentialsError(self, mock_response_wrong_credentials_error):
