@@ -175,11 +175,9 @@ class MprmRest:
                              timeout=0.5).status_code == requests.codes.ok:
                 self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                 self._local_ip = ip
-        except OSError:
-            # Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
-            pass
-        except AttributeError:
-            # The MDNS entry does not provide address information
+        except (OSError, AttributeError):
+            # OSError: Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
+            # AttributeError: The MDNS entry does not provide address information
             pass
 
 
