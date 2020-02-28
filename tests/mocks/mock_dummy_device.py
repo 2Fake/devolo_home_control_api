@@ -18,6 +18,7 @@ def dummy_device(key: str) -> Zwave:
 
     device.binary_switch_property = {}
     device.binary_switch_property[f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}'] = \
-        BinarySwitchProperty(element_uid=f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}')
+        BinarySwitchProperty(element_uid=f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}',
+                             state=test_data.get("devices").get("mains").get("state"))
 
     return device

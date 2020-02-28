@@ -19,6 +19,7 @@
   "devices": {
     "mains":{
       "uid": "hdm:ZWave:F6BF9812/2",
+      "UID": "devolo.Meter:hdm:ZWave:F6BF9812/2",
       "itemName": "Light",
       "batteryLevel": -1,
       "batteryLow": null,
