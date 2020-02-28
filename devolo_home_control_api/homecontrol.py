@@ -6,7 +6,8 @@ import requests
 
 from .backend.mprm_websocket import MprmWebsocket
 from .devices.gateway import Gateway
-from .devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_setting_uid, get_device_uid_from_element_uid
+from .devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_setting_uid, \
+    get_device_uid_from_element_uid
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
@@ -37,6 +38,7 @@ class HomeControl:
         # Create the initial device dict
         self.devices = {}
         self._inspect_devices()
+
         self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
 
@@ -106,21 +108,24 @@ class HomeControl:
         self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")] = \
             BinarySwitchProperty(uid_info.get("UID"), state=True if uid_info.get("properties").get("state") == 1 else False)
-        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")].is_online = self.is_online
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))]. \
+            binary_switch_property[uid_info.get("UID")].is_online = self.is_online
 
     def _general_device(self, uid_info):
         self._logger.debug(f"Adding general device settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))]. \
-            settings_property["general_device_settings"] = SettingsProperty(element_uid=uid_info.get("UID"),
-                                                                            events_enabled=uid_info.get("properties").get("settings").get("eventsEnabled"),
-                                                                            name=uid_info.get("properties").get("settings").get("name"),
-                                                                            zone_id=uid_info.get("properties").get("settings").get("zoneID"),
-                                                                            icon=uid_info.get("properties").get("settings").get("icon"))
+            settings_property["general_device_settings"] = \
+            SettingsProperty(element_uid=uid_info.get("UID"),
+                             events_enabled=uid_info.get("properties").get("settings").get("eventsEnabled"),
+                             name=uid_info.get("properties").get("settings").get("name"),
+                             zone_id=uid_info.get("properties").get("settings").get("zoneID"),
+                             icon=uid_info.get("properties").get("settings").get("icon"))
 
     def _inspect_devices(self):
         devices = self.mprm.get_all_devices()
         device_info = self.mprm.extract_data_from_element_uids(devices)
-        uids_nested_lists = [(uid.get("properties").get('settingUIDs') + uid.get("properties").get("elementUIDs")) for uid in device_info]
+        uids_nested_lists = [(uid.get("properties").get('settingUIDs') + uid.get("properties").get("elementUIDs"))
+                             for uid in device_info]
         uids_info = self.mprm.extract_data_from_element_uids([item for sublist in uids_nested_lists for item in sublist])
         self._inspect_device(device_info, uids_info)
 
@@ -129,6 +134,7 @@ class HomeControl:
             properties = device.get("properties")
             self.devices[device.get("UID")] = Zwave(**properties)
             self.devices[device.get("UID")].settings_property = {}
+            threading.Thread(target=self.devices[device.get("UID")].get_zwave_info).start()
 
         elements = {"devolo.BinarySwitch": self._binary_switch,
                     "devolo.Meter": self._meter,
@@ -145,25 +151,30 @@ class HomeControl:
 
     def _led(self, uid_info):
         self._logger.debug(f"Adding led settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = SettingsProperty(element_uid=uid_info.get("UID"), led_setting=uid_info.get("properties").get("led"))
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = \
+            SettingsProperty(element_uid=uid_info.get("UID"), led_setting=uid_info.get("properties").get("led"))
 
     def _meter(self, uid_info):
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "consumption_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property = {}
         self._logger.debug(f"Adding consumption property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property[uid_info.get("UID")] = \
-            ConsumptionProperty(uid_info.get("UID"), current=uid_info.get("properties").get("currentValue"), total=uid_info.get("properties").get("totalValue"))
+            ConsumptionProperty(uid_info.get("UID"),
+                                current=uid_info.get("properties").get("currentValue"),
+                                total=uid_info.get("properties").get("totalValue"))
 
     def _parameter(self, uid_info):
         self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = SettingsProperty(element_uid=uid_info.get('UID'),
-                                                                                   param_changed=uid_info.get('properties').get("paramChanged"))
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = \
+            SettingsProperty(element_uid=uid_info.get('UID'),
+                             param_changed=uid_info.get('properties').get("paramChanged"))
 
     def _protection(self, uid_info):
         self._logger.debug(f"Adding protection settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = SettingsProperty(element_uid=uid_info.get('UID'),
-                                                                                local_switching=uid_info.get("properties").get("localSwitch"),
-                                                                                remote_switching=uid_info.get("properties").get("remoteSwitch"))
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = \
+            SettingsProperty(element_uid=uid_info.get('UID'),
+                             local_switching=uid_info.get("properties").get("localSwitch"),
+                             remote_switching=uid_info.get("properties").get("remoteSwitch"))
 
     def _unknown(self, uid_info):
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
@@ -172,7 +183,8 @@ class HomeControl:
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "voltage_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property = {}
         self._logger.debug(f"Adding voltage property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property[uid_info.get("UID")] = VoltageProperty(uid_info.get("UID"), current=uid_info.get("properties").get("value"))
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property[uid_info.get("UID")] = \
+            VoltageProperty(uid_info.get("UID"), current=uid_info.get("properties").get("value"))
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:

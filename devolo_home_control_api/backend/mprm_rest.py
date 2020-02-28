@@ -89,7 +89,8 @@ class MprmRest:
         """
         Returns data from an element UID list using an RPC call.
 
-        :param uids: Element UIDs, something like [devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2, devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#1]
+        :param uids: Element UIDs, something like [devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2,
+                     devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#1]
         :return: Data connected to the element UIDs, payload so to say
         """
         data = {"method": "FIM/getFunctionalItems",
