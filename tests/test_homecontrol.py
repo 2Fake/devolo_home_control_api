@@ -86,9 +86,8 @@ class TestHomeControl:
         self.homecontrol.devices = {}
         assert len(self.homecontrol.devices) == 0
         self.homecontrol._inspect_device([{"properties": self.devices.get("mains"),
-                                           "UID": "hdm.ZWave:F6BF9812/2"
-                                           }],
-                                         [])
+                                           "UID": "hdm:ZWave:F6BF9812/2"
+                                           }])
         assert len(self.homecontrol.devices) == 1
 
     def test_device_change_add(self, mocker, mock_inspect_device):
@@ -108,7 +107,7 @@ class TestHomeControl:
     @pytest.mark.usefixtures("mock_inspect_device")
     def test__inspect_devices(self, mocker):
         spy = mocker.spy(self.homecontrol, '_inspect_device')
-        self.homecontrol._inspect_devices()
+        self.homecontrol._inspect_all_devices()
         assert spy.call_count == 2
 
     def test__update(self, mocker):

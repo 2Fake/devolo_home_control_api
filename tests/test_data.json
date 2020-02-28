@@ -48,7 +48,19 @@
       "status": 2,
       "manID": "0x0175",
       "prodTypeID": "0x0001",
-      "prodID": "0x0011"
+      "prodID": "0x0011",
+      "properties": {
+              "state": 1,
+              "current_consumption": 0.58,
+              "total_consumption": 125.68,
+              "led_setting": true,
+              "param_changed": false,
+              "events_enabled": true,
+              "local_switch": true,
+              "remote_switch": false,
+              "voltage": 237,
+              "status": 2
+      }
     },
     "ambiguous_1":{
       "uid": "hdm:ZWave:F6BF9812/3",
