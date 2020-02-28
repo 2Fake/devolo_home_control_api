@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from ..mydevolo import Mydevolo
 
@@ -17,10 +18,9 @@ class Zwave:
             setattr(self, key, value)
 
         self.mydevolo = Mydevolo.get_instance()
-        device_info = self.mydevolo.get_zwave_products(manufacturer=self.manID,
-                                                       product_type=self.prodTypeID,
-                                                       product=self.prodID)
-        for key, value in device_info.items():
+        for key, value in self.mydevolo.get_zwave_products(manufacturer=self.manID,
+                                                           product_type=self.prodTypeID,
+                                                           product=self.prodID).items():
             setattr(self, key, value)
 
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])

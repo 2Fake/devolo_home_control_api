@@ -8,7 +8,7 @@ class ConsumptionProperty(Property):
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, element_uid: str):
+    def __init__(self, element_uid: str, current, total):
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 

@@ -9,12 +9,12 @@ class BinarySwitchProperty(Property):
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, element_uid: str):
+    def __init__(self, element_uid: str, state):
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
         super().__init__(element_uid=element_uid)
-        self.state = None
+        self.state = state
 
 
     def fetch_binary_switch_state(self) -> bool:

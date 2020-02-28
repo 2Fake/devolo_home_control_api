@@ -85,7 +85,19 @@ class MprmRest:
         response = self.post(data)
         return response.get("result").get("items")[0]
 
-    def get_all_devices(self) -> dict:
+    def extract_data_from_element_uids(self, uids: list) -> list:
+        """
+        Returns data from an element UID list using an RPC call.
+
+        :param uids: Element UIDs, something like [devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2, devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#1]
+        :return: Data connected to the element UIDs, payload so to say
+        """
+        data = {"method": "FIM/getFunctionalItems",
+                "params": [uids, 0]}
+        response = self.post(data)
+        return response.get("result").get("items")
+
+    def get_all_devices(self) -> list:
         """
         Get all devices.
 

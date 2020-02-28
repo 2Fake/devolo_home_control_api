@@ -6,7 +6,7 @@ import requests
 
 from .backend.mprm_websocket import MprmWebsocket
 from .devices.gateway import Gateway
-from .devices.zwave import Zwave, get_device_type_from_element_uid
+from .devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_setting_uid, get_device_uid_from_element_uid
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
@@ -100,31 +100,35 @@ class HomeControl:
         self.updater.update(message)
 
 
-    def _binary_switch(self, device: str, element_uid: str):
-        if not hasattr(self.devices[device], "binary_switch_property"):
-            self.devices[device].binary_switch_property = {}
-        self._logger.debug(f"Adding binary switch property to {device}.")
-        self.devices[device].binary_switch_property[element_uid] = BinarySwitchProperty(element_uid)
-        self.devices[device].binary_switch_property[element_uid].is_online = self.is_online
-        self.devices[device].binary_switch_property[element_uid].fetch_binary_switch_state()
+    def _binary_switch(self, uid_info):
+        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_switch_property"):
+            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property = {}
+        self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")] = \
+            BinarySwitchProperty(uid_info.get("UID"), state=True if uid_info.get("properties").get("state") == 1 else False)
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")].is_online = self.is_online
 
-    def _general_device(self, device: str, setting_uid: str):
-        self._logger.debug(f"Adding general device settings to {device}.")
-        self.devices[device].settings_property["general_device_settings"] = SettingsProperty(element_uid=setting_uid,
-                                                                                             events_enabled=None,
-                                                                                             name=None,
-                                                                                             zone_id=None,
-                                                                                             icon=None)
-        self.devices[device].settings_property["general_device_settings"].fetch_general_device_settings()
+    def _general_device(self, uid_info):
+        self._logger.debug(f"Adding general device settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))]. \
+            settings_property["general_device_settings"] = SettingsProperty(element_uid=uid_info.get("UID"),
+                                                                            events_enabled=uid_info.get("properties").get("settings").get("eventsEnabled"),
+                                                                            name=uid_info.get("properties").get("settings").get("name"),
+                                                                            zone_id=uid_info.get("properties").get("settings").get("zoneID"),
+                                                                            icon=uid_info.get("properties").get("settings").get("icon"))
 
     def _inspect_devices(self):
-        for device in self.mprm.get_all_devices():
-            self._inspect_device(device)
+        devices = self.mprm.get_all_devices()
+        device_info = self.mprm.extract_data_from_element_uids(devices)
+        uids_nested_lists = [(uid.get("properties").get('settingUIDs') + uid.get("properties").get("elementUIDs")) for uid in device_info]
+        uids_info = self.mprm.extract_data_from_element_uids([item for sublist in uids_nested_lists for item in sublist])
+        self._inspect_device(device_info, uids_info)
 
-    def _inspect_device(self, device: str):
-        properties = self.mprm.get_name_and_element_uids(uid=device)
-        self.devices[device] = Zwave(**properties)
-        self.devices[device].settings_property = {}
+    def _inspect_device(self, device_info: list, uid_info):
+        for device in device_info:
+            properties = device.get("properties")
+            self.devices[device.get("UID")] = Zwave(**properties)
+            self.devices[device.get("UID")].settings_property = {}
 
         elements = {"devolo.BinarySwitch": self._binary_switch,
                     "devolo.Meter": self._meter,
@@ -135,46 +139,40 @@ class HomeControl:
                     "ps.hdm": self._protection
                     }
 
-        for element_uid in properties.get("elementUIDs") + properties.get("settingUIDs"):
-            if element_uid is not None:
-                elements.get(get_device_type_from_element_uid(element_uid), self._unknown)(device, element_uid)
+        for uid_info in uid_info:
+            if uid_info.get("UID") is not None:
+                elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 
-    def _led(self, device: str, setting_uid: str):
-        self._logger.debug(f"Adding led settings to {device}.")
-        self.devices[device].settings_property["led"] = SettingsProperty(element_uid=setting_uid, led_setting=None)
-        self.devices[device].settings_property["led"].fetch_led_setting()
+    def _led(self, uid_info):
+        self._logger.debug(f"Adding led settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = SettingsProperty(element_uid=uid_info.get("UID"), led_setting=uid_info.get("properties").get("led"))
 
-    def _meter(self, device: str, element_uid: str):
-        if not hasattr(self.devices[device], "consumption_property"):
-            self.devices[device].consumption_property = {}
-        self._logger.debug(f"Adding consumption property to {device}.")
-        self.devices[device].consumption_property[element_uid] = ConsumptionProperty(element_uid)
-        self.devices[device].consumption_property[element_uid].fetch_consumption('current')
-        self.devices[device].consumption_property[element_uid].fetch_consumption('total')
+    def _meter(self, uid_info):
+        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "consumption_property"):
+            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property = {}
+        self._logger.debug(f"Adding consumption property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property[uid_info.get("UID")] = \
+            ConsumptionProperty(uid_info.get("UID"), current=uid_info.get("properties").get("currentValue"), total=uid_info.get("properties").get("totalValue"))
 
-    def _parameter(self, device: str, setting_uid: str):
-        self._logger.debug(f"Adding parameter settings to {device}.")
-        self.devices[device].settings_property["param_changed"] = SettingsProperty(element_uid=setting_uid,
-                                                                                   param_changed=None)
-        self.devices[device].settings_property["param_changed"].fetch_param_changed_setting()
+    def _parameter(self, uid_info):
+        self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = SettingsProperty(element_uid=uid_info.get('UID'),
+                                                                                   param_changed=uid_info.get('properties').get("paramChanged"))
 
-    def _protection(self, device: str, setting_uid: str):
-        self._logger.debug(f"Adding protection settings to {device}.")
-        self.devices[device].settings_property["protection"] = SettingsProperty(element_uid=setting_uid,
-                                                                                local_switching=None,
-                                                                                remote_switching=None)
-        self.devices[device].settings_property["protection"].fetch_protection_setting(protection_setting="local")
-        self.devices[device].settings_property["protection"].fetch_protection_setting(protection_setting="remote")
+    def _protection(self, uid_info):
+        self._logger.debug(f"Adding protection settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = SettingsProperty(element_uid=uid_info.get('UID'),
+                                                                                local_switching=uid_info.get("properties").get("localSwitch"),
+                                                                                remote_switching=uid_info.get("properties").get("remoteSwitch"))
 
-    def _unknown(self, device: str, element_uid: str):
-        self._logger.debug(f"Found an unexpected element uid: {element_uid} at device {device}")
+    def _unknown(self, uid_info):
+        self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
 
-    def _voltage_multi_level_sensor(self, device: str, element_uid: str):
-        if not hasattr(self.devices[device], "voltage_property"):
-            self.devices[device].voltage_property = {}
-        self._logger.debug(f"Adding voltage property to {device}.")
-        self.devices[device].voltage_property[element_uid] = VoltageProperty(element_uid)
-        self.devices[device].voltage_property[element_uid].fetch_voltage()
+    def _voltage_multi_level_sensor(self, uid_info):
+        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "voltage_property"):
+            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property = {}
+        self._logger.debug(f"Adding voltage property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property[uid_info.get("UID")] = VoltageProperty(uid_info.get("UID"), current=uid_info.get("properties").get("value"))
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
