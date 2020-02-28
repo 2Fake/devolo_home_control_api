@@ -129,7 +129,7 @@ class HomeControl:
         uids_info = self.mprm.extract_data_from_element_uids([item for sublist in uids_nested_lists for item in sublist])
         self._inspect_device(device_info, uids_info)
 
-    def _inspect_device(self, device_info: list, uid_info):
+    def _inspect_device(self, device_info: list, uid_infos):
         for device in device_info:
             properties = device.get("properties")
             self.devices[device.get("UID")] = Zwave(**properties)
@@ -145,7 +145,7 @@ class HomeControl:
                     "ps.hdm": self._protection
                     }
 
-        for uid_info in uid_info:
+        for uid_info in uid_infos:
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 

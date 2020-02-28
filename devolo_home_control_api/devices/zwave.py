@@ -24,7 +24,6 @@ class Zwave:
             setattr(self, key, None)
 
 
-
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
 
         if self.batteryLevel == -1:
