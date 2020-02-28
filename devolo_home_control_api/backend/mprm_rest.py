@@ -191,6 +191,7 @@ class MprmRest:
         except (OSError, AttributeError):
             # OSError: Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
             # AttributeError: The MDNS entry does not provide address information
+            # TODO: We can somehow delete the ip in zeroconf, because if we can't connect once, we won't connect at second try
             pass
 
 
