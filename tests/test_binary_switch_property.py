@@ -1,10 +1,16 @@
 import pytest
 
 from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError
+from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
+from devolo_home_control_api.properties.property import WrongElementError
 
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestBinarySwitchProperty:
+    def test_binary_switch_property_invalid(self):
+        with pytest.raises(WrongElementError):
+            BinarySwitchProperty("invalid", True)
+
     def test_fetch_binary_switch_state_valid_on(self, mock_mprmrest__extract_data_from_element_uid):
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).fetch_binary_switch_state()

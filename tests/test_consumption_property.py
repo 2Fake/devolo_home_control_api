@@ -1,8 +1,15 @@
 import pytest
 
+from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
+from devolo_home_control_api.properties.property import WrongElementError
+
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestConsumption:
+    def test_consumption_property_invalid(self):
+        with pytest.raises(WrongElementError):
+            ConsumptionProperty("invalid", 0.0, 0.0)
+
     def test_fetch_consumption_invalid(self):
         with pytest.raises(ValueError):
             self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
