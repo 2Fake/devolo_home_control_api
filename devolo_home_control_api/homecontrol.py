@@ -37,7 +37,7 @@ class HomeControl:
 
         # Create the initial device dict
         self.devices = {}
-        self._inspect_devices()
+        self._inspect_devices(self.mprm.all_devices)
 
         self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
@@ -76,7 +76,7 @@ class HomeControl:
         if len(uids) > len(self.devices):
             new_device = [device for device in uids if device not in self.devices]
             self._logger.debug(f"New device found {new_device}")
-            self._inspect_device(new_device[0])
+            self._inspect_devices([new_device[0]])
             self.mprm.publisher = Publisher([device for device in self.devices])
         else:
             devices = [device for device in self.devices if device not in uids]
@@ -121,13 +121,14 @@ class HomeControl:
                              zone_id=uid_info.get("properties").get("settings").get("zoneID"),
                              icon=uid_info.get("properties").get("settings").get("icon"))
 
-    def _inspect_devices(self):
-        devices_info = self.mprm.extract_data_from_element_uids(self.mprm.get_all_devices())
-        for device_info in devices_info:
-            properties = device_info.get("properties")
-            self.devices[device_info.get("UID")] = Zwave(**properties)
-            self.devices[device_info.get("UID")].settings_property = {}
-            threading.Thread(target=self.devices[device_info.get("UID")].get_zwave_info).start()
+    def _inspect_devices(self, devices: list):
+        """ Inspect device properties of given list of devices. """
+        devices_properties = self.mprm.extract_data_from_element_uids(devices)
+        for device_properties in devices_properties:
+            properties = device_properties.get("properties")
+            self.devices[device_properties.get("UID")] = Zwave(**properties)
+            self.devices[device_properties.get("UID")].settings_property = {}
+            threading.Thread(target=self.devices[device_properties.get("UID")].get_zwave_info).start()
 
         elements = {"devolo.BinarySwitch": self._binary_switch,
                     "devolo.Meter": self._meter,
@@ -143,7 +144,7 @@ class HomeControl:
         for uid_info in self.mprm.extract_data_from_element_uids([item for sublist in
                                                                   [(uid.get("properties").get('settingUIDs')
                                                                     + uid.get("properties").get("elementUIDs"))
-                                                                   for uid in devices_info] for item in sublist]):
+                                                                   for uid in devices_properties] for item in sublist]):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 

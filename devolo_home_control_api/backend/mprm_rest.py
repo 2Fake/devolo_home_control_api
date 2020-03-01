@@ -48,6 +48,20 @@ class MprmRest:
         self.__class__.__instance = self
 
 
+    @property
+    def all_devices(self) -> list:
+        """
+        Get all devices.
+
+        :return: All devices and their properties.
+        """
+        self._logger.info("Inspecting devices")
+        data = {"method": "FIM/getFunctionalItems",
+                "params": [['devolo.DevicesPage'], 0]}
+        response = self.post(data)
+        return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+
+
     def create_connection(self):
         """ Create session, either locally or via cloud. """
         if self._local_ip:
@@ -97,18 +111,6 @@ class MprmRest:
                 "params": [uids, 0]}
         response = self.post(data)
         return response.get("result").get("items")
-
-    def get_all_devices(self) -> list:
-        """
-        Get all devices.
-
-        :return: Dict with all devices and their properties.
-        """
-        self._logger.info("Inspecting devices")
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [['devolo.DevicesPage'], 0]}
-        response = self.post(data)
-        return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
 
     def get_local_session(self):
         """ Connect to the gateway locally. """
