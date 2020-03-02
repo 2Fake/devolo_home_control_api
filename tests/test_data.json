@@ -66,6 +66,7 @@
         "state": 1,
         "status": 2,
         "total_consumption": 125.68,
+        "sinceTime": 1578558815924,
         "voltage": 237,
         "zone_id": "hz_2",
         "zone_name": "Office"

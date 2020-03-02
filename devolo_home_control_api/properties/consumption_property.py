@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .property import Property, WrongElementError
 
 
@@ -8,7 +10,7 @@ class ConsumptionProperty(Property):
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, element_uid: str, current: float, total: float):
+    def __init__(self, element_uid: str, current: float, total: float, total_since: int):
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 
@@ -16,7 +18,7 @@ class ConsumptionProperty(Property):
         self.current = current
         self.current_unit = "W"
         self.total = total
-        self.total_since = None     # TODO: What about this?
+        self.total_since = datetime.fromtimestamp(total_since / 1000)
         self.total_unit = "kWh"
 
 

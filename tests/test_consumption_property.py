@@ -8,7 +8,7 @@ from devolo_home_control_api.properties.property import WrongElementError
 class TestConsumption:
     def test_consumption_property_invalid(self):
         with pytest.raises(WrongElementError):
-            ConsumptionProperty("invalid", 0.0, 0.0)
+            ConsumptionProperty("invalid", 0.0, 0.0, 1231412412)
 
     def test_fetch_consumption_invalid(self):
         with pytest.raises(ValueError):

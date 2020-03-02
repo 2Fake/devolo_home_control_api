@@ -53,7 +53,8 @@ class TestHomeControl:
         del self.homecontrol.devices[device].consumption_property
         assert not hasattr(self.homecontrol.devices.get(device), "consumption_property")
         self.homecontrol._meter({"UID": "devolo.Meter:hdm:ZWave:F6BF9812/2", "properties": {"current": self.devices.get("mains").get("current_consumption"),
-                                                                                            "total": self.devices.get("mains").get("total_consumption")}})
+                                                                                            "total": self.devices.get("mains").get("total_consumption"),
+                                                                                            "sinceTime": self.devices.get("mains").get("properties").get("total_consumption")}})
         assert hasattr(self.homecontrol.devices.get(device), "consumption_property")
 
     def test__parameter(self, mock_properties):

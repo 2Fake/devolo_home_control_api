@@ -166,7 +166,8 @@ class HomeControl:
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property[uid_info.get("UID")] = \
             ConsumptionProperty(uid_info.get("UID"),
                                 current=uid_info.get("properties").get("currentValue"),
-                                total=uid_info.get("properties").get("totalValue"))
+                                total=uid_info.get("properties").get("totalValue"),
+                                total_since=uid_info.get("properties").get("sinceTime"))
 
     def _parameter(self, uid_info):
         self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")

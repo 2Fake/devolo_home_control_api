@@ -28,8 +28,15 @@ def metering_plug(device_uid: str) -> Zwave:
         BinarySwitchProperty(element_uid=f"devolo.BinarySwitch:{device_uid}",
                              state=test_data.get("devices").get("mains").get("properties").get("state"))
     device.consumption_property[f'devolo.Meter:{device_uid}'] = ConsumptionProperty(element_uid=f"devolo.Meter:{device_uid}",
-                        current=test_data.get("devices").get("mains").get("properties").get("current_consumption"),
-                        total=test_data.get("devices").get("mains").get("properties").get("total_consumption"))
+                                                                                    current=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "current_consumption"),
+                                                                                    total=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "total_consumption"),
+                                                                                    total_since=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "sinceTime"))
     device.voltage_property[f'devolo.VoltageMultiLevelSensor:{device_uid}'] = \
         VoltageProperty(element_uid=f"devolo.VoltageMultiLevelSensor:{device_uid}",
                         current=test_data.get("devices").get("mains").get("properties").get("voltage"))
