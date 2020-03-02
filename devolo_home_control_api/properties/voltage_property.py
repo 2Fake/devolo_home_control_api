@@ -23,6 +23,6 @@ class VoltageProperty(Property):
 
         :return: Voltage value
         """
-        response = self.mprm.get_data_from_uid_string(self.element_uid)
+        response = self.mprm.get_data_from_uid_list([self.element_uid])
         self.current = response.get("properties").get("value")
         return self.current

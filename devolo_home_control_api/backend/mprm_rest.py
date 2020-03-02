@@ -87,18 +87,6 @@ class MprmRest:
         threading.Thread(target=zeroconf.close).start()
         return self._local_ip
 
-    def get_data_from_uid_string(self, uid: str) -> dict:
-        """
-        Returns data from an element UID using an RPC call.
-
-        :param uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-        :return: Data connected to the element UID, payload so to say
-        """
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [[uid], 0]}
-        response = self.post(data)
-        return response.get("result").get("items")[0]
-
     def get_data_from_uid_list(self, uids: list) -> list:
         """
         Returns data from an element UID list using an RPC call.

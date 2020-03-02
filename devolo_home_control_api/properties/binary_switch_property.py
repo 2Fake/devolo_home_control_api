@@ -23,7 +23,7 @@ class BinarySwitchProperty(Property):
 
         :return: Binary switch state
         """
-        response = self.mprm.get_data_from_uid_string(self.element_uid)
+        response = self.mprm.get_data_from_uid_list([self.element_uid])
         self.state = True if response.get("properties").get("state") == 1 else False
         return self.state
 
