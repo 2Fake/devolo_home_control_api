@@ -101,7 +101,7 @@ def mock_mprmrest__post(mocker, request):
                                                                            "settingUIDs": "test_setting_uids",
                                                                            "deviceModelUID": "test_device_model_uid",
                                                                            "status": "test_status"}}]}}
-    properties["test_extract_data_from_element_uid"] = {"result": {"items": [{"properties": {"itemName": "test_name"}}]}}
+    properties["test_get_data_from_uid_list"] = {"result": {"items": [{"properties": {"itemName": "test_name"}}]}}
     properties["test_all_devices"] = {"result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))

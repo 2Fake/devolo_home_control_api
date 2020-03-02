@@ -105,3 +105,7 @@ class TestMprmRest:
         mdns_name.address = self.gateway.get("local_ip")
         self.mprm._try_local_connection(mdns_name)
         assert self.mprm._local_ip == self.gateway.get("local_ip")
+
+    def test_get_data_from_uid_list(self, mock_mprmrest__post):
+        properties = self.mprm.get_data_from_uid_list(["test"])
+        assert properties[0].get("properties").get("itemName") == "test_name"
