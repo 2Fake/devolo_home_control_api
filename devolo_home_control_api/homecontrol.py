@@ -65,21 +65,21 @@ class HomeControl:
         """ Create a publisher for every device. """
         self.mprm.publisher = Publisher([device for device in self.devices])
 
-    def device_change(self, uids: list):
+    def device_change(self, device_uids: list):
         """
         React on new devices or removed devices. As the Z-Wave controller can only be in inclusion or exclusion mode, we
         assume, that you cannot add and remove devices at the same time. So if the number of devices increases, there is
         a new one and if the number decreases, a device was removed.
 
-        :param uids: List of UIDs known by the backend
+        :param device_uids: List of UIDs known by the backend
         """
-        if len(uids) > len(self.devices):
-            new_device = [device for device in uids if device not in self.devices]
+        if len(device_uids) > len(self.devices):
+            new_device = [device for device in device_uids if device not in self.devices]
             self._logger.debug(f"New device found {new_device}")
             self._inspect_devices([new_device[0]])
             self.mprm.publisher = Publisher([device for device in self.devices])
         else:
-            devices = [device for device in self.devices if device not in uids]
+            devices = [device for device in self.devices if device not in device_uids]
             self._logger.debug(f"Device {devices} removed")
             del self.devices[devices[0]]
         self.updater.devices = self.devices
@@ -122,8 +122,14 @@ class HomeControl:
                              icon=uid_info.get("properties").get("settings").get("icon"))
 
     def _inspect_devices(self, devices: list):
-        """ Inspect device properties of given list of devices. """
-        devices_properties = self.mprm.extract_data_from_element_uids(devices)
+        """
+        Inspect device properties of given list of devices.
+
+        :param devices: list of strings with device UID/s like this ["hdm:ZWave:F6BF9812/2", "hdm:ZWave:F6BF9812/3"]
+        :return:
+        """
+
+        devices_properties = self.mprm.get_data_from_uid_list(devices)
         for device_properties in devices_properties:
             properties = device_properties.get("properties")
             self.devices[device_properties.get("UID")] = Zwave(**properties)
@@ -141,10 +147,10 @@ class HomeControl:
 
         # Inner list comprehension gets the list of uids from every device
         # Outer list comprehension gets all uids into one list to make one big call against the mPRM
-        for uid_info in self.mprm.extract_data_from_element_uids([item for sublist in
-                                                                  [(uid.get("properties").get('settingUIDs')
-                                                                    + uid.get("properties").get("elementUIDs"))
-                                                                   for uid in devices_properties] for item in sublist]):
+        for uid_info in self.mprm.get_data_from_uid_list([item for sublist in
+                                                          [(uid.get("properties").get('settingUIDs')
+                                                            + uid.get("properties").get("elementUIDs"))
+                                                           for uid in devices_properties] for item in sublist]):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 

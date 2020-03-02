@@ -87,7 +87,7 @@ class MprmRest:
         threading.Thread(target=zeroconf.close).start()
         return self._local_ip
 
-    def extract_data_from_element_uid(self, uid: str) -> dict:
+    def get_data_from_uid_string(self, uid: str) -> dict:
         """
         Returns data from an element UID using an RPC call.
 
@@ -99,7 +99,7 @@ class MprmRest:
         response = self.post(data)
         return response.get("result").get("items")[0]
 
-    def extract_data_from_element_uids(self, uids: list) -> list:
+    def get_data_from_uid_list(self, uids: list) -> list:
         """
         Returns data from an element UID list using an RPC call.
 

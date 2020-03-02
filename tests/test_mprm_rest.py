@@ -52,7 +52,7 @@ class TestMprmRest:
         assert self.mprm.detect_gateway_in_lan() == self.gateway.get("local_ip")
 
     def test_extract_data_from_element_uid(self, mock_mprmrest__post):
-        properties = self.mprm.extract_data_from_element_uid(uid="test")
+        properties = self.mprm.get_data_from_uid_string(uid="test")
         assert properties.get("properties").get("itemName") == "test_name"
 
     def test_get_all_devices(self, mock_mprmrest__post):

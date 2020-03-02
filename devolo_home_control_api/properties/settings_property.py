@@ -24,7 +24,7 @@ class SettingsProperty(Property):
 
         :return: Events enabled or not
         """
-        response = self.mprm.extract_data_from_element_uid(self.setting_uid)
+        response = self.mprm.get_data_from_uid_string(self.setting_uid)
         self.name = response.get("properties").get("name")
         self.icon = response.get("properties").get("icon")
         self.zone_id = response.get("properties").get("zoneID")
@@ -37,7 +37,7 @@ class SettingsProperty(Property):
 
         :return: LED setting
         """
-        response = self.mprm.extract_data_from_element_uid(self.setting_uid)
+        response = self.mprm.get_data_from_uid_string(self.setting_uid)
         self.led_setting = response.get("properties").get("led")
         return self.led_setting
 
@@ -48,7 +48,7 @@ class SettingsProperty(Property):
         :param setting_uid: Settings UID to look at. Usually starts with cps.hdm.
         :return: True, if parameter was changed
         """
-        response = self.mprm.extract_data_from_element_uid(self.setting_uid)
+        response = self.mprm.get_data_from_uid_string(self.setting_uid)
         self.param_changed = response.get("properties").get("paramChanged")
         return self.param_changed
 
@@ -61,7 +61,7 @@ class SettingsProperty(Property):
         """
         if protection_setting not in ["local", "remote"]:
             raise ValueError("Only local and remote are possible protection settings")
-        response = self.mprm.extract_data_from_element_uid(self.setting_uid)
+        response = self.mprm.get_data_from_uid_string(self.setting_uid)
         if protection_setting == "local":
             self.local_switching = response.get("properties").get("localSwitch")
             return self.local_switching

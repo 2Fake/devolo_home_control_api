@@ -29,7 +29,7 @@ class ConsumptionProperty(Property):
         """
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
-        response = self.mprm.extract_data_from_element_uid(self.element_uid)
+        response = self.mprm.get_data_from_uid_string(self.element_uid)
         if consumption_type == "current":
             self.current = response.get("properties").get("currentValue")
             return self.current
