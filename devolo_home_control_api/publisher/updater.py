@@ -58,6 +58,9 @@ class Updater:
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
         :param value: Value so be set
         """
+        if element_uid.split(".")[-2] == "smartGroup":
+            # We ignore if a group is switched. We get the information seperated for every device.
+            return
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
         self._logger.debug(f"Updating state of {element_uid} to {value}")
