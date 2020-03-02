@@ -105,6 +105,11 @@ class Updater:
         self._gateway.online = accessible
         self._gateway.sync = online_sync
 
+    def update_total_since(self, element_uid, total_since):
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        self.devices.get(device_uid).consumption_property.get(element_uid).total_since = total_since
+        self._logger.debug(f"Updating total since of {element_uid} to {total_since}")
+        self._publisher.dispatch(device_uid, (element_uid, total_since))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
@@ -142,6 +147,10 @@ class Updater:
         elif message.get("properties").get("property.name") == "totalValue":
             self.update_consumption(element_uid=message.get("properties").get("uid"),
                                     consumption="total", value=message.get("properties").get("property.value.new"))
+        elif message.get("properties").get("property.name") == "sinceTime":
+            self.update_total_since(element_uid=message.get("properties").get("uid"),
+                                    total_since=message.get("properties").get("property.value.new"))
+
 
     def _voltage_multi_level_sensor(self, message: dict):
         """ Update a voltage value. """
