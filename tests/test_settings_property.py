@@ -27,9 +27,9 @@ class TestSettingsProperty:
         name, icon, zone_id, events_enabled = \
             self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
                 .settings_property.get("general_device_settings").fetch_general_device_settings()
-        assert name == self.devices.get('mains').get('name')
-        assert icon == self.devices.get('mains').get('icon')
-        assert zone_id == self.devices.get('mains').get('zone_id')
+        assert name == self.devices.get('mains').get("properties").get('name')
+        assert icon == self.devices.get('mains').get("properties").get('icon')
+        assert zone_id == self.devices.get('mains').get("properties").get('zone_id')
         assert events_enabled
 
     def test_fetch_led_setting_valid(self, mock_mprmrest__extract_data_from_element_uid):

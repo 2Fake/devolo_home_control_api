@@ -55,8 +55,8 @@ class TestMprmRest:
         properties = self.mprm.get_data_from_uid_string(uid="test")
         assert properties.get("properties").get("itemName") == "test_name"
 
-    def test_get_all_devices(self, mock_mprmrest__post):
-        devices = self.mprm.get_all_devices()
+    def test_all_devices(self, mock_mprmrest__post):
+        devices = self.mprm.all_devices
         assert devices == "deviceUIDs"
 
     @pytest.mark.usefixtures("mock_session_get")

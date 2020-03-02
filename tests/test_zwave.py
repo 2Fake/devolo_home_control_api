@@ -8,17 +8,17 @@ from devolo_home_control_api.properties.binary_switch_property import BinarySwit
 @pytest.mark.usefixtures("mock_get_zwave_products")
 class TestZwave:
     def test_get_property(self, home_control_instance, mock_mprmrest__extract_data_from_element_uid):
-        device = Zwave(**self.devices.get("mains"))
+        device = Zwave(**self.devices.get("mains").get("properties"))
 
         device.binary_switch_property = {}
         element_uid = f'devolo.BinarySwitch:{self.devices.get("mains").get("uid")}'
         device.binary_switch_property[element_uid] = BinarySwitchProperty(element_uid=element_uid,
-                                                                          state=self.devices.get("mains").get("state"))
+                                                                          state=self.devices.get("mains").get("properties").get("state"))
 
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
     def test_get_property_invalid(self, mydevolo, mock_mydevolo__call):
-        device = Zwave(**self.devices.get("mains"))
+        device = Zwave(**self.devices.get("mains").get("properties"))
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
@@ -33,7 +33,7 @@ class TestZwave:
         device = Zwave(**self.devices.get("ambiguous_2"))
         assert device.status == 1
 
-        device = Zwave(**self.devices.get("mains"))
+        device = Zwave(**self.devices.get("mains").get("properties"))
         assert device.status == 2
 
         device = Zwave(**self.devices.get("ambiguous_1"))

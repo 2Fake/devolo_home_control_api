@@ -80,35 +80,25 @@ class TestHomeControl:
         self.homecontrol._voltage_multi_level_sensor({"UID": "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2", "properties": {"current": self.devices.get("mains").get("current_consumption")}})
         assert hasattr(self.homecontrol.devices.get(device), "voltage_property")
 
-    def test__inspect_device(self, mock_extract_data_from_element_uids, mock_mprmrest__extract_data_from_element_uid,
-                             mock_properties):
-        del self.homecontrol.devices
-        self.homecontrol.devices = {}
-        assert len(self.homecontrol.devices) == 0
-        self.homecontrol._inspect_device([{"properties": self.devices.get("mains"),
-                                           "UID": "hdm:ZWave:F6BF9812/2"
-                                           }])
-        assert len(self.homecontrol.devices) == 1
-
-    def test_device_change_add(self, mocker, mock_inspect_device):
+    def test_device_change_add(self, mocker, mock_inspect_devices):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
         uids.append("test_uid")
-        spy = mocker.spy(self.homecontrol, '_inspect_device')
+        spy = mocker.spy(self.homecontrol, '_inspect_devices')
         self.homecontrol.device_change(uids)
-        spy.assert_called_once_with("test_uid")
+        spy.assert_called_once_with(["test_uid"])
 
     def test_device_change_remove(self):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
-        del uids[0]
+        del uids[2]
         self.homecontrol.device_change(uids)
-        assert self.devices.get("mains").get("uid") not in self.homecontrol.devices
+        assert self.devices.get("mains").get("uid") not in self.homecontrol.devices.keys()
 
-    @pytest.mark.usefixtures("mock_mprmrest_get_all_devices")
-    @pytest.mark.usefixtures("mock_inspect_device")
+    @pytest.mark.usefixtures("mock_mprmrest_all_devices")
+    @pytest.mark.usefixtures("mock_extract_data_from_element_uids")
     def test__inspect_devices(self, mocker):
-        spy = mocker.spy(self.homecontrol, '_inspect_device')
-        self.homecontrol._inspect_all_devices()
-        assert spy.call_count == 2
+        spy = mocker.spy(self.homecontrol, '_inspect_devices')
+        self.homecontrol._inspect_devices([self.devices.get("mains")])
+        assert spy.call_count == 1
 
     def test__update(self, mocker):
         spy = mocker.spy(self.homecontrol.updater, "update")
