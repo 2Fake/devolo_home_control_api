@@ -29,7 +29,7 @@ class TestUpdater:
     def test_device_online_state(self):
         uid = self.devices.get('mains').get("uid")
         online_state = self.homecontrol.devices.get(uid).status
-        self.homecontrol.updater.update_device_online_state(uid=self.devices.get('mains').get('uid'),
+        self.homecontrol.updater.update_device_online_state(device_uid=self.devices.get('mains').get('uid'),
                                                             value=1)
         assert self.homecontrol.devices.get(uid).status == 1
         assert self.homecontrol.devices.get(uid).status != online_state

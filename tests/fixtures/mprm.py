@@ -145,4 +145,5 @@ def mock_mprmrest_all_devices(mocker, request):
 
 @pytest.fixture()
 def mock_mprmrest_get_data_from_uid_list(mocker, request):
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list", return_value=[request.cls.devices.get("mains")])
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list",
+                 return_value=[request.cls.devices.get("mains")])

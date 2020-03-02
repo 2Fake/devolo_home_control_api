@@ -12,8 +12,9 @@ class TestZwave:
 
         device.binary_switch_property = {}
         element_uid = f'devolo.BinarySwitch:{self.devices.get("mains").get("uid")}'
-        device.binary_switch_property[element_uid] = BinarySwitchProperty(element_uid=element_uid,
-                                                                          state=self.devices.get("mains").get("properties").get("state"))
+        device.binary_switch_property[element_uid] = \
+            BinarySwitchProperty(element_uid=element_uid,
+                                 state=self.devices.get("mains").get("properties").get("state"))
 
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
