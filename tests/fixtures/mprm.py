@@ -84,7 +84,7 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
                        "totalValue": request.cls.devices.get("mains").get("properties").get("total_consumption")}}
     properties['test__inspect_device'] = None
 
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_string",
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list",
                  return_value=properties.get(request.node.name))
 
 

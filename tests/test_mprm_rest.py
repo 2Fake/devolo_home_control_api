@@ -51,10 +51,6 @@ class TestMprmRest:
     def test_detect_gateway_in_lan(self, mock_mprmrest_zeroconf_cache_entries, mock_mprmrest__try_local_connection):
         assert self.mprm.detect_gateway_in_lan() == self.gateway.get("local_ip")
 
-    def test_extract_data_from_element_uid(self, mock_mprmrest__post):
-        properties = self.mprm.get_data_from_uid_string(uid="test")
-        assert properties.get("properties").get("itemName") == "test_name"
-
     def test_all_devices(self, mock_mprmrest__post):
         devices = self.mprm.all_devices
         assert devices == "deviceUIDs"
