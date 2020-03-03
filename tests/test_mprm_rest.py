@@ -2,6 +2,7 @@ import pytest
 from requests import ConnectTimeout
 
 from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError, MprmRest
+from devolo_home_control_api.devices.gateway import Gateway
 from devolo_home_control_api.mydevolo import Mydevolo
 
 from .mocks.mock_dnsrecord import MockDNSRecord
@@ -27,9 +28,10 @@ class TestMprmRest:
         with pytest.raises(SyntaxError):
             MprmRest.get_instance()
 
-        first = MprmRest(gateway_id=self.gateway.get("id"), url="https://homecontrol.mydevolo.com")
+        gateway = Gateway(self.gateway.get("id"))
+        first = MprmRest(gateway=gateway, url="https://homecontrol.mydevolo.com")
         with pytest.raises(SyntaxError):
-            MprmRest(gateway_id=self.gateway.get("id"), url="https://homecontrol.mydevolo.com")
+            MprmRest(gateway=gateway, url="https://homecontrol.mydevolo.com")
 
         second = MprmRest.get_instance()
         assert first is second
