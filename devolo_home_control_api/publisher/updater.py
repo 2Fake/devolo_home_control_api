@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 
 from .publisher import Publisher
 from ..devices.gateway import Gateway
@@ -41,23 +42,27 @@ class Updater:
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
 
-    def update_device_online_state(self, uid: str, value: int):
+    def update_device_online_state(self, device_uid: str, value: int):
         """
+        Update the device's online state. The value is written into the internal dict.
 
-        :param uid:
-        :param value:
+        :param device_uid: Device UID, something like hdm:ZWave:CBC56091/24#2
+        :param value: 
         """
-        self._logger.debug(f"Updating device online state of {uid} to {value}")
-        self.devices.get(uid).status = value
-        self._publisher.dispatch(uid, (uid, value))
+        self._logger.debug(f"Updating device online state of {device_uid} to {value}")
+        self.devices.get(device_uid).status = value
+        self._publisher.dispatch(device_uid, (device_uid, value))
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
         """
         Update the binary switch state of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
-        :param value: Value so be set
+        :param value: True to turn on, False to turn off
         """
+        if element_uid.split(".")[-2] == "smartGroup":
+            # We ignore if a group is switched. We get the information separated for every device.
+            return
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
         self._logger.debug(f"Updating state of {element_uid} to {value}")
@@ -67,7 +72,7 @@ class Updater:
         """
         Update the consumption of a device externally. The value is written into the internal dict.
 
-        :param element_uid: Element UID, something like , something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
         :param consumption: current or total consumption
         :param value: Value so be set
         """
@@ -102,6 +107,17 @@ class Updater:
         self._gateway.online = accessible
         self._gateway.sync = online_sync
 
+    def update_total_since(self, element_uid: str, total_since: datetime):
+        """
+        Update the point in time, the total consumption of a device was reset.
+
+        :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :param total_since: Point in time, the total consumption was reset
+        """
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        self.devices.get(device_uid).consumption_property.get(element_uid).total_since = total_since
+        self._logger.debug(f"Updating total since of {element_uid} to {total_since}")
+        self._publisher.dispatch(device_uid, (element_uid, total_since))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
@@ -110,7 +126,14 @@ class Updater:
                                             value=True if message.get("properties").get("property.value.new") == 1
                                             else False)
 
+    def _current_consumption(self, property: dict):
+        """ Update current consumption. """
+        self.update_consumption(element_uid=property.get("uid"),
+                                consumption="current",
+                                value=property.get("property.value.new"))
+
     def _device_change(self, message: dict):
+        """ Call method if a new device appears or an old one disappears. """
         if not callable(self.on_device_change):
             self._logger.error("on_device_change is not set.")
             return
@@ -119,9 +142,9 @@ class Updater:
             self.on_device_change(uids=message.get("properties").get("property.value.new"))
 
     def _device_online_state(self, message: dict):
-        """ Update the device online state. """
+        """ Update the device's online state. """
         if message.get("properties").get("property.name") == "status":
-            self.update_device_online_state(uid=message.get("properties").get("uid"),
+            self.update_device_online_state(device_uid=message.get("properties").get("uid"),
                                             value=message.get("properties").get("property.value.new"))
 
     def _gateway_accessible(self, message: dict):
@@ -132,13 +155,22 @@ class Updater:
 
     def _meter(self, message: dict):
         """ Update a meter value. """
-        if message.get("properties").get("property.name") == "currentValue":
-            self.update_consumption(element_uid=message.get("properties").get("uid"),
-                                    consumption="current",
-                                    value=message.get("properties").get("property.value.new"))
-        elif message.get("properties").get("property.name") == "totalValue":
-            self.update_consumption(element_uid=message.get("properties").get("uid"),
-                                    consumption="total", value=message.get("properties").get("property.value.new"))
+        property_name = {"currentValue": self._current_consumption,
+                         "totalValue": self._total_consumption,
+                         "sinceTime": self._since_time}
+
+        property_name[message.get("properties").get("property.name")](message.get("properties"))
+
+    def _since_time(self, property: dict):
+        """ Update point in time the total consumption was reset. """
+        self.update_total_since(element_uid=property.get("uid"),
+                                total_since=property.get("property.value.new"))
+
+    def _total_consumption(self, property: dict):
+        """ Update total consumption. """
+        self.update_consumption(element_uid=property.get("uid"),
+                                consumption="total",
+                                value=property.get("property.value.new"))
 
     def _voltage_multi_level_sensor(self, message: dict):
         """ Update a voltage value. """

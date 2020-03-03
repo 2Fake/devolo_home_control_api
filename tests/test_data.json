@@ -1,81 +1,101 @@
 {
-  "user": {
-    "username": "testuser@test.de",
-    "password": "7fee3cdb598b45a459ffe2aa720c8532",
-    "uuid": "535512AB-165D-11E7-A4E2-000C29D76CCA"
-  },
-  "gateway": {
-    "id": "1409301750000598",
-    "full_url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b",
-    "local_passkey": "6b96ad097aa389209f1ceeaed6fe7029",
-    "name": "Home",
-    "role": "owner",
-    "external_access": true,
-    "online": true,
-    "sync": true,
-    "firmware": "8.0.45_2016-11-17",
-    "local_ip": "123.456.789.123"
-  },
   "devices": {
-    "mains":{
-      "uid": "hdm:ZWave:F6BF9812/2",
-      "itemName": "Light",
-      "batteryLevel": -1,
-      "batteryLow": null,
-      "icon": "light-bulb",
-      "zone_id": "hz_2",
-      "zone_name": "Office",
-      "battery_level": -1,
-      "settingUIDs": [
-        "gds.hdm:ZWave:F6BF9812/2", 
-        "cps.hdm:ZWave:F6BF9812/2", 
-        "lis.hdm:ZWave:F6BF9812/2", 
-        "ps.hdm:ZWave:F6BF9812/2"],
-      "elementUIDs": [
-        "devolo.Meter:hdm:ZWave:F6BF9812/2",
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
-        "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"],
-      "state": 1,
-      "current_consumption": 0.58,
-      "total_consumption": 125.68,
-      "led_setting": true,
-      "param_changed": false,
-      "events_enabled": true,
-      "local_switch": true,
-      "remote_switch": false,
-      "voltage": 237,
-      "status": 2,
-      "manID": "0x0175",
-      "prodTypeID": "0x0001",
-      "prodID": "0x0011"
-    },
-    "ambiguous_1":{
-      "uid": "hdm:ZWave:F6BF9812/3",
-      "itemName": "Heating",
+    "ambiguous_1": {
       "batteryLevel": 55,
       "batteryLow": true,
-      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/3"],
+      "elementUIDs": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/3"
+      ],
       "icon": "icon_1",
-      "zone_name": "Kitchen",
-      "status": 25,
-      "manID": "0x0175",
-      "prodTypeID": "0x0001",
-      "prodID": "0x0011"
-    },
-    "ambiguous_2":{
-      "uid": "hdm:ZWave:F6BF9812/4",
       "itemName": "Heating",
+      "manID": "0x0175",
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
+      "status": 25,
+      "uid": "hdm:ZWave:F6BF9812/3",
+      "zone_name": "Kitchen"
+    },
+    "ambiguous_2": {
       "batteryLevel": -1,
       "batteryLow": null,
       "elementUIDs": [
         "devolo.Meter:hdm:ZWave:F6BF9812/4",
-        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"],
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"
+      ],
       "icon": "icon_1",
-      "zone_name": "Living Room",
-      "status": 1,
+      "itemName": "Heating",
       "manID": "0x0175",
+      "prodID": "0x0011",
       "prodTypeID": "0x0001",
-      "prodID": "0x0011"
+      "status": 1,
+      "uid": "hdm:ZWave:F6BF9812/4",
+      "zone_name": "Living Room"
+    },
+    "mains": {
+      "UID": "hdm:ZWave:F6BF9812/2",
+      "elementUIDs": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/2",
+        "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
+        "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
+      ],
+      "properties": {
+        "batteryLevel": -1,
+        "batteryLow": null,
+        "current_consumption": 0.58,
+        "elementUIDs": [
+          "devolo.Meter:hdm:ZWave:F6BF9812/2",
+          "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
+          "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
+        ],
+        "events_enabled": true,
+        "icon": "light-bulb",
+        "itemName": "Light",
+        "led_setting": true,
+        "local_switch": true,
+        "manID": "0x0175",
+        "param_changed": false,
+        "prodID": "0x0011",
+        "prodTypeID": "0x0001",
+        "remote_switch": false,
+        "settingUIDs": [
+          "gds.hdm:ZWave:F6BF9812/2",
+          "cps.hdm:ZWave:F6BF9812/2",
+          "lis.hdm:ZWave:F6BF9812/2",
+          "ps.hdm:ZWave:F6BF9812/2"
+        ],
+        "state": 1,
+        "status": 2,
+        "total_consumption": 125.68,
+        "sinceTime": 1578558815924,
+        "voltage": 237,
+        "zone_id": "hz_2",
+        "zone_name": "Office"
+      },
+      "remote_switch": false,
+      "settingUIDs": [
+        "gds.hdm:ZWave:F6BF9812/2",
+        "cps.hdm:ZWave:F6BF9812/2",
+        "lis.hdm:ZWave:F6BF9812/2",
+        "ps.hdm:ZWave:F6BF9812/2"
+      ],
+      "uid": "hdm:ZWave:F6BF9812/2"
     }
+  },
+  "gateway": {
+    "external_access": true,
+    "firmware": "8.0.45_2016-11-17",
+    "full_url": "https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000002_1:ec73a059f398fa8b",
+    "id": "1409301750000598",
+    "local_ip": "123.456.789.123",
+    "local_passkey": "6b96ad097aa389209f1ceeaed6fe7029",
+    "name": "Home",
+    "online": true,
+    "role": "owner",
+    "sync": true
+  },
+  "user": {
+    "password": "7fee3cdb598b45a459ffe2aa720c8532",
+    "username": "testuser@test.de",
+    "uuid": "535512AB-165D-11E7-A4E2-000C29D76CCA"
   }
 }

@@ -17,7 +17,7 @@ def metering_plug(device_uid: str) -> Zwave:
     with open('test_data.json') as file:
         test_data = json.load(file)
 
-    device = Zwave(**test_data.get("devices").get("mains"))
+    device = Zwave(**test_data.get("devices").get("mains").get("properties"))
 
     device.binary_switch_property = {}
     device.consumption_property = {}
@@ -25,10 +25,21 @@ def metering_plug(device_uid: str) -> Zwave:
     device.settings_property = {}
 
     device.binary_switch_property[f'devolo.BinarySwitch:{device_uid}'] = \
-        BinarySwitchProperty(element_uid=f"devolo.BinarySwitch:{device_uid}")
-    device.consumption_property[f'devolo.Meter:{device_uid}'] = ConsumptionProperty(element_uid=f"devolo.Meter:{device_uid}")
+        BinarySwitchProperty(element_uid=f"devolo.BinarySwitch:{device_uid}",
+                             state=test_data.get("devices").get("mains").get("properties").get("state"))
+    device.consumption_property[f'devolo.Meter:{device_uid}'] = ConsumptionProperty(element_uid=f"devolo.Meter:{device_uid}",
+                                                                                    current=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "current_consumption"),
+                                                                                    total=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "total_consumption"),
+                                                                                    total_since=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "sinceTime"))
     device.voltage_property[f'devolo.VoltageMultiLevelSensor:{device_uid}'] = \
-        VoltageProperty(element_uid=f"devolo.VoltageMultiLevelSensor:{device_uid}")
+        VoltageProperty(element_uid=f"devolo.VoltageMultiLevelSensor:{device_uid}",
+                        current=test_data.get("devices").get("mains").get("properties").get("voltage"))
     device.settings_property["param_changed"] = SettingsProperty(element_uid=f"cps.{device_uid}")
     device.settings_property["general_device_settings"] = SettingsProperty(element_uid=f"gds.{device_uid}")
     device.settings_property["led"] = SettingsProperty(element_uid=f"lis.{device_uid}")

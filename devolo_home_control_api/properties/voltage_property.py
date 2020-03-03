@@ -8,12 +8,12 @@ class VoltageProperty(Property):
     :param element_uid: Element UID, something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, element_uid: str):
+    def __init__(self, element_uid: str, current: float):
         if not element_uid.startswith("devolo.VoltageMultiLevelSensor:"):
             raise WrongElementError(f"{element_uid} is not a Voltage Sensor.")
 
         super().__init__(element_uid=element_uid)
-        self.current = None
+        self.current = current
         self.current_unit = "V"
 
 
@@ -23,6 +23,6 @@ class VoltageProperty(Property):
 
         :return: Voltage value
         """
-        response = self.mprm.extract_data_from_element_uid(self.element_uid)
+        response = self.mprm.get_data_from_uid_list([self.element_uid])
         self.current = response.get("properties").get("value")
         return self.current

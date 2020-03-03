@@ -6,8 +6,6 @@ from ..mydevolo import Mydevolo
 class Zwave:
     """
     Representing object for Z-Wave devices.
-
-    :param device_uid: Device UID, something like hdm:ZWave:CBC56091/24
     """
 
     def __init__(self, **kwargs):
@@ -17,11 +15,11 @@ class Zwave:
             setattr(self, key, value)
 
         self.mydevolo = Mydevolo.get_instance()
-        device_info = self.mydevolo.get_zwave_products(manufacturer=self.manID,
-                                                       product_type=self.prodTypeID,
-                                                       product=self.prodID)
-        for key, value in device_info.items():
-            setattr(self, key, value)
+
+        z_wave_info_list = ["href", "manufacturer", "productTypeId", "productId", "name", "brand", "identifier", "isZWavePlus",
+                            "deviceType", "zwaveVersion", "specificDeviceClass", "genericDeviceClass"]
+        for key in z_wave_info_list:
+            setattr(self, key, None)
 
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
 
@@ -39,6 +37,15 @@ class Zwave:
         :raises: AttributeError: The property does not exist in this device type
         """
         return [*getattr(self, f"{name}_property").values()]
+
+    def get_zwave_info(self):
+        """ Get publicly available information like manufacturer or model. """
+        self._logger.debug(f"Getting Z-Wave information for {self.uid}")
+        dict = self.mydevolo.get_zwave_products(manufacturer=self.manID,
+                                                product_type=self.prodTypeID,
+                                                product=self.prodID)
+        for key, value in dict.items():
+            setattr(self, key, value)
 
 
 def get_device_type_from_element_uid(element_uid: str) -> str:
