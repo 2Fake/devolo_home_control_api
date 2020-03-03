@@ -22,7 +22,7 @@ class TestMprmRest:
                               "deviceModelUID": "test_device_model_uid",
                               "status": "test_status"}
 
-    def test_singleton(self):
+    def test_singleton(self, mock_gateway):
         MprmRest.del_instance()
 
         with pytest.raises(SyntaxError):
@@ -98,7 +98,8 @@ class TestMprmRest:
         with pytest.raises(ValueError):
             self.mprm.post({"data": "test"})
 
-    def test_post_valid(self, mock_response_requests_valid):
+    @pytest.mark.usefixtures("mock_response_requests_valid")
+    def test_post_valid(self):
         self.mprm._data_id = 1
         assert self.mprm.post({"data": "test"}).get("id") == 2
 
