@@ -9,7 +9,8 @@ from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_fro
 
 class Updater:
     """
-    The Updater takes care of new states and values of devices and sends them to the Publisher object.
+    The Updater takes care of new states and values of devices and sends them to the Publisher object. Using methods in here
+    do not effect the real device states.
 
     :param devices: List of devices to await updates for
     :param gateway: Instance of a Gateway object
@@ -47,7 +48,7 @@ class Updater:
         Update the device's online state. The value is written into the internal dict.
 
         :param device_uid: Device UID, something like hdm:ZWave:CBC56091/24#2
-        :param value: 
+        :param value: 1 for online, all other numbers are treated as offline
         """
         self._logger.debug(f"Updating device online state of {device_uid} to {value}")
         self.devices.get(device_uid).status = value
@@ -58,7 +59,7 @@ class Updater:
         Update the binary switch state of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
-        :param value: True to turn on, False to turn off
+        :param value: True for on, False for off
         """
         if element_uid.split(".")[-2] == "smartGroup":
             # We ignore if a group is switched. We get the information separated for every device.

@@ -15,8 +15,6 @@ from .properties.voltage_property import VoltageProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
 
-import sys
-
 
 class HomeControl:
     """
@@ -58,7 +56,7 @@ class HomeControl:
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
     @property
-    def publisher(self) -> Publisher:
+    def publisher(self) -> Optional[Publisher]:
         """ Get all publisher. """
         return self.mprm.publisher
 
@@ -104,7 +102,8 @@ class HomeControl:
         self.updater.update(message)
 
 
-    def _binary_switch(self, uid_info):
+    def _binary_switch(self, uid_info: dict):
+        """ Process BinarySwitch properties. """
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_switch_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property = {}
         self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
@@ -113,7 +112,8 @@ class HomeControl:
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))]. \
             binary_switch_property[uid_info.get("UID")].is_online = self.is_online
 
-    def _general_device(self, uid_info):
+    def _general_device(self, uid_info: dict):
+        """ Process general device setting (gds) properties. """
         self._logger.debug(f"Adding general device settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))]. \
             settings_property["general_device_settings"] = \
@@ -124,13 +124,7 @@ class HomeControl:
                              icon=uid_info.get("properties").get("settings").get("icon"))
 
     def _inspect_devices(self, devices: list):
-        """
-        Inspect device properties of given list of devices.
-
-        :param devices: list of strings with device UID/s like this ["hdm:ZWave:F6BF9812/2", "hdm:ZWave:F6BF9812/3"]
-        :return:
-        """
-
+        """ Inspect device properties of given list of devices. """
         devices_properties = self.mprm.get_data_from_uid_list(devices)
         for device_properties in devices_properties:
             properties = device_properties.get("properties")
@@ -158,12 +152,14 @@ class HomeControl:
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 
-    def _led(self, uid_info):
+    def _led(self, uid_info: dict):
+        """ Process LED information setting (lis) properties. """
         self._logger.debug(f"Adding led settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = \
             SettingsProperty(element_uid=uid_info.get("UID"), led_setting=uid_info.get("properties").get("led"))
 
-    def _meter(self, uid_info):
+    def _meter(self, uid_info: dict):
+        """ Process Meter properties. """
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "consumption_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property = {}
         self._logger.debug(f"Adding consumption property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
@@ -173,23 +169,27 @@ class HomeControl:
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
 
-    def _parameter(self, uid_info):
+    def _parameter(self, uid_info: dict):
+        """ Process custom parameter setting (cps) properties."""
         self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = \
             SettingsProperty(element_uid=uid_info.get('UID'),
                              param_changed=uid_info.get('properties').get("paramChanged"))
 
-    def _protection(self, uid_info):
+    def _protection(self, uid_info: dict):
+        """ Process protection setting (ps) properties. """
         self._logger.debug(f"Adding protection settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = \
             SettingsProperty(element_uid=uid_info.get('UID'),
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
 
-    def _unknown(self, uid_info):
+    def _unknown(self, uid_info: dict):
+        """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
 
-    def _voltage_multi_level_sensor(self, uid_info):
+    def _voltage_multi_level_sensor(self, uid_info: dict):
+        """ Process VoltageMultiLevelSensor properties. """
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "voltage_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property = {}
         self._logger.debug(f"Adding voltage property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
