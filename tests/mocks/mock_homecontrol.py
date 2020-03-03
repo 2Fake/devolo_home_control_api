@@ -4,7 +4,7 @@ from .mock_dummy_device import dummy_device
 from .mock_metering_plug import metering_plug
 
 
-def mock__inspect_devices(self):
+def mock__inspect_devices(self, devices):
     with open('test_data.json') as file:
         test_data = json.load(file)
 

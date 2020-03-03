@@ -48,6 +48,20 @@ class MprmRest:
         self.__class__.__instance = self
 
 
+    @property
+    def all_devices(self) -> list:
+        """
+        Get all devices.
+
+        :return: All devices and their properties.
+        """
+        self._logger.info("Inspecting devices")
+        data = {"method": "FIM/getFunctionalItems",
+                "params": [['devolo.DevicesPage'], 0]}
+        response = self.post(data)
+        return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+
+
     def create_connection(self):
         """ Create session, either locally or via cloud. """
         if self._local_ip:
@@ -73,29 +87,18 @@ class MprmRest:
         threading.Thread(target=zeroconf.close).start()
         return self._local_ip
 
-    def extract_data_from_element_uid(self, uid: str) -> dict:
+    def get_data_from_uid_list(self, uids: list) -> list:
         """
-        Returns data from an element UID using an RPC call.
+        Returns data from an element UID list using an RPC call.
 
-        :param uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-        :return: Data connected to the element UID, payload so to say
+        :param uids: Element UIDs, something like [devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2,
+                     devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#1]
+        :return: Data connected to the element UIDs, payload so to say
         """
         data = {"method": "FIM/getFunctionalItems",
-                "params": [[uid], 0]}
+                "params": [uids, 0]}
         response = self.post(data)
-        return response.get("result").get("items")[0]
-
-    def get_all_devices(self) -> dict:
-        """
-        Get all devices.
-
-        :return: Dict with all devices and their properties.
-        """
-        self._logger.info("Inspecting devices")
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [['devolo.DevicesPage'], 0]}
-        response = self.post(data)
-        return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+        return response.get("result").get("items")
 
     def get_local_session(self):
         """ Connect to the gateway locally. """
@@ -178,6 +181,7 @@ class MprmRest:
         except (OSError, AttributeError):
             # OSError: Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
             # AttributeError: The MDNS entry does not provide address information
+            # TODO: We can somehow delete the ip in zeroconf, because if we can't connect once, we won't connect at second try
             pass
 
 
