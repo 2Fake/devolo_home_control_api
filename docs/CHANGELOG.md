@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Speed up device collection
+
+### Fixed
+
+- Catch error if a smart group is switched
+
 ## [v0.4.0] - 2020/02/27
 
 ### Added

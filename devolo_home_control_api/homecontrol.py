@@ -15,6 +15,8 @@ from .properties.voltage_property import VoltageProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
 
+import sys
+
 
 class HomeControl:
     """
@@ -144,13 +146,15 @@ class HomeControl:
                     "cps.hdm": self._parameter,
                     "ps.hdm": self._protection
                     }
+        # List comprehension gets the list of uids from every device
+        nested_uids_lists = [(uid.get("properties").get('settingUIDs')
+                              + uid.get("properties").get("elementUIDs"))
+                             for uid in devices_properties]
 
-        # Inner list comprehension gets the list of uids from every device
-        # Outer list comprehension gets all uids into one list to make one big call against the mPRM
-        for uid_info in self.mprm.get_data_from_uid_list([item for sublist in
-                                                          [(uid.get("properties").get('settingUIDs')
-                                                            + uid.get("properties").get("elementUIDs"))
-                                                           for uid in devices_properties] for item in sublist]):
+        # List comprehension gets all uids into one list to make one big call against the mPRM
+        uid_list = [uid for sublist in nested_uids_lists for uid in sublist]
+
+        for uid_info in self.mprm.get_data_from_uid_list(uid_list):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 
