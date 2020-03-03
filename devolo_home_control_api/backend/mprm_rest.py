@@ -16,7 +16,7 @@ class MprmRest:
     The MprmRest object handles calls to the so called mPRM as singleton. It does not cover all API calls, just those
     requested up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway.
 
-    :param gateway_id: Gateway ID
+    :param gateway: Instance of the gateway object to operate on
     :param url: URL of the mPRM
     .. todo:: Make __instance a dict to handle multiple gateways at the same time
     """
@@ -34,11 +34,11 @@ class MprmRest:
         cls.__instance = None
 
 
-    def __init__(self, gateway_id: str, url: str):
+    def __init__(self, gateway: Gateway, url: str):
         if self.__class__.__instance is not None:
             raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._gateway = Gateway(gateway_id)
+        self._gateway = gateway
         self._mydevolo = Mydevolo.get_instance()
         self._session = requests.Session()
         self._data_id = 0

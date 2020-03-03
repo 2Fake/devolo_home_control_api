@@ -30,7 +30,7 @@ class HomeControl:
         self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
 
-        self.mprm = MprmWebsocket(gateway_id=gateway_id, url=url)
+        self.mprm = MprmWebsocket(gateway=self._gateway, url=url)
         self.mprm.on_update = self.update
         self.mprm.detect_gateway_in_lan()
         self.mprm.create_connection()

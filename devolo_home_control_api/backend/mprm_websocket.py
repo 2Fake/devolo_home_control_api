@@ -6,7 +6,8 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
-from devolo_home_control_api.backend.mprm_rest import MprmRest, MprmDeviceCommunicationError
+from ..devices.gateway import Gateway
+from .mprm_rest import MprmRest, MprmDeviceCommunicationError
 
 
 class MprmWebsocket(MprmRest):
@@ -15,12 +16,12 @@ class MprmWebsocket(MprmRest):
     requested up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway. As
     it inherites from MprmRest, it is a singleton as well.
 
-    :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
+    :param gateway: Instance of the gateway object to operate on
     :param url: URL of the mPRM
     """
 
-    def __init__(self, gateway_id: str, url: str):
-        super().__init__(gateway_id, url)
+    def __init__(self, gateway: Gateway, url: str):
+        super().__init__(gateway, url)
         self._ws = None
         self._event_sequence = 0
 
