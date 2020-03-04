@@ -28,6 +28,8 @@ class MprmWebsocket(MprmRest):
         self.publisher = None
         self.on_update = None
 
+    def close(self):
+        self._ws.close()
 
     def websocket_connection(self):
         """ Set up the websocket connection """

@@ -1,4 +1,5 @@
 from .property import Property, WrongElementError
+from ..backend.mprm_rest import MprmRest
 
 
 class VoltageProperty(Property):
@@ -8,11 +9,11 @@ class VoltageProperty(Property):
     :param element_uid: Element UID, something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, element_uid: str, current: float):
+    def __init__(self, mprm: MprmRest, element_uid: str, current: float):
         if not element_uid.startswith("devolo.VoltageMultiLevelSensor:"):
             raise WrongElementError(f"{element_uid} is not a Voltage Sensor.")
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(mprm=mprm, element_uid=element_uid)
         self.current = current
         self.current_unit = "V"
 
