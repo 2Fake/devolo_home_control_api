@@ -2,6 +2,8 @@ import json
 import logging
 import socket
 import threading
+from contextlib import closing
+
 import time
 
 import requests
@@ -21,31 +23,31 @@ class MprmRest:
     .. todo:: Make __instance a dict to handle multiple gateways at the same time
     """
 
-    __instance = None
+    #__instance = None
 
-    @classmethod
-    def get_instance(cls):
-        if cls.__instance is None:
-            raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to the gateway's backend.")
-        return cls.__instance
+    #@classmethod
+    #def get_instance(cls):
+    #    if cls.__instance is None:
+    #        raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to the gateway's backend.")
+    #    return cls.__instance
 
-    @classmethod
-    def del_instance(cls):
-        cls.__instance = None
+    # @classmethod
+    # def del_instance(cls):
+    #     cls.__instance = None
 
 
-    def __init__(self, gateway: Gateway, url: str):
-        if self.__class__.__instance is not None:
-            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
+    def __init__(self, gateway_id: str, url: str):
+        #if self.__class__.__instance is not None:
+        #    raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._gateway = gateway
+        self._gateway = Gateway(gateway_id)
         self._mydevolo = Mydevolo.get_instance()
         self._session = requests.Session()
         self._data_id = 0
         self._mprm_url = url
         self._local_ip = None
 
-        self.__class__.__instance = self
+        #self.__class__.__instance = self
 
 
     @property
@@ -76,7 +78,7 @@ class MprmRest:
     def detect_gateway_in_lan(self):
         """ Detects a gateway in local network and check if it is the desired one. """
         zeroconf = Zeroconf()
-        ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
+        browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN")
         start_time = time.time()
         while not time.time() > start_time + 3 and self._local_ip is None:
@@ -84,6 +86,7 @@ class MprmRest:
                 self._try_local_connection(mdns_name)
             else:
                 time.sleep(0.05)
+        threading.Thread(target=browser.cancel).start()
         threading.Thread(target=zeroconf.close).start()
         return self._local_ip
 
@@ -152,7 +155,7 @@ class MprmRest:
             response = self._session.post(self._mprm_url + "/remote/json-rpc",
                                           data=json.dumps(data),
                                           headers={"content-type": "application/json"},
-                                          timeout=15).json()
+                                          timeout=30).json()
         except requests.ReadTimeout:
             self._logger.error("Gateway is offline.")
             self._gateway.update_state(False)

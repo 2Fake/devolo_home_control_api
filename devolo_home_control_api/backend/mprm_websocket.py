@@ -20,16 +20,17 @@ class MprmWebsocket(MprmRest):
     :param url: URL of the mPRM
     """
 
-    def __init__(self, gateway: Gateway, url: str):
-        super().__init__(gateway, url)
+    def __init__(self, gateway_id: str, url: str):
+        super().__init__(gateway_id, url)
         self._ws = None
         self._event_sequence = 0
 
-        self.publisher = None
-        self.on_update = None
 
     def close(self):
         self._ws.close()
+
+    def on_update(self, message):
+        raise NotImplementedError
 
     def websocket_connection(self):
         """ Set up the websocket connection """
@@ -77,10 +78,7 @@ class MprmWebsocket(MprmRest):
             self._logger.warning("We missed a websocket message.")
             self._event_sequence = event_sequence
 
-        try:
-            self.on_update(message)
-        except TypeError:
-            self._logger.error("on_update is not set.")
+        self.on_update(message)
 
     def _on_open(self):
         """ Callback function to keep the websocket open. """
