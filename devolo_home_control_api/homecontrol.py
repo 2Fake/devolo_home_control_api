@@ -28,28 +28,22 @@ class HomeControl(MprmWebsocket):
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         super().__init__(gateway_id, url)
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._session = requests.Session()
 
-        self.detect_gateway_in_lan()
-        self.create_connection()
+
 
         # Create the initial device dict
         self.devices = {}
         self._inspect_devices(self.all_devices)
 
-        # self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
-        #                              [self.devices.get(device).uid for device in self.devices]))
-        #
-        # self.publisher = Publisher([device for device in self.devices])
-        #
-        # self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.publisher)
-        # self.updater.on_device_change = self.device_change
-        #
-        # threading.Thread(target=self.websocket_connection).start()
+        self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
+                                     [self.devices.get(device).uid for device in self.devices]))
 
-    def __del__(self):
-        print("del")
+        self.publisher = Publisher([device for device in self.devices])
 
+        self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.publisher)
+        self.updater.on_device_change = self.device_change
+
+        threading.Thread(target=self.websocket_connect).start()
 
     @property
     def binary_switch_devices(self) -> list:
@@ -91,7 +85,7 @@ class HomeControl(MprmWebsocket):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property = {}
         self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")] = \
-            BinarySwitchProperty(
+            BinarySwitchProperty(mprm=self,
                                  element_uid=uid_info.get("UID"),
                                  state=True if uid_info.get("properties").get("state") == 1 else False)
 
@@ -115,13 +109,13 @@ class HomeControl(MprmWebsocket):
             self.devices[device_properties.get("UID")].settings_property = {}
             threading.Thread(target=self.devices[device_properties.get("UID")].get_zwave_info).start()
 
-        elements = {"devolo.BinarySwitch": self._binary_switch
-        #             "devolo.Meter": self._meter,
-        #             "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
-        #             "lis.hdm": self._led,
-        #             "gds.hdm": self._general_device,
-        #             "cps.hdm": self._parameter,
-        #             "ps.hdm": self._protection
+        elements = {"devolo.BinarySwitch": self._binary_switch,
+                    "devolo.Meter": self._meter,
+                    "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                    "lis.hdm": self._led,
+                    "gds.hdm": self._general_device,
+                    "cps.hdm": self._parameter,
+                    "ps.hdm": self._protection
                     }
         # List comprehension gets the list of uids from every device
         nested_uids_lists = [(uid.get("properties").get('settingUIDs')

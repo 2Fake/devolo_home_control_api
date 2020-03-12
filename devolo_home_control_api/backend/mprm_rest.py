@@ -47,6 +47,9 @@ class MprmRest:
         self._mprm_url = url
         self._local_ip = None
 
+        self.detect_gateway_in_lan()
+        self.create_connection()
+
         #self.__class__.__instance = self
 
 

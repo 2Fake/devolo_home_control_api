@@ -25,14 +25,18 @@ class MprmWebsocket(MprmRest):
         self._ws = None
         self._event_sequence = 0
 
+    def __enter__(self):
+        print("enter")
+        return self
 
-    def close(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("exit")
         self._ws.close()
 
     def on_update(self, message):
         raise NotImplementedError
 
-    def websocket_connection(self):
+    def websocket_connect(self):
         """ Set up the websocket connection """
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
@@ -65,7 +69,7 @@ class MprmWebsocket(MprmRest):
             self._try_reconnect(sleep_interval)
             sleep_interval = sleep_interval * 2 if sleep_interval < 2048 else 3600
 
-        self.websocket_connection()
+        self.websocket_connect()
 
     def _on_message(self, message: str):
         """ Callback function to react on a message. """
