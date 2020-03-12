@@ -25,21 +25,24 @@ class MprmWebsocket(MprmRest):
         self._ws = None
         self._event_sequence = 0
 
+        self.detect_gateway_in_lan()
+        self.create_connection()
+
     def __enter__(self):
-        print("enter")
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        print("exit")
-        self._ws.close()
+    def __exit__(self, exception_type, exception_value, traceback):
+        self.websocket_disconnect()
+
 
     def on_update(self, message):
+        """ Abstract method for processing messages from the websocket. """
         raise NotImplementedError
 
     def websocket_connect(self):
-        """ Set up the websocket connection """
+        """ Set up the websocket connection. """
         ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
-        cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
+        cookie = "; ".join([str(name) + "=" + str(value) for name, value in MprmRest.session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
                  f"&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
@@ -51,6 +54,10 @@ class MprmWebsocket(MprmRest):
                                           on_error=self._on_error,
                                           on_close=self._on_close)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
+
+    def websocket_disconnect(self):
+        """ Close the websocket connection. """
+        self._ws.close()
 
 
     def _on_close(self):
