@@ -20,37 +20,19 @@ class MprmRest:
 
     :param gateway: Instance of the gateway object to operate on
     :param url: URL of the mPRM
-    .. todo:: Make __instance a dict to handle multiple gateways at the same time
     """
-
-    #__instance = None
-
-    #@classmethod
-    #def get_instance(cls):
-    #    if cls.__instance is None:
-    #        raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to the gateway's backend.")
-    #    return cls.__instance
-
-    # @classmethod
-    # def del_instance(cls):
-    #     cls.__instance = None
-
+    session = None
 
     def __init__(self, gateway_id: str, url: str):
-        #if self.__class__.__instance is not None:
-        #    raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() to reuse the connection to the backend.")
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = Gateway(gateway_id)
         self._mydevolo = Mydevolo.get_instance()
-        self._session = requests.Session()
         self._data_id = 0
         self._mprm_url = url
         self._local_ip = None
 
-        self.detect_gateway_in_lan()
-        self.create_connection()
-
-        #self.__class__.__instance = self
+        if MprmRest.session is None:
+            MprmRest.session = requests.Session()
 
 
     @property
@@ -111,7 +93,7 @@ class MprmRest:
         self._logger.info("Connecting to gateway locally")
         self._mprm_url = "http://" + self._local_ip
         try:
-            self._token_url = self._session.get(self._mprm_url + "/dhlp/portal/full",
+            self._token_url = MprmRest.session.get(self._mprm_url + "/dhlp/portal/full",
                                                 auth=(self._gateway.local_user, self._gateway.local_passkey), timeout=5).json()
         except json.JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
@@ -119,7 +101,7 @@ class MprmRest:
         except requests.ConnectTimeout:
             self._logger.error("Timeout during connecting to the gateway.")
             raise
-        self._session.get(self._token_url.get('link'))
+        MprmRest.session.get(self._token_url.get('link'))
 
     def get_name_and_element_uids(self, uid: str):
         """
@@ -137,7 +119,7 @@ class MprmRest:
         """ Connect to the gateway remotely. """
         self._logger.info("Connecting to gateway via cloud")
         try:
-            self._session.get(self._gateway.full_url, timeout=15)
+            MprmRest.session.get(self._gateway.full_url, timeout=15)
         except json.JSONDecodeError:
             raise MprmDeviceCommunicationError("Gateway is offline.") from None
 
@@ -155,7 +137,7 @@ class MprmRest:
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
         try:
-            response = self._session.post(self._mprm_url + "/remote/json-rpc",
+            response = MprmRest.session.post(self._mprm_url + "/remote/json-rpc",
                                           data=json.dumps(data),
                                           headers={"content-type": "application/json"},
                                           timeout=30).json()
