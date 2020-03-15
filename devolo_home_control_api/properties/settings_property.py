@@ -8,11 +8,11 @@ class SettingsProperty(Property):
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, mprm: MprmRest, element_uid: str, **kwargs):
+    def __init__(self, session, element_uid: str, **kwargs):
         if element_uid.split(".")[0] not in ["lis", "gds", "cps", "ps"]:
             raise WrongElementError()
 
-        super().__init__(mprm=mprm, element_uid=element_uid)
+        super().__init__(session=session, element_uid=element_uid)
         self.setting_uid = element_uid
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -24,7 +24,7 @@ class SettingsProperty(Property):
 
         :return: Events enabled or not
         """
-        response = self.mprm.get_data_from_uid_list([self.setting_uid])
+        response = self.get_data_from_uid_list([self.setting_uid])
         self.name = response.get("properties").get("name")
         self.icon = response.get("properties").get("icon")
         self.zone_id = response.get("properties").get("zoneID")
@@ -37,7 +37,7 @@ class SettingsProperty(Property):
 
         :return: LED setting
         """
-        response = self.mprm.get_data_from_uid_list([self.setting_uid])
+        response = self.get_data_from_uid_list([self.setting_uid])
         self.led_setting = response.get("properties").get("led")
         return self.led_setting
 
@@ -48,7 +48,7 @@ class SettingsProperty(Property):
         :param setting_uid: Settings UID to look at. Usually starts with cps.hdm.
         :return: True, if parameter was changed
         """
-        response = self.mprm.get_data_from_uid_list([self.setting_uid])
+        response = self.get_data_from_uid_list([self.setting_uid])
         self.param_changed = response.get("properties").get("paramChanged")
         return self.param_changed
 
@@ -61,7 +61,7 @@ class SettingsProperty(Property):
         """
         if protection_setting not in ["local", "remote"]:
             raise ValueError("Only local and remote are possible protection settings")
-        response = self.mprm.get_data_from_uid_list([self.setting_uid])
+        response = self.get_data_from_uid_list([self.setting_uid])
         if protection_setting == "local":
             self.local_switching = response.get("properties").get("localSwitch")
             return self.local_switching

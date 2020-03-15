@@ -4,7 +4,7 @@ from typing import Optional
 
 import requests
 
-from .backend.mprm_websocket import MprmWebsocket
+from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_setting_uid, \
     get_device_uid_from_element_uid
@@ -16,7 +16,7 @@ from .publisher.publisher import Publisher
 from .publisher.updater import Updater
 
 
-class HomeControl(MprmWebsocket):
+class HomeControl(Mprm):
     """
     Representing object for your Home Control setup. This is more or less the glue between your devolo Home Control Central
     Unit, your devices and their properties.
@@ -26,10 +26,11 @@ class HomeControl(MprmWebsocket):
     """
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
-        super().__init__(gateway_id, url)
-        self._logger = logging.getLogger(self.__class__.__name__)
+        self._gateway = Gateway(gateway_id)
+        self._session = requests.Session()
+        self._session.url = url
 
-
+        super().__init__()
 
         # Create the initial device dict
         self.devices = {}
@@ -44,6 +45,7 @@ class HomeControl(MprmWebsocket):
         self.updater.on_device_change = self.device_change
 
         threading.Thread(target=self.websocket_connect).start()
+
 
     @property
     def binary_switch_devices(self) -> list:
@@ -85,7 +87,7 @@ class HomeControl(MprmWebsocket):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property = {}
         self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")] = \
-            BinarySwitchProperty(mprm=self,
+            BinarySwitchProperty(session=self._session,
                                  element_uid=uid_info.get("UID"),
                                  state=True if uid_info.get("properties").get("state") == 1 else False)
 
@@ -94,7 +96,8 @@ class HomeControl(MprmWebsocket):
         self._logger.debug(f"Adding general device settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))]. \
             settings_property["general_device_settings"] = \
-            SettingsProperty(mprm=self, element_uid=uid_info.get("UID"),
+            SettingsProperty(session=self._session,
+                             element_uid=uid_info.get("UID"),
                              events_enabled=uid_info.get("properties").get("settings").get("eventsEnabled"),
                              name=uid_info.get("properties").get("settings").get("name"),
                              zone_id=uid_info.get("properties").get("settings").get("zoneID"),
@@ -133,7 +136,7 @@ class HomeControl(MprmWebsocket):
         """ Process LED information setting (lis) properties. """
         self._logger.debug(f"Adding led settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = \
-            SettingsProperty(mprm=self,
+            SettingsProperty(session=self._session,
                              element_uid=uid_info.get("UID"),
                              led_setting=uid_info.get("properties").get("led"))
 
@@ -143,7 +146,7 @@ class HomeControl(MprmWebsocket):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property = {}
         self._logger.debug(f"Adding consumption property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property[uid_info.get("UID")] = \
-            ConsumptionProperty(mprm=self,
+            ConsumptionProperty(session=self._session,
                                 element_uid=uid_info.get("UID"),
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
@@ -153,7 +156,7 @@ class HomeControl(MprmWebsocket):
         """ Process custom parameter setting (cps) properties."""
         self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = \
-            SettingsProperty(mprm=self,
+            SettingsProperty(session=self._session,
                              element_uid=uid_info.get('UID'),
                              param_changed=uid_info.get('properties').get("paramChanged"))
 
@@ -161,7 +164,7 @@ class HomeControl(MprmWebsocket):
         """ Process protection setting (ps) properties. """
         self._logger.debug(f"Adding protection settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = \
-            SettingsProperty(mprm=self,
+            SettingsProperty(session=self._session,
                              element_uid=uid_info.get('UID'),
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
@@ -176,7 +179,7 @@ class HomeControl(MprmWebsocket):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property = {}
         self._logger.debug(f"Adding voltage property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property[uid_info.get("UID")] = \
-            VoltageProperty(mprm=self,
+            VoltageProperty(session=self._session,
                             element_uid=uid_info.get("UID"),
                             current=uid_info.get("properties").get("value"))
 
