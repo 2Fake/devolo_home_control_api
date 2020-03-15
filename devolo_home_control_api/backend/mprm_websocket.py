@@ -15,18 +15,12 @@ class MprmWebsocket(MprmRest):
     The MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
     requested up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway. As
     it inherites from MprmRest, it is a singleton as well.
-
-    :param gateway: Instance of the gateway object to operate on
-    :param url: URL of the mPRM
     """
 
-    def __init__(self, gateway_id: str, url: str):
-        super().__init__(gateway_id, url)
+    def __init__(self):
+        super().__init__()
         self._ws = None
         self._event_sequence = 0
-
-        self.detect_gateway_in_lan()
-        self.create_connection()
 
     def __enter__(self):
         return self
@@ -41,8 +35,8 @@ class MprmWebsocket(MprmRest):
 
     def websocket_connect(self):
         """ Set up the websocket connection. """
-        ws_url = self._mprm_url.replace("https://", "wss://").replace("http://", "ws://")
-        cookie = "; ".join([str(name) + "=" + str(value) for name, value in MprmRest.session.cookies.items()])
+        ws_url = self._session.url.replace("https://", "wss://").replace("http://", "ws://")
+        cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
                  f"&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
@@ -57,6 +51,8 @@ class MprmWebsocket(MprmRest):
 
     def websocket_disconnect(self):
         """ Close the websocket connection. """
+        self._logger.info("Closing web socket connection.")
+        # TODO: Fix this. It shouldn't reconnect.
         self._ws.close()
 
 
@@ -94,7 +90,7 @@ class MprmWebsocket(MprmRest):
     def _on_open(self):
         """ Callback function to keep the websocket open. """
         def run(*args):
-            self._logger.info("Starting web socket connection")
+            self._logger.info("Starting web socket connection.")
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
