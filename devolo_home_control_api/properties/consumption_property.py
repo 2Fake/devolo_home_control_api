@@ -1,5 +1,8 @@
 from datetime import datetime
 
+from requests import Session
+
+from ..devices.gateway import Gateway
 from .property import Property, WrongElementError
 
 
@@ -10,11 +13,11 @@ class ConsumptionProperty(Property):
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, element_uid: str, current: float, total: float, total_since: int):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, current: float, total: float, total_since: int):
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
         self.current = current
         self.current_unit = "W"
         self.total = total
@@ -31,7 +34,7 @@ class ConsumptionProperty(Property):
         """
         if consumption_type not in ["current", "total"]:
             raise ValueError('Unknown consumption type. "current" and "total" are valid consumption types.')
-        response = self.mprm.get_data_from_uid_list([self.element_uid])
+        response = self.get_data_from_uid_list([self.element_uid])
         if consumption_type == "current":
             self.current = response.get("properties").get("currentValue")
             return self.current
