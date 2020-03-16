@@ -39,10 +39,5 @@ class BinarySwitchProperty(Property):
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "turnOn" if state else "turnOff", []]}
         response = self.post(data)
-        if response.get("result").get("status") == 2 and not self.is_online(self.device_uid):
-            raise MprmDeviceCommunicationError("The device is offline.")
         if response.get("result").get("status") == 1:
             self.state = state
-        else:
-            self._logger.info(f"Could not set state of device {self.device_uid}. Maybe it is already at this state.")
-            self._logger.info(f"Target state is {state}. Actual state is {self.state}.")
