@@ -6,10 +6,16 @@ from threading import Thread
 import requests
 from zeroconf import DNSRecord, ServiceBrowser, ServiceStateChange, Zeroconf
 
+from .mprm_rest import MprmDeviceCommunicationError
 from .mprm_websocket import MprmWebsocket
 
 
 class Mprm(MprmWebsocket):
+    """
+    The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
+    way is chosen, depending on detecting the gateway via mDNS.
+    """
+
     def __init__(self):
         super().__init__()
         self.detect_gateway_in_lan()
