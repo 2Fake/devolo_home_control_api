@@ -6,15 +6,18 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
-from ..devices.gateway import Gateway
-from .mprm_rest import MprmRest, MprmDeviceCommunicationError
+from .mprm_rest import MprmDeviceCommunicationError, MprmRest
 
 
 class MprmWebsocket(MprmRest):
     """
-    The MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
-    requested up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway. As
-    it inherites from MprmRest, it is a singleton as well.
+    The abtract MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
+    requested up to now. All calls are done in a gateway context, so you have to create a child class, that provides a
+    Gateway object and a Session object. Further, the child class needs to implement methods to connect to the websocket,
+    either local or remote. Last but not least, the child class needs to implement a method that is called on new messages.
+
+    The websocket connection itself runs in a thread, that might not terminate as expected. Using a with-statement is
+    recommended.
     """
 
     def __init__(self):
@@ -29,9 +32,14 @@ class MprmWebsocket(MprmRest):
         self.websocket_disconnect()
 
 
+    def get_local_session(self):
+        raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
+
+    def get_remote_session(self):
+        raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect remotely to a gateway.")
+
     def on_update(self, message):
-        """ Abstract method for processing messages from the websocket. """
-        raise NotImplementedError
+        raise NotImplementedError(f"{self.__class__.__name__} needs a method to process messages from the websocket.")
 
     def websocket_connect(self):
         """ Set up the websocket connection. """
@@ -52,7 +60,6 @@ class MprmWebsocket(MprmRest):
     def websocket_disconnect(self):
         """ Close the websocket connection. """
         self._logger.info("Closing web socket connection.")
-        # TODO: Fix this. It shouldn't reconnect.
         self._ws.close()
 
 
@@ -96,8 +103,9 @@ class MprmWebsocket(MprmRest):
         threading.Thread(target=run).start()
 
     def _try_reconnect(self, sleep_interval: int):
+        """ Try to reconnect to the websocket. """
         try:
-            self._logger.info("Trying to reconnect to the gateway.")
+            self._logger.info("Trying to reconnect to the websocket.")
             # TODO: Check if local_ip is still correct after lost connection
             self.get_local_session() if self._local_ip else self.get_remote_session()
             self.connected = True

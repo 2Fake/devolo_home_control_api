@@ -1,22 +1,18 @@
 import json
 import logging
-import threading
-from contextlib import closing
 
 from requests import ReadTimeout
 
-from ..devices.gateway import Gateway
 from ..mydevolo import Mydevolo
 
 
 class MprmRest:
     """
-    The MprmRest object handles calls to the so called mPRM as singleton. It does not cover all API calls, just those
-    requested up to now. All calls are done in a gateway context, so you need to provide the ID of that gateway.
-
-    :param gateway: Instance of the gateway object to operate on
-    :param url: URL of the mPRM
+    The abstract MprmRest object handles calls to the so called mPRM. It does not cover all API calls, just those requested
+    up to now. All calls are done in a gateway context, so you have to create a child class, that provides a Gateway object
+    and a Session object.
     """
+
     def __init__(self):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
@@ -36,6 +32,15 @@ class MprmRest:
                 "params": [['devolo.DevicesPage'], 0]}
         response = self.post(data)
         return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+
+
+    @property
+    def _gateway(self):
+        raise NotImplementedError(f"{self.__class__.__name__} needs a Gateway object.")
+
+    @property
+    def _session(self):
+        raise NotImplementedError(f"{self.__class__.__name__} needs a Session object.")
 
 
     def get_data_from_uid_list(self, uids: list) -> list:
