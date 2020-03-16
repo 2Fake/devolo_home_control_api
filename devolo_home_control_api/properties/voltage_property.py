@@ -1,3 +1,6 @@
+from requests import Session
+
+from ..devices.gateway import Gateway
 from .property import Property, WrongElementError
 
 
@@ -8,11 +11,11 @@ class VoltageProperty(Property):
     :param element_uid: Element UID, something like devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, element_uid: str, current: float):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, current: float):
         if not element_uid.startswith("devolo.VoltageMultiLevelSensor:"):
             raise WrongElementError(f"{element_uid} is not a Voltage Sensor.")
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
         self.current = current
         self.current_unit = "V"
 
@@ -23,6 +26,6 @@ class VoltageProperty(Property):
 
         :return: Voltage value
         """
-        response = self.mprm.get_data_from_uid_list([self.element_uid])
+        response = self.get_data_from_uid_list([self.element_uid])
         self.current = response.get("properties").get("value")
         return self.current

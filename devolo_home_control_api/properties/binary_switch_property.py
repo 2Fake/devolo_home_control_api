@@ -1,5 +1,8 @@
-from .property import Property, WrongElementError
+from requests import Session
+
 from ..backend.mprm_rest import MprmDeviceCommunicationError
+from ..devices.gateway import Gateway
+from .property import Property, WrongElementError
 
 
 class BinarySwitchProperty(Property):
@@ -9,11 +12,11 @@ class BinarySwitchProperty(Property):
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, element_uid: str, state: bool):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, state: bool):
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
         self.state = state
 
 
@@ -23,7 +26,7 @@ class BinarySwitchProperty(Property):
 
         :return: Binary switch state
         """
-        response = self.mprm.get_data_from_uid_list([self.element_uid])
+        response = self.get_data_from_uid_list([self.element_uid])
         self.state = True if response.get("properties").get("state") == 1 else False
         return self.state
 
@@ -35,11 +38,6 @@ class BinarySwitchProperty(Property):
         """
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "turnOn" if state else "turnOff", []]}
-        response = self.mprm.post(data)
-        if response.get("result").get("status") == 2 and not self.is_online(self.device_uid):
-            raise MprmDeviceCommunicationError("The device is offline.")
+        response = self.post(data)
         if response.get("result").get("status") == 1:
             self.state = state
-        else:
-            self._logger.info(f"Could not set state of device {self.device_uid}. Maybe it is already at this state.")
-            self._logger.info(f"Target state is {state}. Actual state is {self.state}.")
