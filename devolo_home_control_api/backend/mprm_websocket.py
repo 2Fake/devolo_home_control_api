@@ -11,7 +11,7 @@ from .mprm_rest import MprmDeviceCommunicationError, MprmRest
 
 class MprmWebsocket(MprmRest):
     """
-    The abtract MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
+    The abstract MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
     requested up to now. All calls are done in a gateway context, so you have to create a child class, that provides a
     Gateway object and a Session object. Further, the child class needs to implement methods to connect to the websocket,
     either local or remote. Last but not least, the child class needs to implement a method that is called on new messages.
