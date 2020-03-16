@@ -9,7 +9,7 @@ from ..mydevolo import Mydevolo
 class MprmRest:
     """
     The abstract MprmRest object handles calls to the so called mPRM. It does not cover all API calls, just those requested
-    up to now. All calls are done in a gateway context, so you have to create a child class, that provides a Gateway object
+    up to now. All calls are done in a gateway context, so you have to create a derived class, that provides a Gateway object
     and a Session object.
     """
 
@@ -32,15 +32,6 @@ class MprmRest:
                 "params": [['devolo.DevicesPage'], 0]}
         response = self.post(data)
         return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
-
-
-    @property
-    def _gateway(self):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a Gateway object.")
-
-    @property
-    def _session(self):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a Session object.")
 
 
     def get_data_from_uid_list(self, uids: list) -> list:
@@ -75,9 +66,6 @@ class MprmRest:
         :param data: Data to be send
         :return: Response to the data
         """
-        # if not(self._gateway.online or self._gateway.sync) and not self._gateway.local_connection:
-        #     raise MprmDeviceCommunicationError("Gateway is offline.")
-
         self._data_id += 1
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
