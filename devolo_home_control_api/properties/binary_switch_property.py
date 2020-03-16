@@ -1,6 +1,5 @@
 from requests import Session
 
-from ..backend.mprm_rest import MprmDeviceCommunicationError
 from ..devices.gateway import Gateway
 from .property import Property, WrongElementError
 
