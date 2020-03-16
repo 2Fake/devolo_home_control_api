@@ -1,4 +1,3 @@
-import logging
 import threading
 from typing import Optional
 
@@ -88,6 +87,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")] = \
             BinarySwitchProperty(session=self._session,
+                                 gateway=self._gateway,
                                  element_uid=uid_info.get("UID"),
                                  state=True if uid_info.get("properties").get("state") == 1 else False)
 
@@ -97,6 +97,7 @@ class HomeControl(Mprm):
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))]. \
             settings_property["general_device_settings"] = \
             SettingsProperty(session=self._session,
+                             gateway=self._gateway,
                              element_uid=uid_info.get("UID"),
                              events_enabled=uid_info.get("properties").get("settings").get("eventsEnabled"),
                              name=uid_info.get("properties").get("settings").get("name"),
@@ -137,6 +138,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding led settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = \
             SettingsProperty(session=self._session,
+                             gateway=self._gateway,
                              element_uid=uid_info.get("UID"),
                              led_setting=uid_info.get("properties").get("led"))
 
@@ -147,6 +149,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding consumption property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property[uid_info.get("UID")] = \
             ConsumptionProperty(session=self._session,
+                                gateway=self._gateway,
                                 element_uid=uid_info.get("UID"),
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
@@ -157,6 +160,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = \
             SettingsProperty(session=self._session,
+                             gateway=self._gateway,
                              element_uid=uid_info.get('UID'),
                              param_changed=uid_info.get('properties').get("paramChanged"))
 
@@ -165,6 +169,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding protection settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = \
             SettingsProperty(session=self._session,
+                             gateway=self._gateway,
                              element_uid=uid_info.get('UID'),
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
@@ -180,6 +185,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding voltage property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property[uid_info.get("UID")] = \
             VoltageProperty(session=self._session,
+                            gateway=self._gateway,
                             element_uid=uid_info.get("UID"),
                             current=uid_info.get("properties").get("value"))
 

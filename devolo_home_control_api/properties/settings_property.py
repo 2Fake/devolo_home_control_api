@@ -1,5 +1,8 @@
+from requests import Session
+
+from ..devices.gateway import Gateway
 from .property import Property, WrongElementError
-from ..backend.mprm_rest import MprmRest
+
 
 class SettingsProperty(Property):
     """
@@ -8,11 +11,11 @@ class SettingsProperty(Property):
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, session, element_uid: str, **kwargs):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs):
         if element_uid.split(".")[0] not in ["lis", "gds", "cps", "ps"]:
             raise WrongElementError()
 
-        super().__init__(session=session, element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
         self.setting_uid = element_uid
         for key, value in kwargs.items():
             setattr(self, key, value)

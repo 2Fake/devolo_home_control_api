@@ -1,4 +1,7 @@
+from requests import Session
+
 from ..backend.mprm_rest import MprmRest
+from ..devices.gateway import Gateway
 
 
 class Property(MprmRest):
@@ -8,10 +11,11 @@ class Property(MprmRest):
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, session, element_uid: str):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str):
         self.element_uid = element_uid
         self.device_uid = element_uid.split(":", 1)[1].split("#")[0]
         self.is_online = None
+        self._gateway = gateway
         self._session = session
         super().__init__()
 
