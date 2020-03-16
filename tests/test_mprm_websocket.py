@@ -14,12 +14,8 @@ class TestMprmWebsocket:
 
     def test__on_message(self):
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
-        self.mprm.on_update = lambda: AssertionError()
-        try:
+        with pytest.raises(NotImplementedError):
             self.mprm._on_message(message)
-            assert False
-        except AssertionError:
-            assert True
 
     def test__on_message_event_sequence(self):
         event_sequence = self.mprm._event_sequence
@@ -27,12 +23,6 @@ class TestMprmWebsocket:
         self.mprm._on_message(message)
         assert event_sequence != self.mprm._event_sequence
         assert self.mprm._event_sequence == 5
-
-    def test__on_update_not_set(self):
-        # TypeError should be caught by _on_message
-        self.mprm.on_update = None
-        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
-        self.mprm._on_message(message)
 
     def test__on_error(self, mock_mprmrest_get_remote_session, mock_mprmwebsocket_websocket_connection):
         self.mprm._ws = MockWebsocket()

@@ -11,9 +11,9 @@ def home_control_instance(request, mydevolo, mock_gateway, mock_mprmwebsocket_we
                           mock_inspect_devices_metering_plug, mock_mprmrest__detect_gateway_in_lan):
     """ Create a mocked Home Control instance with static test data. """
     request.cls.homecontrol = HomeControl(request.cls.gateway.get("id"))
-    if request.node.name not in ["test__inspect_devices"]:
-        request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'] \
-            .binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'].is_online = request.cls.homecontrol.is_online
+    #if request.node.name not in ["test__inspect_devices"]:
+    #    request.cls.homecontrol.devices['hdm:ZWave:F6BF9812/4'] \
+    #        .binary_switch_property['devolo.BinarySwitch:hdm:ZWave:F6BF9812/4'].is_online = request.cls.homecontrol.is_online
 
 
 @pytest.fixture()

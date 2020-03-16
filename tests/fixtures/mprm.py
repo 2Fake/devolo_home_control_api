@@ -16,14 +16,12 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
     """ Create a mocked mPRM instance with static test data. """
     gateway = Gateway(request.cls.gateway.get("id"))
     if "TestMprmRest" in request.node.nodeid:
-        request.cls.mprm = MprmRest(gateway=gateway, url="https://homecontrol.mydevolo.com")
+        request.cls.mprm = MprmRest()
     elif "TestMprmWebsocket" in request.node.nodeid:
-        request.cls.mprm = MprmWebsocket(gateway=gateway, url="https://homecontrol.mydevolo.com")
+        request.cls.mprm = MprmWebsocket()
     else:
         mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)
-        request.cls.mprm = MprmWebsocket(gateway=gateway, url="https://homecontrol.mydevolo.com")
-    yield
-    request.cls.mprm.del_instance()
+        request.cls.mprm = MprmWebsocket()
 
 
 @pytest.fixture()
