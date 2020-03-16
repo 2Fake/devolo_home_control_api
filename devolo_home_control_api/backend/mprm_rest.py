@@ -75,8 +75,8 @@ class MprmRest:
         :param data: Data to be send
         :return: Response to the data
         """
-        if not(self._gateway.online or self._gateway.sync) and not self._gateway.local_connection:
-            raise MprmDeviceCommunicationError("Gateway is offline.")
+        # if not(self._gateway.online or self._gateway.sync) and not self._gateway.local_connection:
+        #     raise MprmDeviceCommunicationError("Gateway is offline.")
 
         self._data_id += 1
         data['jsonrpc'] = "2.0"
