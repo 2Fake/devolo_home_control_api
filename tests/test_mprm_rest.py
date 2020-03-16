@@ -28,12 +28,14 @@ class TestMprmRest:
         assert devices == "deviceUIDs"
 
     @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
-    def test_post_ReadTimeOut(self):
+    def test_post_ReadTimeOut(self, mprm_session):
+        self.mprm._session = mprm_session
         with pytest.raises(MprmDeviceCommunicationError):
             self.mprm.post({"data": "test"})
 
-    def test_post_gateway_offline(self):
-        self.mprm._gateway = MockGateway(self.gateway.get("id"))
+    def test_post_gateway_offline(self, mprm_session, gateway_instance):
+        self.mprm._session = mprm_session
+        self.mprm._gateway = gateway_instance
         self.mprm._gateway.online = False
         self.mprm._gateway.sync = False
         self.mprm._gateway.local_connection = False
@@ -41,13 +43,15 @@ class TestMprmRest:
             self.mprm.post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_invalid_id")
-    def test_post_invalid_id(self):
+    def test_post_invalid_id(self, mprm_session):
+        self.mprm._session = mprm_session
         self.mprm._data_id = 0
         with pytest.raises(ValueError):
             self.mprm.post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_valid")
-    def test_post_valid(self):
+    def test_post_valid(self, mprm_session):
+        self.mprm._session = mprm_session
         self.mprm._data_id = 1
         assert self.mprm.post({"data": "test"}).get("id") == 2
 

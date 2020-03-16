@@ -6,9 +6,14 @@ from devolo_home_control_api.properties.property import WrongElementError
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestConsumption:
-    def test_consumption_property_invalid(self):
+    def test_consumption_property_invalid(self, gateway_instance, mprm_session):      
         with pytest.raises(WrongElementError):
-            ConsumptionProperty("invalid", 0.0, 0.0, 1231412412)
+            ConsumptionProperty(gateway=gateway_instance,
+                                session=mprm_session,
+                                element_uid="invalid",
+                                current=0.0,
+                                total=0.0,
+                                total_since=1231412412)
 
     def test_fetch_consumption_invalid(self):
         with pytest.raises(ValueError):

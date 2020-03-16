@@ -1,6 +1,7 @@
 import json
 
 import pytest
+import requests
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
@@ -147,3 +148,8 @@ def mock_mprmrest_all_devices(mocker, request):
 def mock_mprmrest_get_data_from_uid_list(mocker, request):
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list",
                  return_value=[request.cls.devices.get("mains")])
+
+
+@pytest.fixture()
+def mprm_session():
+    return requests.Session()
