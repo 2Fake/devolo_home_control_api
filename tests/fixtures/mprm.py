@@ -158,5 +158,5 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
 @pytest.fixture()
 def mprm_session():
     session = requests.Session()
-    session.url = ""
+    session.url = "https://homecontrol.mydevolo.com"
     return session
