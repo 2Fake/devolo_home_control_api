@@ -30,7 +30,7 @@ class TestMprmWebsocket:
         self.mprm._ws = MockWebsocket()
         self.mprm._on_error("error")
 
-    def test__try_reconnect(self, mocker, mock_mprmwebsocket_get_local_session):
+    def test__try_reconnect(self, mocker, mock_mprmwebsocket_get_local_session_json_decode_error):
         spy = mocker.spy(time, "sleep")
         self.mprm._ws = MockWebsocket()
 

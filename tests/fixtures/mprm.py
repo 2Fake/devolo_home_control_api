@@ -113,7 +113,7 @@ def mock_mprmwebsocket_get_local_session(mocker):
 @pytest.fixture()
 def mock_mprmwebsocket_get_local_session_json_decode_error(mocker):
     """ Create an JSONDecodeError on getting a local session. """
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session", side_effect=json.JSONDecodeError)
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session", side_effect=json.JSONDecodeError("", "", 1))
 
 
 @pytest.fixture()
