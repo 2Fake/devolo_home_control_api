@@ -21,14 +21,9 @@ def mock_mprm__try_local_connection(mocker, request):
 
 @pytest.fixture()
 def mock_mprmrest_all_devices(mocker, request):
+    """ Mock getting all devices from the mPRM. """
     if request.node.name not in ["test_all_devices"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.all_devices", return_value=["hdm:ZWave:F6BF9812/2"])
-
-
-@pytest.fixture()
-def mock_mprmrest_get_data_from_uid_list(mocker, request):
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list",
-                 return_value=[request.cls.devices.get("mains")])
 
 
 @pytest.fixture()
@@ -104,12 +99,6 @@ def mock_mprmrest__post_set(mocker, request):
     status['test_set_binary_switch_same'] = {"result": {"status": 3}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
-
-
-@pytest.fixture()
-def mock_mprmwebsocket_get_local_session(mocker):
-    """ Mock getting a local session to speed up tests. """
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session", return_value=True)
 
 
 @pytest.fixture()
