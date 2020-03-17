@@ -34,6 +34,7 @@ class TestMprmRest:
         with pytest.raises(MprmDeviceCommunicationError):
             self.mprm.post({"data": "test"})
 
+    @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
     def test_post_gateway_offline(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session
         self.mprm._gateway = gateway_instance
