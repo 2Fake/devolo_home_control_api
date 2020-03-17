@@ -157,4 +157,6 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
 
 @pytest.fixture()
 def mprm_session():
-    return requests.Session()
+    session = requests.Session()
+    session.url = ""
+    return session
