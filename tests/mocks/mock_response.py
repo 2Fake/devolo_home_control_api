@@ -7,7 +7,7 @@ class MockResponse:
     def __init__(self, json_data, status_code):
         self.json_data = json_data
         self.status_code = status_code
-
+        self.url = ""
 
 class MockResponseConnectTimeout(MockResponse):
     def get(self, url, auth=None, timeout=None):
