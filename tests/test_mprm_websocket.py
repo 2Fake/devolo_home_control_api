@@ -8,8 +8,9 @@ from .mocks.mock_websocket import MockWebsocket
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprmWebsocket:
 
-    def test_websocket_connection(self, mock_mprmwebsocket_websocketapp, mprm_session):
+    def test_websocket_connection(self, mock_mprmwebsocket_websocketapp, mprm_session, gateway_instance):
         self.mprm._session = mprm_session
+        self.mprm._gateway = gateway_instance
         with pytest.raises(AssertionError):
             self.mprm.websocket_connect()
 

@@ -28,8 +28,9 @@ class TestMprmRest:
         assert devices == "deviceUIDs"
 
     @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
-    def test_post_ReadTimeOut(self, mprm_session):
+    def test_post_ReadTimeOut(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session
+        self.mprm._gateway = gateway_instance
         with pytest.raises(MprmDeviceCommunicationError):
             self.mprm.post({"data": "test"})
 
