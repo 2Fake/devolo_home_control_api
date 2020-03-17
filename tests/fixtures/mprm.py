@@ -5,7 +5,6 @@ import requests
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
-from devolo_home_control_api.devices.gateway import Gateway
 
 from ..mocks.mock_mprm_rest import try_local_connection
 from ..mocks.mock_websocketapp import MockWebsocketapp
@@ -113,7 +112,8 @@ def mock_mprmwebsocket_get_local_session(mocker):
 @pytest.fixture()
 def mock_mprmwebsocket_get_local_session_json_decode_error(mocker):
     """ Create an JSONDecodeError on getting a local session. """
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session", side_effect=json.JSONDecodeError("", "", 1))
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session",
+                 side_effect=json.JSONDecodeError("", "", 1))
 
 
 @pytest.fixture()
@@ -145,7 +145,6 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
 def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
                   mock_mprmrest__detect_gateway_in_lan):
     """ Create a mocked mPRM instance with static test data. """
-    gateway = Gateway(request.cls.gateway.get("id"))
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest()
     elif "TestMprmWebsocket" in request.node.nodeid:
