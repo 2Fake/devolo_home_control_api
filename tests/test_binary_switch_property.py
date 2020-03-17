@@ -1,6 +1,5 @@
 import pytest
 
-from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 from devolo_home_control_api.properties.property import WrongElementError
 

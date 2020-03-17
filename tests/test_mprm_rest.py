@@ -1,12 +1,6 @@
 import pytest
-from requests import ConnectTimeout
 
-from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError, MprmRest
-from devolo_home_control_api.devices.gateway import Gateway
-from devolo_home_control_api.mydevolo import Mydevolo
-
-from .mocks.mock_dnsrecord import MockDNSRecord
-from .mocks.mock_gateway import MockGateway
+from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError
 
 
 @pytest.mark.usefixtures("mprm_instance")

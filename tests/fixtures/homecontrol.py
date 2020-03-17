@@ -1,6 +1,5 @@
 import pytest
 
-from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from devolo_home_control_api.homecontrol import HomeControl
 
 from ..mocks.mock_homecontrol import mock__inspect_devices
