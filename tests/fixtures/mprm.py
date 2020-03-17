@@ -3,11 +3,20 @@ import json
 import pytest
 import requests
 
+from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
+from ..mocks.mock_gateway import MockGateway
+from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
 from ..mocks.mock_websocketapp import MockWebsocketapp
+
+
+@pytest.fixture()
+def mock_mprm__try_local_connection(mocker, request):
+    """ Mock finding gateway's IP. """
+    mocker.patch("devolo_home_control_api.backend.mprm.Mprm._try_local_connection", try_local_connection)
 
 
 @pytest.fixture()
@@ -98,12 +107,6 @@ def mock_mprmrest__post_set(mocker, request):
 
 
 @pytest.fixture()
-def mock_mprmrest__try_local_connection(mocker, request):
-    """ Mock finding gateway's IP. """
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._try_local_connection", try_local_connection)
-
-
-@pytest.fixture()
 def mock_mprmwebsocket_get_local_session(mocker):
     """ Mock getting a local session to speed up tests. """
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session", return_value=True)
@@ -150,8 +153,10 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
     elif "TestMprmWebsocket" in request.node.nodeid:
         request.cls.mprm = MprmWebsocket()
     else:
-        mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)
-        request.cls.mprm = MprmWebsocket()
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.__init__", MockMprm.__init__)
+        mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
+        request.cls.mprm = Mprm()
+        request.cls.mprm._gateway = MockGateway(request.cls.gateway.get("id"))
 
 
 @pytest.fixture()
