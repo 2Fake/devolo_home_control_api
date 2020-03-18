@@ -5,4 +5,4 @@ class MockWebsocket:
 
 class MockWebsocketError:
     def close(self):
-        raise FileNotFoundError
+        raise AssertionError

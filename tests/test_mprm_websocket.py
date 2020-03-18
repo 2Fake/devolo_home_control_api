@@ -40,6 +40,5 @@ class TestMprmWebsocket:
 
     def test_websocket_disconnect(self):
         self.mprm._ws = MockWebsocketError()
-        with pytest.raises(FileNotFoundError):
-            # The mocked websocket will raise a FileNotFoundError on call.
+        with pytest.raises(AssertionError):
             self.mprm.websocket_disconnect()
