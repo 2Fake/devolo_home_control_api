@@ -16,7 +16,7 @@ class TestUpdater:
     def test_update_binary_switch_state_group(self, fill_device_data):
         self.homecontrol.updater.update_binary_switch_state(element_uid=f"devolo.BinarySwitch:devolo.smartGroup.1",
                                                             value=True)
-        # If the updater do something with this uid it will raise a Key error.
+        # If the updater does something with this uid it will raise a KeyError.
         # If this happens the test will fail although there is no assert
 
     def test_update_consumption_valid(self, fill_device_data):
@@ -120,10 +120,10 @@ class TestUpdater:
         self.homecontrol.devices.get(uid).binary_switch_property \
             .get(f"devolo.BinarySwitch:{uid}").state = True
         self.homecontrol.updater._device_events(message={"properties":
-                                                             {"property.value.new":
-                                                                  {"widgetElementUID": f"devolo.BinarySwitch:{uid}",
-                                                                   "property.name": "state",
-                                                                   "data": 0}}})
+                                                         {"property.value.new":
+                                                          {"widgetElementUID": f"devolo.BinarySwitch:{uid}",
+                                                           "property.name": "state",
+                                                           "data": 0}}})
         assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
 
@@ -189,9 +189,11 @@ class TestUpdater:
 
     def test__since_time(self):
         now = datetime.now()
-        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
+            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
                                               "property.value.new": now})
-        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
+            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         assert total_since != new_total_since
         assert new_total_since == now
