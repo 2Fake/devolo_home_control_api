@@ -2,7 +2,7 @@ import time
 
 import pytest
 
-from .mocks.mock_websocket import MockWebsocket
+from .mocks.mock_websocket import MockWebsocket, MockWebsocketError
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -37,3 +37,9 @@ class TestMprmWebsocket:
         self.mprm._local_ip = self.gateway.get("local_ip")
         self.mprm._try_reconnect(0.1)
         spy.assert_called_once_with(0.1)
+
+    def test_websocket_disconnect(self):
+        self.mprm._ws = MockWebsocketError()
+        with pytest.raises(FileNotFoundError):
+            # The mocked websocket will raise a FileNotFoundError on call.
+            self.mprm.websocket_disconnect()
