@@ -8,7 +8,10 @@ class BinarySwitchProperty(Property):
     """
     Object for binary switches. It stores the binary switch state.
 
+    :param gateway: Instance of a Gateway object
+    :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
+    :param state: State the switch has at time of creating this instance
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, state: bool):
