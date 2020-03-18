@@ -8,6 +8,8 @@ class Property(MprmRest):
     """
     Base object for properties. It is not meant to use this directly.
 
+    :param gateway: Instance of a Gateway object
+    :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
