@@ -31,7 +31,7 @@ jobs:
       run: |
         cd tests
         pip install -r requirements.txt
-        pytest --cov=devolo_home_control_api --cov-report term-missing
+        pytest --cov=devolo_home_control_api
     - name: Coveralls
       run: |
         pip install coveralls==1.10.0
