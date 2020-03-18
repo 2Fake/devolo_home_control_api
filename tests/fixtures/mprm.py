@@ -1,59 +1,48 @@
 import json
 
 import pytest
+import requests
 
+from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
+from ..mocks.mock_gateway import MockGateway
+from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
 from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
 @pytest.fixture()
-def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
-                  mock_mprmrest__detect_gateway_in_lan):
-    """ Create a mocked mPRM instance with static test data. """
-    if "TestMprmRest" in request.node.nodeid:
-        request.cls.mprm = MprmRest(gateway_id=request.cls.gateway.get("id"), url="https://homecontrol.mydevolo.com")
-    elif "TestMprmWebsocket" in request.node.nodeid:
-        request.cls.mprm = MprmWebsocket(gateway_id=request.cls.gateway.get("id"), url="https://homecontrol.mydevolo.com")
-    else:
-        mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)
-        request.cls.mprm = MprmWebsocket(gateway_id=request.cls.gateway.get("id"), url="https://homecontrol.mydevolo.com")
-    yield
-    request.cls.mprm.del_instance()
-
-
-@pytest.fixture()
-def mock_mprmrest_get_local_session_json_decode_error(mocker):
-    """ Create an JSONDecodeError on getting a local session. """
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", side_effect=json.JSONDecodeError)
-
-
-@pytest.fixture()
-def mock_mprmrest_get_local_session(mocker):
+def mock_mprm_get_local_session(mocker):
     """ Mock getting a local session to speed up tests. """
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_local_session", return_value=True)
-
-
-@pytest.fixture(autouse=True)
-def mock_mprmrest_get_remote_session(mocker, request):
-    """ Mock getting a remote session to speed up tests. """
-    if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
-        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_remote_session", return_value=True)
+    mocker.patch("devolo_home_control_api.backend.mprm.Mprm.get_local_session", return_value=True)
 
 
 @pytest.fixture()
-def mock_mprmrest_zeroconf_cache_entries(mocker):
+def mock_mprm_zeroconf_cache_entries(mocker):
     """ Mock Zeroconf entries. """
     mocker.patch("zeroconf.DNSCache.entries", return_value=[1])
 
 
 @pytest.fixture()
-def mock_mprmrest__detect_gateway_in_lan(mocker, request):
+def mock_mprm__detect_gateway_in_lan(mocker, request):
     """ Mock detecting a gateway in the local area network to speed up tests. """
     if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
-        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.detect_gateway_in_lan", return_value=None)
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=None)
+
+
+@pytest.fixture()
+def mock_mprm__try_local_connection(mocker, request):
+    """ Mock finding gateway's IP. """
+    mocker.patch("devolo_home_control_api.backend.mprm.Mprm._try_local_connection", try_local_connection)
+
+
+@pytest.fixture()
+def mock_mprmrest_all_devices(mocker, request):
+    """ Mock getting all devices from the mPRM. """
+    if request.node.name not in ["test_all_devices"]:
+        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.all_devices", return_value=["hdm:ZWave:F6BF9812/2"])
 
 
 @pytest.fixture()
@@ -119,9 +108,22 @@ def mock_mprmrest__post_set(mocker, request):
 
 
 @pytest.fixture()
-def mock_mprmrest__try_local_connection(mocker, request):
-    """ Mock finding gateway's IP. """
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._try_local_connection", try_local_connection)
+def mock_mprmwebsocket_get_local_session_json_decode_error(mocker):
+    """ Create an JSONDecodeError on getting a local session. """
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session",
+                 side_effect=json.JSONDecodeError("", "", 1))
+
+
+@pytest.fixture()
+def mock_mprmwebsocket_get_remote_session(mocker, request):
+    """ Mock getting a remote session to speed up tests. """
+    if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
+        mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_remote_session", return_value=True)
+
+
+@pytest.fixture()
+def mock_mprmwebsocket_on_update(mocker):
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.on_update", return_value=None)
 
 
 @pytest.fixture()
@@ -134,16 +136,26 @@ def mock_mprmwebsocket_websocketapp(mocker):
 @pytest.fixture()
 def mock_mprmwebsocket_websocket_connection(mocker, request):
     """ Mock a running websocket connection to speed up tests. """
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connection", return_value=None)
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
 
 
 @pytest.fixture()
-def mock_mprmrest_all_devices(mocker, request):
-    if request.node.name not in ["test_all_devices"]:
-        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.all_devices", return_value=["hdm:ZWave:F6BF9812/2"])
+def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
+                  mock_mprm__detect_gateway_in_lan):
+    """ Create a mocked mPRM instance with static test data. """
+    if "TestMprmRest" in request.node.nodeid:
+        request.cls.mprm = MprmRest()
+    elif "TestMprmWebsocket" in request.node.nodeid:
+        request.cls.mprm = MprmWebsocket()
+    else:
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.__init__", MockMprm.__init__)
+        mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
+        request.cls.mprm = Mprm()
+        request.cls.mprm._gateway = MockGateway(request.cls.gateway.get("id"))
 
 
 @pytest.fixture()
-def mock_mprmrest_get_data_from_uid_list(mocker, request):
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list",
-                 return_value=[request.cls.devices.get("mains")])
+def mprm_session():
+    session = requests.Session()
+    session.url = "https://homecontrol.mydevolo.com"
+    return session

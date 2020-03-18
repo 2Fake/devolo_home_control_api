@@ -14,10 +14,6 @@ class TestHomeControl:
     def test_get_publisher(self):
         assert len(self.homecontrol.publisher._events) == 3
 
-    def test_is_online(self):
-        assert self.homecontrol.is_online(self.devices.get("mains").get("uid"))
-        assert not self.homecontrol.is_online(self.devices.get("ambiguous_2").get("uid"))
-
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
@@ -103,8 +99,3 @@ class TestHomeControl:
         spy = mocker.spy(self.homecontrol, '_inspect_devices')
         self.homecontrol._inspect_devices([self.devices.get("mains")])
         assert spy.call_count == 1
-
-    def test__update(self, mocker):
-        spy = mocker.spy(self.homecontrol.updater, "update")
-        self.homecontrol.update({"properties": {"uid": self.devices.get("mains").get("uid")}})
-        spy.assert_called_once_with({"properties": {"uid": self.devices.get("mains").get("uid")}})

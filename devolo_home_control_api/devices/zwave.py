@@ -47,6 +47,15 @@ class Zwave:
         for key, value in dict.items():
             setattr(self, key, value)
 
+    def is_online(self) -> bool:
+        """
+        Get the online state of a device.
+
+        :param uid: Device UID, something like hdm:ZWave:CBC56091/24
+        :return: False, if device is offline, else True
+        """
+        return False if self.status == 1 else True
+
 
 def get_device_type_from_element_uid(element_uid: str) -> str:
     """

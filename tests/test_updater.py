@@ -115,6 +115,18 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).status == 1
         assert online_state != self.homecontrol.devices.get(uid).status
 
+    def test__device_events(self):
+        uid = self.devices.get('mains').get("uid")
+        self.homecontrol.devices.get(uid).binary_switch_property \
+            .get(f"devolo.BinarySwitch:{uid}").state = True
+        self.homecontrol.updater._device_events(message={"properties":
+                                                             {"property.value.new":
+                                                                  {"widgetElementUID": f"devolo.BinarySwitch:{uid}",
+                                                                   "property.name": "state",
+                                                                   "data": 0}}})
+        assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
+
+
     def test__gateway_accessible(self):
         self.homecontrol._gateway.online = True
         self.homecontrol._gateway.sync = True
@@ -173,3 +185,13 @@ class TestUpdater:
 
         assert current_new == 234
         assert current != current_new
+
+
+    def test__since_time(self):
+        now = datetime.now()
+        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
+                                              "property.value.new": now})
+        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        assert total_since != new_total_since
+        assert new_total_since == now

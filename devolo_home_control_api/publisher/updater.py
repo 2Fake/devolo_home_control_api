@@ -37,7 +37,8 @@ class Updater:
                         "devolo.Meter": self._meter,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                         "hdm": self._device_online_state,
-                        "devolo.DevicesPage": self._device_change}
+                        "devolo.DevicesPage": self._device_change,
+                        "devolo.DeviceEvents": self._device_events}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
         except KeyError:
@@ -141,6 +142,15 @@ class Updater:
         if type(message.get("properties").get("property.value.new")) == list \
            and message.get("properties").get("uid") == "devolo.DevicesPage":
             self.on_device_change(uids=message.get("properties").get("property.value.new"))
+
+    def _device_events(self, message: dict):
+        """ If an operation was not successful, we need to correct our internal state. """
+        properties = {"properties": message.get("properties").get("property.value.new")}
+        properties.get("properties")["uid"] = properties.get("properties").get("widgetElementUID")
+        if get_device_type_from_element_uid(properties.get("properties").get("widgetElementUID")) == "devolo.BinarySwitch":
+            properties.get("properties")["property.name"] = "state"
+            properties.get("properties")["property.value.new"] = int(properties.get("properties").get("data"))
+        self.update(properties)
 
     def _device_online_state(self, message: dict):
         """ Update the device's online state. """
