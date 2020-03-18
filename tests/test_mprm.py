@@ -8,12 +8,15 @@ from .mocks.mock_dnsrecord import MockDNSRecord
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprm:
-    def test_create_connection_local(self, mock_mprm_get_local_session, mprm_session):
+    @pytest.mark.usefixtures("mock_mprm_get_local_session")
+    def test_create_connection_local(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._local_ip = self.gateway.get("local_ip")
         self.mprm.create_connection()
 
-    def test_create_connection_remote(self, mock_mprmwebsocket_get_remote_session, mprm_session, mydevolo):
+    @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
+    @pytest.mark.usefixtures("mock_session_get")
+    def test_create_connection_remote(self, mprm_session, mydevolo):
         self.mprm._session = mprm_session
         self.mprm._gateway.external_access = True
         self._mydevolo = mydevolo
@@ -24,8 +27,9 @@ class TestMprm:
             self.mprm._gateway.external_access = False
             self.mprm.create_connection()
 
-    # TODO: check, why this test takes so long
-    def test_detect_gateway_in_lan(self, mock_mprm_zeroconf_cache_entries, mock_mprm__try_local_connection):
+    @pytest.mark.usefixtures("mock_mprm__try_local_connection")
+    @pytest.mark.usefixtures("mock_mprm_zeroconf_cache_entries")
+    def test_detect_gateway_in_lan(self):
         assert self.mprm.detect_gateway_in_lan() == self.gateway.get("local_ip")
 
     @pytest.mark.usefixtures("mock_session_get")
@@ -55,7 +59,9 @@ class TestMprm:
         with pytest.raises(MprmDeviceCommunicationError):
             self.mprm.get_remote_session()
 
-    def test__try_local_connection_success(self, mprm_session, mock_socket_inet_ntoa, mock_response_valid):
+    @pytest.mark.usefixtures("mock_socket_inet_ntoa")
+    @pytest.mark.usefixtures("mock_response_valid")
+    def test__try_local_connection_success(self, mprm_session):
         mdns_name = MockDNSRecord()
         mdns_name.address = self.gateway.get("local_ip")
         self.mprm._session = mprm_session
