@@ -14,6 +14,25 @@ from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
 @pytest.fixture()
+def mock_mprm_get_local_session(mocker):
+    """ Mock getting a local session to speed up tests. """
+    mocker.patch("devolo_home_control_api.backend.mprm.Mprm.get_local_session", return_value=True)
+
+
+@pytest.fixture()
+def mock_mprm_zeroconf_cache_entries(mocker):
+    """ Mock Zeroconf entries. """
+    mocker.patch("zeroconf.DNSCache.entries", return_value=[1])
+
+
+@pytest.fixture()
+def mock_mprm__detect_gateway_in_lan(mocker, request):
+    """ Mock detecting a gateway in the local area network to speed up tests. """
+    if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=None)
+
+
+@pytest.fixture()
 def mock_mprm__try_local_connection(mocker, request):
     """ Mock finding gateway's IP. """
     mocker.patch("devolo_home_control_api.backend.mprm.Mprm._try_local_connection", try_local_connection)
@@ -24,19 +43,6 @@ def mock_mprmrest_all_devices(mocker, request):
     """ Mock getting all devices from the mPRM. """
     if request.node.name not in ["test_all_devices"]:
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.all_devices", return_value=["hdm:ZWave:F6BF9812/2"])
-
-
-@pytest.fixture()
-def mock_mprmrest_zeroconf_cache_entries(mocker):
-    """ Mock Zeroconf entries. """
-    mocker.patch("zeroconf.DNSCache.entries", return_value=[1])
-
-
-@pytest.fixture()
-def mock_mprmrest__detect_gateway_in_lan(mocker, request):
-    """ Mock detecting a gateway in the local area network to speed up tests. """
-    if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
-        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=None)
 
 
 @pytest.fixture()
@@ -135,7 +141,7 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
 
 @pytest.fixture()
 def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
-                  mock_mprmrest__detect_gateway_in_lan):
+                  mock_mprm__detect_gateway_in_lan):
     """ Create a mocked mPRM instance with static test data. """
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest()

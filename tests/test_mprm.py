@@ -8,6 +8,11 @@ from .mocks.mock_dnsrecord import MockDNSRecord
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprm:
+    def test_create_connection_local(self, mock_mprm_get_local_session, mprm_session):
+        self.mprm._session = mprm_session
+        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm.create_connection()
+
     def test_create_connection_remote(self, mock_mprmwebsocket_get_remote_session, mprm_session, mydevolo):
         self.mprm._session = mprm_session
         self.mprm._gateway.external_access = True
@@ -20,7 +25,7 @@ class TestMprm:
             self.mprm.create_connection()
 
     # TODO: check, why this test takes so long
-    def test_detect_gateway_in_lan(self, mock_mprmrest_zeroconf_cache_entries, mock_mprm__try_local_connection):
+    def test_detect_gateway_in_lan(self, mock_mprm_zeroconf_cache_entries, mock_mprm__try_local_connection):
         assert self.mprm.detect_gateway_in_lan() == self.gateway.get("local_ip")
 
     @pytest.mark.usefixtures("mock_session_get")
