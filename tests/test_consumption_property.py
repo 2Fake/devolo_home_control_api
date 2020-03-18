@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime
 
 from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
 from devolo_home_control_api.properties.property import WrongElementError
@@ -30,12 +29,3 @@ class TestConsumption:
             .fetch_consumption(consumption_type="total")
         assert current == 0.58
         assert total == 125.68
-
-    def test_total_since(self):
-        now = datetime.now()
-        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
-        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
-                                              "property.value.new": now})
-        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
-        assert total_since != new_total_since
-        assert new_total_since == now

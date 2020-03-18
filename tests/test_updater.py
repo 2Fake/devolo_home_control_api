@@ -173,3 +173,13 @@ class TestUpdater:
 
         assert current_new == 234
         assert current != current_new
+
+
+    def test__since_time(self):
+        now = datetime.now()
+        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
+                                              "property.value.new": now})
+        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'].consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        assert total_since != new_total_since
+        assert new_total_since == now
