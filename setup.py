@@ -19,9 +19,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "requests=2.23.0",
-        "websocket_client=0.56.0",
-        "zeroconf=0.24.5"
+        "requests",
+        "websocket_client<=0.56.0",
+        "zeroconf"
       ],
     python_requires='>=3.6',
 )
