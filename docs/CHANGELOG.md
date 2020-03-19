@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- Changed header of mPRM websocket.websocket.disconnect for Homeassistant
+- Small adjustments when closing the websocket. This is just needed for Home Assistant.
 
 ## [v0.6.0] - 2020/03/18
 
