@@ -57,9 +57,11 @@ class MprmWebsocket(MprmRest):
                                           on_close=self._on_close)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
-    def websocket_disconnect(self, event=None):
+    def websocket_disconnect(self, event: str = ""):
         """ Close the websocket connection. """
-        self._logger.info(f"Closing web socket connection by {event if event is not None else 'Unknown'}.")
+        self._logger.info("Closing web socket connection.")
+        if event != "":
+            self._logger.info("Reason: {event}")
         self._ws.close()
 
 
