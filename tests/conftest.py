@@ -1,15 +1,13 @@
 import json
+import pathlib
 import sys
 
 import pytest
 
 
-try:
-    with open("test_data.json") as file:
-        test_data = json.load(file)
-except FileNotFoundError:
-    print("Please run tests from within the tests directory.")
-    sys.exit(127)
+file = pathlib.Path(__file__).parent / "test_data.json"
+with file.open("r") as fh:
+    test_data = json.load(fh)
 
 
 pytest_plugins = ['tests.fixtures.gateway',

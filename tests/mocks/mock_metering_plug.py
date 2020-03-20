@@ -1,4 +1,5 @@
 import json
+import pathlib
 
 import requests
 
@@ -18,8 +19,9 @@ def metering_plug(device_uid: str) -> Zwave:
     :param device_uid: Device UID this mock shall have
     :return: Metering Plug device
     """
-    with open('test_data.json') as file:
-        test_data = json.load(file)
+    file = pathlib.Path(__file__).parent / ".." / "test_data.json"
+    with file.open("r") as fh:
+        test_data = json.load(fh)
 
     device = Zwave(**test_data.get("devices").get("mains").get("properties"))
     gateway = MockGateway(test_data.get("gateway").get("id"))

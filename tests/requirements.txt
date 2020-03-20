@@ -1,3 +1,0 @@
-pytest==4.6.9
-pytest-cov==2.8.1
-pytest-mock==1.11.2
