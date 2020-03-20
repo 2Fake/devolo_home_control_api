@@ -4,37 +4,54 @@ from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError, WrongCrede
 
 
 class TestMydevolo:
-    def test_gateway_ids(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_credentials_valid(self, mydevolo):
+        assert mydevolo.credentials_valid()
+
+    @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongCredentialsError")
+    def test_credentials_invalid(self, mydevolo):
+        assert not mydevolo.credentials_valid()
+
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_gateway_ids(self, mydevolo):
         assert mydevolo.gateway_ids == [self.gateway.get("id")]
 
-    def test_gateway_ids_empty(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_gateway_ids_empty(self, mydevolo):
         with pytest.raises(IndexError):
             mydevolo.gateway_ids
 
-    def test_get_full_url(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_get_full_url(self, mydevolo):
         full_url = mydevolo.get_full_url(self.gateway.get("id"))
         assert full_url == self.gateway.get("full_url")
 
-    def test_get_gateway(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_get_gateway(self, mydevolo):
         details = mydevolo.get_gateway(self.gateway.get("id"))
         assert details.get("gatewayId") == self.gateway.get("id")
 
-    def test_get_gateway_invalid(self, mydevolo, mock_mydevolo__call_raise_WrongUrlError):
+    @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
+    def test_get_gateway_invalid(self, mydevolo):
         with pytest.raises(WrongUrlError):
             mydevolo.get_gateway(self.gateway.get("id"))
 
-    def test_get_zwave_products(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_get_zwave_products(self, mydevolo):
         product = mydevolo.get_zwave_products(manufacturer="0x0060", product_type="0x0001", product="0x000")
         assert product.get("name") == "Everspring PIR Sensor SP814"
 
-    def test_get_zwave_products_invalid(self, mydevolo, mock_mydevolo__call_raise_WrongUrlError):
+    @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
+    def test_get_zwave_products_invalid(self, mydevolo):
         device_infos = mydevolo.get_zwave_products(manufacturer="0x0070", product_type="0x0001", product="0x000")
         assert len(device_infos) == 0
 
-    def test_maintenance_on(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_maintenance_on(self, mydevolo):
         assert not mydevolo.maintenance
 
-    def test_maintenance_off(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_maintenance_off(self, mydevolo):
         assert mydevolo.maintenance
 
     def test_set_password(self, mydevolo):
@@ -73,21 +90,25 @@ class TestMydevolo:
         assert first is second
         Mydevolo.del_instance()
 
-    def test_uuid(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_uuid(self, mydevolo):
         mydevolo._uuid = None
         assert mydevolo.uuid == self.user.get("uuid")
 
-    def test_call_WrongCredentialsError(self, mock_response_wrong_credentials_error):
+    @pytest.mark.usefixtures("mock_response_wrong_credentials_error")
+    def test_call_WrongCredentialsError(self):
         mydevolo = Mydevolo()
         with pytest.raises(WrongCredentialsError):
             mydevolo._call("test")
         Mydevolo.del_instance()
 
-    def test_call_WrongUrlError(self, mock_response_wrong_url_error):
+    @pytest.mark.usefixtures("mock_response_wrong_url_error")
+    def test_call_WrongUrlError(self):
         mydevolo = Mydevolo()
         with pytest.raises(WrongUrlError):
             mydevolo._call("test")
         Mydevolo.del_instance()
 
-    def test_call_valid(self, mydevolo, mock_response_valid):
+    @pytest.mark.usefixtures("mock_response_valid")
+    def test_call_valid(self, mydevolo):
         assert mydevolo._call("test").get("response") == "response"

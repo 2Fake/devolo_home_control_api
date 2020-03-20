@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError
+from devolo_home_control_api.mydevolo import Mydevolo, WrongCredentialsError, WrongUrlError
 
 from ..mocks.mock_mydevolo import MockMydevolo
 
@@ -26,6 +26,12 @@ def mock_mydevolo__call(mocker, request):
     mock_mydevolo = MockMydevolo(request)
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=mock_mydevolo._call)
     del mock_mydevolo
+
+
+@pytest.fixture()
+def mock_mydevolo__call_raise_WrongCredentialsError(mocker):
+    """ Respond with WrongCredentialsError on calls to the mydevolo API. """
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=WrongCredentialsError)
 
 
 @pytest.fixture()
