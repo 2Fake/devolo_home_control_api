@@ -47,14 +47,14 @@ git clone git@github.com:2Fake/devolo_home_control_api.git
 Then you need to take care of the requirements.
 
 ```bash
-pip install --user --requirement devolo_home_control_api/requirements.txt
+cd devolo_home_control_api
+python setup.py install
 ```
 
-If you want to run out tests, change to the tests directory and start pytest.
+If you want to run out tests, change to the tests directory and start pytest via setup.py.
 
 ```bash
-cd tests
-pytest
+python setup.py test
 ```
 
 ## Quick start
