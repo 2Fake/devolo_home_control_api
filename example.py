@@ -26,4 +26,4 @@ homecontrol = HomeControl(gateway_id=gateway_id)
 
 for device in homecontrol.devices:
     homecontrol.devices[device].subscriber = Subscriber(device)
-    homecontrol.mprm.publisher.register(device, homecontrol.devices[device].subscriber)
+    homecontrol.publisher.register(device, homecontrol.devices[device].subscriber)
