@@ -22,4 +22,4 @@ class BinarySensorProperty(Property):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.state = True if self.state == 1 else False
+        self.state = bool(self.state)

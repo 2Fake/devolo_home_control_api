@@ -136,7 +136,7 @@ class Updater:
 
     def _binary_sensor(self, message: dict):
         self.update_binary_sensor_state(element_uid=message.get("properties").get("uid"),
-                                        value=True if message.get("properties").get("property.value.new") == 1 else False)
+                                        value=bool(message.get("properties").get("property.value.new")))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
