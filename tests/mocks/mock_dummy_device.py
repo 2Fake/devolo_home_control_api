@@ -1,4 +1,5 @@
 import json
+import pathlib
 
 import requests
 
@@ -15,8 +16,9 @@ def dummy_device(key: str) -> Zwave:
     :param key: Key to look up in test_data.json
     :return: Dummy device
     """
-    with open('test_data.json') as file:
-        test_data = json.load(file)
+    file = pathlib.Path(__file__).parent / ".." / "test_data.json"
+    with file.open("r") as fh:
+        test_data = json.load(fh)
 
     device = Zwave(**test_data.get("devices").get(key))
     gateway = MockGateway(test_data.get("gateway").get("id"))

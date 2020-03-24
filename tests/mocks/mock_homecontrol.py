@@ -1,12 +1,14 @@
 import json
+import pathlib
 
 from .mock_dummy_device import dummy_device
 from .mock_metering_plug import metering_plug
 
 
 def mock__inspect_devices(self, devices):
-    with open('test_data.json') as file:
-        test_data = json.load(file)
+    file = pathlib.Path(__file__).parent / ".." / "test_data.json"
+    with file.open("r") as fh:
+        test_data = json.load(fh)
 
     for device_type, device in test_data.get("devices").items():
         device_uid = device.get("uid")

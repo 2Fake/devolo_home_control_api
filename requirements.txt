@@ -1,3 +1,0 @@
-requests==2.23.0
-websocket_client==0.56.0
-zeroconf==0.24.5
