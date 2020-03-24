@@ -5,8 +5,9 @@ import requests
 
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
-from .devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_setting_uid, \
-    get_device_uid_from_element_uid
+from .devices.zwave import (Zwave, get_device_type_from_element_uid,
+                            get_device_uid_from_element_uid,
+                            get_device_uid_from_setting_uid)
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
@@ -102,7 +103,7 @@ class HomeControl(Mprm):
             BinarySwitchProperty(session=self._session,
                                  gateway=self._gateway,
                                  element_uid=uid_info.get("UID"),
-                                 state=True if uid_info.get("properties").get("state") == 1 else False)
+                                 state=bool(uid_info.get("properties").get("state")))
 
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
@@ -135,6 +136,7 @@ class HomeControl(Mprm):
                     "cps.hdm": self._parameter,
                     "ps.hdm": self._protection
                     }
+
         # List comprehension gets the list of uids from every device
         nested_uids_lists = [(uid.get("properties").get('settingUIDs')
                               + uid.get("properties").get("elementUIDs"))
