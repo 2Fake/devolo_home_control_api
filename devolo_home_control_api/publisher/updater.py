@@ -32,7 +32,8 @@ class Updater:
 
         :param message: Message to process
         """
-        message_type = {"devolo.BinarySwitch": self._binary_switch,
+        message_type = {"devolo.BinarySensor": self._binary_sensor,
+                        "devolo.BinarySwitch": self._binary_switch,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
@@ -54,6 +55,18 @@ class Updater:
         self._logger.debug(f"Updating device online state of {device_uid} to {value}")
         self.devices.get(device_uid).status = value
         self._publisher.dispatch(device_uid, (device_uid, value))
+
+    def update_binary_sensor_state(self, element_uid: str, value: bool):
+        """
+        Update the binary switch state of a device externally. The value is written into the internal dict.
+
+        :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
+        :param value: True for on, False for off
+        """
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        self.devices.get(device_uid).binary_sensor_property.get(element_uid).state = value
+        self._logger.debug(f"Updating state of {element_uid} to {value}")
+        self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_binary_switch_state(self, element_uid: str, value: bool):
         """
@@ -120,6 +133,10 @@ class Updater:
         self.devices.get(device_uid).consumption_property.get(element_uid).total_since = total_since
         self._logger.debug(f"Updating total since of {element_uid} to {total_since}")
         self._publisher.dispatch(device_uid, (element_uid, total_since))
+
+    def _binary_sensor(self, message: dict):
+        self.update_binary_sensor_state(element_uid=message.get("properties").get("uid"),
+                                        value=True if message.get("properties").get("property.value.new") == 1 else False)
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """

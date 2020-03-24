@@ -7,6 +7,7 @@ from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave, get_device_type_from_element_uid, get_device_uid_from_setting_uid, \
     get_device_uid_from_element_uid
+from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
 from .properties.settings_property import SettingsProperty
@@ -80,6 +81,18 @@ class HomeControl(Mprm):
         self.updater.update(message)
 
 
+    def _binary_sensor(self, uid_info: dict):
+        """ Process BinarySensor properties"""
+        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_sensor_property"):
+            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_sensor_property = {}
+        self._logger.debug(f"Adding binary sensor property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
+        properties = uid_info.get("properties")
+        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_sensor_property[uid_info.get("UID")] = \
+            BinarySensorProperty(session=self._session,
+                                 gateway=self._gateway,
+                                 element_uid=uid_info.get("UID"),
+                                 **properties)
+
     def _binary_switch(self, uid_info: dict):
         """ Process BinarySwitch properties. """
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_switch_property"):
@@ -113,7 +126,8 @@ class HomeControl(Mprm):
             self.devices[device_properties.get("UID")].settings_property = {}
             threading.Thread(target=self.devices[device_properties.get("UID")].get_zwave_info).start()
 
-        elements = {"devolo.BinarySwitch": self._binary_switch,
+        elements = {"devolo.BinarySensor": self._binary_sensor,
+                    "devolo.BinarySwitch": self._binary_switch,
                     "devolo.Meter": self._meter,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                     "lis.hdm": self._led,
