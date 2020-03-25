@@ -24,14 +24,3 @@ class VoltageProperty(SensorProperty):
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
         self.current = current
         self.current_unit = "V"
-
-
-    def fetch_voltage(self) -> float:
-        """
-        Update and return the current voltage.
-
-        :return: Voltage value
-        """
-        response = self.get_data_from_uid_list([self.element_uid])
-        self.current = response.get("properties").get("value")
-        return self.current

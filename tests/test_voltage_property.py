@@ -10,8 +10,3 @@ class TestVoltageProperty:
     def test_voltage_property_invalid(self, gateway_instance, mprm_session):
         with pytest.raises(WrongElementError):
             VoltageProperty(gateway=gateway_instance, session=mprm_session, element_uid="invalid", current=0.0)
-
-    def test_fetch_voltage_valid(self):
-        voltage = self.homecontrol.devices.get(self.devices.get("mains").get("uid")).\
-            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{self.devices.get('mains').get('uid')}").fetch_voltage()
-        assert voltage == 237

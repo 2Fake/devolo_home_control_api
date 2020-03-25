@@ -22,16 +22,6 @@ class BinarySwitchProperty(Property):
         self.state = state
 
 
-    def fetch_binary_switch_state(self) -> bool:
-        """
-        Update and return the binary switch state for the given uid.
-
-        :return: Binary switch state
-        """
-        response = self.get_data_from_uid_list([self.element_uid])
-        self.state = True if response.get("properties").get("state") == 1 else False
-        return self.state
-
     def set_binary_switch(self, state: bool):
         """
         Set the binary switch of the given element_uid to the given state.
