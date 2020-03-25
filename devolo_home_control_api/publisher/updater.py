@@ -148,8 +148,9 @@ class Updater:
         self._publisher.dispatch(device_uid, (element_uid, total_since))
 
     def _binary_sensor(self, message: dict):
-        self.update_binary_sensor_state(element_uid=message.get("properties").get("uid"),
-                                        value=bool(message.get("properties").get("property.value.new")))
+        if message.get("properties").get("property.value.new") is not None:
+            self.update_binary_sensor_state(element_uid=message.get("properties").get("uid"),
+                                            value=bool(message.get("properties").get("property.value.new")))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
