@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Support for devolo Door/Window Contact
+- Support for devolo Motion Sensor
+- Support for devolo Humidity Sensor
+- Support for devolo Flood Sensor
+
 ### Changed
 
 - **BREAKING**: The properties don't have fetch methods any longer. Instead, the attribute are initially updated and should be used directly.
