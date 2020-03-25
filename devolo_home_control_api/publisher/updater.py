@@ -204,13 +204,13 @@ class Updater:
 
     def _multi_level_sensor(self, message: dict):
         """ Update a multi level sensor. """
-        self.update_multi_level_sensor(element_uid=message.get("uid"),
-                                       value=message.get("property.value.new"))
+        self.update_multi_level_sensor(element_uid=message.get("properties").get("uid"),
+                                       value=message.get("properties").get("property.value.new"))
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """
-        self.update_total_since(element_uid=property.get("uid"),
-                                total_since=property.get("property.value.new"))
+        self.update_total_since(element_uid=property.get("properties").get("uid"),
+                                total_since=property.get("properties").get("property.value.new"))
 
     def _total_consumption(self, property: dict):
         """ Update total consumption. """
