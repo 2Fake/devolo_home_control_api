@@ -10,7 +10,7 @@ class SensorProperty(Property):
         Object for sensors. It stores the sensor and sub type
 
         :param sensor_type: Type of the sensor sensor. Something like 'alarm'
-        :param sub_type: Subtype of the sensor. Somethink like 'overload'. Can be an empty string
+        :param sub_type: Subtype of the sensor. Something like 'overload'. Can be an empty string
         """
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
