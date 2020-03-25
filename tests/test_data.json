@@ -79,6 +79,40 @@
         "ps.hdm:ZWave:F6BF9812/2"
       ],
       "uid": "hdm:ZWave:F6BF9812/2"
+    },
+    "offline": {
+      "UID": "hdm:ZWave:F6BF9812/5",
+      "batteryLevel": -1,
+      "batteryLow": null,
+      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
+      "itemName": "Offline Device",
+      "status": 0
+    },
+    "sensor": {
+      "UID": "hdm:ZWave:F6BF9812/6",
+      "settingUIDs": [
+        "gds.hdm:ZWave:F6BF9812/6",
+        "cps.hdm:ZWave:F6BF9812/6",
+        "trs.hdm:ZWave:F6BF9812/6",
+        "vfs.hdm:ZWave:F6BF9812/6"
+      ],
+      "icon": "icon_16",
+      "prodID": "0x000e",
+      "prodTypeID": "0x0002",
+      "itemName": "Window",
+      "zone": "Office",
+      "elementUIDs": [
+        "devolo.BinarySensor:hdm:ZWave:F6BF9812/6",
+        "devolo.LastActivity:hdm:ZWave:F6BF9812/6",
+        "devolo.MultiLevelSensor:hdm:ZWave:F6BF9812/6#MultilevelSensor(1)",
+        "devolo.MultiLevelSensor:hdm:ZWave:F6BF9812/6#MultilevelSensor(3)"
+      ],
+      "manID": "0x0175",
+      "zoneId": "hz_2",
+      "batteryLow": false,
+      "status": 2,
+      "state": 1,
+      "batteryLevel": 100
     }
   },
   "gateway": {

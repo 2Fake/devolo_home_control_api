@@ -8,11 +8,14 @@ from devolo_home_control_api.homecontrol import get_sub_device_uid_from_element_
 @pytest.mark.usefixtures("mock_mydevolo__call")
 class TestHomeControl:
 
+    def test_binary_sensor_devices(self):
+        assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_sensor_property")
+
     def test_binary_switch_devices(self):
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 3
+        assert len(self.homecontrol.publisher._events) == 5
 
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
