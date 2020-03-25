@@ -90,10 +90,11 @@ class HomeControl(Mprm):
 
     def _binary_sensor(self, uid_info: dict):
         """ Process BinarySensor properties"""
-        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_sensor_property"):
-            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_sensor_property = {}
-        self._logger.debug(f"Adding binary sensor property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_sensor_property[uid_info.get("UID")] = \
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "binary_sensor_property"):
+            self.devices[device_uid].binary_sensor_property = {}
+        self._logger.debug(f"Adding binary sensor property to {device_uid}.")
+        self.devices[device_uid].binary_sensor_property[uid_info.get("UID")] = \
             BinarySensorProperty(session=self._session,
                                  gateway=self._gateway,
                                  element_uid=uid_info.get("UID"),
@@ -103,10 +104,11 @@ class HomeControl(Mprm):
 
     def _binary_switch(self, uid_info: dict):
         """ Process BinarySwitch properties. """
-        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_switch_property"):
-            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property = {}
-        self._logger.debug(f"Adding binary switch property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_switch_property[uid_info.get("UID")] = \
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "binary_switch_property"):
+            self.devices[device_uid].binary_switch_property = {}
+        self._logger.debug(f"Adding binary switch property to {device_uid}.")
+        self.devices[device_uid].binary_switch_property[uid_info.get("UID")] = \
             BinarySwitchProperty(session=self._session,
                                  gateway=self._gateway,
                                  element_uid=uid_info.get("UID"),
@@ -114,8 +116,9 @@ class HomeControl(Mprm):
 
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
-        self._logger.debug(f"Adding general device settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))]. \
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding general device settings to {device_uid}.")
+        self.devices[device_uid]. \
             settings_property["general_device_settings"] = \
             SettingsProperty(session=self._session,
                              gateway=self._gateway,
@@ -159,8 +162,9 @@ class HomeControl(Mprm):
 
     def _led(self, uid_info: dict):
         """ Process LED information setting (lis) properties. """
-        self._logger.debug(f"Adding led settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["led"] = \
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding led settings to {device_uid}.")
+        self.devices[device_uid].settings_property["led"] = \
             SettingsProperty(session=self._session,
                              gateway=self._gateway,
                              element_uid=uid_info.get("UID"),
@@ -168,10 +172,11 @@ class HomeControl(Mprm):
 
     def _meter(self, uid_info: dict):
         """ Process Meter properties. """
-        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "consumption_property"):
-            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property = {}
-        self._logger.debug(f"Adding consumption property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].consumption_property[uid_info.get("UID")] = \
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "consumption_property"):
+            self.devices[device_uid].consumption_property = {}
+        self._logger.debug(f"Adding consumption property to {device_uid}.")
+        self.devices[device_uid].consumption_property[uid_info.get("UID")] = \
             ConsumptionProperty(session=self._session,
                                 gateway=self._gateway,
                                 element_uid=uid_info.get("UID"),
@@ -181,10 +186,11 @@ class HomeControl(Mprm):
 
     def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
-        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "multi_level_sensor_property"):
-            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].multi_level_sensor_property = {}
-        self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get('UID'))].multi_level_sensor_property[uid_info.get("UID")] = \
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "multi_level_sensor_property"):
+            self.devices[device_uid].multi_level_sensor_property = {}
+        self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {device_uid}.")
+        self.devices[device_uid].multi_level_sensor_property[uid_info.get("UID")] = \
             MultiLevelSensorProperty(session=self._session,
                                      gateway=self._gateway,
                                      element_uid=uid_info.get("UID"),
@@ -194,8 +200,9 @@ class HomeControl(Mprm):
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
-        self._logger.debug(f"Adding parameter settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["param_changed"] = \
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding parameter settings to {device_uid}.")
+        self.devices[device_uid].settings_property["param_changed"] = \
             SettingsProperty(session=self._session,
                              gateway=self._gateway,
                              element_uid=uid_info.get('UID'),
@@ -203,8 +210,9 @@ class HomeControl(Mprm):
 
     def _protection(self, uid_info: dict):
         """ Process protection setting (ps) properties. """
-        self._logger.debug(f"Adding protection settings to {get_device_uid_from_setting_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_setting_uid(uid_info.get('UID'))].settings_property["protection"] = \
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding protection settings to {device_uid}.")
+        self.devices[device_uid].settings_property["protection"] = \
             SettingsProperty(session=self._session,
                              gateway=self._gateway,
                              element_uid=uid_info.get('UID'),
@@ -217,10 +225,11 @@ class HomeControl(Mprm):
 
     def _voltage_multi_level_sensor(self, uid_info: dict):
         """ Process VoltageMultiLevelSensor properties. """
-        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "voltage_property"):
-            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property = {}
-        self._logger.debug(f"Adding voltage property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].voltage_property[uid_info.get("UID")] = \
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "voltage_property"):
+            self.devices[device_uid].voltage_property = {}
+        self._logger.debug(f"Adding voltage property to {device_uid}.")
+        self.devices[device_uid].voltage_property[uid_info.get("UID")] = \
             VoltageProperty(session=self._session,
                             gateway=self._gateway,
                             element_uid=uid_info.get("UID"),
