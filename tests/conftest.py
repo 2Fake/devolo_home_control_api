@@ -13,7 +13,6 @@ pytest_plugins = ['tests.fixtures.gateway',
                   'tests.fixtures.homecontrol',
                   'tests.fixtures.mprm',
                   'tests.fixtures.mydevolo',
-                  'tests.fixtures.properties',
                   'tests.fixtures.publisher',
                   'tests.fixtures.requests',
                   'tests.fixtures.socket']
