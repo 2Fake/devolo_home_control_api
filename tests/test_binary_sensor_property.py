@@ -11,6 +11,6 @@ class TestBinarySensorProperty:
             BinarySensorProperty(gateway=gateway_instance, session=mprm_session, element_uid="invalid", state=True)
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    def test_set_sensor_switch_valid(self):
+    def test_get_binary_sensor(self):
         assert self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
-            .binary_switch_property.get(self.devices.get("sensor").get("elementUIDs")[1]).state
+            .binary_switch_property.get(self.devices.get("sensor").get("elementUIDs")[0]).state
