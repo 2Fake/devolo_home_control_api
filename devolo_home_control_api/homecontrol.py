@@ -11,6 +11,7 @@ from .devices.zwave import (Zwave, get_device_type_from_element_uid,
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
+from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
 from .publisher.publisher import Publisher
@@ -136,6 +137,7 @@ class HomeControl(Mprm):
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
                     "devolo.Meter": self._meter,
+                    "devolo.MultiLevelSensor": self.multi_level_sensor,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
@@ -176,6 +178,20 @@ class HomeControl(Mprm):
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
+
+    def multi_level_sensor(self, uid_info: dict):
+        """ Process multi level sensor properties. """
+        if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "multi_level_sensor_property"):
+            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].multi_level_property = {}
+        self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
+        self.devices[get_device_uid_from_element_uid(uid_info.get('UID'))].multi_level_property[uid_info.get("UID")] = \
+            MultiLevelSensorProperty(session=self._session,
+                                     gateway=self._gateway,
+                                     element_uid=uid_info.get("UID"),
+                                     value=uid_info.get("properties").get("value"),
+                                     unit=uid_info.get("properties").get("unit"),
+                                     sensor_type=uid_info.get("properties").get("sensorType"))
+
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
