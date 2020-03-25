@@ -36,6 +36,7 @@ class Updater:
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
+                        "devolo.MultiLevelSensor": self._multi_level_sensor,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                         "hdm": self._device_online_state,
                         "devolo.DevicesPage": self._device_change,
@@ -83,11 +84,23 @@ class Updater:
         self._logger.debug(f"Updating state of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+    def update_multi_level_sensor(self, element_uid: str, value: float):
+        """
+        Update the multi level sensor value externally. The value is written into the internal dict
+
+        :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :param value: Value to be set
+        """
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        self._logger.debug(f"Updating {element_uid} to {value}")
+        self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).value = value
+        self._publisher.dispatch(device_uid, (element_uid, value))
+
     def update_consumption(self, element_uid: str, consumption: str, value: float):
         """
         Update the consumption of a device externally. The value is written into the internal dict.
 
-        :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24
         :param consumption: current or total consumption
         :param value: Value so be set
         """
@@ -188,6 +201,11 @@ class Updater:
                          "sinceTime": self._since_time}
 
         property_name[message.get("properties").get("property.name")](message.get("properties"))
+
+    def _multi_level_sensor(self, message: dict):
+        """ Update a multi level sensor. """
+        self.update_multi_level_sensor(element_uid=message.get("uid"),
+                                       value=message.get("property.value.new"))
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """
