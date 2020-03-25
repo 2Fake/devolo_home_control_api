@@ -157,7 +157,7 @@ class Updater:
         if message.get("properties").get("property.name") == "state" and \
                 message.get("properties").get("property.value.new") is not None:
             self.update_binary_switch_state(element_uid=message.get("properties").get("uid"),
-                                            value=bool(message.get("properties").get("property.value.new")
+                                            value=bool(message.get("properties").get("property.value.new")))
 
     def _current_consumption(self, property: dict):
         """ Update current consumption. """
