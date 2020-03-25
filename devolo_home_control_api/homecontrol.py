@@ -49,6 +49,11 @@ class HomeControl(Mprm):
 
 
     @property
+    def binary_sensor_devices(self):
+        """ Get all binary sensor devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_sensor_property")]
+
+    @property
     def binary_switch_devices(self) -> list:
         """ Get all binary switch devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
@@ -87,12 +92,13 @@ class HomeControl(Mprm):
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "binary_sensor_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_sensor_property = {}
         self._logger.debug(f"Adding binary sensor property to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        properties = uid_info.get("properties")
         self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].binary_sensor_property[uid_info.get("UID")] = \
             BinarySensorProperty(session=self._session,
                                  gateway=self._gateway,
                                  element_uid=uid_info.get("UID"),
-                                 **properties)
+                                 state=bool(uid_info.get("properties").get("state")),
+                                 sensor_type=uid_info.get("properties").get("sensorType"),
+                                 sub_type=uid_info.get("properties").get("subType"))
 
     def _binary_switch(self, uid_info: dict):
         """ Process BinarySwitch properties. """
