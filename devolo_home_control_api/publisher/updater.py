@@ -209,8 +209,8 @@ class Updater:
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """
-        self.update_total_since(element_uid=property.get("properties").get("uid"),
-                                total_since=property.get("properties").get("property.value.new"))
+        self.update_total_since(element_uid=property.get("uid"),
+                                total_since=property.get("property.value.new"))
 
     def _total_consumption(self, property: dict):
         """ Update total consumption. """
