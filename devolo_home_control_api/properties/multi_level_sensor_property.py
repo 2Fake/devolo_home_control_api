@@ -16,11 +16,14 @@ class MultiLevelSensorProperty(SensorProperty):
     :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, value: float, unit: str, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.MultiLevelSensor:"):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
+        self.value = kwargs.get("value")
+        self.unit = kwargs.get("unit")
 
-        self.value = value
-        self.unit = unit
+        kwargs.pop("value")
+        kwargs.pop("unit")
+
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)

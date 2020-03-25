@@ -17,10 +17,13 @@ class VoltageProperty(SensorProperty):
     :param current: Voltage messured at the time of creating this instance
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, current: float, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.VoltageMultiLevelSensor:"):
             raise WrongElementError(f"{element_uid} is not a Voltage Sensor.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
-        self.current = current
+        self.current = kwargs.get("current")
         self.current_unit = "V"
+
+        kwargs.pop("current")
+
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)

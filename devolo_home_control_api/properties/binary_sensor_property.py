@@ -16,10 +16,11 @@ class BinarySensorProperty(SensorProperty):
     :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, state: bool, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.BinarySensor:"):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
+        self.state = kwargs.get("state")
+        kwargs.pop("state")
 
-        self.state = state
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
