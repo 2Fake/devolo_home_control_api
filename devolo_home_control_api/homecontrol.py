@@ -224,7 +224,8 @@ class HomeControl(Mprm):
             VoltageProperty(session=self._session,
                             gateway=self._gateway,
                             element_uid=uid_info.get("UID"),
-                            current=uid_info.get("properties").get("value"))
+                            current=uid_info.get("properties").get("value"),
+                            sensor_type=uid_info.get("properties").get("sensorType"))
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
