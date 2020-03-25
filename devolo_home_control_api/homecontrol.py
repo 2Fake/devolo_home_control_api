@@ -137,7 +137,7 @@ class HomeControl(Mprm):
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
                     "devolo.Meter": self._meter,
-                    "devolo.MultiLevelSensor": self.multi_level_sensor,
+                    "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
@@ -179,7 +179,7 @@ class HomeControl(Mprm):
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
 
-    def multi_level_sensor(self, uid_info: dict):
+    def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "multi_level_sensor_property"):
             self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].multi_level_sensor_property = {}
@@ -191,7 +191,6 @@ class HomeControl(Mprm):
                                      value=uid_info.get("properties").get("value"),
                                      unit=uid_info.get("properties").get("unit"),
                                      sensor_type=uid_info.get("properties").get("sensorType"))
-
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
