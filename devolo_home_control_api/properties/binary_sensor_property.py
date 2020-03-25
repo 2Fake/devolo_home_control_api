@@ -1,8 +1,10 @@
+from typing import Any
+
 from requests import Session
 
 from ..devices.gateway import Gateway
-from .sensor_property import SensorProperty
 from .property import WrongElementError
+from .sensor_property import SensorProperty
 
 
 class BinarySensorProperty(SensorProperty):
@@ -14,10 +16,10 @@ class BinarySensorProperty(SensorProperty):
     :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, state: bool, sensor_type: str, sub_type: str):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, state: bool, **kwargs: Any):
         if not element_uid.startswith("devolo.BinarySensor:"):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid, sensor_type=sensor_type, sub_type=sub_type)
+        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
 
         self.state = state
