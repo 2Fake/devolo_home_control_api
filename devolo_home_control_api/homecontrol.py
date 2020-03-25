@@ -182,9 +182,9 @@ class HomeControl(Mprm):
     def multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
         if not hasattr(self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))], "multi_level_sensor_property"):
-            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].multi_level_property = {}
+            self.devices[get_device_uid_from_element_uid(uid_info.get("UID"))].multi_level_sensor_property = {}
         self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {get_device_uid_from_element_uid(uid_info.get('UID'))}.")
-        self.devices[get_device_uid_from_element_uid(uid_info.get('UID'))].multi_level_property[uid_info.get("UID")] = \
+        self.devices[get_device_uid_from_element_uid(uid_info.get('UID'))].multi_level_sensor_property[uid_info.get("UID")] = \
             MultiLevelSensorProperty(session=self._session,
                                      gateway=self._gateway,
                                      element_uid=uid_info.get("UID"),
