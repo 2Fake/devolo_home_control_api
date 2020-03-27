@@ -41,6 +41,15 @@ class TestUpdater:
         assert consumption_property.get(f"devolo.Meter:{uid}").current == 1.58
         assert consumption_property.get(f"devolo.Meter:{uid}").total == 254
 
+    def test_update_update_multi_level_sensor_valid(self, fill_device_data):
+        uid = self.devices.get("sensor").get("uid")
+        multi_level_sensor_property = self.homecontrol.devices.get(uid).multi_level_sensor_property
+        value_before = multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        self.homecontrol.updater.update_multi_level_sensor(element_uid=f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)",
+                                                           value=50)
+        assert value_before != multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        assert multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value == 50
+
     def test_device_online_state(self):
         uid = self.devices.get("mains").get("uid")
         online_state = self.homecontrol.devices.get(uid).status
@@ -83,6 +92,20 @@ class TestUpdater:
     def test_update_invalid(self):
         self.homecontrol.updater.update(message={"properties":
                                         {"uid": "fibaro"}})
+
+    def test__binary_sensor(self):
+        uid = self.devices.get("sensor").get("uid")
+        self.homecontrol.devices.get(uid).binary_sensor_property \
+            .get(f"devolo.BinarySensor:{uid}").state = True
+        state = self.homecontrol.devices.get(uid).binary_sensor_property \
+            .get(f"devolo.BinarySensor:{uid}").state
+        self.homecontrol.updater._binary_sensor(message={"properties":
+                                                {"property.name": "state",
+                                                 "uid": f"devolo.BinarySensor:{uid}",
+                                                 "property.value.new": 0}})
+        state_new = self.homecontrol.devices.get(uid).binary_sensor_property \
+            .get(f"devolo.BinarySensor:{uid}").state
+        assert state != state_new
 
     def test__binary_switch(self):
         uid = self.devices.get("mains").get("uid")
@@ -179,6 +202,32 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).consumption_property \
             .get(f"devolo.Meter:{uid}").current == current_new
 
+    def test__multi_level_sensor(self):
+        uid = self.devices.get("sensor").get("uid")
+        self.homecontrol.devices.get(uid).multi_level_sensor_property \
+            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value = 100
+        current = self.homecontrol.devices.get(uid).multi_level_sensor_property \
+            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        self.homecontrol.updater._multi_level_sensor(message={"properties":
+                                                     {"uid": f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)",
+                                                      "property.value.new": 50}})
+        current_new = self.homecontrol.devices.get(uid).multi_level_sensor_property \
+            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+
+        assert current_new == 50
+        assert current != current_new
+
+    def test__since_time(self):
+        now = datetime.now()
+        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
+            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
+                                              "property.value.new": now})
+        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
+            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        assert total_since != new_total_since
+        assert new_total_since == now
+
     def test__voltage_multi_level_sensor(self):
         uid = self.devices.get("mains").get("uid")
         self.homecontrol.devices.get(uid).voltage_property \
@@ -193,14 +242,3 @@ class TestUpdater:
 
         assert current_new == 234
         assert current != current_new
-
-    def test__since_time(self):
-        now = datetime.now()
-        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
-        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
-                                              "property.value.new": now})
-        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
-        assert total_since != new_total_since
-        assert new_total_since == now

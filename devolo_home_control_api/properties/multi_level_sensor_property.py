@@ -13,7 +13,7 @@ class MultiLevelSensorProperty(SensorProperty):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
-    :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
+    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#MultilevelSensor(1)
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
