@@ -36,7 +36,7 @@ class HomeControl(Mprm):
 
         # Create the initial device dict
         self.devices = {}
-        self._inspect_devices(self.all_devices)
+        self._inspect_devices(self.get_all_devices())
 
         self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
@@ -145,7 +145,8 @@ class HomeControl(Mprm):
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
-                    "ps.hdm": self._protection
+                    "ps.hdm": self._protection,
+                    "trs.hdm": self._temperature_report
                     }
 
         # List comprehension gets the list of uids from every device
@@ -218,6 +219,17 @@ class HomeControl(Mprm):
                              element_uid=uid_info.get('UID'),
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
+
+    def _temperature_report(self, uid_info: dict):
+        """ Process temperature report setting (trs) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding temperature report settings to {device_uid}.")
+        self.devices[device_uid].settings_property["temperature_report"] = \
+            SettingsProperty(session=self._session,
+                             gateway=self._gateway,
+                             element_uid=uid_info.get('UID'),
+                             temp_report=uid_info.get("properties").get("tempReport"),
+                             target_temp_report=uid_info.get("properties").get("targetTempReport"))
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """

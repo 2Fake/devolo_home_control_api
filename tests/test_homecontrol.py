@@ -88,6 +88,15 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "local_switching")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "remote_switching")
 
+    def test__temperature_report(self):
+        # TODO: Use test data
+        device = self.devices.get("sensor").get("uid")
+        self.homecontrol._temperature_report({"UID": "trs.hdm:ZWave:F6BF9812/6",
+                                              "properties": {"tempReport": True,
+                                                             "targetTempReport": False}})
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "temp_report")
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "target_temp_report")
+
     def test__voltage_multi_level_sensor(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
@@ -112,8 +121,8 @@ class TestHomeControl:
         self.homecontrol.device_change(uids)
         assert self.devices.get("mains").get("uid") not in self.homecontrol.devices.keys()
 
-    @pytest.mark.usefixtures("mock_mprmrest_all_devices")
     @pytest.mark.usefixtures("mock_extract_data_from_element_uids")
+    @pytest.mark.usefixtures("mock_mprmrest_get_all_devices")
     def test__inspect_devices(self, mocker):
         spy = mocker.spy(self.homecontrol, '_inspect_devices')
         self.homecontrol._inspect_devices([self.devices.get("mains")])
