@@ -20,8 +20,7 @@ class MprmRest:
         self._local_ip = None
 
 
-    @property
-    def all_devices(self) -> list:
+    def get_all_devices(self) -> list:
         """
         Get all devices.
 
@@ -32,7 +31,6 @@ class MprmRest:
                 "params": [['devolo.DevicesPage'], 0]}
         response = self.post(data)
         return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
-
 
     def get_data_from_uid_list(self, uids: list) -> list:
         """

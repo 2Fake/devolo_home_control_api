@@ -39,10 +39,11 @@ def mock_mprm__try_local_connection(mocker, request):
 
 
 @pytest.fixture()
-def mock_mprmrest_all_devices(mocker, request):
+def mock_mprmrest_get_all_devices(mocker, request):
     """ Mock getting all devices from the mPRM. """
-    if request.node.name not in ["test_all_devices"]:
-        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.all_devices", return_value=["hdm:ZWave:F6BF9812/2"])
+    if request.node.name not in ["test_get_all_devices"]:
+        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_all_devices",
+                     return_value=["hdm:ZWave:F6BF9812/2"])
 
 
 @pytest.fixture()
@@ -91,7 +92,7 @@ def mock_mprmrest__post(mocker, request):
                                                                            "deviceModelUID": "test_device_model_uid",
                                                                            "status": "test_status"}}]}}
     properties["test_get_data_from_uid_list"] = {"result": {"items": [{"properties": {"itemName": "test_name"}}]}}
-    properties["test_all_devices"] = {"result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}}
+    properties["test_get_all_devices"] = {"result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}}
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
 
