@@ -17,7 +17,7 @@ class SettingsProperty(Property):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if element_uid.split(".")[0] not in ["cps", "gds", "lis", "ps", "trs"]:
+        if element_uid.split(".")[0] not in ["cps", "gds", "lis", "ps", "trs", "vfs"]:
             raise WrongElementError()
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)

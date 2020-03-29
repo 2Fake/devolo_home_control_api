@@ -64,6 +64,9 @@ class TestHomeControl:
         device = self.devices.get("mains").get("uid")
         self.homecontrol._led({"UID": "gds.hdm:ZWave:F6BF9812/2", "properties": {"led": True}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
+        device = self.devices.get("sensor").get("uid")
+        self.homecontrol._led({"UID": "vfs.hdm:ZWave:F6BF9812/6", "properties": {"feedback": True}})
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
 
     def test__multi_level_sensor(self):
         # TODO: Use test data

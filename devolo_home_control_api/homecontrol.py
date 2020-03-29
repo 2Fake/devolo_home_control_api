@@ -146,7 +146,8 @@ class HomeControl(Mprm):
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
                     "ps.hdm": self._protection,
-                    "trs.hdm": self._temperature_report
+                    "trs.hdm": self._temperature_report,
+                    "vfs.hdm": self._led
                     }
 
         # List comprehension gets the list of uids from every device
@@ -162,17 +163,21 @@ class HomeControl(Mprm):
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 
     def _led(self, uid_info: dict):
-        """ Process LED information setting (lis) properties. """
+        """ Process LED information setting (lis) and visual feedback setting (vfs) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
         self._logger.debug(f"Adding led settings to {device_uid}.")
+        if uid_info.get("properties").get("led"):
+            led_setting = uid_info.get("properties").get("led")
+        else:
+            led_setting = uid_info.get("properties").get("feedback")
         self.devices[device_uid].settings_property["led"] = \
             SettingsProperty(session=self._session,
                              gateway=self._gateway,
                              element_uid=uid_info.get("UID"),
-                             led_setting=uid_info.get("properties").get("led"))
+                             led_setting=led_setting)
 
     def _meter(self, uid_info: dict):
-        """ Process Meter properties. """
+        """ Process meter properties. """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
         if not hasattr(self.devices[device_uid], "consumption_property"):
             self.devices[device_uid].consumption_property = {}
