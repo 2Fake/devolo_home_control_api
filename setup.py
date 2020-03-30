@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="devolo_home_control_api",
-    version="0.6.2",
+    version="0.6.3",
     author="Markus Bong, Guido Schmitz",
     author_email="m.bong@famabo.de, guido.schmitz@fedaix.de",
     description="devolo Home Control API in Python",
@@ -22,6 +22,6 @@ setuptools.setup(
         "requests",
         "websocket_client<=0.56.0",
         "zeroconf"
-      ],
+    ],
     python_requires='>=3.6',
 )

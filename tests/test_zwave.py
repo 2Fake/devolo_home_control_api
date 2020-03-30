@@ -56,3 +56,14 @@ class TestZwave:
 
     def test_get_device_uid_from_element_uid(self):
         assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "hdm:ZWave:F6BF9812/2"
+
+    def test_get_device_uid_from_element_uid_secure(self):
+        assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2:secure#2") == "hdm:ZWave:F6BF9812/2"
+
+    def test_in_online_online(self, mydevolo):
+        device = Zwave(**self.devices.get("mains").get("properties"))
+        assert device.is_online()
+
+    # def test_in_online_offline(self, mydevolo):
+    #     device = Zwave(**self.devices.get("offline"))
+    #     assert not device.is_online()
