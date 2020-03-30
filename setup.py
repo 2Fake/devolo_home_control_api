@@ -22,6 +22,6 @@ setuptools.setup(
         "requests",
         "websocket_client<=0.56.0",
         "zeroconf"
-      ],
+    ],
     python_requires='>=3.6',
 )
