@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+=======
+## [Unreleased]
+
+### Added
+
+- Support for devolo Door/Window Contact
+- Support for devolo Motion Sensor
+- Support for devolo Humidity Sensor
+- Support for devolo Flood Sensor
+
+### Changed
+
+- **BREAKING**: The properties don't have fetch methods any longer. Instead, the attribute are initially updated and should be used directly.
+
+### Fixed
+
+- Handle secure included devices correctly
+
 ## [v0.6.2] - 2020/03/19
 
 ### Changed
