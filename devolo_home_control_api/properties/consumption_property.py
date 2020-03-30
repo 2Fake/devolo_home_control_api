@@ -14,7 +14,9 @@ class ConsumptionProperty(Property):
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
-    :param **kwargs: Consumption values valid at time of creating the instance
+    :key current: Consumption value valid at time of creating the instance
+    :key total: Total consumption since last reset
+    :key total_since: Timestamp in milliseconds of last reset
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
