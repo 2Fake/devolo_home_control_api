@@ -69,6 +69,6 @@ class TestZwave:
         device = Zwave(**self.devices.get("mains").get("properties"))
         assert device.is_online()
 
-    def test_in_online_offline(self, mydevolo):
-        device = Zwave(**self.devices.get("offline"))
-        assert not device.is_online()
+    # def test_in_online_offline(self, mydevolo):
+    #     device = Zwave(**self.devices.get("offline"))
+    #     assert not device.is_online()
