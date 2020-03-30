@@ -87,4 +87,4 @@ def get_device_uid_from_element_uid(element_uid: str) -> str:
     element_uid = element_uid.split(":", 1)[1].split("#")[0]
     if element_uid.endswith("secure"):
         return element_uid.rsplit(":", 1)[0]
-    return element_uid.split(":", 1)[1].split("#")[0]
+    return element_uid
