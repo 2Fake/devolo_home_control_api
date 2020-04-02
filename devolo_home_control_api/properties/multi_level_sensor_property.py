@@ -25,7 +25,4 @@ class MultiLevelSensorProperty(SensorProperty):
         self.value = kwargs.get("value")
         self.unit = kwargs.get("unit")
 
-        kwargs.pop("value")
-        kwargs.pop("unit")
-
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)

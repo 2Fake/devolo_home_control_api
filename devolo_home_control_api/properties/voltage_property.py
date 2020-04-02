@@ -24,6 +24,4 @@ class VoltageProperty(SensorProperty):
         self.current = kwargs.get("current")
         self.current_unit = "V"
 
-        kwargs.pop("current")
-
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
