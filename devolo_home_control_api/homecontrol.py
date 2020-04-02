@@ -139,6 +139,7 @@ class HomeControl(Mprm):
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
+                    "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
@@ -161,6 +162,18 @@ class HomeControl(Mprm):
         for uid_info in self.get_data_from_uid_list(uid_list):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
+
+    def _last_activity(self, uid_info: dict):
+        """
+        Process last activitity properties. Those don't go into an own property but will be appended to a parent property.
+        This parent property is found by string replacement.
+        """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if uid_info.get("properties").get("lastActivityTime") != -1 and \
+                hasattr(self.devices[device_uid], "binary_sensor_property"):
+            parent_element_uid = uid_info.get("UID").replace("LastActivity", "BinarySensor")
+            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                uid_info.get("properties").get("lastActivityTime")
 
     def _led(self, uid_info: dict):
         """ Process LED information setting (lis) and visual feedback setting (vfs) properties. """

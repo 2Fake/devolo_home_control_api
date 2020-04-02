@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from requests import Session
@@ -22,6 +23,18 @@ class BinarySensorProperty(SensorProperty):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
         self.state = kwargs.get("state")
-        kwargs.pop("state")
+
+        self._last_activity = datetime.fromtimestamp(0)
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
+
+
+    @property
+    def last_activity(self) -> datetime:
+        """ Date and time the binary sensor was last triggered. """
+        return self._last_activity
+
+    @last_activity.setter
+    def last_activity(self, timestamp: int):
+        """ Convert a timestamp in millisecond to a datetime object. """
+        self._last_activity = datetime.fromtimestamp(timestamp / 1000)

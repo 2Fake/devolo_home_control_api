@@ -59,6 +59,16 @@ class TestHomeControl:
                                                                       "icon": self.devices.get("mains").get("icon")}}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("general_device_settings"), "events_enabled")
 
+    def test__last_activity(self):
+        # TODO: Use test data
+        device = self.devices.get("sensor").get("uid")
+        self.homecontrol._binary_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[0],
+                                         "properties": {"state": 1}})
+        self.homecontrol._last_activity({"UID": self.devices.get("sensor").get("elementUIDs")[1],
+                                         "properties": {"lastActivityTime": 1581419650436}})
+        assert hasattr(self.homecontrol.devices[device].binary_sensor_property.
+                       get(self.devices.get("sensor").get("elementUIDs")[0]), "last_activity")
+
     def test__led(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
