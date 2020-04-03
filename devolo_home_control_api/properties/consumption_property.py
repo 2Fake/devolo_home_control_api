@@ -27,5 +27,5 @@ class ConsumptionProperty(Property):
         self.current = kwargs.get("current")
         self.current_unit = "W"
         self.total = kwargs.get("total")
-        self.total_since = datetime.fromtimestamp(kwargs.get("total_since") / 1000)
+        self.total_since = datetime.fromtimestamp(kwargs.get("total_since", 0) / 1000)
         self.total_unit = "kWh"
