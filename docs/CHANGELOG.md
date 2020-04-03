@@ -9,9 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Support for devolo Door/Window Contact
-- Support for devolo Motion Sensor
-- Support for devolo Humidity Sensor
 - Support for devolo Flood Sensor
+- Support for devolo Humidity Sensor
+- Support for devolo Motion Sensor
+- Support for devolo Smoke Detector
 
 ### Changed
 
