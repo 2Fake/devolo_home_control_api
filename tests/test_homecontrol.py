@@ -78,6 +78,13 @@ class TestHomeControl:
         self.homecontrol._led({"UID": "vfs.hdm:ZWave:F6BF9812/6", "properties": {"feedback": True}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
 
+    def test__motion(self):
+        # TODO: Use test data
+        device = self.devices.get("sensor").get("uid")
+        self.homecontrol._motion({"UID": "mss.hdm:ZWave:F6BF9812/6", "properties": {"value": 60, "targetValue": 60}})
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"), "motion_sensitivity")
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"), "target_motion_sensitivity")
+
     def test__multi_level_sensor(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")

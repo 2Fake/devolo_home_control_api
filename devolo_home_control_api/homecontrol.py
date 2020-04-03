@@ -146,6 +146,7 @@ class HomeControl(Mprm):
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
+                    "mss.hdm": self._motion,
                     "ps.hdm": self._protection,
                     "trs.hdm": self._temperature_report,
                     "vfs.hdm": self._led
@@ -202,6 +203,17 @@ class HomeControl(Mprm):
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
+
+    def _motion(self, uid_info: dict):
+        """ Process motion sensitivity setting (mss) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding motion sensitiviy settings to {device_uid}.")
+        self.devices[device_uid].settings_property["motion_sensitivity"] = \
+            SettingsProperty(session=self._session,
+                             gateway=self._gateway,
+                             element_uid=uid_info.get("UID"),
+                             motion_sensitivity=uid_info.get("properties").get("value"),
+                             target_motion_sensitivity=uid_info.get("properties").get("targetValue"))
 
     def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
