@@ -54,6 +54,9 @@ class TestZwave:
     def test_get_device_uid_from_setting_uid(self):
         assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2") == "hdm:ZWave:EB5A9F6C/2"
 
+    def test_get_device_uid_from_setting_uid_secure(self):
+        assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2:secure") == "hdm:ZWave:EB5A9F6C/2"
+
     def test_get_device_uid_from_element_uid(self):
         assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "hdm:ZWave:F6BF9812/2"
 
