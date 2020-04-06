@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **BREAKING**: The properties don't have fetch methods any longer. Instead, the attribute are initially updated and should be used directly.
 
+## [v0.6.4] - 2020/04/04
+
+### Fixed
+
+- Handle secure settings correctly
+
 ## [v0.6.3] - 2020/03/30
 
 ### Fixed
