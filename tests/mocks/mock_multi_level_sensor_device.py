@@ -34,14 +34,14 @@ def multi_level_sensor_device(key: str) -> Zwave:
         BinarySensorProperty(gateway=gateway,
                              session=session,
                              element_uid=element_uid,
-                             state=test_data.get("devices").get("sensor").get("state"))
+                             state=test_data.get("devices").get(key).get("state"))
 
     element_uid = f'devolo.MultiLevelSensor:{test_data.get("devices").get(key).get("uid")}#MultilevelSensor(1)'
     device.multi_level_sensor_property[element_uid] = \
         MultiLevelSensorProperty(gateway=gateway,
                                  session=session,
                                  element_uid=element_uid,
-                                 value="100",
-                                 unit="%")
+                                 value=test_data.get("devices").get(key).get("value"),
+                                 unit=test_data.get("devices").get(key).get("unit"))
 
     return device
