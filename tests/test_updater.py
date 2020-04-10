@@ -41,6 +41,24 @@ class TestUpdater:
         assert consumption_property.get(f"devolo.Meter:{uid}").current == 1.58
         assert consumption_property.get(f"devolo.Meter:{uid}").total == 254
 
+    def test_update_humidity_bar(self, fill_device_data):
+        uid = self.devices.get("humidity").get("uid")
+        humidity_bar_property = self.homecontrol.devices.get(uid).humidity_bar_property
+        current_zone = \
+            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone
+        current_value = \
+            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
+        self.homecontrol.updater.update_humidity_bar(element_uid=f"devolo.HumidityBar:{uid}",
+                                                     zone=2)
+        self.homecontrol.updater.update_humidity_bar(element_uid=f"devolo.HumidityBar:{uid}",
+                                                     value=50)
+        assert current_zone != \
+            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone
+        assert humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone == 2
+        assert current_value != \
+            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
+        assert humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value == 50
+
     def test_update_update_multi_level_sensor_valid(self, fill_device_data):
         uid = self.devices.get("sensor").get("uid")
         multi_level_sensor_property = self.homecontrol.devices.get(uid).multi_level_sensor_property
@@ -170,6 +188,32 @@ class TestUpdater:
         online_sync_new = self.homecontrol._gateway.sync
         assert accessible != accessible_new
         assert online_sync != online_sync_new
+
+    def test__humidity_bar(self):
+        uid = self.devices.get("humidity").get("uid")
+        self.homecontrol.devices.get(uid).humidity_bar_property \
+            .get(f"devolo.HumidityBar:{uid}").value = 75
+        self.homecontrol.devices.get(uid).humidity_bar_property \
+            .get(f"devolo.HumidityBar:{uid}").zone = 1
+        current_value = self.homecontrol.devices.get(uid).humidity_bar_property \
+            .get(f"devolo.HumidityBar:{uid}").value
+        current_zone = self.homecontrol.devices.get(uid).humidity_bar_property \
+            .get(f"devolo.HumidityBar:{uid}").zone
+        self.homecontrol.updater._humidity_bar(message={"properties":
+                                               {"uid": f"devolo.HumidityBarValue:{uid}",
+                                                "property.value.new": 50}})
+        current_value_new = self.homecontrol.devices.get(uid).humidity_bar_property \
+            .get(f"devolo.HumidityBar:{uid}").value
+        self.homecontrol.updater._humidity_bar(message={"properties":
+                                               {"uid": f"devolo.HumidityBarZone:{uid}",
+                                                "property.value.new": 0}})
+        current_zone_new = self.homecontrol.devices.get(uid).humidity_bar_property \
+            .get(f"devolo.HumidityBar:{uid}").zone
+
+        assert current_value_new == 50
+        assert current_zone_new == 0
+        assert current_value != current_value_new
+        assert current_zone != current_zone_new
 
     def test__meter(self):
         uid = self.devices.get("mains").get("uid")

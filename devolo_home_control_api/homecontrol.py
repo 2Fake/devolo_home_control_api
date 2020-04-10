@@ -11,6 +11,7 @@ from .devices.zwave import (Zwave, get_device_type_from_element_uid,
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
+from .properties.humidity_bar_property import HumidityBarProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
@@ -128,6 +129,30 @@ class HomeControl(Mprm):
                              zone_id=uid_info.get("properties").get("settings").get("zoneID"),
                              icon=uid_info.get("properties").get("settings").get("icon"))
 
+    def _humidity_bar(self, uid_info: dict):
+        """
+        Process HumidityBarZone and HumidityBarValue properties.
+
+        For whatever reason, the zone and the position within that zone are two different FIs. Nevertheless, it does not make
+        sence to seperate them. So we fake an FI and a sensorType to combine them together into one object.
+        """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        fake_element_uid = f'devolo.HumidityBar:{uid_info.get("UID").split(":", 1)[1]}'
+        if not hasattr(self.devices[device_uid], "humidity_bar_property"):
+            self.devices[device_uid].humidity_bar_property = {}
+        if self.devices[device_uid].humidity_bar_property.get(fake_element_uid) is None:
+            self.devices[device_uid].humidity_bar_property[fake_element_uid] = \
+                HumidityBarProperty(session=self._session,
+                                    gateway=self._gateway,
+                                    element_uid=fake_element_uid,
+                                    sensorType="humidityBar")
+        if uid_info.get("properties").get("sensorType") == "humidityBarZone":
+            self._logger.debug(f"Adding humidity bar zone property to {device_uid}.")
+            self.devices[device_uid].humidity_bar_property[fake_element_uid].zone = uid_info.get("properties").get("value")
+        elif uid_info.get("properties").get("sensorType") == "humidityBarPos":
+            self._logger.debug(f"Adding humidity bar position property to {device_uid}.")
+            self.devices[device_uid].humidity_bar_property[fake_element_uid].value = uid_info.get("properties").get("value")
+
     def _inspect_devices(self, devices: list):
         """ Inspect device properties of given list of devices. """
         devices_properties = self.get_data_from_uid_list(devices)
@@ -139,6 +164,8 @@ class HomeControl(Mprm):
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
+                    "devolo.HumidityBarValue": self._humidity_bar,
+                    "devolo.HumidityBarZone": self._humidity_bar,
                     "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,

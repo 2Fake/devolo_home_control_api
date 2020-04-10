@@ -7,6 +7,7 @@ from devolo_home_control_api.homecontrol import get_sub_device_uid_from_element_
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_mydevolo__call")
 class TestHomeControl:
+    # TODO: Clear devices after each test
 
     def test_binary_sensor_devices(self):
         assert hasattr(self.homecontrol.binary_sensor_devices[0], "binary_sensor_property")
@@ -15,7 +16,7 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 5
+        assert len(self.homecontrol.publisher._events) == 6
 
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
@@ -59,6 +60,16 @@ class TestHomeControl:
                                                                       "icon": self.devices.get("mains").get("icon")}}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("general_device_settings"), "events_enabled")
 
+    def test__humidity_bar(self):
+        # TODO: Use test data
+        device = self.devices.get("humidity").get("uid")
+        self.homecontrol._humidity_bar({"UID": f"devolo.HumidityBarValue:{device}",
+                                        "properties": {"sensorType": "humidityBarPos", "value": 75}})
+        self.homecontrol._humidity_bar({"UID": f"devolo.HumidityBarZone:{device}",
+                                        "properties": {"sensorType": "humidityBarZone", "value": 1}})
+        assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").value == 75
+        assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").zone == 1
+
     def test__last_activity(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
@@ -82,8 +93,10 @@ class TestHomeControl:
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
         self.homecontrol._motion({"UID": "mss.hdm:ZWave:F6BF9812/6", "properties": {"value": 60, "targetValue": 60}})
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"), "motion_sensitivity")
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"), "target_motion_sensitivity")
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
+                       "motion_sensitivity")
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
+                       "target_motion_sensitivity")
 
     def test__multi_level_sensor(self):
         # TODO: Use test data
@@ -137,7 +150,7 @@ class TestHomeControl:
 
     def test_device_change_remove(self):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
-        del uids[2]
+        del uids[3]
         self.homecontrol.device_change(uids)
         assert self.devices.get("mains").get("uid") not in self.homecontrol.devices.keys()
 

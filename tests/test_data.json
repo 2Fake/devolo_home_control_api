@@ -31,6 +31,20 @@
       "uid": "hdm:ZWave:F6BF9812/4",
       "zone_name": "Living Room"
     },
+    "humidity": {
+      "UID": "hdm:ZWave:F6BF9812/7",
+      "elementUIDs": [
+        "devolo.BinarySensor:hdm:ZWave:F6BF9812/7",
+        "devolo.LastActivity:hdm:ZWave:F6BF9812/7"
+      ],
+      "batteryLevel": 100,
+      "batteryLow": false,
+      "itemName": "Humidity",
+      "status": 2,
+      "uid": "hdm:ZWave:F6BF9812/7",
+      "value": 75,
+      "zone": 1
+    },
     "mains": {
       "UID": "hdm:ZWave:F6BF9812/2",
       "elementUIDs": [
@@ -114,7 +128,9 @@
       "status": 2,
       "state": 1,
       "batteryLevel": 100,
-      "uid": "hdm:ZWave:F6BF9812/6"
+      "uid": "hdm:ZWave:F6BF9812/6",
+      "unit": "%",
+      "value": 100
     }
   },
   "gateway": {

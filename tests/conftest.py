@@ -42,5 +42,10 @@ def fill_device_data(request):
         request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")).binary_switch_property
     binary_switch_property.get(f"devolo.BinarySwitch:{test_data.get('devices').get('mains').get('uid')}").state = False
 
+    humidity_bar_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("humidity").get("uid")) \
+        .humidity_bar_property
+    humidity_bar_property.get(f"devolo.HumidityBar:{test_data.get('devices').get('humidity').get('uid')}").zone = 1
+    humidity_bar_property.get(f"devolo.HumidityBar:{test_data.get('devices').get('humidity').get('uid')}").value = 75
+
     voltage_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")).voltage_property
     voltage_property.get(f"devolo.VoltageMultiLevelSensor:{test_data.get('devices').get('mains').get('uid')}").current = 236
