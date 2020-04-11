@@ -11,7 +11,9 @@ from .devices.zwave import (Zwave, get_device_type_from_element_uid,
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
+from .properties.dewpoint_sensor_property import DewpointSensorProperty
 from .properties.humidity_bar_property import HumidityBarProperty
+from .properties.mildew_sensor_property import MildewSensorProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
@@ -115,6 +117,19 @@ class HomeControl(Mprm):
                                  element_uid=uid_info.get("UID"),
                                  state=bool(uid_info.get("properties").get("state")))
 
+    def _dewpoint(self, uid_info: dict):
+        """ Process dewpoint sensor properties. """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "dewpoint_sensor_property"):
+            self.devices[device_uid].dewpoint_sensor_property = {}
+        self._logger.debug(f"Adding dewpoint sensor property to {device_uid}.")
+        self.devices[device_uid].dewpoint_sensor_property[uid_info.get("UID")] = \
+            DewpointSensorProperty(session=self._session,
+                                   gateway=self._gateway,
+                                   element_uid=uid_info.get("UID"),
+                                   value=uid_info.get("properties").get("value"),
+                                   sensor_type=uid_info.get("properties").get("sensorType"))
+
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
@@ -164,10 +179,12 @@ class HomeControl(Mprm):
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
+                    "devolo.DewpointSensor": self._dewpoint,
                     "devolo.HumidityBarValue": self._humidity_bar,
                     "devolo.HumidityBarZone": self._humidity_bar,
                     "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
+                    "devolo.MildewSensor": self._mildew,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                     "lis.hdm": self._led,
@@ -230,6 +247,19 @@ class HomeControl(Mprm):
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
+
+    def _mildew(self, uid_info: dict):
+        """ Process mildew sensor properties. """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "mildew_sensor_property"):
+            self.devices[device_uid].mildew_sensor_property = {}
+        self._logger.debug(f"Adding mildew sensor property to {device_uid}.")
+        self.devices[device_uid].mildew_sensor_property[uid_info.get("UID")] = \
+            MildewSensorProperty(session=self._session,
+                                 gateway=self._gateway,
+                                 element_uid=uid_info.get("UID"),
+                                 state=bool(uid_info.get("properties").get("state")),
+                                 sensor_type=uid_info.get("properties").get("sensorType"))
 
     def _motion(self, uid_info: dict):
         """ Process motion sensitivity setting (mss) properties. """
