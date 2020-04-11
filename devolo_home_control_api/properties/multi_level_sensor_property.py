@@ -9,7 +9,7 @@ from .property import WrongElementError
 
 class MultiLevelSensorProperty(SensorProperty):
     """
-    Object for binary sensors. It stores the binary sensor state.
+    Object for multi level sensors. It stores the multi level sensor state.
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
