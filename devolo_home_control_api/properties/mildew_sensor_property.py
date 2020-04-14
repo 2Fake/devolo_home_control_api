@@ -13,7 +13,7 @@ class MildewSensorProperty(SensorProperty):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
-    :param element_uid: Element UID, something like devolo.DewpointSensor:hdm:ZWave:CBC56091/24
+    :param element_uid: Element UID, something like devolo.MildewSensor:hdm:ZWave:CBC56091/24
     :key state: State of the mildew sensor
     """
 
