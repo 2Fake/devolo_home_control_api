@@ -123,10 +123,10 @@ class Updater:
         :key zone: Humidity zone
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        if kwargs.get("zone"):
+        if kwargs.get("zone") is not None:
             self.devices.get(device_uid).humidity_bar_property.get(element_uid).zone = kwargs.get("zone")
             self._logger.debug(f'Updating humidity bar zone of {element_uid} to {kwargs.get("zone")}')
-        elif kwargs.get("value"):
+        elif kwargs.get("value") is not None:
             self.devices.get(device_uid).humidity_bar_property.get(element_uid).value = kwargs.get("value")
             self._logger.debug(f'Updating humidity bar value of {element_uid} to {kwargs.get("value")}')
         self._publisher.dispatch(device_uid, (element_uid,

@@ -191,24 +191,18 @@ class TestUpdater:
 
     def test__humidity_bar(self):
         uid = self.devices.get("humidity").get("uid")
-        self.homecontrol.devices.get(uid).humidity_bar_property \
-            .get(f"devolo.HumidityBar:{uid}").value = 75
-        self.homecontrol.devices.get(uid).humidity_bar_property \
-            .get(f"devolo.HumidityBar:{uid}").zone = 1
-        current_value = self.homecontrol.devices.get(uid).humidity_bar_property \
-            .get(f"devolo.HumidityBar:{uid}").value
-        current_zone = self.homecontrol.devices.get(uid).humidity_bar_property \
-            .get(f"devolo.HumidityBar:{uid}").zone
+        self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value = 75
+        self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone = 1
+        current_value = self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
+        current_zone = self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone
         self.homecontrol.updater._humidity_bar(message={"properties":
                                                {"uid": f"devolo.HumidityBarValue:{uid}",
                                                 "property.value.new": 50}})
-        current_value_new = self.homecontrol.devices.get(uid).humidity_bar_property \
-            .get(f"devolo.HumidityBar:{uid}").value
+        current_value_new = self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
         self.homecontrol.updater._humidity_bar(message={"properties":
                                                {"uid": f"devolo.HumidityBarZone:{uid}",
                                                 "property.value.new": 0}})
-        current_zone_new = self.homecontrol.devices.get(uid).humidity_bar_property \
-            .get(f"devolo.HumidityBar:{uid}").zone
+        current_zone_new = self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone
 
         assert current_value_new == 50
         assert current_zone_new == 0
