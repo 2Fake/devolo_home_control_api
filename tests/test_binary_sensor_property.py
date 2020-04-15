@@ -12,5 +12,6 @@ class TestBinarySensorProperty:
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_get_binary_sensor(self):
+        # TODO: test todo in tests
         assert self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
             .binary_sensor_property.get(self.devices.get("sensor").get("elementUIDs")[0]).state
