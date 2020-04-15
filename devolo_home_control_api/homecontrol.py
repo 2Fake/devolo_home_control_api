@@ -149,7 +149,7 @@ class HomeControl(Mprm):
         Process HumidityBarZone and HumidityBarValue properties.
 
         For whatever reason, the zone and the position within that zone are two different FIs. Nevertheless, it does not make
-        sence to seperate them. So we fake an FI and a sensorType to combine them together into one object.
+        sense to separate them. So we fake an FI and a sensorType to combine them together into one object.
         """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
         fake_element_uid = f'devolo.HumidityBar:{uid_info.get("UID").split(":", 1)[1]}'
