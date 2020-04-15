@@ -190,7 +190,7 @@ class HomeControl(Mprm):
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
-                    "mss.hdm": self._motion,
+                    "mss.hdm": self._motion_sensitivity,
                     "ps.hdm": self._protection,
                     "trs.hdm": self._temperature_report,
                     "vfs.hdm": self._led
@@ -261,7 +261,7 @@ class HomeControl(Mprm):
                                  state=bool(uid_info.get("properties").get("state")),
                                  sensor_type=uid_info.get("properties").get("sensorType"))
 
-    def _motion(self, uid_info: dict):
+    def _motion_sensitivity(self, uid_info: dict):
         """ Process motion sensitivity setting (mss) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
         self._logger.debug(f"Adding motion sensitiviy settings to {device_uid}.")

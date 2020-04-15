@@ -103,10 +103,10 @@ class TestHomeControl:
                                   "properties": {"value": 0, "sensorType": "mildew"}})
         assert hasattr(self.homecontrol.devices.get(device), "mildew_sensor_property")
 
-    def test__motion(self):
+    def test__motion_sensitivity(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
-        self.homecontrol._motion({"UID": "mss.hdm:ZWave:F6BF9812/6", "properties": {"value": 60, "targetValue": 60}})
+        self.homecontrol._motion_sensitivity({"UID": "mss.hdm:ZWave:F6BF9812/6", "properties": {"value": 60, "targetValue": 60}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
                        "motion_sensitivity")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
