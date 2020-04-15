@@ -33,13 +33,15 @@
     },
     "humidity": {
       "UID": "hdm:ZWave:F6BF9812/7",
+      "dewpoint": 24,
       "elementUIDs": [
-        "devolo.BinarySensor:hdm:ZWave:F6BF9812/7",
-        "devolo.LastActivity:hdm:ZWave:F6BF9812/7"
+        "devolo.MildewSensor:hdm:ZWave:F6BF9812/7",
+        "devolo.DewpointSensor:hdm:ZWave:F6BF9812/7"
       ],
       "batteryLevel": 100,
       "batteryLow": false,
       "itemName": "Humidity",
+      "mildew": false,
       "status": 2,
       "uid": "hdm:ZWave:F6BF9812/7",
       "value": 75,
