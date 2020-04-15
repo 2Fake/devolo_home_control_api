@@ -320,7 +320,7 @@ class HomeControl(Mprm):
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
-        # TODO: This is a Test TODO
+        # TODO This is a Test
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
 
     def _voltage_multi_level_sensor(self, uid_info: dict):
