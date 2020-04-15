@@ -29,6 +29,7 @@ def test_data_fixture(request):
 @pytest.fixture()
 def fill_device_data(request):
     """ Load test device data. """
+    # TODO: This is a test TODO
     consumption_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")) \
         .consumption_property
     consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").current = 0.58
