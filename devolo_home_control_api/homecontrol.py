@@ -210,7 +210,7 @@ class HomeControl(Mprm):
 
     def _last_activity(self, uid_info: dict):
         """
-        Process last activitity properties. Those don't go into an own property but will be appended to a parent property.
+        Process last activity properties. Those don't go into an own property but will be appended to a parent property.
         This parent property is found by string replacement.
         """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
