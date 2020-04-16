@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [v0.7.0] - 2020/04/16
 
 ### Added
@@ -16,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- **BREAKING**: The properties don't have fetch methods any longer. Instead, the attribute are initially updated and should be used directly.
+- **BREAKING**: The properties don't have fetch methods any longer. Instead, the attributes are initially updated and should be used directly.
 
 ## [v0.6.4] - 2020/04/04
 
