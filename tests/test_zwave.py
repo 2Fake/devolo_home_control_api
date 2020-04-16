@@ -11,7 +11,9 @@ from .mocks.mock_gateway import MockGateway
 
 @pytest.mark.usefixtures("mock_get_zwave_products")
 class TestZwave:
-    def test_get_property(self, home_control_instance, mock_mprmrest__extract_data_from_element_uid):
+    @pytest.mark.usefixtures("home_control_instance")
+    @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
+    def test_get_property(self):
         device = Zwave(**self.devices.get("mains").get("properties"))
         gateway = MockGateway(self.gateway.get("id"))
         session = requests.Session()
@@ -26,19 +28,22 @@ class TestZwave:
 
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 
-    def test_get_property_invalid(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_get_property_invalid(self, mydevolo):
         device = Zwave(**self.devices.get("mains").get("properties"))
 
         with pytest.raises(AttributeError):
             device.get_property("binary_switch")
 
-    def test_battery_level(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_battery_level(self, mydevolo):
         # TODO: Use battery driven device
         device = Zwave(**self.devices.get("ambiguous_1"))
 
         assert device.batteryLevel == 55
 
-    def test_device_online_state_state(self, mydevolo, mock_mydevolo__call):
+    @pytest.mark.usefixtures("mock_mydevolo__call")
+    def test_device_online_state_state(self, mydevolo):
         device = Zwave(**self.devices.get("ambiguous_2"))
         assert device.status == 1
 
@@ -67,6 +72,6 @@ class TestZwave:
         device = Zwave(**self.devices.get("mains").get("properties"))
         assert device.is_online()
 
-    # def test_in_online_offline(self, mydevolo):
-    #     device = Zwave(**self.devices.get("offline"))
-    #     assert not device.is_online()
+    def test_in_online_offline(self, mydevolo):
+        device = Zwave(**self.devices.get("offline"))
+        assert not device.is_online()

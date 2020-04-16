@@ -17,8 +17,9 @@ class TestMprmRest:
                               "deviceModelUID": "test_device_model_uid",
                               "status": "test_status"}
 
-    def test_all_devices(self, mock_mprmrest__post):
-        devices = self.mprm.all_devices
+    @pytest.mark.usefixtures("mock_mprmrest__post")
+    def test_get_all_devices(self):
+        devices = self.mprm.get_all_devices()
         assert devices == "deviceUIDs"
 
     @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")

@@ -13,7 +13,7 @@ def home_control_instance(request, mydevolo, mock_gateway, mock_mprmwebsocket_we
 
 
 @pytest.fixture()
-def mock_inspect_devices_metering_plug(mocker, request, mock_mydevolo__call, mock_mprmrest_all_devices):
+def mock_inspect_devices_metering_plug(mocker, request, mock_mydevolo__call, mock_mprmrest_get_all_devices):
     """ Create a mocked Home Control setup with a Metering Plug. """
     if request.node.name not in ["test__inspect_devices"]:
         mocker.patch("devolo_home_control_api.homecontrol.HomeControl._inspect_devices", mock__inspect_devices)

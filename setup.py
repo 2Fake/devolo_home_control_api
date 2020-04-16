@@ -23,5 +23,13 @@ setuptools.setup(
         "websocket_client<=0.56.0",
         "zeroconf"
     ],
+    setup_requires=[
+        "pytest-runner"
+    ],
+    tests_require=[
+        "pytest",
+        "pytest-cov",
+        "pytest-mock<2"
+    ],
     python_requires='>=3.6',
 )

@@ -1,8 +1,10 @@
 import json
+import pathlib
 
 
-with open('test_data.json') as file:
-    test_data = json.load(file)
+file = pathlib.Path(__file__).parent / ".." / "test_data.json"
+with file.open("r") as fh:
+    test_data = json.load(fh)
 
 
 def try_local_connection(self, mdns_name):

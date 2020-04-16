@@ -99,6 +99,14 @@ class Mydevolo:
         return self._gateway_ids
 
 
+    def credentials_valid(self) -> bool:
+        """ Check if current credentials are valid. """
+        try:
+            self._call(f"{self.url}/v1/users/uuid")
+            return True
+        except WrongCredentialsError:
+            return False
+
     def get_gateway(self, gateway_id: str) -> dict:
         """
         Get gateway details like name, local passkey and other.
