@@ -53,6 +53,8 @@ class TestHomeControl:
     def test__dewpoint(self):
         # TODO: Use test data
         device = self.devices.get("humidity").get("uid")
+        del self.homecontrol.devices[device].dewpoint_sensor_property
+        assert not hasattr(self.homecontrol.devices.get(device), "dewpoint_sensor_property")
         self.homecontrol._dewpoint({"UID": self.devices.get("humidity").get("elementUIDs")[1],
                                    "properties": {"value": 24.4, "sensorType": "dewpoint"}})
         assert hasattr(self.homecontrol.devices.get(device), "dewpoint_sensor_property")
@@ -70,6 +72,8 @@ class TestHomeControl:
     def test__humidity_bar(self):
         # TODO: Use test data
         device = self.devices.get("humidity").get("uid")
+        del self.homecontrol.devices[device].humidity_bar_property
+        assert not hasattr(self.homecontrol.devices.get(device), "humidity_bar_property")
         self.homecontrol._humidity_bar({"UID": f"devolo.HumidityBarValue:{device}",
                                         "properties": {"sensorType": "humidityBarPos", "value": 75}})
         self.homecontrol._humidity_bar({"UID": f"devolo.HumidityBarZone:{device}",
@@ -99,6 +103,8 @@ class TestHomeControl:
     def test__mildew(self):
         # TODO: Use test data
         device = self.devices.get("humidity").get("uid")
+        del self.homecontrol.devices[device].mildew_sensor_property
+        assert not hasattr(self.homecontrol.devices.get(device), "mildew_sensor_property")
         self.homecontrol._mildew({"UID": self.devices.get("humidity").get("elementUIDs")[0],
                                   "properties": {"value": 0, "sensorType": "mildew"}})
         assert hasattr(self.homecontrol.devices.get(device), "mildew_sensor_property")
@@ -115,6 +121,8 @@ class TestHomeControl:
     def test__multi_level_sensor(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
+        del self.homecontrol.devices[device].multi_level_sensor_property
+        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
         self.homecontrol._multi_level_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[2],
                                               "properties": {"value": 90.0, "unit": "%", "sensorType": "light"}})
         assert hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
