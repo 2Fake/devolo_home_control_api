@@ -2,6 +2,7 @@ from requests import Session
 
 from ..backend.mprm_rest import MprmRest
 from ..devices.gateway import Gateway
+from ..devices.zwave import get_device_uid_from_element_uid
 
 
 class Property(MprmRest):
@@ -15,8 +16,7 @@ class Property(MprmRest):
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str):
         self.element_uid = element_uid
-        self.device_uid = element_uid.split(":", 1)[1].split("#")[0]
-        self.is_online = None
+        self.device_uid = get_device_uid_from_element_uid(element_uid)
         self._gateway = gateway
         self._session = session
         super().__init__()
