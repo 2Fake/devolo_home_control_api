@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **BREAKING**: We rethought the usage of properties and made some of them to regular methods.
+- Z-Wave product information are filled with default values, if we cannot find the device in the database
 
 ## [v0.7.0] - 2020/04/16
 
