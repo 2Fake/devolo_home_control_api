@@ -28,8 +28,3 @@ class TestGateway:
 
         assert gateway.online
         assert gateway.sync
-
-    @pytest.mark.usefixtures("mock_mydevolo_full_url")
-    def test_full_url(self):
-        gateway = Gateway(self.gateway.get("id"))
-        assert gateway.full_url == self.gateway.get("id")

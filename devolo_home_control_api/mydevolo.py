@@ -7,11 +7,6 @@ class Mydevolo:
     """
     The Mydevolo object handles calls to the my devolo API v1 as singleton. It does not cover all API calls, just
     those requested up to now. All calls are done in a user context, so you need to provide credentials of that user.
-
-    We differentiate between general information like UUID or gateway IDs and information my devolo can provide, if
-    you know what you are looking for like gateway details. We treat the former as properties and the latter as
-    parametrised functions. Although they typically start with get, those are not getter function, as the result is
-    not stored in the object.
     """
 
     __instance = None
@@ -66,30 +61,20 @@ class Mydevolo:
         self._uuid = None
         self._gateway_ids = []
 
-    @property
-    def uuid(self) -> str:
-        """ The uuid is a central attribute in my devolo. Most URLs in the user context contain it. """
-        if self._uuid is None:
-            self._logger.debug("Getting UUID")
-            self._uuid = self._call(f"{self.url}/v1/users/uuid").get("uuid")
-        return self._uuid
 
-    @property
-    def maintenance(self) -> bool:
-        """ If devolo Home Control is in maintenance, there is not much we can do via cloud. """
-        state = self._call(f"{self.url}/v1/hc/maintenance").get("state")
-        if state == "on":
-            return False
-        else:
-            self._logger.warning("devolo Home Control is in maintenance mode.")
+    def credentials_valid(self) -> bool:
+        """ Check if current credentials are valid. """
+        try:
+            self.uuid()
             return True
+        except WrongCredentialsError:
+            return False
 
-    @property
-    def gateway_ids(self) -> list:
-        """ Get gateway IDs. """
+    def get_gateway_ids(self) -> list:
+        """ Get all gateway IDs. """
         if not self._gateway_ids:
             self._logger.debug(f"Getting list of gateways")
-            items = self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/status").get("items")
+            items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status").get("items")
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
                 self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
@@ -97,15 +82,6 @@ class Mydevolo:
                 self._logger.error("Could not get gateway list. No Gateway attached to account?")
                 raise IndexError("No gateways")
         return self._gateway_ids
-
-
-    def credentials_valid(self) -> bool:
-        """ Check if current credentials are valid. """
-        try:
-            self._call(f"{self.url}/v1/users/uuid")
-            return True
-        except WrongCredentialsError:
-            return False
 
     def get_gateway(self, gateway_id: str) -> dict:
         """
@@ -117,7 +93,7 @@ class Mydevolo:
         self._logger.debug(f"Getting details for gateway {gateway_id}")
         details = {}
         try:
-            details = self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/{gateway_id}")
+            details = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}")
         except WrongUrlError:
             self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise
@@ -128,10 +104,10 @@ class Mydevolo:
         Get gateway's portal URL.
 
         :param gateway_id: Gateway ID
-        :return: URL
+        :return: URL to access the gateway's portal.
         """
         self._logger.debug("Getting full URL of gateway.")
-        return self._call(f"{self.url}/v1/users/{self.uuid}/hc/gateways/{gateway_id}/fullURL").get("url")
+        return self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}/fullURL").get("url")
 
     def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> dict:
         """
@@ -149,7 +125,37 @@ class Mydevolo:
         except WrongUrlError:
             # At some devices no device information are returned
             self._logger.debug("No device info found")
+            device_info = {
+                "brand": "devolo" if manufacturer == "0x0175" else "Unknown",
+                "deviceType": "Unknown",
+                "genericDeviceClass": "Unknown",
+                "href": f"{self.url}/v1/zwave/products/{manufacturer}/{product_type}/{product}",
+                "identifier": "Unknown",
+                "isZWavePlus": False,
+                "manufacturerId": manufacturer,
+                "name": "Unknown",
+                "productId": product,
+                "productTypeId": product_type,
+                "specificDeviceClass": "Unknown",
+                "zwaveVersion": "Unknown"
+            }
         return device_info
+
+    def maintenance(self) -> bool:
+        """ If devolo Home Control is in maintenance, there is not much we can do via cloud. """
+        state = self._call(f"{self.url}/v1/hc/maintenance").get("state")
+        if state == "on":
+            return False
+        else:
+            self._logger.warning("devolo Home Control is in maintenance mode.")
+            return True
+
+    def uuid(self) -> str:
+        """ The uuid is a central attribute in my devolo. Most URLs in the user's context contain it. """
+        if self._uuid is None:
+            self._logger.debug("Getting UUID")
+            self._uuid = self._call(f"{self.url}/v1/users/uuid").get("uuid")
+        return self._uuid
 
 
     def _call(self, url: str) -> dict:

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING**: We rethought the usage of properties and made some of them to regular methods.
+
 ## [v0.7.0] - 2020/04/16
 
 ### Added
