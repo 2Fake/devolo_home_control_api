@@ -27,7 +27,7 @@ class Mprm(MprmWebsocket):
         if self._local_ip:
             self._gateway.local_connection = True
             self.get_local_session()
-        elif self._gateway.external_access and not self._mydevolo.maintenance:
+        elif self._gateway.external_access and not self._mydevolo.maintenance():
             self.get_remote_session()
         else:
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")

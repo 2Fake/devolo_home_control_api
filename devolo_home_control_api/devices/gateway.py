@@ -14,29 +14,20 @@ class Gateway:
     def __init__(self, gateway_id: str):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
-        self._full_url = None
 
         details = self._mydevolo.get_gateway(gateway_id)
 
         self.id = details.get("gatewayId")
         self.name = details.get("name")
         self.role = details.get("role")
-        self.local_user = self._mydevolo.uuid
+        self.full_url = self._mydevolo.get_full_url(self.id)
+        self.local_user = self._mydevolo.uuid()
         self.local_passkey = details.get("localPasskey")
         self.local_connection = False
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
         self._update_state(status=details.get("status"), state=details.get("state"))
-
-
-    @property
-    def full_url(self):
-        """ The full URL is used to get a valid remote session. """
-        if self._full_url is None:
-            self._full_url = self._mydevolo.get_full_url(self.id)
-            self._logger.debug(f"Setting full URL to {self._full_url}")
-        return self._full_url
 
 
     def update_state(self, online: bool = None):
@@ -55,11 +46,5 @@ class Gateway:
 
     def _update_state(self, status: str, state: str):
         """ Helper to update the state. """
-        if status == "devolo.hc_gateway.status.online":
-            self.online = True
-        else:
-            self.online = False
-        if state == "devolo.hc_gateway.state.idle":
-            self.sync = True
-        else:
-            self.sync = False
+        self.online = True if status == "devolo.hc_gateway.status.online" else False
+        self.sync = True if state == "devolo.hc_gateway.state.idle" else False

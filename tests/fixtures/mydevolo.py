@@ -31,7 +31,7 @@ def mock_mydevolo__call(mocker, request):
 @pytest.fixture()
 def mock_mydevolo__call_raise_WrongCredentialsError(mocker):
     """ Respond with WrongCredentialsError on calls to the mydevolo API. """
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=WrongCredentialsError)
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.uuid", side_effect=WrongCredentialsError)
 
 
 @pytest.fixture()

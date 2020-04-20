@@ -75,7 +75,7 @@ If you do not know your gateway ID, you can ask my devolo. For now, no other fun
 mydevolo = Mydevolo.get_instance()
 mydevolo.user = "username"
 mydevolo.password = "password"
-for gateway_id in mydevolo.gateway_ids:
+for gateway_id in mydevolo.get_gateway_ids():
     print(gateway_id)
 ```
 

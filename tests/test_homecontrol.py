@@ -24,11 +24,11 @@ class TestHomeControl:
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
 
     def test__binary_sensor(self):
-        # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
         del self.homecontrol.devices[device].binary_sensor_property
         assert not hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
-        self.homecontrol._binary_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[0], "properties": {"state": 1}})
+        self.homecontrol._binary_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[0],
+                                         "properties": {"state": self.devices.get("sensor").get("state")}})
         assert hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
 
     def test__binary_switch(self):
@@ -112,7 +112,8 @@ class TestHomeControl:
     def test__motion_sensitivity(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
-        self.homecontrol._motion_sensitivity({"UID": "mss.hdm:ZWave:F6BF9812/6", "properties": {"value": 60, "targetValue": 60}})
+        self.homecontrol._motion_sensitivity({"UID": "mss.hdm:ZWave:F6BF9812/6",
+                                              "properties": {"value": 60, "targetValue": 60}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
                        "motion_sensitivity")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),

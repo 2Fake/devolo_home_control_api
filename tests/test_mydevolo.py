@@ -14,12 +14,12 @@ class TestMydevolo:
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_gateway_ids(self, mydevolo):
-        assert mydevolo.gateway_ids == [self.gateway.get("id")]
+        assert mydevolo.get_gateway_ids() == [self.gateway.get("id")]
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_gateway_ids_empty(self, mydevolo):
         with pytest.raises(IndexError):
-            mydevolo.gateway_ids
+            mydevolo.get_gateway_ids()
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_full_url(self, mydevolo):
@@ -44,15 +44,15 @@ class TestMydevolo:
     @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
     def test_get_zwave_products_invalid(self, mydevolo):
         device_infos = mydevolo.get_zwave_products(manufacturer="0x0070", product_type="0x0001", product="0x000")
-        assert len(device_infos) == 0
+        assert device_infos.get("name") == "Unknown"
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_maintenance_on(self, mydevolo):
-        assert not mydevolo.maintenance
+        assert not mydevolo.maintenance()
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_maintenance_off(self, mydevolo):
-        assert mydevolo.maintenance
+        assert mydevolo.maintenance()
 
     def test_set_password(self, mydevolo):
         mydevolo._gateway_ids = [self.gateway.get("id")]
@@ -93,7 +93,7 @@ class TestMydevolo:
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_uuid(self, mydevolo):
         mydevolo._uuid = None
-        assert mydevolo.uuid == self.user.get("uuid")
+        assert mydevolo.uuid() == self.user.get("uuid")
 
     @pytest.mark.usefixtures("mock_response_wrong_credentials_error")
     def test_call_WrongCredentialsError(self):

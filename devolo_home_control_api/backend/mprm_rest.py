@@ -54,8 +54,7 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
         response = self.post(data)
-        properties = response.get("result").get("items")[0].get("properties")
-        return properties
+        return response.get("result").get("items")[0].get("properties")
 
     def post(self, data: dict) -> dict:
         """
