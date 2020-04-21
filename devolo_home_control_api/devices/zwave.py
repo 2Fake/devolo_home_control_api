@@ -54,7 +54,7 @@ class Zwave:
         :param uid: Device UID, something like hdm:ZWave:CBC56091/24
         :return: False, if device is offline, else True
         """
-        return bool(self.status)
+        return False if self.status == 1 else True
 
 
 def get_device_type_from_element_uid(element_uid: str) -> str:
