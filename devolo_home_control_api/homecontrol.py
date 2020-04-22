@@ -1,5 +1,4 @@
 import threading
-import time
 from typing import Optional
 
 import requests
@@ -51,10 +50,8 @@ class HomeControl(Mprm):
         self.updater.on_device_change = self.device_change
 
         threading.Thread(target=self.websocket_connect).start()
-        while self._ws is None or self._ws.sock is None or not self._ws.sock.connected:
-            time.sleep(0.1)
-        self._connected = True
-
+        while not self._connected:
+            pass
 
     @property
     def binary_sensor_devices(self) -> list:

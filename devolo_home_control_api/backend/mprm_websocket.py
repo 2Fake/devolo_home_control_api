@@ -23,7 +23,8 @@ class MprmWebsocket(MprmRest):
     def __init__(self):
         super().__init__()
         self._ws = None
-        self._connected = False
+        self._connected = False     # This attribute saves, if the websocket is fully established
+        self._reachable = True      # This attribute saves, if the a new session can be established
         self._event_sequence = 0
 
     def __enter__(self):
@@ -72,8 +73,9 @@ class MprmWebsocket(MprmRest):
 
     def _on_error(self, error: str):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
-        self._logger.error(error)
+        self._logger.error(error, exc_info=1)
         self._connected = False
+        self._reachable = False
         self._ws.close()
         self._event_sequence = 0
 
@@ -104,6 +106,7 @@ class MprmWebsocket(MprmRest):
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
+        self._connected = True
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
@@ -111,7 +114,7 @@ class MprmWebsocket(MprmRest):
             self._logger.info("Trying to reconnect to the websocket.")
             # TODO: Check if local_ip is still correct after lost connection
             self.get_local_session() if self._local_ip else self.get_remote_session()
-            self._connected = True
+            self._reachable = True
         except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, MprmDeviceCommunicationError):
             self._logger.info(f"Sleeping for {sleep_interval} seconds.")
             time.sleep(sleep_interval)
