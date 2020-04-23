@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Devices were always shown as offline
 - Sometimes the websocket was closed before it was established
+- Accessing an offline from the start gateway was not handled
 
 ## [v0.8.0] - 2020/04/20
 

@@ -10,6 +10,7 @@ from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from ..mocks.mock_gateway import MockGateway
 from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
+from ..mocks.mock_websocket import MockWebsocket
 from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
@@ -100,10 +101,11 @@ def mock_mprmrest__post(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__post_set(mocker, request):
     """ Mock setting values. """
-    status = {}
-    status['test_set_binary_switch_valid'] = {"result": {"status": 1}}
-    status['test_set_binary_switch_error'] = {"result": {"status": 2}}
-    status['test_set_binary_switch_same'] = {"result": {"status": 3}}
+    status = {
+        'test_set_binary_switch_valid': {'result': {'status': 1}},
+        'test_set_binary_switch_error': {'result': {'status': 2}},
+        'test_set_binary_switch_same': {'result': {'status': 3}},
+    }
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
 
@@ -137,6 +139,7 @@ def mock_mprmwebsocket_websocketapp(mocker):
 @pytest.fixture()
 def mock_mprmwebsocket_websocket_connection(mocker, request):
     """ Mock a running websocket connection to speed up tests. """
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.__init__", MockWebsocket.__init__)
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
 
 

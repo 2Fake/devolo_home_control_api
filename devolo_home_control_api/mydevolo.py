@@ -164,12 +164,20 @@ class Mydevolo:
                                 auth=(self._user, self._password),
                                 headers={'content-type': 'application/json'},
                                 timeout=60)
+
         if responds.status_code == requests.codes.forbidden:
             self._logger.error("Could not get full URL. Wrong username or password?")
             raise WrongCredentialsError("Wrong username or password.")
         if responds.status_code == requests.codes.not_found:
             raise WrongUrlError(f"Wrong URL: {url}")
+        if responds.status_code == requests.codes.service_unavailable:
+            self._logger.error("The requested gateway seems to be offline.")
+            raise GatewayOfflineError(f"Gateway offline.")
         return responds.json()
+
+
+class GatewayOfflineError(Exception):
+    """ The requested gateway is offline and cannot be used. """
 
 
 class WrongCredentialsError(Exception):

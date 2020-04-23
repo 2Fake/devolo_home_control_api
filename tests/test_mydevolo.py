@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.mydevolo import Mydevolo, WrongUrlError, WrongCredentialsError
+from devolo_home_control_api.mydevolo import Mydevolo, GatewayOfflineError, WrongUrlError, WrongCredentialsError
 
 
 class TestMydevolo:
@@ -106,6 +106,13 @@ class TestMydevolo:
     def test_call_WrongUrlError(self):
         mydevolo = Mydevolo()
         with pytest.raises(WrongUrlError):
+            mydevolo._call("test")
+        Mydevolo.del_instance()
+
+    @pytest.mark.usefixtures("mock_response_gateway_offline")
+    def test_call_GatewayOfflineError(self):
+        mydevolo = Mydevolo()
+        with pytest.raises(GatewayOfflineError):
             mydevolo._call("test")
         Mydevolo.del_instance()
 
