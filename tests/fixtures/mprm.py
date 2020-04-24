@@ -121,7 +121,7 @@ def mock_mprmwebsocket_get_local_session_json_decode_error(mocker):
 def mock_mprmwebsocket_get_remote_session(mocker, request):
     """ Mock getting a remote session to speed up tests. """
     if request.node.name not in ["test_get_remote_session_JSONDecodeError"]:
-        mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_remote_session", return_value=True)
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.get_remote_session", return_value=True)
 
 
 @pytest.fixture()
