@@ -50,7 +50,7 @@ class HomeControl(Mprm):
         self.updater.on_device_change = self.device_change
 
         threading.Thread(target=self.websocket_connect).start()
-        while not self._connected:
+        while self.wait_for_websocket():
             pass
 
     @property
