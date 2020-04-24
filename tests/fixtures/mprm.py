@@ -82,18 +82,32 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__post(mocker, request):
     """ Mock getting properties from the mPRM. """
-    properties = {}
-    properties["test_get_name_and_element_uids"] = {"result": {"items": [{"properties":
-                                                                          {"itemName": "test_name",
-                                                                           "zone": "test_zone",
-                                                                           "batteryLevel": "test_battery",
-                                                                           "icon": "test_icon",
-                                                                           "elementUIDs": "test_element_uids",
-                                                                           "settingUIDs": "test_setting_uids",
-                                                                           "deviceModelUID": "test_device_model_uid",
-                                                                           "status": "test_status"}}]}}
-    properties["test_get_data_from_uid_list"] = {"result": {"items": [{"properties": {"itemName": "test_name"}}]}}
-    properties["test_get_all_devices"] = {"result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}}
+    properties = {
+        'test_get_name_and_element_uids': {
+            'result': {
+                'items': [
+                    {
+                        'properties': {
+                            'itemName': 'test_name',
+                            'zone': 'test_zone',
+                            'batteryLevel': 'test_battery',
+                            'icon': 'test_icon',
+                            'elementUIDs': 'test_element_uids',
+                            'settingUIDs': 'test_setting_uids',
+                            'deviceModelUID': 'test_device_model_uid',
+                            'status': 'test_status',
+                        }
+                    }
+                ]
+            }
+        },
+        'test_get_data_from_uid_list': {
+            'result': {'items': [{'properties': {'itemName': 'test_name'}}]}
+        },
+        'test_get_all_devices': {
+            'result': {'items': [{'properties': {'deviceUIDs': 'deviceUIDs'}}]}
+        },
+    }
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
 
