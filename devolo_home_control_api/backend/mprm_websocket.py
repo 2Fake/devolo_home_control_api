@@ -33,6 +33,8 @@ class MprmWebsocket(MprmRest):
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
 
+    def wait_for_websocket(self):
+        return not self._connected
 
     def get_local_session(self):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
@@ -80,7 +82,7 @@ class MprmWebsocket(MprmRest):
         self._event_sequence = 0
 
         sleep_interval = 16
-        while not self._connected:
+        while not self._reachable:
             self._try_reconnect(sleep_interval)
             sleep_interval = sleep_interval * 2 if sleep_interval < 2048 else 3600
 
