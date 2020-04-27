@@ -10,7 +10,6 @@ from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from ..mocks.mock_gateway import MockGateway
 from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
-from ..mocks.mock_websocket import MockWebsocket
 from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
@@ -153,7 +152,7 @@ def mock_mprmwebsocket_websocketapp(mocker):
 @pytest.fixture()
 def mock_mprmwebsocket_websocket_connection(mocker, request):
     """ Mock a running websocket connection to speed up tests. """
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.wait_for_websocket", return_value=False)
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.wait_for_websocket_establishment", return_value=False)
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
 
 
@@ -169,7 +168,7 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
         mocker.patch("devolo_home_control_api.backend.mprm.Mprm.__init__", MockMprm.__init__)
         mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
         request.cls.mprm = Mprm()
-        request.cls.mprm._gateway = MockGateway(request.cls.gateway.get("id"))
+        request.cls.mprm.gateway = MockGateway(request.cls.gateway.get("id"))
 
 
 @pytest.fixture()

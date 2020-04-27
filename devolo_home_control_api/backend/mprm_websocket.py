@@ -6,6 +6,7 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
+from ..mydevolo import GatewayOfflineError
 from .mprm_rest import MprmDeviceCommunicationError, MprmRest
 
 
@@ -33,9 +34,6 @@ class MprmWebsocket(MprmRest):
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
 
-    def wait_for_websocket(self):
-        return not self._connected
-
     def get_local_session(self):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
 
@@ -45,13 +43,24 @@ class MprmWebsocket(MprmRest):
     def on_update(self, message):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to process messages from the websocket.")
 
+    def wait_for_websocket_establishment(self):
+        """
+        In some cases it is needed to wait for the websocket to be fully established. This method can be used to block your
+        current thread for up to one minute.
+        """
+        start_time = time.time()
+        while not self._connected and time.time() < start_time + 600:
+            time.sleep(0.1)
+        if not self._connected:
+            raise GatewayOfflineError("Websocket could not be established.")
+
     def websocket_connect(self):
         """ Set up the websocket connection. """
         ws_url = self._session.url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
-                 f"&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
+                 f"&filter=(|(GW_ID={self.gateway.id})(!(GW_ID=*)))"
         self._logger.debug(f"Connecting to {ws_url}")
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
