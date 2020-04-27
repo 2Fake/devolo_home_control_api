@@ -73,7 +73,7 @@ class MprmRest:
                                           timeout=30).json()
         except ReadTimeout:
             self._logger.error("Gateway is offline.")
-            self._gateway.update_state(False)
+            self.gateway.update_state(False)
             raise MprmDeviceCommunicationError("Gateway is offline.") from None
         if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")

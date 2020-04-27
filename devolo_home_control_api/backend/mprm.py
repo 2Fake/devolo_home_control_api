@@ -6,6 +6,7 @@ from threading import Thread
 import requests
 from zeroconf import DNSRecord, ServiceBrowser, ServiceStateChange, Zeroconf
 
+from ..mydevolo import GatewayOfflineError
 from .mprm_rest import MprmDeviceCommunicationError
 from .mprm_websocket import MprmWebsocket
 
@@ -25,9 +26,9 @@ class Mprm(MprmWebsocket):
     def create_connection(self):
         """ Create session, either locally or via cloud. """
         if self._local_ip:
-            self._gateway.local_connection = True
+            self.gateway.local_connection = True
             self.get_local_session()
-        elif self._gateway.external_access and not self._mydevolo.maintenance():
+        elif self.gateway.external_access and not self._mydevolo.maintenance():
             self.get_remote_session()
         else:
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
@@ -54,7 +55,7 @@ class Mprm(MprmWebsocket):
         self._session.url = "http://" + self._local_ip
         try:
             self._token_url = self._session.get(self._session.url + "/dhlp/portal/full",
-                                                auth=(self._gateway.local_user, self._gateway.local_passkey), timeout=5).json()
+                                                auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
             raise MprmDeviceCommunicationError("Could not connect to the gateway locally.") from None
@@ -67,9 +68,9 @@ class Mprm(MprmWebsocket):
         """ Connect to the gateway remotely. """
         self._logger.info("Connecting to gateway via cloud")
         try:
-            self._session.get(self._gateway.full_url, timeout=15)
+            self._session.get(self.gateway.full_url, timeout=15)
         except JSONDecodeError:
-            raise MprmDeviceCommunicationError("Gateway is offline.") from None
+            raise GatewayOfflineError("Gateway is offline.") from None
 
 
     def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
@@ -83,7 +84,7 @@ class Mprm(MprmWebsocket):
             ip = socket.inet_ntoa(mdns_name.address)
             if mdns_name.key.startswith("devolo-homecontrol") and \
                 requests.get("http://" + ip + "/dhlp/port/full",
-                             auth=(self._gateway.local_user, self._gateway.local_passkey),
+                             auth=(self.gateway.local_user, self.gateway.local_passkey),
                              timeout=0.5).status_code == requests.codes.ok:
                 self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                 self._local_ip = ip

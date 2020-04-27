@@ -109,8 +109,8 @@ class TestUpdater:
 
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
-        assert self.homecontrol._gateway.online
-        assert not self.homecontrol._gateway.sync
+        assert self.homecontrol.gateway.online
+        assert not self.homecontrol.gateway.sync
 
     def test_update_voltage_valid(self, fill_device_data):
         uid = self.devices.get("mains").get("uid")
@@ -196,15 +196,15 @@ class TestUpdater:
         assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
     def test__gateway_accessible(self):
-        self.homecontrol._gateway.online = True
-        self.homecontrol._gateway.sync = True
-        accessible = self.homecontrol._gateway.online
-        online_sync = self.homecontrol._gateway.sync
+        self.homecontrol.gateway.online = True
+        self.homecontrol.gateway.sync = True
+        accessible = self.homecontrol.gateway.online
+        online_sync = self.homecontrol.gateway.sync
         self.homecontrol.updater._gateway_accessible(message={"properties": {"property.name": "gatewayAccessible",
                                                                              "property.value.new": {"accessible": False,
                                                                                                     "onlineSync": False}}})
-        accessible_new = self.homecontrol._gateway.online
-        online_sync_new = self.homecontrol._gateway.sync
+        accessible_new = self.homecontrol.gateway.online
+        online_sync_new = self.homecontrol.gateway.sync
         assert accessible != accessible_new
         assert online_sync != online_sync_new
 
