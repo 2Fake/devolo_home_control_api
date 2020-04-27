@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- **BRAKING**: Gateways being offline now throw a GatewayOfflineError
+- **BREAKING**: Gateways being offline now throw a GatewayOfflineError
 - Exceptions now have their own files
 
 ### Fixed
