@@ -3,7 +3,7 @@ from typing import Any
 from requests import Session
 
 from ..devices.gateway import Gateway
-from .property import WrongElementError
+from ..exceptions.device import WrongElementError
 from .sensor_property import SensorProperty
 
 

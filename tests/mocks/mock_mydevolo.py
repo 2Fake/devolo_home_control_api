@@ -3,10 +3,8 @@ class MockMydevolo:
     def get_full_url(gateway_id):
         return gateway_id
 
-
     def __init__(self, request):
         self._request = request
-
 
     def _call(self, url):
         uuid = self._request.cls.user.get("uuid")

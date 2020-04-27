@@ -1,7 +1,8 @@
 from requests import Session
 
 from ..devices.gateway import Gateway
-from .property import Property, WrongElementError
+from ..exceptions.device import WrongElementError
+from .property import Property
 
 
 class BinarySwitchProperty(Property):

@@ -102,7 +102,7 @@
       "batteryLow": null,
       "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
       "itemName": "Offline Device",
-      "status": 0,
+      "status": 1,
       "uid": "hdm:ZWave:F6BF9812/5"
     },
     "sensor": {

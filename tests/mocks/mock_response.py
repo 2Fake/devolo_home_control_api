@@ -39,3 +39,11 @@ class MockResponsePost(MockResponse):
 class MockResponseReadTimeout(MockResponse):
     def post(self, url, auth=None, timeout=None, headers=None, data=None):
         raise ReadTimeout
+
+
+class MockResponseServiceUnavailable(MockResponse):
+    def get(self, url, auth=None, timeout=None):
+        return MockResponseGet({"link": "test_link"}, status_code=503)
+
+    def json(self):
+        return self.json_data

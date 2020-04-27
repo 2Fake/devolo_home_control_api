@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.9.0] - 2020/04/27
+
+### Changed
+
+- **BRAKING**: Gateways being offline now throw a GatewayOfflineError
+- Exceptions now have their own files
+
+### Fixed
+
+- Devices were always shown as offline
+- Sometimes the websocket was closed before it was established
+- Accessing an offline from the start gateway was not handled
+
 ## [v0.8.0] - 2020/04/20
 
 ### Added

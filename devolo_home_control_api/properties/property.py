@@ -20,7 +20,3 @@ class Property(MprmRest):
         self._gateway = gateway
         self._session = session
         super().__init__()
-
-
-class WrongElementError(Exception):
-    """ This element was not meant for this property. """

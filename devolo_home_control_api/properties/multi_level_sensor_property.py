@@ -3,8 +3,8 @@ from typing import Any
 from requests import Session
 
 from ..devices.gateway import Gateway
+from ..exceptions.device import WrongElementError
 from .sensor_property import SensorProperty
-from .property import WrongElementError
 
 
 class MultiLevelSensorProperty(SensorProperty):

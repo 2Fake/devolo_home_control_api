@@ -3,6 +3,7 @@ import logging
 
 from requests import ReadTimeout
 
+from ..exceptions.gateway import GatewayOfflineError
 from ..mydevolo import Mydevolo
 
 
@@ -73,17 +74,9 @@ class MprmRest:
                                           timeout=30).json()
         except ReadTimeout:
             self._logger.error("Gateway is offline.")
-            self._gateway.update_state(False)
-            raise MprmDeviceCommunicationError("Gateway is offline.") from None
+            self.gateway.update_state(False)
+            raise GatewayOfflineError("Gateway is offline.") from None
         if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
-
-
-class MprmDeviceCommunicationError(Exception):
-    """ Communicating to a device via mPRM failed """
-
-
-class MprmDeviceNotFoundError(Exception):
-    """ A device like this was not found """

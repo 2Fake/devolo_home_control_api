@@ -2,7 +2,14 @@ import pytest
 
 from ..mocks.mock_response import (MockResponseConnectTimeout, MockResponseGet,
                                    MockResponseJsonError, MockResponsePost,
-                                   MockResponseReadTimeout)
+                                   MockResponseReadTimeout,
+                                   MockResponseServiceUnavailable)
+
+
+@pytest.fixture()
+def mock_response_gateway_offline(mocker):
+    """ Mock requests get method with service_unavailable status_code. """
+    mocker.patch("requests.get", return_value=MockResponseServiceUnavailable({"link": "test_link"}, status_code=503))
 
 
 @pytest.fixture()
@@ -62,6 +69,5 @@ def mock_response_requests_ReadTimeout(mocker):
 @pytest.fixture()
 def mock_session_get(mocker, request):
     """ Mock requests.Session get method with test data. """
-    properties = {}
-    properties["test_get_local_session_valid"] = {"link": "test_link"}
+    properties = {'test_get_local_session_valid': {'link': 'test_link'}}
     mocker.patch("requests.Session.get", return_value=properties.get(request.node.name))

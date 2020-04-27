@@ -6,7 +6,8 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
-from .mprm_rest import MprmDeviceCommunicationError, MprmRest
+from ..exceptions.gateway import GatewayOfflineError
+from .mprm_rest import MprmRest
 
 
 class MprmWebsocket(MprmRest):
@@ -23,6 +24,8 @@ class MprmWebsocket(MprmRest):
     def __init__(self):
         super().__init__()
         self._ws = None
+        self._connected = False     # This attribute saves, if the websocket is fully established
+        self._reachable = True      # This attribute saves, if the a new session can be established
         self._event_sequence = 0
 
     def __enter__(self):
@@ -30,7 +33,6 @@ class MprmWebsocket(MprmRest):
 
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
-
 
     def get_local_session(self):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
@@ -41,13 +43,24 @@ class MprmWebsocket(MprmRest):
     def on_update(self, message):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to process messages from the websocket.")
 
+    def wait_for_websocket_establishment(self):
+        """
+        In some cases it is needed to wait for the websocket to be fully established. This method can be used to block your
+        current thread for up to one minute.
+        """
+        start_time = time.time()
+        while not self._connected and time.time() < start_time + 600:
+            time.sleep(0.1)
+        if not self._connected:
+            raise GatewayOfflineError("Websocket could not be established.")
+
     def websocket_connect(self):
         """ Set up the websocket connection. """
         ws_url = self._session.url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
-                 f"&filter=(|(GW_ID={self._gateway.id})(!(GW_ID=*)))"
+                 f"&filter=(|(GW_ID={self.gateway.id})(!(GW_ID=*)))"
         self._logger.debug(f"Connecting to {ws_url}")
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
@@ -71,13 +84,14 @@ class MprmWebsocket(MprmRest):
 
     def _on_error(self, error: str):
         """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
-        self._logger.error(error)
-        self.connected = False
+        self._logger.error(error, exc_info=1)
+        self._connected = False
+        self._reachable = False
         self._ws.close()
         self._event_sequence = 0
 
         sleep_interval = 16
-        while not self.connected:
+        while not self._reachable:
             self._try_reconnect(sleep_interval)
             sleep_interval = sleep_interval * 2 if sleep_interval < 2048 else 3600
 
@@ -103,6 +117,7 @@ class MprmWebsocket(MprmRest):
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
+        self._connected = True
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
@@ -110,7 +125,7 @@ class MprmWebsocket(MprmRest):
             self._logger.info("Trying to reconnect to the websocket.")
             # TODO: Check if local_ip is still correct after lost connection
             self.get_local_session() if self._local_ip else self.get_remote_session()
-            self.connected = True
-        except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, MprmDeviceCommunicationError):
+            self._reachable = True
+        except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, GatewayOfflineError):
             self._logger.info(f"Sleeping for {sleep_interval} seconds.")
             time.sleep(sleep_interval)

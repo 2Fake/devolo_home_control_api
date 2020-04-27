@@ -31,10 +31,10 @@ class HomeControl(Mprm):
     """
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
-        self._gateway = Gateway(gateway_id)
         self._session = requests.Session()
         self._session.url = url
 
+        self.gateway = Gateway(gateway_id)
         super().__init__()
 
         # Create the initial device dict
@@ -46,14 +46,15 @@ class HomeControl(Mprm):
 
         self.publisher = Publisher([device for device in self.devices])
 
-        self.updater = Updater(devices=self.devices, gateway=self._gateway, publisher=self.publisher)
+        self.updater = Updater(devices=self.devices, gateway=self.gateway, publisher=self.publisher)
         self.updater.on_device_change = self.device_change
 
         threading.Thread(target=self.websocket_connect).start()
+        self.wait_for_websocket_establishment()
 
 
     @property
-    def binary_sensor_devices(self):
+    def binary_sensor_devices(self) -> list:
         """ Get all binary sensor devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_sensor_property")]
 
@@ -99,7 +100,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding binary sensor property to {device_uid}.")
         self.devices[device_uid].binary_sensor_property[uid_info.get("UID")] = \
             BinarySensorProperty(session=self._session,
-                                 gateway=self._gateway,
+                                 gateway=self.gateway,
                                  element_uid=uid_info.get("UID"),
                                  state=bool(uid_info.get("properties").get("state")),
                                  sensor_type=uid_info.get("properties").get("sensorType"),
@@ -113,7 +114,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding binary switch property to {device_uid}.")
         self.devices[device_uid].binary_switch_property[uid_info.get("UID")] = \
             BinarySwitchProperty(session=self._session,
-                                 gateway=self._gateway,
+                                 gateway=self.gateway,
                                  element_uid=uid_info.get("UID"),
                                  state=bool(uid_info.get("properties").get("state")))
 
@@ -125,7 +126,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding dewpoint sensor property to {device_uid}.")
         self.devices[device_uid].dewpoint_sensor_property[uid_info.get("UID")] = \
             DewpointSensorProperty(session=self._session,
-                                   gateway=self._gateway,
+                                   gateway=self.gateway,
                                    element_uid=uid_info.get("UID"),
                                    value=uid_info.get("properties").get("value"),
                                    sensor_type=uid_info.get("properties").get("sensorType"))
@@ -137,7 +138,7 @@ class HomeControl(Mprm):
         self.devices[device_uid]. \
             settings_property["general_device_settings"] = \
             SettingsProperty(session=self._session,
-                             gateway=self._gateway,
+                             gateway=self.gateway,
                              element_uid=uid_info.get("UID"),
                              events_enabled=uid_info.get("properties").get("settings").get("eventsEnabled"),
                              name=uid_info.get("properties").get("settings").get("name"),
@@ -158,7 +159,7 @@ class HomeControl(Mprm):
         if self.devices[device_uid].humidity_bar_property.get(fake_element_uid) is None:
             self.devices[device_uid].humidity_bar_property[fake_element_uid] = \
                 HumidityBarProperty(session=self._session,
-                                    gateway=self._gateway,
+                                    gateway=self.gateway,
                                     element_uid=fake_element_uid,
                                     sensorType="humidityBar")
         if uid_info.get("properties").get("sensorType") == "humidityBarZone":
@@ -230,7 +231,7 @@ class HomeControl(Mprm):
             led_setting = uid_info.get("properties").get("feedback")
         self.devices[device_uid].settings_property["led"] = \
             SettingsProperty(session=self._session,
-                             gateway=self._gateway,
+                             gateway=self.gateway,
                              element_uid=uid_info.get("UID"),
                              led_setting=led_setting)
 
@@ -242,7 +243,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding consumption property to {device_uid}.")
         self.devices[device_uid].consumption_property[uid_info.get("UID")] = \
             ConsumptionProperty(session=self._session,
-                                gateway=self._gateway,
+                                gateway=self.gateway,
                                 element_uid=uid_info.get("UID"),
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
@@ -256,7 +257,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding mildew sensor property to {device_uid}.")
         self.devices[device_uid].mildew_sensor_property[uid_info.get("UID")] = \
             MildewSensorProperty(session=self._session,
-                                 gateway=self._gateway,
+                                 gateway=self.gateway,
                                  element_uid=uid_info.get("UID"),
                                  state=bool(uid_info.get("properties").get("state")),
                                  sensor_type=uid_info.get("properties").get("sensorType"))
@@ -267,7 +268,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding motion sensitiviy settings to {device_uid}.")
         self.devices[device_uid].settings_property["motion_sensitivity"] = \
             SettingsProperty(session=self._session,
-                             gateway=self._gateway,
+                             gateway=self.gateway,
                              element_uid=uid_info.get("UID"),
                              motion_sensitivity=uid_info.get("properties").get("value"),
                              target_motion_sensitivity=uid_info.get("properties").get("targetValue"))
@@ -280,7 +281,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {device_uid}.")
         self.devices[device_uid].multi_level_sensor_property[uid_info.get("UID")] = \
             MultiLevelSensorProperty(session=self._session,
-                                     gateway=self._gateway,
+                                     gateway=self.gateway,
                                      element_uid=uid_info.get("UID"),
                                      value=uid_info.get("properties").get("value"),
                                      unit=uid_info.get("properties").get("unit"),
@@ -292,7 +293,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding parameter settings to {device_uid}.")
         self.devices[device_uid].settings_property["param_changed"] = \
             SettingsProperty(session=self._session,
-                             gateway=self._gateway,
+                             gateway=self.gateway,
                              element_uid=uid_info.get('UID'),
                              param_changed=uid_info.get('properties').get("paramChanged"))
 
@@ -302,7 +303,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding protection settings to {device_uid}.")
         self.devices[device_uid].settings_property["protection"] = \
             SettingsProperty(session=self._session,
-                             gateway=self._gateway,
+                             gateway=self.gateway,
                              element_uid=uid_info.get('UID'),
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
@@ -313,7 +314,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding temperature report settings to {device_uid}.")
         self.devices[device_uid].settings_property["temperature_report"] = \
             SettingsProperty(session=self._session,
-                             gateway=self._gateway,
+                             gateway=self.gateway,
                              element_uid=uid_info.get('UID'),
                              temp_report=uid_info.get("properties").get("tempReport"),
                              target_temp_report=uid_info.get("properties").get("targetTempReport"))
@@ -330,7 +331,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding voltage property to {device_uid}.")
         self.devices[device_uid].voltage_property[uid_info.get("UID")] = \
             VoltageProperty(session=self._session,
-                            gateway=self._gateway,
+                            gateway=self.gateway,
                             element_uid=uid_info.get("UID"),
                             current=uid_info.get("properties").get("value"),
                             sensor_type=uid_info.get("properties").get("sensorType"))
