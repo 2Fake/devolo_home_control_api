@@ -6,8 +6,8 @@ import websocket
 from requests import ConnectionError, ReadTimeout
 from urllib3.connection import ConnectTimeoutError
 
-from ..mydevolo import GatewayOfflineError
-from .mprm_rest import MprmDeviceCommunicationError, MprmRest
+from ..exceptions.gateway import GatewayOfflineError
+from .mprm_rest import MprmRest
 
 
 class MprmWebsocket(MprmRest):
@@ -126,6 +126,6 @@ class MprmWebsocket(MprmRest):
             # TODO: Check if local_ip is still correct after lost connection
             self.get_local_session() if self._local_ip else self.get_remote_session()
             self._reachable = True
-        except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, MprmDeviceCommunicationError):
+        except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, GatewayOfflineError):
             self._logger.info(f"Sleeping for {sleep_interval} seconds.")
             time.sleep(sleep_interval)

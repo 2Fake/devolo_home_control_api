@@ -1,7 +1,7 @@
 import pytest
 
+from devolo_home_control_api.exceptions.device import WrongElementError
 from devolo_home_control_api.properties.dewpoint_sensor_property import DewpointSensorProperty
-from devolo_home_control_api.properties.property import WrongElementError
 
 
 @pytest.mark.usefixtures("home_control_instance")

@@ -2,6 +2,9 @@ import logging
 
 import requests
 
+from .exceptions.gateway import GatewayOfflineError
+from .exceptions.general import WrongCredentialsError, WrongUrlError
+
 
 class Mydevolo:
     """
@@ -174,15 +177,3 @@ class Mydevolo:
             self._logger.error("The requested gateway seems to be offline.")
             raise GatewayOfflineError(f"Gateway offline.")
         return responds.json()
-
-
-class GatewayOfflineError(Exception):
-    """ The requested gateway is offline and cannot be used. """
-
-
-class WrongCredentialsError(Exception):
-    """ Wrong credentials were used. """
-
-
-class WrongUrlError(Exception):
-    """ Wrong URL was used. """

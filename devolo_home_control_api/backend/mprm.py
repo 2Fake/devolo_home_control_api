@@ -6,8 +6,7 @@ from threading import Thread
 import requests
 from zeroconf import DNSRecord, ServiceBrowser, ServiceStateChange, Zeroconf
 
-from ..mydevolo import GatewayOfflineError
-from .mprm_rest import MprmDeviceCommunicationError
+from ..exceptions.gateway import GatewayOfflineError
 from .mprm_websocket import MprmWebsocket
 
 
@@ -58,7 +57,7 @@ class Mprm(MprmWebsocket):
                                                 auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
-            raise MprmDeviceCommunicationError("Could not connect to the gateway locally.") from None
+            raise GatewayOfflineError("Could not connect to the gateway locally.") from None
         except requests.ConnectTimeout:
             self._logger.error("Timeout during connecting to the gateway.")
             raise

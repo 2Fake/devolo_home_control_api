@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.properties.property import WrongElementError
+from devolo_home_control_api.exceptions.device import WrongElementError
 from devolo_home_control_api.properties.settings_property import SettingsProperty
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -26,7 +26,7 @@ class TestMprmRest:
     def test_post_ReadTimeOut(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
-        with pytest.raises(MprmDeviceCommunicationError):
+        with pytest.raises(GatewayOfflineError):
             self.mprm.post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
@@ -36,7 +36,7 @@ class TestMprmRest:
         self.mprm.gateway.online = False
         self.mprm.gateway.sync = False
         self.mprm.gateway.local_connection = False
-        with pytest.raises(MprmDeviceCommunicationError):
+        with pytest.raises(GatewayOfflineError):
             self.mprm.post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_invalid_id")

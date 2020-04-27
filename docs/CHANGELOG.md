@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **BRAKING**: Gateways being offline now throw a GatewayOfflineError
+- Exceptions now have their own files
+
 ### Fixed
 
 - Devices were always shown as offline

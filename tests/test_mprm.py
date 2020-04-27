@@ -1,8 +1,7 @@
 import pytest
 from requests import ConnectTimeout
 
-from devolo_home_control_api.mydevolo import GatewayOfflineError
-from devolo_home_control_api.backend.mprm_rest import MprmDeviceCommunicationError
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
 from .mocks.mock_dnsrecord import MockDNSRecord
 
@@ -51,7 +50,7 @@ class TestMprm:
     def test_get_local_session_JSONDecodeError(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._local_ip = self.gateway.get("local_ip")
-        with pytest.raises(MprmDeviceCommunicationError):
+        with pytest.raises(GatewayOfflineError):
             self.mprm.get_local_session()
 
     @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
