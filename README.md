@@ -1,4 +1,4 @@
-# devolo_home_control_api
+# devolo Home Control API
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/2Fake/devolo_home_control_api/Python%20package)](https://github.com/2Fake/devolo_home_control_api/actions?query=workflow%3A%22Python+package%22)
 [![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api)](https://pypi.org/project/devolo-home-control-api/)
@@ -102,3 +102,7 @@ To execute this example, you again need a configured instance of Mydevolo.
 #### Using subscriber
 
 This preferred usage is shown in our [small example](https://github.com/2Fake/devolo_home_control_api/blob/master/example.py). On every websocket event, ```update()``` will be called. That way you can react to changes right away.
+
+## Further usage
+
+You will find snippets discribing other use cases in our [wiki](https://github.com/2Fake/devolo_home_control_api/wiki).
