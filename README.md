@@ -102,3 +102,7 @@ To execute this example, you again need a configured instance of Mydevolo.
 #### Using subscriber
 
 This preferred usage is shown in our [small example](https://github.com/2Fake/devolo_home_control_api/blob/master/example.py). On every websocket event, ```update()``` will be called. That way you can react to changes right away.
+
+## Further usage
+
+You will find snippets discribing other use cases in our [wiki](https://github.com/2Fake/devolo_home_control_api/wiki).
