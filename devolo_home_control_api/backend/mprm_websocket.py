@@ -35,6 +35,7 @@ class MprmWebsocket(MprmRest):
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
 
+
     def get_local_session(self):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
 

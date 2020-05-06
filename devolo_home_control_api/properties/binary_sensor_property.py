@@ -16,6 +16,7 @@ class BinarySensorProperty(SensorProperty):
     :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
     :key state: State of the binary sensor
+    :type state: bool
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
