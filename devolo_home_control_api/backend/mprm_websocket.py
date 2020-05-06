@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+from typing import Any
 
 import websocket
 from requests import ConnectionError, ReadTimeout
@@ -78,17 +79,14 @@ class MprmWebsocket(MprmRest):
             self._logger.info(f"Reason: {event}")
         self._ws.close()
 
-    def _on_pong(self, *args):
-        if self._local_ip is not None:
-            self.get_local_session()
 
     def _on_close(self):
-        """ Callback function to react on closing the websocket. """
+        """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
 
     def _on_error(self, error: str):
-        """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
-        self._logger.error(error, exc_info=1)
+        """ Callback method to react on errors. We will try reconnecting with prolonging intervals. """
+        self._logger.error(error)
         self._connected = False
         self._reachable = False
         self._ws.close()
@@ -102,7 +100,7 @@ class MprmWebsocket(MprmRest):
         self.websocket_connect()
 
     def _on_message(self, message: str):
-        """ Callback function to react on a message. """
+        """ Callback method to react on a message. """
         message = json.loads(message)
 
         event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
@@ -115,13 +113,20 @@ class MprmWebsocket(MprmRest):
         self.on_update(message)
 
     def _on_open(self):
-        """ Callback function to keep the websocket open. """
-        def run(*args):
+        """ Callback method to keep the websocket open. """
+        def run(*args: Any):
             self._logger.info("Starting web socket connection.")
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
         self._connected = True
+
+    def _on_pong(self, *args: Any):
+        """ Callback method to keep the session valid. """
+        if self._local_ip is not None:
+            self._logger.debug("Refreshing session.")
+            self._session.get(self._session.url + "/dhlp/portal/full",
+                              auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
