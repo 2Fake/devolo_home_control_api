@@ -127,6 +127,8 @@
       "manID": "0x0175",
       "zoneId": "hz_2",
       "batteryLow": false,
+      "motion_sensitivity": 100,
+      "temp_report": true,
       "status": 2,
       "state": 1,
       "batteryLevel": 100,

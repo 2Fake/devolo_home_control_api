@@ -26,29 +26,30 @@ class SettingsProperty(Property):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        setter = {"cps": self.set_cps,
-                  "gds": self.set_gds,
-                  "lis": self.set_lis,
-                  "mss": self.set_mss,
-                  "ps": self.set_ps,
-                  "trs": self.set_trs,
-                  "vfs": self.set_vfs
-                  }
+        setter_method = {"gds": self._set_gds,
+                         "lis": self._set_lis,
+                         "mss": self._set_mss,
+                         "ps": self._set_ps,
+                         "trs": self._set_trs
+                         }
 
-        self.setter = setter.get(element_uid.split(".")[0])
+        # Depending on the type of setting property, this will create a callable named "set".
+        # However, this methods are not working, if the gateway is connected locally, yet.
+        self.set = setter_method.get(element_uid.split(".")[0])
 
-    def set_cps(self):
-        pass
 
-    def set_gds(self, **kwargs):
+    def _set_gds(self, **kwargs: Any):
         """
-        Setter for general device settings.
-        :param kwargs:
-            events_enabled: Boolean of the target value for the diary entry of a device
-            icon: String of the target icon.
-            name: String of the target name.
-            zone_id: String of target zone_id. ATTENTION: This is NOT the name of the location.
-        :return:
+        Set one or more general device setting.
+
+        :key events_enabled: Show events in diary
+        :type events_enabled: bool
+        :key icon: New icon name
+        :type icon: string
+        :key name: New device name
+        :type name: string
+        :key zone_id: New zone_id (ATTENTION: This is NOT the name of the location)
+        :type events_enabled: string
         """
         allowed = ["events_enabled", "icon", "name", "zone_id"]
         [setattr(self, item, kwargs.get(item, getattr(self, item))) for item in allowed]
@@ -59,35 +60,38 @@ class SettingsProperty(Property):
                                                        "zone_id": self.zone_id}]]}
         self.post(data)
 
-    def set_lis(self, target_value: bool):
+    def _set_lis(self, led_setting: bool):
         """
-        Setter for led settings.
-        :param target_value: Boolean of the led indication setting.
+        Set led settings.
+
+        :param led_setting: LED indication setting
         """
-        self.led_setting = target_value
+        self.led_setting = led_setting
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "save", [self.led_setting]]}
         self.post(data)
 
-    def set_mss(self, target_value: int):
+    def _set_mss(self, motion_sensitivity: int):
         """
-        Setter for motion sensitivity setting.
-        :param target_value: Integer for the motion sensitivity setting.
-        :raises WrongElementError: If target value is not in range of 0 to 100.
+        Set motion sensitivity.
+
+        :param motion_sensitivity: Integer for the motion sensitivity setting.
         """
-        if not 0 <= target_value <= 100:
-            raise WrongElementError("Value should be between 0 and 100")
-        self.motion_sensitivity = target_value
+        if not 0 <= motion_sensitivity <= 100:
+            raise ValueError("Value must be between 0 and 100")
+        self.motion_sensitivity = motion_sensitivity
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "save", [self.motion_sensitivity]]}
         self.post(data)
 
-    def set_ps(self, **kwargs):
+    def _set_ps(self, **kwargs):
         """
-        Setter for the protection settings.
-        :param: **kwargs:
-            local_switching: Boolean of the target value for local switching
-            remote_switching: Boolean of the target value for remote switching
+        Set one or both protection settings.
+
+        :key local_switching: Allow local switching
+        :type local_switching: bool
+        :key remote_switching: Allow local switching
+        :type remote_switching: bool
         """
         allowed = ["local_switching", "remote_switching"]
         [setattr(self, item, kwargs.get(item, getattr(self, item))) for item in allowed]
@@ -96,22 +100,13 @@ class SettingsProperty(Property):
                                                        "remoteSwitch": self.remote_switching}]]}
         self.post(data)
 
-    def set_trs(self, target_value: bool):
+    def _set_trs(self, temp_report: bool):
         """
-        Setter for temperature report setting.
-        :param target_value: Boolean of the target value
+        Set temperature report setting.
+
+        :param temp_report: Boolean of the target value
         """
-        self.temp_report = target_value
+        self.temp_report = temp_report
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "save", [self.temp_report]]}
-        self.post(data)
-
-    def set_vfs(self, target_value):
-        """
-        Setter for visual feedback setting.
-        :param target_value: Boolean of the target value
-        """
-        self.led_setting = target_value
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [self.led_setting]]}
         self.post(data)
