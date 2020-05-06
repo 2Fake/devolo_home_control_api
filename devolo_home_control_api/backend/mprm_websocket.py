@@ -67,7 +67,8 @@ class MprmWebsocket(MprmRest):
                                           on_open=self._on_open,
                                           on_message=self._on_message,
                                           on_error=self._on_error,
-                                          on_close=self._on_close)
+                                          on_close=self._on_close,
+                                          on_pong=self._on_pong)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
@@ -77,6 +78,9 @@ class MprmWebsocket(MprmRest):
             self._logger.info(f"Reason: {event}")
         self._ws.close()
 
+    def _on_pong(self, *args):
+        if self._local_ip is not None:
+            self.get_local_session()
 
     def _on_close(self):
         """ Callback function to react on closing the websocket. """
