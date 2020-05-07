@@ -134,7 +134,9 @@ class Updater:
 
         :param element_uid: Fake element UID, something like devolo.HumidityBar:hdm:ZWave:CBC56091/24
         :key value: Position inside a zone
+        :type value: int
         :key zone: Humidity zone
+        :type zone: int
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         if kwargs.get("zone") is not None:

@@ -23,7 +23,7 @@ class BinarySwitchProperty(Property):
         self.state = state
 
 
-    def set_binary_switch(self, state: bool):
+    def set(self, state: bool):
         """
         Set the binary switch of the given element_uid to the given state.
 

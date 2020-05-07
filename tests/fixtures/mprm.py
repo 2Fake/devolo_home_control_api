@@ -115,7 +115,7 @@ def mock_mprmrest__post(mocker, request):
 def mock_mprmrest__post_set(mocker, request):
     """ Mock setting values. """
     status = {
-        'test_set_binary_switch_valid': {'result': {'status': 1}},
+        'test_set_valid': {'result': {'status': 1}},
         'test_set_binary_switch_error': {'result': {'status': 2}},
         'test_set_binary_switch_same': {'result': {'status': 3}},
     }

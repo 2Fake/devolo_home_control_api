@@ -69,5 +69,6 @@ def mock_response_requests_ReadTimeout(mocker):
 @pytest.fixture()
 def mock_session_get(mocker, request):
     """ Mock requests.Session get method with test data. """
-    properties = {'test_get_local_session_valid': {'link': 'test_link'}}
+    properties = {'test_get_local_session_valid': {'link': 'test_link'},
+                  'test__on_pong': {'link': 'test_link'}}
     mocker.patch("requests.Session.get", return_value=properties.get(request.node.name))

@@ -59,12 +59,30 @@ def metering_plug(device_uid: str) -> Zwave:
                                                                  element_uid=f"cps.{device_uid}")
     device.settings_property["general_device_settings"] = SettingsProperty(gateway=gateway,
                                                                            session=session,
-                                                                           element_uid=f"gds.{device_uid}")
+                                                                           element_uid=f"gds.{device_uid}",
+                                                                           events_enabled=test_data.get("devices").get(
+                                                                               "mains").get("properties").get(
+                                                                               "events_enabled"),
+                                                                           icon=test_data.get("devices").get(
+                                                                               "mains").get("properties").get(
+                                                                               "icon"),
+                                                                           name=test_data.get("devices").get(
+                                                                               "mains").get("properties").get(
+                                                                               "itemName"),
+                                                                           zone_id=test_data.get("devices").get(
+                                                                               "mains").get("properties").get(
+                                                                               "zone_id"))
     device.settings_property["led"] = SettingsProperty(gateway=gateway,
                                                        session=session,
-                                                       element_uid=f"lis.{device_uid}")
-    device.settings_property["protection_setting"] = SettingsProperty(gateway=gateway,
-                                                                      session=session,
-                                                                      element_uid=f"ps.{device_uid}")
+                                                       element_uid=f"lis.{device_uid}",
+                                                       led_setting=test_data.get("devices").get("mains").get(
+                                                           "properties").get("led_setting"))
+    device.settings_property["protection"] = SettingsProperty(gateway=gateway,
+                                                              session=session,
+                                                              element_uid=f"ps.{device_uid}",
+                                                              local_switching=test_data.get("devices").get("mains").get(
+                                                                  "properties").get("local_switch"),
+                                                              remote_switching=test_data.get("devices").get("mains").get(
+                                                                  "properties").get("remote_switch"))
 
     return device

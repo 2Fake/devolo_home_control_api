@@ -10,8 +10,9 @@ class TestBinarySwitchProperty:
         with pytest.raises(WrongElementError):
             BinarySwitchProperty(gateway=gateway_instance, session=mprm_session, element_uid="invalid", state=True)
 
-    def test_set_binary_switch_valid(self, mock_mprmrest__post_set):
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    def test_set_valid(self):
         self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).set_binary_switch(True)
+            .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).set(True)
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .binary_switch_property.get(self.devices.get("mains").get("elementUIDs")[1]).state

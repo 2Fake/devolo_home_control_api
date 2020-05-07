@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+from typing import Any
 
 import websocket
 from requests import ConnectionError, ReadTimeout
@@ -33,6 +34,7 @@ class MprmWebsocket(MprmRest):
 
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
+
 
     def get_local_session(self):
         raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
@@ -67,7 +69,8 @@ class MprmWebsocket(MprmRest):
                                           on_open=self._on_open,
                                           on_message=self._on_message,
                                           on_error=self._on_error,
-                                          on_close=self._on_close)
+                                          on_close=self._on_close,
+                                          on_pong=self._on_pong)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
@@ -79,12 +82,12 @@ class MprmWebsocket(MprmRest):
 
 
     def _on_close(self):
-        """ Callback function to react on closing the websocket. """
+        """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
 
     def _on_error(self, error: str):
-        """ Callback function to react on errors. We will try reconnecting with prolonging intervals. """
-        self._logger.error(error, exc_info=1)
+        """ Callback method to react on errors. We will try reconnecting with prolonging intervals. """
+        self._logger.error(error)
         self._connected = False
         self._reachable = False
         self._ws.close()
@@ -98,7 +101,7 @@ class MprmWebsocket(MprmRest):
         self.websocket_connect()
 
     def _on_message(self, message: str):
-        """ Callback function to react on a message. """
+        """ Callback method to react on a message. """
         message = json.loads(message)
 
         event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
@@ -111,13 +114,20 @@ class MprmWebsocket(MprmRest):
         self.on_update(message)
 
     def _on_open(self):
-        """ Callback function to keep the websocket open. """
-        def run(*args):
+        """ Callback method to keep the websocket open. """
+        def run(*args: Any):
             self._logger.info("Starting web socket connection.")
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
         threading.Thread(target=run).start()
         self._connected = True
+
+    def _on_pong(self, *args: Any):
+        """ Callback method to keep the session valid. """
+        if self._local_ip is not None:
+            self._logger.debug("Refreshing session.")
+            self._session.get(self._session.url + "/dhlp/portal/full",
+                              auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5)
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
