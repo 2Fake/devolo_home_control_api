@@ -1,4 +1,5 @@
 import time
+import requests
 
 import pytest
 
@@ -27,8 +28,8 @@ class TestMprmWebsocket:
             self.mprm.websocket_disconnect()
 
     def test__on_message(self):
-        message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
         with pytest.raises(NotImplementedError):
+            message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
             self.mprm._on_message(message)
 
     def test__on_message_event_sequence(self, mock_mprmwebsocket_on_update):
@@ -45,11 +46,20 @@ class TestMprmWebsocket:
     #     self.mprm._ws = MockWebsocket()
     #     self.mprm._on_error("error")
 
+    @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
+    @pytest.mark.usefixtures("mock_session_get")
+    def test__on_pong(self, mocker, mprm_session, gateway_instance):
+        spy = mocker.spy(requests.Session, "get")
+        self.mprm._session = mprm_session
+        self.mprm.gateway = gateway_instance
+        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._on_pong()
+        assert spy.call_count == 1
+
     @pytest.mark.usefixtures("mock_mprmwebsocket_get_local_session_json_decode_error")
     def test__try_reconnect(self, mocker, ):
         spy = mocker.spy(time, "sleep")
         self.mprm._ws = MockWebsocket()
-
         self.mprm._local_ip = self.gateway.get("local_ip")
         self.mprm._try_reconnect(0.1)
         spy.assert_called_once_with(0.1)
