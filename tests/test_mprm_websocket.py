@@ -1,7 +1,9 @@
 import time
-import requests
 
 import pytest
+import requests
+
+from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 from .mocks.mock_websocket import MockWebsocket, MockWebsocketError
 
@@ -39,12 +41,18 @@ class TestMprmWebsocket:
         assert event_sequence != self.mprm._event_sequence
         assert self.mprm._event_sequence == 5
 
-    # TODO: Fix test for MprmWebsocket._on_error
-    # @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
-    # @pytest.mark.usefixtures("mock_mprmwebsocket_websocket_connection")
-    # def test__on_error(self):
-    #     self.mprm._ws = MockWebsocket()
-    #     self.mprm._on_error("error")
+    @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
+    @pytest.mark.usefixtures("mock_mprmwebsocket_websocket_connection")
+    @pytest.mark.usefixtures("mock_mprmwebsocket_try_reconnect")
+    def test__on_error(self, mocker):
+        close_spy = mocker.spy(MockWebsocket, "close")
+        reconnect_spy = mocker.spy(MprmWebsocket, "_try_reconnect")
+        connect_spy = mocker.spy(MprmWebsocket, "websocket_connect")
+        self.mprm._ws = MockWebsocket()
+        self.mprm._on_error("error")
+        assert close_spy.call_count == 1
+        assert reconnect_spy.call_count == 1
+        assert connect_spy.call_count == 1
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     @pytest.mark.usefixtures("mock_session_get")
@@ -57,7 +65,7 @@ class TestMprmWebsocket:
         assert spy.call_count == 1
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_get_local_session_json_decode_error")
-    def test__try_reconnect(self, mocker, ):
+    def test__try_reconnect(self, mocker):
         spy = mocker.spy(time, "sleep")
         self.mprm._ws = MockWebsocket()
         self.mprm._local_ip = self.gateway.get("local_ip")
