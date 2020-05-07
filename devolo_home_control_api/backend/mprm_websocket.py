@@ -127,7 +127,7 @@ class MprmWebsocket(MprmRest):
         if self._local_ip is not None:
             self._logger.debug("Refreshing session.")
             self._session.get(self._session.url + "/dhlp/portal/full",
-                              auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
+                              auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5)
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
