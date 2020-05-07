@@ -30,7 +30,8 @@ class SettingsProperty(Property):
                          "lis": self._set_lis,
                          "mss": self._set_mss,
                          "ps": self._set_ps,
-                         "trs": self._set_trs
+                         "trs": self._set_trs,
+                         "vfs": self._set_lis
                          }
 
         # Depending on the type of setting property, this will create a callable named "set".
