@@ -129,11 +129,12 @@
       "batteryLow": false,
       "motion_sensitivity": 100,
       "temp_report": true,
+      "sensor_type": "light",
       "status": 2,
       "state": 1,
       "batteryLevel": 100,
       "uid": "hdm:ZWave:F6BF9812/6",
-      "unit": "%",
+      "unit": 0,
       "value": 100
     }
   },
