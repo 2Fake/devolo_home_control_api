@@ -64,6 +64,16 @@ class HomeControl(Mprm):
         """ Get all binary switch devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
+    @property
+    def multi_level_sensor_devices(self) -> list:
+        """ Get all multi level sensor devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_sensor_property")]
+
+    @property
+    def multi_level_switch_devices(self) -> list:
+        """ Get all multi level switch devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_switch_property")]
+
 
     def device_change(self, device_uids: list):
         """
@@ -222,15 +232,13 @@ class HomeControl(Mprm):
         This parent property is found by string replacement.
         """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if uid_info.get("properties").get("lastActivityTime") != -1 and \
-                hasattr(self.devices[device_uid], "binary_sensor_property") and uid_info.get("properties").get("lastActivityTime") is not None:
+        if hasattr(self.devices[device_uid], "binary_sensor_property"):
             parent_element_uid = uid_info.get("UID").replace("LastActivity", "BinarySensor")
-            try:
+            if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
                 self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
                     uid_info.get("properties").get("lastActivityTime")
-            except KeyError:
-                # This is a Siren
-                parent_element_uid = uid_info.get("UID").replace("LastActivity", "SirenBinarySensor")
+            parent_element_uid = uid_info.get("UID").replace("LastActivity", "SirenBinarySensor")
+            if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
                 self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
                     uid_info.get("properties").get("lastActivityTime")
 
@@ -291,7 +299,7 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
         if not hasattr(self.devices[device_uid], "multi_level_sensor_property"):
             self.devices[device_uid].multi_level_sensor_property = {}
-        self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {device_uid}.")
+        self._logger.debug(f"Adding multi level sensor property {uid_info.get('UID')} to {device_uid}.")
         self.devices[device_uid].multi_level_sensor_property[uid_info.get("UID")] = \
             MultiLevelSensorProperty(session=self._session,
                                      gateway=self.gateway,
@@ -305,7 +313,7 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
         if not hasattr(self.devices[device_uid], "multi_level_switch_property"):
             self.devices[device_uid].multi_level_switch_property = {}
-        self._logger.debug(f"Adding multi_level_switch property {uid_info.get('UID')} to {device_uid}.")
+        self._logger.debug(f"Adding multi level switch property {uid_info.get('UID')} to {device_uid}.")
         self.devices[device_uid].multi_level_switch_property[uid_info.get("UID")] = \
             MultiLevelSwitchProperty(session=self._session,
                                      gateway=self.gateway,
