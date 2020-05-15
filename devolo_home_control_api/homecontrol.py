@@ -15,6 +15,7 @@ from .properties.dewpoint_sensor_property import DewpointSensorProperty
 from .properties.humidity_bar_property import HumidityBarProperty
 from .properties.mildew_sensor_property import MildewSensorProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
+from .properties.multi_level_switch_property import MultiLevelSwitchProperty
 from .properties.settings_property import SettingsProperty
 from .properties.voltage_property import VoltageProperty
 from .publisher.publisher import Publisher
@@ -181,12 +182,14 @@ class HomeControl(Mprm):
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
                     "devolo.DewpointSensor": self._dewpoint,
+                    "devolo.Dimmer": self._multi_level_switch,
                     "devolo.HumidityBarValue": self._humidity_bar,
                     "devolo.HumidityBarZone": self._humidity_bar,
                     "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
                     "devolo.MildewSensor": self._mildew,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
+                    "devolo.MultiLevelSwitch": self._multi_level_switch,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
@@ -286,6 +289,21 @@ class HomeControl(Mprm):
                                      value=uid_info.get("properties").get("value"),
                                      unit=uid_info.get("properties").get("unit"),
                                      sensor_type=uid_info.get("properties").get("sensorType"))
+
+    def _multi_level_switch(self, uid_info: dict):
+        """ Process multi level switch properties. """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "multi_level_switch_property"):
+            self.devices[device_uid].multi_level_switch_property = {}
+        self._logger.debug(f"Adding multi_level_switch property {uid_info.get('UID')} to {device_uid}.")
+        self.devices[device_uid].multi_level_switch_property[uid_info.get("UID")] = \
+            MultiLevelSwitchProperty(session=self._session,
+                                     gateway=self.gateway,
+                                     element_uid=uid_info.get("UID"),
+                                     value=uid_info.get("properties").get("value"),
+                                     switch_type=uid_info.get("properties").get("switchType"),
+                                     max=uid_info.get("properties").get("max"),
+                                     min=uid_info.get("properties").get("min"))
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
