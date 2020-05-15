@@ -181,6 +181,7 @@ class HomeControl(Mprm):
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
+                    "devolo.Blinds": self._multi_level_switch,
                     "devolo.DewpointSensor": self._dewpoint,
                     "devolo.Dimmer": self._multi_level_switch,
                     "devolo.HumidityBarValue": self._humidity_bar,

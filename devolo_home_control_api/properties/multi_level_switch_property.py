@@ -14,11 +14,11 @@ class MultiLevelSwitchProperty(Property):
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.Dimmer:hdm:ZWave:CBC56091/24#2
-    :param state: State the multi_level_switch has at time of creating this instance
+    :param value: Value the multi_level_switch has at time of creating this instance
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if not (element_uid.startswith("devolo.MultiLevelSwitch:") or element_uid.startswith(("devolo.Dimmer"))):
+        if not element_uid.startswith(("devolo.MultiLevelSwitch", "devolo.Dimmer", "devolo.Blinds")):
             raise WrongElementError(f"{element_uid} is not a multi level switch.")
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
