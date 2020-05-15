@@ -214,6 +214,7 @@ class Updater:
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """
         if message.get("properties").get("property.value.new") is not None:
