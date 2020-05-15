@@ -191,6 +191,9 @@ class HomeControl(Mprm):
                     "devolo.MildewSensor": self._mildew,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
+                    "devolo.SirenBinarySensor": self._binary_sensor,
+                    "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
+                    "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
@@ -220,10 +223,16 @@ class HomeControl(Mprm):
         """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
         if uid_info.get("properties").get("lastActivityTime") != -1 and \
-                hasattr(self.devices[device_uid], "binary_sensor_property"):
+                hasattr(self.devices[device_uid], "binary_sensor_property") and uid_info.get("properties").get("lastActivityTime") is not None:
             parent_element_uid = uid_info.get("UID").replace("LastActivity", "BinarySensor")
-            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                uid_info.get("properties").get("lastActivityTime")
+            try:
+                self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                    uid_info.get("properties").get("lastActivityTime")
+            except KeyError:
+                # This is a Siren
+                parent_element_uid = uid_info.get("UID").replace("LastActivity", "SirenBinarySensor")
+                self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                    uid_info.get("properties").get("lastActivityTime")
 
     def _led(self, uid_info: dict):
         """ Process LED information setting (lis) and visual feedback setting (vfs) properties. """

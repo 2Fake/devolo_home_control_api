@@ -47,6 +47,9 @@ class Updater:
                         "devolo.MildewSensor": self._mildew,
                         "devolo.MultiLevelSensor": self._multi_level_sensor,
                         "devolo.MultiLevelSwitch": self._multi_level_switch,
+                        "devolo.SirenBinarySensor": self._binary_sensor,
+                        "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
+                        "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                         "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
                         "hdm": self._device_online_state}
         try:
