@@ -138,6 +138,14 @@ class TestHomeControl:
                                               "properties": {"value": 90.0, "unit": "%", "sensorType": "light"}})
         assert hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
 
+    def test__multi_level_switch(self):
+        device = self.devices.get("siren").get("uid")
+        del self.homecontrol.devices[device].multi_level_switch_property
+        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
+        self.homecontrol._multi_level_switch({"UID": self.devices.get("siren").get("elementUIDs")[0],
+                                              "properties": {"state": self.devices.get("siren").get("state")}})
+        assert hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
+
     def test__parameter(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")

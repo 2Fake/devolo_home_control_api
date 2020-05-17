@@ -5,6 +5,7 @@ import requests
 
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_sensor_property import BinarySensorProperty
+from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
 
 from .mock_gateway import MockGateway
 
@@ -30,5 +31,12 @@ def siren(device_uid: str) -> Zwave:
                              session=session,
                              element_uid=f'devolo.SirenBinarySensor:{device_uid}',
                              state=test_data.get("devices").get("siren").get("state"))
+
+    device.multi_level_switch_property = {}
+    device.multi_level_switch_property[f'devolo.SirenMultiLevelSwitch:{device_uid}'] = \
+        MultiLevelSwitchProperty(gateway=gateway,
+                                 session=session,
+                                 element_uid=f'devolo.SirenMultiLevelSwitch:{device_uid}',
+                                 state=test_data.get("devices").get("siren").get("state"))
 
     return device
