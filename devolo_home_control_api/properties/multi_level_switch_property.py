@@ -33,19 +33,16 @@ class MultiLevelSwitchProperty(Property):
 
         self.value = kwargs.get("value")
         self.switch_type = kwargs.get("switch_type")
-        self.max = kwargs.get("max")
-        self.min = kwargs.get("min")
+        self.max = kwargs.get("max", 100)
+        self.min = kwargs.get("min", 0)
 
 
     @property
     def unit(self) -> str:
         """ Human readable unit of the property. """
-        units = {"base": "%",
-                 "blinds": "%",
-                 "dimmer": "%",
-                 "temperature": "°C",
-                 }
-        return units.get(self.switch_type)
+        units = {"temperature": "°C",
+                 "tone": ""}
+        return units.get(self.switch_type, "%")
 
 
     def set(self, value: float):
