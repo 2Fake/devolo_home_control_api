@@ -96,6 +96,20 @@
       ],
       "uid": "hdm:ZWave:F6BF9812/2"
     },
+    "multi_level_switch": {
+      "UID": "hdm:ZWave:F6BF9812/9",
+      "batteryLevel": 76,
+      "batteryLow": false,
+      "elementUIDs": [
+		    "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
+      ],
+      "itemName": "Heating",
+      "min": 4,
+      "max": 28,
+      "uid": "hdm:ZWave:F6BF9812/9",    
+      "switch_type": "temperatur",
+      "value": 20
+    },
     "offline": {
       "UID": "hdm:ZWave:F6BF9812/5",
       "batteryLevel": -1,
@@ -151,7 +165,8 @@
       "itemName": "Siren",
       "last_activity": 1581419650436,
       "uid": "hdm:ZWave:F6BF9812/8",
-      "state": 1
+      "state": 1,
+      "switch_type": "tone"
     }
   },
   "gateway": {

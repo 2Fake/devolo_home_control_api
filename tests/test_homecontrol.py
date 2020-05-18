@@ -16,7 +16,7 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 7
+        assert len(self.homecontrol.publisher._events) == 8
 
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
