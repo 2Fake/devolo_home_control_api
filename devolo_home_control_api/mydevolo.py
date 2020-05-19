@@ -34,6 +34,8 @@ class Mydevolo:
         self._password = None
         self._uuid = None
         self._gateway_ids = []
+        self._headers = {'content-type': 'application/json',
+                         'User-Agent': 'devolo_home_control_api/0.10.0'}
 
         self.url = "https://www.mydevolo.com"
 
@@ -165,7 +167,7 @@ class Mydevolo:
         """ Make a call to any entry point with the user's context. """
         responds = requests.get(url,
                                 auth=(self._user, self._password),
-                                headers={'content-type': 'application/json'},
+                                headers=self._headers,
                                 timeout=60)
 
         if responds.status_code == requests.codes.forbidden:
