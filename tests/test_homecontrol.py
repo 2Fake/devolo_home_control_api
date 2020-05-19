@@ -16,7 +16,7 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 6
+        assert len(self.homecontrol.publisher._events) == 8
 
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
@@ -81,15 +81,25 @@ class TestHomeControl:
         assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").value == 75
         assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").zone == 1
 
-    def test__last_activity(self):
-        # TODO: Use test data
+    def test__last_activity_binary_sensor(self):
+        # TODO: Compare last_activity value instead of assert hasattr, because BinarySensor always has a last_activity
         device = self.devices.get("sensor").get("uid")
         self.homecontrol._binary_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[0],
-                                         "properties": {"state": 1}})
+                                         "properties": {"state": self.devices.get("sensor").get("state")}})
         self.homecontrol._last_activity({"UID": self.devices.get("sensor").get("elementUIDs")[1],
-                                         "properties": {"lastActivityTime": 1581419650436}})
+                                         "properties": {"lastActivityTime": self.devices.get("sensor").get("last_activity")}})
         assert hasattr(self.homecontrol.devices[device].binary_sensor_property.
                        get(self.devices.get("sensor").get("elementUIDs")[0]), "last_activity")
+
+    def test__last_activity_siren(self):
+        # TODO: Compare last_activity value instead of assert hasattr, because SirenBinarySensor always has a last_activity
+        device = self.devices.get("siren").get("uid")
+        self.homecontrol._binary_sensor({"UID": self.devices.get("siren").get("elementUIDs")[1],
+                                         "properties": {"state": self.devices.get("siren").get("state")}})
+        self.homecontrol._last_activity({"UID": self.devices.get("siren").get("elementUIDs")[3],
+                                         "properties": {"lastActivityTime": self.devices.get("siren").get("last_activity")}})
+        assert hasattr(self.homecontrol.devices[device].binary_sensor_property.
+                       get(self.devices.get("siren").get("elementUIDs")[1]), "last_activity")
 
     def test__led(self):
         # TODO: Use test data
@@ -127,6 +137,14 @@ class TestHomeControl:
         self.homecontrol._multi_level_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[2],
                                               "properties": {"value": 90.0, "unit": "%", "sensorType": "light"}})
         assert hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
+
+    def test__multi_level_switch(self):
+        device = self.devices.get("siren").get("uid")
+        del self.homecontrol.devices[device].multi_level_switch_property
+        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
+        self.homecontrol._multi_level_switch({"UID": self.devices.get("siren").get("elementUIDs")[0],
+                                              "properties": {"state": self.devices.get("siren").get("state")}})
+        assert hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
 
     def test__parameter(self):
         # TODO: Use test data

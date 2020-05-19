@@ -38,4 +38,5 @@ class BinarySensorProperty(SensorProperty):
     @last_activity.setter
     def last_activity(self, timestamp: int):
         """ Convert a timestamp in millisecond to a datetime object. """
-        self._last_activity = datetime.fromtimestamp(timestamp / 1000)
+        if timestamp != -1:
+            self._last_activity = datetime.fromtimestamp(timestamp / 1000)
