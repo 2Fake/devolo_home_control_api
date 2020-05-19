@@ -2,6 +2,7 @@ import logging
 
 import requests
 
+from . import __version__
 from .exceptions.gateway import GatewayOfflineError
 from .exceptions.general import WrongCredentialsError, WrongUrlError
 
@@ -34,8 +35,6 @@ class Mydevolo:
         self._password = None
         self._uuid = None
         self._gateway_ids = []
-        self._headers = {'content-type': 'application/json',
-                         'User-Agent': 'devolo_home_control_api/0.10.0'}
 
         self.url = "https://www.mydevolo.com"
 
@@ -165,9 +164,11 @@ class Mydevolo:
 
     def _call(self, url: str) -> dict:
         """ Make a call to any entry point with the user's context. """
+        headers = {"content-type": "application/json",
+                   "User-Agent": f"devolo_home_control_api/{__version__}"}
         responds = requests.get(url,
                                 auth=(self._user, self._password),
-                                headers=self._headers,
+                                headers=headers,
                                 timeout=60)
 
         if responds.status_code == requests.codes.forbidden:

@@ -3,6 +3,7 @@ from typing import Optional
 
 import requests
 
+from . import __version__
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import (Zwave, get_device_type_from_element_uid,
@@ -33,7 +34,7 @@ class HomeControl(Mprm):
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         self._session = requests.Session()
-        self._session.headers.update({'User-Agent': 'devolo_home_control_api/0.10.0'})
+        self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
         self._session.url = url
 
         self.gateway = Gateway(gateway_id)

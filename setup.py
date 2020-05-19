@@ -1,11 +1,13 @@
 import setuptools
 
+from devolo_home_control_api import __version__
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="devolo_home_control_api",
-    version="0.10.0",
+    version=__version__,
     author="Markus Bong, Guido Schmitz",
     author_email="m.bong@famabo.de, guido.schmitz@fedaix.de",
     description="devolo Home Control API in Python",
