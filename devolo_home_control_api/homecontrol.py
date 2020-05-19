@@ -33,7 +33,7 @@ class HomeControl(Mprm):
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         self._session = requests.Session()
-        session.headers.update({'User-Agent': 'devolo_home_control_api/0.10.0'})
+        self._session.headers.update({'User-Agent': 'devolo_home_control_api/0.10.0'})
         self._session.url = url
 
         self.gateway = Gateway(gateway_id)
