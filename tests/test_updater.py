@@ -43,15 +43,6 @@ class TestUpdater:
         assert consumption_property.get(f"devolo.Meter:{uid}").current == 1.58
         assert consumption_property.get(f"devolo.Meter:{uid}").total == 254
 
-    def test_update_dewpoint_sensor_valid(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        dewpoint_sensor_property = self.homecontrol.devices.get(uid).dewpoint_sensor_property
-        value_before = dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
-        self.homecontrol.updater.update_dewpoint_sensor(element_uid=f"devolo.DewpointSensor:{uid}",
-                                                        value=18)
-        assert value_before != dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
-        assert dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value == 18
-
     def test_update_humidity_bar(self, fill_device_data):
         uid = self.devices.get("humidity").get("uid")
         humidity_bar_property = self.homecontrol.devices.get(uid).humidity_bar_property
@@ -69,15 +60,6 @@ class TestUpdater:
         assert current_value != \
             humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
         assert humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value == 50
-
-    def test_update_mildew_sensor_valid(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        mildew_sensor_property = self.homecontrol.devices.get(uid).mildew_sensor_property
-        state_before = mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-        self.homecontrol.updater.update_mildew_sensor(element_uid=f"devolo.MildewSensor:{uid}",
-                                                      state=True)
-        assert state_before != mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-        assert mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
 
     def test_update_multi_level_sensor_valid(self, fill_device_data):
         uid = self.devices.get("sensor").get("uid")
@@ -195,6 +177,16 @@ class TestUpdater:
                                                            "data": 0}}})
         assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
+    def test__dewpoint(self, fill_device_data):
+        uid = self.devices.get("humidity").get("uid")
+        dewpoint_sensor_property = self.homecontrol.devices.get(uid).dewpoint_sensor_property
+        value_before = dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
+        self.homecontrol.updater._dewpoint({"properties": {
+                                            "uid": f"devolo.DewpointSensor:{uid}",
+                                            "property.value.new": 18}})
+        assert value_before != dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
+        assert dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value == 18
+
     def test__gateway_accessible(self):
         self.homecontrol.gateway.online = True
         self.homecontrol.gateway.sync = True
@@ -259,6 +251,16 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).consumption_property \
             .get(f"devolo.Meter:{uid}").current == current_new
 
+    def test__mildew(self, fill_device_data):
+        uid = self.devices.get("humidity").get("uid")
+        mildew_sensor_property = self.homecontrol.devices.get(uid).mildew_sensor_property
+        state_before = mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
+        self.homecontrol.updater._mildew({"properties": {
+                                          "uid": f"devolo.MildewSensor:{uid}",
+                                          "property.value.new": True}})
+        assert state_before != mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
+        assert mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
+
     def test__multi_level_sensor(self):
         uid = self.devices.get("sensor").get("uid")
         self.homecontrol.devices.get(uid).multi_level_sensor_property \
@@ -272,6 +274,23 @@ class TestUpdater:
             .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
 
         assert current_new == 50
+        assert current != current_new
+
+    def test__multi_level_switch(self):
+        device = self.devices.get("multi_level_switch")
+        uid = device.get("uid")
+        self.homecontrol.devices.get(uid).multi_level_switch_property \
+            .get(device.get("elementUIDs")[0]).value = \
+            device.get("value")
+        current = self.homecontrol.devices.get(uid).multi_level_switch_property \
+            .get(device.get("elementUIDs")[0]).value
+        self.homecontrol.updater._multi_level_switch(message={"properties":
+                                                     {"uid": device.get("elementUIDs")[0],
+                                                      "property.value.new": device.get("max")}})
+        current_new = self.homecontrol.devices.get(uid).multi_level_switch_property \
+            .get(device.get("elementUIDs")[0]).value
+
+        assert current_new == device.get("max")
         assert current != current_new
 
     def test__since_time(self):
