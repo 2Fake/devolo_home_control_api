@@ -24,7 +24,7 @@ class TestUpdater:
         assert state != binary_switch_property.get(f"devolo.BinarySwitch:{uid}").state
 
     def test_update_binary_switch_state_group(self, fill_device_data):
-        self.homecontrol.updater.update_binary_switch_state(element_uid=f"devolo.BinarySwitch:devolo.smartGroup.1",
+        self.homecontrol.updater.update_binary_switch_state(element_uid="devolo.BinarySwitch:devolo.smartGroup.1",
                                                             value=True)
         # If the updater does something with this uid it will raise a KeyError.
         # If this happens the test will fail although there is no assert
