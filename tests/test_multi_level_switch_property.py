@@ -15,7 +15,7 @@ class TestMultiLevelSwitchProperty:
         switch_type = self.devices.get("siren").get("switch_type")
         mlsp = MultiLevelSwitchProperty(gateway=gateway_instance, session=mprm_session,
                                         element_uid=element_uid, switch_type=switch_type)
-        assert mlsp.unit == ""
+        assert mlsp.unit is None
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_invalid(self):

@@ -2,6 +2,7 @@ import setuptools
 
 from devolo_home_control_api import __version__
 
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
