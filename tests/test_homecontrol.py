@@ -15,6 +15,12 @@ class TestHomeControl:
     def test_binary_switch_devices(self):
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
+    def test_multi_level_sensor_devices(self):
+        assert hasattr(self.homecontrol.multi_level_sensor_devices[0], "multi_level_sensor_property")
+
+    def test_multi_level_switch_devices(self):
+        assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
+
     def test_get_publisher(self):
         assert len(self.homecontrol.publisher._events) == 8
 
