@@ -167,6 +167,12 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
 
 
 @pytest.fixture()
+def mock_mprmwebsocket_websocket_disconnect(mocker):
+    """ Mock closing a websocket connection. """
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_disconnect", return_value=None)
+
+
+@pytest.fixture()
 def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
                   mock_mprm__detect_gateway_in_lan):
     """ Create a mocked mPRM instance with static test data. """

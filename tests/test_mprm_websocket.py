@@ -29,6 +29,12 @@ class TestMprmWebsocket:
         with pytest.raises(AssertionError):
             self.mprm.websocket_disconnect()
 
+    @pytest.mark.usefixtures("mock_mprmwebsocket_websocket_disconnect")
+    def test__exit__(self, mocker):
+        disconnect_spy = mocker.spy(MprmWebsocket, "websocket_disconnect")
+        self.mprm.__exit__(None, None, None)
+        assert disconnect_spy.call_count == 1
+
     def test__on_message(self):
         with pytest.raises(NotImplementedError):
             message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 0}}'
