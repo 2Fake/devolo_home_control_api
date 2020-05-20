@@ -47,5 +47,5 @@ def fill_device_data(request):
     humidity_bar_property.get(f"devolo.HumidityBar:{test_data.get('devices').get('humidity').get('uid')}").zone = 1
     humidity_bar_property.get(f"devolo.HumidityBar:{test_data.get('devices').get('humidity').get('uid')}").value = 75
 
-    voltage_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")).voltage_property
+    voltage_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")).multi_level_sensor_property
     voltage_property.get(f"devolo.VoltageMultiLevelSensor:{test_data.get('devices').get('mains').get('uid')}").current = 236

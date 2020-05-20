@@ -50,7 +50,7 @@ class Updater:
                         "devolo.SirenBinarySensor": self._binary_sensor,
                         "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                         "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
-                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                        "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                         "hdm": self._device_online_state}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
@@ -210,7 +210,7 @@ class Updater:
         :param value: Value so be set
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self.devices.get(device_uid).voltage_property.get(element_uid).current = value
+        self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).value = value
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 

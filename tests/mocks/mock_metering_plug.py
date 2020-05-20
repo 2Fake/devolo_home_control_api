@@ -29,7 +29,7 @@ def metering_plug(device_uid: str) -> Zwave:
 
     device.binary_switch_property = {}
     device.consumption_property = {}
-    device.voltage_property = {}
+    device.multi_level_sensor_property = {}
     device.settings_property = {}
 
     device.binary_switch_property[f'devolo.BinarySwitch:{device_uid}'] = \
@@ -49,11 +49,11 @@ def metering_plug(device_uid: str) -> Zwave:
                                                                                     total_since=test_data.get("devices").get(
                                                                                         "mains").get("properties").get(
                                                                                         "sinceTime"))
-    device.voltage_property[f'devolo.VoltageMultiLevelSensor:{device_uid}'] = \
+    device.multi_level_sensor_property[f'devolo.VoltageMultiLevelSensor:{device_uid}'] = \
         MultiLevelSensorProperty(gateway=gateway,
-                        session=session,
-                        element_uid=f"devolo.VoltageMultiLevelSensor:{device_uid}",
-                        current=test_data.get("devices").get("mains").get("properties").get("voltage"))
+                                 session=session,
+                                 element_uid=f"devolo.VoltageMultiLevelSensor:{device_uid}",
+                                 current=test_data.get("devices").get("mains").get("properties").get("voltage"))
     device.settings_property["param_changed"] = SettingsProperty(gateway=gateway,
                                                                  session=session,
                                                                  element_uid=f"cps.{device_uid}")
