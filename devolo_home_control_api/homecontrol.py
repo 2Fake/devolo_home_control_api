@@ -18,7 +18,6 @@ from .properties.mildew_sensor_property import MildewSensorProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.multi_level_switch_property import MultiLevelSwitchProperty
 from .properties.settings_property import SettingsProperty
-from .properties.voltage_property import VoltageProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
 
@@ -206,7 +205,7 @@ class HomeControl(Mprm):
                     "devolo.SirenBinarySensor": self._binary_sensor,
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
-                    "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                    "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
@@ -360,19 +359,6 @@ class HomeControl(Mprm):
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
-
-    def _voltage_multi_level_sensor(self, uid_info: dict):
-        """ Process VoltageMultiLevelSensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "voltage_property"):
-            self.devices[device_uid].voltage_property = {}
-        self._logger.debug(f"Adding voltage property to {device_uid}.")
-        self.devices[device_uid].voltage_property[uid_info.get("UID")] = \
-            VoltageProperty(session=self._session,
-                            gateway=self.gateway,
-                            element_uid=uid_info.get("UID"),
-                            current=uid_info.get("properties").get("value"),
-                            sensor_type=uid_info.get("properties").get("sensorType"))
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:

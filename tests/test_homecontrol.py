@@ -171,16 +171,6 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "temp_report")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "target_temp_report")
 
-    def test__voltage_multi_level_sensor(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        del self.homecontrol.devices[device].voltage_property
-        assert not hasattr(self.homecontrol.devices.get(device), "voltage_property")
-        self.homecontrol._voltage_multi_level_sensor({"UID": "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2",
-                                                      "properties": {
-                                                          "current": self.devices.get("mains").get("current_consumption")}})
-        assert hasattr(self.homecontrol.devices.get(device), "voltage_property")
-
     @pytest.mark.usefixtures("mock_inspect_devices")
     def test_device_change_add(self, mocker):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
