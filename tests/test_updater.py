@@ -24,10 +24,12 @@ class TestUpdater:
         assert state != binary_switch_property.get(f"devolo.BinarySwitch:{uid}").state
 
     def test_update_binary_switch_state_group(self, fill_device_data):
-        self.homecontrol.updater.update_binary_switch_state(element_uid="devolo.BinarySwitch:devolo.smartGroup.1",
-                                                            value=True)
-        # If the updater does something with this uid it will raise a KeyError.
-        # If this happens the test will fail although there is no assert
+        try:
+            self.homecontrol.updater.update_binary_switch_state(element_uid="devolo.BinarySwitch:devolo.smartGroup.1",
+                                                                value=True)
+            assert True
+        except KeyError:
+            assert False
 
     def test_update_consumption_valid(self, fill_device_data):
         uid = self.devices.get("mains").get("uid")
@@ -69,6 +71,14 @@ class TestUpdater:
                                                            value=50)
         assert value_before != multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
         assert multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value == 50
+
+    def test_update_multi_level_switch_state_group(self, fill_device_data):
+        try:
+            self.homecontrol.updater.update_multi_level_switch(element_uid="devolo.MultiLevelSwitch:devolo.smartGroup.1",
+                                                               value=True)
+            assert True
+        except KeyError:
+            assert False
 
     def test_device_online_state(self):
         uid = self.devices.get("mains").get("uid")
