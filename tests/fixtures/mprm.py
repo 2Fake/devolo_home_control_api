@@ -10,6 +10,7 @@ from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from ..mocks.mock_gateway import MockGateway
 from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
+from ..mocks.mock_websocket import try_reconnect
 from ..mocks.mock_websocketapp import MockWebsocketapp
 
 
@@ -139,7 +140,14 @@ def mock_mprmwebsocket_get_remote_session(mocker, request):
 
 @pytest.fixture()
 def mock_mprmwebsocket_on_update(mocker):
+    """ Mock websocket message processing. """
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.on_update", return_value=None)
+
+
+@pytest.fixture()
+def mock_mprmwebsocket_try_reconnect(mocker):
+    """ Mock reconnect attemt as successful. """
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket._try_reconnect", try_reconnect)
 
 
 @pytest.fixture()
@@ -159,6 +167,12 @@ def mock_mprmwebsocket_websocket_connection(mocker, request):
 
 
 @pytest.fixture()
+def mock_mprmwebsocket_websocket_disconnect(mocker):
+    """ Mock closing a websocket connection. """
+    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_disconnect", return_value=None)
+
+
+@pytest.fixture()
 def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_metering_plug,
                   mock_mprm__detect_gateway_in_lan):
     """ Create a mocked mPRM instance with static test data. """
@@ -175,6 +189,7 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
 
 @pytest.fixture()
 def mprm_session():
+    """ Mock a valid mPRM session. """
     session = requests.Session()
     session.url = "https://homecontrol.mydevolo.com"
     return session

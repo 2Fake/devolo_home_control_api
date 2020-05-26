@@ -19,7 +19,7 @@ class HumidityBarProperty(SensorProperty):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if not element_uid.startswith("devolo.HumidityBar"):
+        if not element_uid.startswith("devolo.HumidityBar:"):
             raise WrongElementError(f"{element_uid} is not a humidity bar.")
 
         self.value = kwargs.get("value", 0)

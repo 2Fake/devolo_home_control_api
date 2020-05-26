@@ -12,4 +12,13 @@ class TestMultiLevelSensorProperty:
                                      session=mprm_session,
                                      element_uid="invalid",
                                      value=0.0,
-                                     unit="%")
+                                     unit=0)
+
+    def test_unit(self, gateway_instance, mprm_session):
+        mlsp = MultiLevelSensorProperty(gateway=gateway_instance,
+                                        session=mprm_session,
+                                        element_uid=self.devices.get("sensor").get("elementUIDs")[2],
+                                        sensor_type=self.devices.get("sensor").get("sensor_type"),
+                                        value=self.devices.get("sensor").get("value"),
+                                        unit=self.devices.get("sensor").get("unit"))
+        assert mlsp.unit == "%"

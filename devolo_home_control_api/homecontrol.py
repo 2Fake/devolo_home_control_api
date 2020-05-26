@@ -3,6 +3,7 @@ from typing import Optional
 
 import requests
 
+from . import __version__
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import (Zwave, get_device_type_from_element_uid,
@@ -15,8 +16,8 @@ from .properties.dewpoint_sensor_property import DewpointSensorProperty
 from .properties.humidity_bar_property import HumidityBarProperty
 from .properties.mildew_sensor_property import MildewSensorProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
+from .properties.multi_level_switch_property import MultiLevelSwitchProperty
 from .properties.settings_property import SettingsProperty
-from .properties.voltage_property import VoltageProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
 
@@ -32,6 +33,7 @@ class HomeControl(Mprm):
 
     def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
         self._session = requests.Session()
+        self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
         self._session.url = url
 
         self.gateway = Gateway(gateway_id)
@@ -62,6 +64,16 @@ class HomeControl(Mprm):
     def binary_switch_devices(self) -> list:
         """ Get all binary switch devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
+
+    @property
+    def multi_level_sensor_devices(self) -> list:
+        """ Get all multi level sensor devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_sensor_property")]
+
+    @property
+    def multi_level_switch_devices(self) -> list:
+        """ Get all multi level switch devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_switch_property")]
 
 
     def device_change(self, device_uids: list):
@@ -180,14 +192,20 @@ class HomeControl(Mprm):
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
+                    "devolo.Blinds": self._multi_level_switch,
                     "devolo.DewpointSensor": self._dewpoint,
+                    "devolo.Dimmer": self._multi_level_switch,
                     "devolo.HumidityBarValue": self._humidity_bar,
                     "devolo.HumidityBarZone": self._humidity_bar,
                     "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
                     "devolo.MildewSensor": self._mildew,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
-                    "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                    "devolo.MultiLevelSwitch": self._multi_level_switch,
+                    "devolo.SirenBinarySensor": self._binary_sensor,
+                    "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
+                    "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
+                    "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
@@ -215,11 +233,15 @@ class HomeControl(Mprm):
         This parent property is found by string replacement.
         """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if uid_info.get("properties").get("lastActivityTime") != -1 and \
-                hasattr(self.devices[device_uid], "binary_sensor_property"):
+        if hasattr(self.devices[device_uid], "binary_sensor_property"):
             parent_element_uid = uid_info.get("UID").replace("LastActivity", "BinarySensor")
-            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                uid_info.get("properties").get("lastActivityTime")
+            if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
+                self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                    uid_info.get("properties").get("lastActivityTime")
+            parent_element_uid = uid_info.get("UID").replace("LastActivity", "SirenBinarySensor")
+            if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
+                self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                    uid_info.get("properties").get("lastActivityTime")
 
     def _led(self, uid_info: dict):
         """ Process LED information setting (lis) and visual feedback setting (vfs) properties. """
@@ -278,7 +300,7 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
         if not hasattr(self.devices[device_uid], "multi_level_sensor_property"):
             self.devices[device_uid].multi_level_sensor_property = {}
-        self._logger.debug(f"Adding multi_level_sensor property {uid_info.get('UID')} to {device_uid}.")
+        self._logger.debug(f"Adding multi level sensor property {uid_info.get('UID')} to {device_uid}.")
         self.devices[device_uid].multi_level_sensor_property[uid_info.get("UID")] = \
             MultiLevelSensorProperty(session=self._session,
                                      gateway=self.gateway,
@@ -286,6 +308,21 @@ class HomeControl(Mprm):
                                      value=uid_info.get("properties").get("value"),
                                      unit=uid_info.get("properties").get("unit"),
                                      sensor_type=uid_info.get("properties").get("sensorType"))
+
+    def _multi_level_switch(self, uid_info: dict):
+        """ Process multi level switch properties. """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        if not hasattr(self.devices[device_uid], "multi_level_switch_property"):
+            self.devices[device_uid].multi_level_switch_property = {}
+        self._logger.debug(f"Adding multi level switch property {uid_info.get('UID')} to {device_uid}.")
+        self.devices[device_uid].multi_level_switch_property[uid_info.get("UID")] = \
+            MultiLevelSwitchProperty(session=self._session,
+                                     gateway=self.gateway,
+                                     element_uid=uid_info.get("UID"),
+                                     value=uid_info.get("properties").get("value"),
+                                     switch_type=uid_info.get("properties").get("switchType"),
+                                     max=uid_info.get("properties").get("max"),
+                                     min=uid_info.get("properties").get("min"))
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
@@ -322,19 +359,6 @@ class HomeControl(Mprm):
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
-
-    def _voltage_multi_level_sensor(self, uid_info: dict):
-        """ Process VoltageMultiLevelSensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "voltage_property"):
-            self.devices[device_uid].voltage_property = {}
-        self._logger.debug(f"Adding voltage property to {device_uid}.")
-        self.devices[device_uid].voltage_property[uid_info.get("UID")] = \
-            VoltageProperty(session=self._session,
-                            gateway=self.gateway,
-                            element_uid=uid_info.get("UID"),
-                            current=uid_info.get("properties").get("value"),
-                            sensor_type=uid_info.get("properties").get("sensorType"))
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:

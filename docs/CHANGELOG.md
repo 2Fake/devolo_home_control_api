@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.11.0] - 2020/05/26
+
+### Added
+
+- Support for devolo Radiator Thermostat
+- Support for devolo Room Thermostat
+- Support for devolo Dimmer FM
+- Support for devolo Shutter FM
+- Support for Danfoss Living Connect Z Radiator Thermostat
+- Support for Danfoss Living Connect Z Room Thermostat
+- Support for Qubino Flush Dimmer
+- Support for Qubino Flush Shutter
+- Multilevel sensor properties now have human readable units, if known
+
 ## [v0.10.0] - 2020/05/07
 
 ### Changed

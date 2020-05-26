@@ -124,10 +124,7 @@ class MprmWebsocket(MprmRest):
 
     def _on_pong(self, *args: Any):
         """ Callback method to keep the session valid. """
-        if self._local_ip is not None:
-            self._logger.debug("Refreshing session.")
-            self._session.get(self._session.url + "/dhlp/portal/full",
-                              auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5)
+        self.refresh_session()
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """

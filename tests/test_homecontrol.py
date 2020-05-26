@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from devolo_home_control_api.homecontrol import get_sub_device_uid_from_element_uid
@@ -15,8 +17,14 @@ class TestHomeControl:
     def test_binary_switch_devices(self):
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
+    def test_multi_level_sensor_devices(self):
+        assert hasattr(self.homecontrol.multi_level_sensor_devices[0], "multi_level_sensor_property")
+
+    def test_multi_level_switch_devices(self):
+        assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
+
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 6
+        assert len(self.homecontrol.publisher._events) == 8
 
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
@@ -81,15 +89,25 @@ class TestHomeControl:
         assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").value == 75
         assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").zone == 1
 
-    def test__last_activity(self):
-        # TODO: Use test data
+    def test__last_activity_binary_sensor(self):
         device = self.devices.get("sensor").get("uid")
-        self.homecontrol._binary_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[0],
-                                         "properties": {"state": 1}})
-        self.homecontrol._last_activity({"UID": self.devices.get("sensor").get("elementUIDs")[1],
-                                         "properties": {"lastActivityTime": 1581419650436}})
-        assert hasattr(self.homecontrol.devices[device].binary_sensor_property.
-                       get(self.devices.get("sensor").get("elementUIDs")[0]), "last_activity")
+        element_uids = self.devices.get("sensor").get("elementUIDs")
+        self.homecontrol._binary_sensor({"UID": element_uids[0],
+                                         "properties": {"state": self.devices.get("sensor").get("state")}})
+        self.homecontrol._last_activity({"UID": element_uids[1],
+                                         "properties": {"lastActivityTime": self.devices.get("sensor").get("last_activity")}})
+        assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[0]).last_activity == \
+            datetime.fromtimestamp(self.devices.get("sensor").get("last_activity") / 1000)
+
+    def test__last_activity_siren(self):
+        device = self.devices.get("siren").get("uid")
+        element_uids = self.devices.get("siren").get("elementUIDs")
+        self.homecontrol._binary_sensor({"UID": element_uids[1],
+                                         "properties": {"state": self.devices.get("siren").get("state")}})
+        self.homecontrol._last_activity({"UID": element_uids[3],
+                                         "properties": {"lastActivityTime": self.devices.get("siren").get("last_activity")}})
+        assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[1]).last_activity == \
+            datetime.fromtimestamp(self.devices.get("siren").get("last_activity") / 1000)
 
     def test__led(self):
         # TODO: Use test data
@@ -128,6 +146,14 @@ class TestHomeControl:
                                               "properties": {"value": 90.0, "unit": "%", "sensorType": "light"}})
         assert hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
 
+    def test__multi_level_switch(self):
+        device = self.devices.get("siren").get("uid")
+        del self.homecontrol.devices[device].multi_level_switch_property
+        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
+        self.homecontrol._multi_level_switch({"UID": self.devices.get("siren").get("elementUIDs")[0],
+                                              "properties": {"state": self.devices.get("siren").get("state")}})
+        assert hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
+
     def test__parameter(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
@@ -152,16 +178,6 @@ class TestHomeControl:
                                                              "targetTempReport": False}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "temp_report")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "target_temp_report")
-
-    def test__voltage_multi_level_sensor(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        del self.homecontrol.devices[device].voltage_property
-        assert not hasattr(self.homecontrol.devices.get(device), "voltage_property")
-        self.homecontrol._voltage_multi_level_sensor({"UID": "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2",
-                                                      "properties": {
-                                                          "current": self.devices.get("mains").get("current_consumption")}})
-        assert hasattr(self.homecontrol.devices.get(device), "voltage_property")
 
     @pytest.mark.usefixtures("mock_inspect_devices")
     def test_device_change_add(self, mocker):

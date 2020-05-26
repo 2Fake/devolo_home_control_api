@@ -35,8 +35,10 @@ class Updater:
         """
         message_type = {"devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
+                        "devolo.Blinds": self._multi_level_switch,
                         "devolo.DeviceEvents": self._device_events,
                         "devolo.DevicesPage": self._device_change,
+                        "devolo.Dimmer": self._multi_level_switch,
                         "devolo.DewpointSensor": self._dewpoint,
                         "devolo.HumidityBarValue": self._humidity_bar,
                         "devolo.HumidityBarZone": self._humidity_bar,
@@ -44,7 +46,11 @@ class Updater:
                         "devolo.Meter": self._meter,
                         "devolo.MildewSensor": self._mildew,
                         "devolo.MultiLevelSensor": self._multi_level_sensor,
-                        "devolo.VoltageMultiLevelSensor": self._voltage_multi_level_sensor,
+                        "devolo.MultiLevelSwitch": self._multi_level_switch,
+                        "devolo.SirenBinarySensor": self._binary_sensor,
+                        "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
+                        "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
+                        "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                         "hdm": self._device_online_state}
         try:
             message_type[get_device_type_from_element_uid(message.get("properties").get("uid"))](message)
@@ -71,7 +77,7 @@ class Updater:
         :param value: True for on, False for off
         """
         if element_uid.split(".")[-2] == "smartGroup":
-            # We ignore if a group is switched. We get the information separated for every device.
+            # We ignore if a group is switched. We get the information separatly for every device.
             return
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
@@ -173,6 +179,20 @@ class Updater:
         self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+    def update_multi_level_switch(self, element_uid: str, value: float):
+        """
+        Update the multi level switch value externally. The value is written into the internal dict.
+        :param element_uid: Element UID, something like devolo.MultiLevelSwitch* or devolo.Dimmer* or devolo.Blinds*
+        :param value: Value to be set
+        """
+        if element_uid.split(".")[-2] == "smartGroup":
+            # We ignore if a group is switched. We get the information separatly for every device.
+            return
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        self._logger.debug(f"Updating {element_uid} to {value}")
+        self.devices.get(device_uid).multi_level_switch_property.get(element_uid).value = value
+        self._publisher.dispatch(device_uid, (element_uid, value))
+
     def update_total_since(self, element_uid: str, total_since: datetime):
         """
         Update the point in time, the total consumption of a device was reset.
@@ -193,9 +213,10 @@ class Updater:
         :param value: Value so be set
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self.devices.get(device_uid).voltage_property.get(element_uid).current = value
+        self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).value = value
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
+
 
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """
@@ -278,6 +299,12 @@ class Updater:
         """ Update a multi level sensor. """
         self.update_multi_level_sensor(element_uid=message.get("properties").get("uid"),
                                        value=message.get("properties").get("property.value.new"))
+
+    def _multi_level_switch(self, message: dict):
+        """ Update a multi level switch. """
+        if not isinstance(message.get("properties").get("property.value.new"), (list, dict, type(None))):
+            self.update_multi_level_switch(element_uid=message.get("properties").get("uid"),
+                                           value=message.get("properties").get("property.value.new"))
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """

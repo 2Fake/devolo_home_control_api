@@ -2,6 +2,7 @@ import logging
 
 import requests
 
+from . import __version__
 from .exceptions.gateway import GatewayOfflineError
 from .exceptions.general import WrongCredentialsError, WrongUrlError
 
@@ -76,7 +77,7 @@ class Mydevolo:
     def get_gateway_ids(self) -> list:
         """ Get all gateway IDs. """
         if not self._gateway_ids:
-            self._logger.debug(f"Getting list of gateways")
+            self._logger.debug("Getting list of gateways")
             items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status").get("items")
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
@@ -163,9 +164,11 @@ class Mydevolo:
 
     def _call(self, url: str) -> dict:
         """ Make a call to any entry point with the user's context. """
+        headers = {"content-type": "application/json",
+                   "User-Agent": f"devolo_home_control_api/{__version__}"}
         responds = requests.get(url,
                                 auth=(self._user, self._password),
-                                headers={'content-type': 'application/json'},
+                                headers=headers,
                                 timeout=60)
 
         if responds.status_code == requests.codes.forbidden:
@@ -175,5 +178,5 @@ class Mydevolo:
             raise WrongUrlError(f"Wrong URL: {url}")
         if responds.status_code == requests.codes.service_unavailable:
             self._logger.error("The requested gateway seems to be offline.")
-            raise GatewayOfflineError(f"Gateway offline.")
+            raise GatewayOfflineError("Gateway offline.")
         return responds.json()
