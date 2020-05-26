@@ -63,7 +63,7 @@ class TestMprmWebsocket:
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     @pytest.mark.usefixtures("mock_session_get")
     def test__on_pong(self, mocker, mprm_session, gateway_instance):
-        spy = mocker.spy(MprmRest, "post")
+        spy = mocker.spy(MprmRest, "refresh_session")
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
         self.mprm._local_ip = self.gateway.get("local_ip")
