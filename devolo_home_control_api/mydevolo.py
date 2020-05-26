@@ -77,7 +77,7 @@ class Mydevolo:
     def get_gateway_ids(self) -> list:
         """ Get all gateway IDs. """
         if not self._gateway_ids:
-            self._logger.debug(f"Getting list of gateways")
+            self._logger.debug("Getting list of gateways")
             items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status").get("items")
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
@@ -178,5 +178,5 @@ class Mydevolo:
             raise WrongUrlError(f"Wrong URL: {url}")
         if responds.status_code == requests.codes.service_unavailable:
             self._logger.error("The requested gateway seems to be offline.")
-            raise GatewayOfflineError(f"Gateway offline.")
+            raise GatewayOfflineError("Gateway offline.")
         return responds.json()

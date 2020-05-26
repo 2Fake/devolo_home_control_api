@@ -25,8 +25,10 @@ class MultiLevelSwitchProperty(Property):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if not element_uid.startswith(("devolo.MultiLevelSwitch", "devolo.Dimmer", "devolo.Blinds",
-                                       "devolo.SirenMultiLevelSwitch")):
+        if not element_uid.startswith(("devolo.Blinds:",
+                                       "devolo.Dimmer:",
+                                       "devolo.MultiLevelSwitch:",
+                                       "devolo.SirenMultiLevelSwitch:")):
             raise WrongElementError(f"{element_uid} is not a multi level switch.")
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
@@ -41,7 +43,7 @@ class MultiLevelSwitchProperty(Property):
     def unit(self) -> str:
         """ Human readable unit of the property. """
         units = {"temperature": "°C",
-                 "tone": ""}
+                 "tone": None}
         return units.get(self.switch_type, "%")
 
 
