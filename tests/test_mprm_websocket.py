@@ -1,8 +1,8 @@
 import time
 
 import pytest
-import requests
 
+from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 from .mocks.mock_websocket import MockWebsocket, MockWebsocketError
@@ -63,7 +63,7 @@ class TestMprmWebsocket:
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     @pytest.mark.usefixtures("mock_session_get")
     def test__on_pong(self, mocker, mprm_session, gateway_instance):
-        spy = mocker.spy(requests.Session, "get")
+        spy = mocker.spy(MprmRest, "post")
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
         self.mprm._local_ip = self.gateway.get("local_ip")
