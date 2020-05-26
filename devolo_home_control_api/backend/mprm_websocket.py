@@ -126,15 +126,11 @@ class MprmWebsocket(MprmRest):
 
     def _on_pong(self, *args: Any):
         """ Callback method to keep the session valid. """
-        if self._local_ip is not None:
-            self._logger.debug("Refreshing local session.")
-            self._session.get(self._session.url + "/dhlp/portal/full",
-                              auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5)
-        else:
-            self._logger.debug("Refreshing cloud session.")
-            data = {"method": "FIM/invokeOperation",
-                    "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
-            self.post(data)
+        self._logger.debug("Refreshing session.")
+        data = {"method": "FIM/invokeOperation",
+                "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
+        self.post(data)
+
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
