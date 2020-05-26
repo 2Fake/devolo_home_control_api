@@ -9,6 +9,7 @@ from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
 from .mprm_rest import MprmRest
+from ..mydevolo import Mydevolo
 
 
 class MprmWebsocket(MprmRest):
@@ -28,6 +29,7 @@ class MprmWebsocket(MprmRest):
         self._connected = False     # This attribute saves, if the websocket is fully established
         self._reachable = True      # This attribute saves, if the a new session can be established
         self._event_sequence = 0
+        self._mydevolo = Mydevolo.get_instance()
 
     def __enter__(self):
         return self
@@ -125,9 +127,14 @@ class MprmWebsocket(MprmRest):
     def _on_pong(self, *args: Any):
         """ Callback method to keep the session valid. """
         if self._local_ip is not None:
-            self._logger.debug("Refreshing session.")
+            self._logger.debug("Refreshing local session.")
             self._session.get(self._session.url + "/dhlp/portal/full",
                               auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5)
+        else:
+            self._logger.debug("Refreshing cloud session.")
+            data = {"method": "FIM/invokeOperation",
+                    "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
+            self.post(data)
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
