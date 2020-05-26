@@ -9,7 +9,6 @@ from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
 from .mprm_rest import MprmRest
-from ..mydevolo import Mydevolo
 
 
 class MprmWebsocket(MprmRest):
@@ -29,7 +28,6 @@ class MprmWebsocket(MprmRest):
         self._connected = False     # This attribute saves, if the websocket is fully established
         self._reachable = True      # This attribute saves, if the a new session can be established
         self._event_sequence = 0
-        self._mydevolo = Mydevolo.get_instance()
 
     def __enter__(self):
         return self
@@ -126,11 +124,7 @@ class MprmWebsocket(MprmRest):
 
     def _on_pong(self, *args: Any):
         """ Callback method to keep the session valid. """
-        self._logger.debug("Refreshing session.")
-        data = {"method": "FIM/invokeOperation",
-                "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
-        self.post(data)
-
+        self.refresh_session()
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
