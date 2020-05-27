@@ -43,7 +43,8 @@ class HomeControl(Mprm):
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
+        self.device_names = dict(zip([(self.devices.get(device).itemName + "/" + self.devices.get(device).zone)
+                                      for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
 
         self.publisher = Publisher([device for device in self.devices])
