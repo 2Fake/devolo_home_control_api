@@ -207,6 +207,7 @@ class HomeControl(Mprm):
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
+                    "bas.hdm": self._binary_async_setting,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
@@ -227,6 +228,17 @@ class HomeControl(Mprm):
         for uid_info in self.get_data_from_uid_list(uid_list):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
+
+    def _binary_async_setting(self, uid_info: dict):
+        """ Process the mute setting properties (bas). """
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding binary async setting to {device_uid}.")
+        # As some devices has multiple binary async setting we use the settings UID as key
+        self.devices[device_uid].settings_property[uid_info.get("UID")] = \
+            SettingsProperty(session=self._session,
+                             gateway=self.gateway,
+                             element_uid=uid_info.get("UID"),
+                             value=uid_info.get("properties").get("value"))
 
     def _last_activity(self, uid_info: dict):
         """

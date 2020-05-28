@@ -74,7 +74,7 @@ def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
-    setting_uid = setting_uid.split(".", 1)[-1]
+    setting_uid = setting_uid.split(".", 1)[-1].split("#")[0]
     if setting_uid.endswith("secure"):
         return setting_uid.rsplit(":", 1)[0]
     return setting_uid
