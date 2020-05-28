@@ -26,6 +26,14 @@ class TestSettingsProperty:
             SettingsProperty(gateway=gateway_instance, session=mprm_session, element_uid="invalid")
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    def test__set_bas_valid(self):
+        muted = self.devices.get("siren").get("muted")
+        self.homecontrol.devices.get(self.devices.get("siren").get("uid"))\
+            .settings_property.get("muted").set(value=not muted)
+        assert self.homecontrol.devices.get(self.devices.get("siren").get("uid"))\
+            .settings_property.get("muted").value is not muted
+
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test__set_gds_valid(self):
         self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .settings_property.get("general_device_settings").set(events_enabled=False)

@@ -1,8 +1,8 @@
+import re
 import threading
 from typing import Optional
 
 import requests
-import re
 
 from . import __version__
 from .backend.mprm import Mprm
@@ -208,7 +208,7 @@ class HomeControl(Mprm):
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
-                    "bas.hdm": self._binary_async_setting,
+                    "bas.hdm": self._binary_async,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
@@ -230,20 +230,22 @@ class HomeControl(Mprm):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 
-    def _binary_async_setting(self, uid_info: dict):
-        """ Process the binary async setting properties (bas). """
+    def _binary_async(self, uid_info: dict):
+        """ Process binary async setting (bas) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
-        self._logger.debug(f"Adding binary async setting to {device_uid}.")
-        # As some devices has multiple binary async setting we use the settings UID split after a '#' if available as key
+        self._logger.debug(f"Adding binary async settings to {device_uid}.")
         settings_property = SettingsProperty(session=self._session,
                                              gateway=self.gateway,
                                              element_uid=uid_info.get("UID"),
                                              value=uid_info.get("properties").get("value"))
+
+        # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
         if self.devices.get(device_uid).deviceModelUID == "devolo.model.Siren":
             self.devices[device_uid].settings_property["muted"] = settings_property
+        # As some devices have multiple binary async settings, we use the settings UID split after a '#' as key
         else:
-            self.devices[device_uid].settings_property[camel_case_to_snake_case(uid_info.get("UID").split("#")[-1])] = settings_property
-
+            key = camel_case_to_snake_case(uid_info.get("UID").split("#")[-1])
+            self.devices[device_uid].settings_property[key] = settings_property
 
     def _last_activity(self, uid_info: dict):
         """
@@ -380,7 +382,14 @@ class HomeControl(Mprm):
 
 
 def camel_case_to_snake_case(expression: str) -> str:
+    """
+    Turn CamelCaseStrings to snake_case_strings. This is used where the original Java names should by more pythonic.
+
+    :param: expression: Expression, that should be converted to snake case
+    :return: Expression in snake case
+    """
     return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
+
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
     """

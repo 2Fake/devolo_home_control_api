@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from devolo_home_control_api.homecontrol import get_sub_device_uid_from_element_uid
+from devolo_home_control_api.homecontrol import camel_case_to_snake_case, get_sub_device_uid_from_element_uid
 
 
 @pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
@@ -17,6 +17,10 @@ class TestHomeControl:
     def test_binary_switch_devices(self):
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
+    def test_camel_case_to_snake_case(self):
+        assert camel_case_to_snake_case("CamelCase") == "camel_case"
+        assert camel_case_to_snake_case("camelCase") == "camel_case"
+
     def test_multi_level_sensor_devices(self):
         assert hasattr(self.homecontrol.multi_level_sensor_devices[0], "multi_level_sensor_property")
 
@@ -30,6 +34,13 @@ class TestHomeControl:
         # TODO: Use test data
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
+
+    def test__binary_async_siren(self):
+        device = self.devices.get("siren").get("uid")
+        muted = self.devices.get("siren").get("muted")
+        self.homecontrol._binary_async({"UID": f"bas.{device}",
+                                               "properties": {"property.value.new": not muted}})
+        assert self.homecontrol.devices.get(device).settings_property.get("muted").value is not muted
 
     def test__binary_sensor(self):
         device = self.devices.get("sensor").get("uid")

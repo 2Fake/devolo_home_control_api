@@ -42,9 +42,9 @@ class SettingsProperty(Property):
 
     def _set_bas(self, value: bool):
         """
-        Set a binary async setting of a device. For example this is the muted setting of a siren or
-        a three way switch setting of a dimmer
-        :param value:
+        Set a binary async setting. This is e.g. the muted setting of a siren or the three way switch setting of a dimmer.
+
+        :param value: New state
         """
         self.value = value
         data = {"method": "FIM/invokeOperation",
