@@ -2,6 +2,7 @@ import threading
 from typing import Optional
 
 import requests
+import re
 
 from . import __version__
 from .backend.mprm import Mprm
@@ -230,15 +231,19 @@ class HomeControl(Mprm):
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
 
     def _binary_async_setting(self, uid_info: dict):
-        """ Process the mute setting properties (bas). """
+        """ Process the binary async setting properties (bas). """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
         self._logger.debug(f"Adding binary async setting to {device_uid}.")
-        # As some devices has multiple binary async setting we use the settings UID as key
-        self.devices[device_uid].settings_property[uid_info.get("UID")] = \
-            SettingsProperty(session=self._session,
-                             gateway=self.gateway,
-                             element_uid=uid_info.get("UID"),
-                             value=uid_info.get("properties").get("value"))
+        # As some devices has multiple binary async setting we use the settings UID split after a '#' if available as key
+        settings_property = SettingsProperty(session=self._session,
+                                             gateway=self.gateway,
+                                             element_uid=uid_info.get("UID"),
+                                             value=uid_info.get("properties").get("value"))
+        if self.devices.get(device_uid).deviceModelUID == "devolo.model.Siren":
+            self.devices[device_uid].settings_property["muted"] = settings_property
+        else:
+            self.devices[device_uid].settings_property[camel_case_to_snake_case(uid_info.get("UID").split("#")[-1])] = settings_property
+
 
     def _last_activity(self, uid_info: dict):
         """
@@ -373,6 +378,9 @@ class HomeControl(Mprm):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
 
+
+def camel_case_to_snake_case(expression: str) -> str:
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
     """
