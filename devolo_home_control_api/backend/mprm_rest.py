@@ -82,7 +82,7 @@ class MprmRest:
         return response
 
     def refresh_session(self):
-        """ Refresh curretly running session. Without this call from time to time, especially websockets will terminate. """
+        """ Refresh curretly running session. Without this call from time to time especially websockets will terminate. """
         self._logger.debug("Refreshing session.")
         data = {"method": "FIM/invokeOperation",
                 "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
