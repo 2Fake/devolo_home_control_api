@@ -68,6 +68,14 @@ class HomeControl(Mprm):
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
     @property
+    def blinds_devices(self) -> list:
+        """ Get all blinds devices. """
+        blinds_devices = []
+        [[blinds_devices.append(device) for multi_level_switch_property in device.multi_level_switch_property
+          if multi_level_switch_property.startswith("devolo.Blinds")] for device in self.multi_level_switch_devices]
+        return blinds_devices
+
+    @property
     def multi_level_sensor_devices(self) -> list:
         """ Get all multi level sensor devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_sensor_property")]
