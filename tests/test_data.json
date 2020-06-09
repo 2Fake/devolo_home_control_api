@@ -33,6 +33,21 @@
       "zone_name": "Living Room",
       "zone": "Living Room"
     },
+    "blinds": {
+      "UID": "hdm:ZWave:F6BF9812/10",
+      "batteryLevel": -1,
+      "batteryLow": null,
+      "elementUIDs": [
+        "devolo.Blinds:hdm:ZWave:F6BF9812/10"
+      ],
+      "i2": true,
+      "itemName": "Shutter",
+      "min": 0,
+      "max": 100,
+      "uid": "hdm:ZWave:F6BF9812/10",
+      "value": 50,
+      "zone": "Living Room"
+    },
     "humidity": {
       "UID": "hdm:ZWave:F6BF9812/7",
       "dewpoint": 24,

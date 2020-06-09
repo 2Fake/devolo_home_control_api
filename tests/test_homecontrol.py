@@ -17,6 +17,9 @@ class TestHomeControl:
     def test_binary_switch_devices(self):
         assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
 
+    def test_blinds_devices(self):
+        assert hasattr(self.homecontrol.blinds_devices[0], "multi_level_switch_property")
+
     def test_camel_case_to_snake_case(self):
         assert camel_case_to_snake_case("CamelCase") == "camel_case"
         assert camel_case_to_snake_case("camelCase") == "camel_case"
@@ -28,7 +31,7 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
 
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 8
+        assert len(self.homecontrol.publisher._events) == 9
 
     def test_get_sub_device_uid_from_element_uid(self):
         # TODO: Use test data
@@ -200,7 +203,7 @@ class TestHomeControl:
 
     def test_device_change_remove(self):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
-        del uids[3]
+        del uids[4]
         self.homecontrol.device_change(uids)
         assert self.devices.get("mains").get("uid") not in self.homecontrol.devices.keys()
 
