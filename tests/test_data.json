@@ -13,7 +13,8 @@
       "prodTypeID": "0x0001",
       "status": 25,
       "uid": "hdm:ZWave:F6BF9812/3",
-      "zone_name": "Kitchen"
+      "zone_name": "Kitchen",
+      "zone": "Kitchen"
     },
     "ambiguous_2": {
       "batteryLevel": -1,
@@ -29,7 +30,23 @@
       "prodTypeID": "0x0001",
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/4",
-      "zone_name": "Living Room"
+      "zone_name": "Living Room",
+      "zone": "Living Room"
+    },
+    "blinds": {
+      "UID": "hdm:ZWave:F6BF9812/10",
+      "batteryLevel": -1,
+      "batteryLow": null,
+      "elementUIDs": [
+        "devolo.Blinds:hdm:ZWave:F6BF9812/10"
+      ],
+      "i2": true,
+      "itemName": "Shutter",
+      "min": 0,
+      "max": 100,
+      "uid": "hdm:ZWave:F6BF9812/10",
+      "value": 50,
+      "zone": "Living Room"
     },
     "humidity": {
       "UID": "hdm:ZWave:F6BF9812/7",
@@ -45,7 +62,7 @@
       "status": 2,
       "uid": "hdm:ZWave:F6BF9812/7",
       "value": 75,
-      "zone": 1
+      "zone": "Living Room"
     },
     "mains": {
       "UID": "hdm:ZWave:F6BF9812/2",
@@ -85,7 +102,8 @@
         "sinceTime": 1578558815924,
         "voltage": 237,
         "zone_id": "hz_2",
-        "zone_name": "Office"
+        "zone_name": "Office",
+        "zone": "Office"
       },
       "remote_switch": false,
       "settingUIDs": [
@@ -108,7 +126,8 @@
       "max": 28,
       "uid": "hdm:ZWave:F6BF9812/9",    
       "switch_type": "temperatur",
-      "value": 20
+      "value": 20,
+      "zone": "Living Room"
     },
     "offline": {
       "UID": "hdm:ZWave:F6BF9812/5",
@@ -117,7 +136,8 @@
       "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
       "itemName": "Offline Device",
       "status": 1,
-      "uid": "hdm:ZWave:F6BF9812/5"
+      "uid": "hdm:ZWave:F6BF9812/5",
+      "zone": "Living Room"
     },
     "sensor": {
       "UID": "hdm:ZWave:F6BF9812/6",
@@ -131,7 +151,6 @@
       "prodID": "0x000e",
       "prodTypeID": "0x0002",
       "itemName": "Window",
-      "zone": "Office",
       "elementUIDs": [
         "devolo.BinarySensor:hdm:ZWave:F6BF9812/6",
         "devolo.LastActivity:hdm:ZWave:F6BF9812/6",
@@ -150,12 +169,14 @@
       "batteryLevel": 100,
       "uid": "hdm:ZWave:F6BF9812/6",
       "unit": 0,
-      "value": 100
+      "value": 100,
+      "zone": "Living Room"
     },
     "siren": {
       "UID": "hdm:ZWave:F6BF9812/8",
       "batteryLevel": -1,
       "batteryLow": null,
+      "deviceModelUID": "devolo.model.Siren",
       "elementUIDs": [
 		    "devolo.SirenMultiLevelSwitch:hdm:ZWave:F6BF9812/8",
 		    "devolo.SirenBinarySensor:hdm:ZWave:F6BF9812/8",
@@ -164,9 +185,11 @@
       ],
       "itemName": "Siren",
       "last_activity": 1581419650436,
+      "muted": true,
       "uid": "hdm:ZWave:F6BF9812/8",
       "state": 1,
-      "switch_type": "tone"
+      "switch_type": "tone",
+      "zone": "Living Room"
     }
   },
   "gateway": {

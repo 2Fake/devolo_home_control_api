@@ -18,7 +18,7 @@ class SettingsProperty(Property):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if element_uid.split(".")[0] not in ["cps", "gds", "lis", "mss", "ps", "trs", "vfs"]:
+        if element_uid.split(".")[0] not in ["bas", "cps", "gds", "lis", "mss", "ps", "trs", "vfs"]:
             raise WrongElementError()
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
@@ -26,7 +26,8 @@ class SettingsProperty(Property):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        setter_method = {"gds": self._set_gds,
+        setter_method = {"bas": self._set_bas,
+                         "gds": self._set_gds,
                          "lis": self._set_lis,
                          "mss": self._set_mss,
                          "ps": self._set_ps,
@@ -38,6 +39,17 @@ class SettingsProperty(Property):
         # However, this methods are not working, if the gateway is connected locally, yet.
         self.set = setter_method.get(element_uid.split(".")[0])
 
+
+    def _set_bas(self, value: bool):
+        """
+        Set a binary async setting. This is e.g. the muted setting of a siren or the three way switch setting of a dimmer.
+
+        :param value: New state
+        """
+        self.value = value
+        data = {"method": "FIM/invokeOperation",
+                "params": [self.element_uid, "save", [value]]}
+        self.post(data)
 
     def _set_gds(self, **kwargs: Any):
         """

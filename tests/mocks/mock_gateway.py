@@ -8,7 +8,6 @@ class MockGateway:
         with file.open("r") as fh:
             test_data = json.load(fh)
 
-
         self.id = gateway_id
         self.name = test_data.get("gateway").get("name")
         self.role = test_data.get("gateway").get("role")

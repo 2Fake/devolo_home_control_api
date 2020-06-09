@@ -1,3 +1,4 @@
+import re
 import threading
 from typing import Optional
 
@@ -43,7 +44,8 @@ class HomeControl(Mprm):
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([self.devices.get(device).itemName for device in self.devices],
+        self.device_names = dict(zip([(self.devices.get(device).itemName + "/" + self.devices.get(device).zone)
+                                      for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
 
         self.publisher = Publisher([device for device in self.devices])
@@ -66,13 +68,21 @@ class HomeControl(Mprm):
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "binary_switch_property")]
 
     @property
+    def blinds_devices(self) -> list:
+        """ Get all blinds devices. """
+        blinds_devices = []
+        [[blinds_devices.append(device) for multi_level_switch_property in device.multi_level_switch_property
+          if multi_level_switch_property.startswith("devolo.Blinds")] for device in self.multi_level_switch_devices]
+        return blinds_devices
+
+    @property
     def multi_level_sensor_devices(self) -> list:
         """ Get all multi level sensor devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_sensor_property")]
 
     @property
     def multi_level_switch_devices(self) -> list:
-        """ Get all multi level switch devices. """
+        """ Get all multi level switch devices. This also includes blinds devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_switch_property")]
 
 
@@ -206,6 +216,7 @@ class HomeControl(Mprm):
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
+                    "bas.hdm": self._binary_async,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
@@ -226,6 +237,23 @@ class HomeControl(Mprm):
         for uid_info in self.get_data_from_uid_list(uid_list):
             if uid_info.get("UID") is not None:
                 elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
+
+    def _binary_async(self, uid_info: dict):
+        """ Process binary async setting (bas) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding binary async settings to {device_uid}.")
+        settings_property = SettingsProperty(session=self._session,
+                                             gateway=self.gateway,
+                                             element_uid=uid_info.get("UID"),
+                                             value=uid_info.get("properties").get("value"))
+
+        # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
+        if self.devices.get(device_uid).deviceModelUID == "devolo.model.Siren":
+            self.devices[device_uid].settings_property["muted"] = settings_property
+        # As some devices have multiple binary async settings, we use the settings UID split after a '#' as key
+        else:
+            key = camel_case_to_snake_case(uid_info.get("UID").split("#")[-1])
+            self.devices[device_uid].settings_property[key] = settings_property
 
     def _last_activity(self, uid_info: dict):
         """
@@ -359,6 +387,16 @@ class HomeControl(Mprm):
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
+
+
+def camel_case_to_snake_case(expression: str) -> str:
+    """
+    Turn CamelCaseStrings to snake_case_strings. This is used where the original Java names should by more pythonic.
+
+    :param: expression: Expression, that should be converted to snake case
+    :return: Expression in snake case
+    """
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
