@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Searching for devices now also works, if multiple devices have the same name.
+- Websocket messages in unexpected format are handled gracefully.
 
 ## [v0.11.0] - 2020/05/26
 
