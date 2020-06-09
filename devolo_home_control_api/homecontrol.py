@@ -77,7 +77,7 @@ class HomeControl(Mprm):
 
     @property
     def multi_level_sensor_devices(self) -> list:
-        """ Get all multi level sensor devices. """
+        """ Get all multi level sensor devices. This also includes blinds devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_sensor_property")]
 
     @property
