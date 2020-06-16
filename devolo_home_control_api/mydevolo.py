@@ -67,7 +67,10 @@ class Mydevolo:
 
 
     def credentials_valid(self) -> bool:
-        """ Check if current credentials are valid. """
+        """
+        Check if current credentials are valid. This is done by trying to get the UUID. If that fails, credentials must be
+        wrong. If it succeeds, we can reuse the UUID for later usages.
+        """
         try:
             self.uuid()
             return True
@@ -75,7 +78,9 @@ class Mydevolo:
             return False
 
     def get_gateway_ids(self) -> list:
-        """ Get all gateway IDs. """
+        """
+        Get all gateway IDs attached to current account.
+        """
         if not self._gateway_ids:
             self._logger.debug("Getting list of gateways")
             items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status").get("items")
@@ -83,8 +88,8 @@ class Mydevolo:
                 self._gateway_ids.append(gateway.get("gatewayId"))
                 self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
             if len(self._gateway_ids) == 0:
-                self._logger.error("Could not get gateway list. No Gateway attached to account?")
-                raise IndexError("No gateways")
+                self._logger.error("Could not get gateway list. No gateway attached to account?")
+                raise IndexError("No gateways found.")
         return self._gateway_ids
 
     def get_gateway(self, gateway_id: str) -> dict:
@@ -145,7 +150,9 @@ class Mydevolo:
         return device_info
 
     def maintenance(self) -> bool:
-        """ If devolo Home Control is in maintenance, there is not much we can do via cloud. """
+        """
+        If devolo Home Control is in maintenance, there is not much we can do via cloud.
+        """
         state = self._call(f"{self.url}/v1/hc/maintenance").get("state")
         if state == "on":
             return False
@@ -154,7 +161,9 @@ class Mydevolo:
             return True
 
     def uuid(self) -> str:
-        """ The uuid is a central attribute in my devolo. Most URLs in the user's context contain it. """
+        """
+        The uuid is a central attribute in my devolo. Most URLs in the user's context contain it.
+        """
         if self._uuid is None:
             self._logger.debug("Getting UUID")
             self._uuid = self._call(f"{self.url}/v1/users/uuid").get("uuid")
@@ -176,6 +185,8 @@ class Mydevolo:
         if responds.status_code == requests.codes.not_found:
             raise WrongUrlError(f"Wrong URL: {url}")
         if responds.status_code == requests.codes.service_unavailable:
+            # mydevolo sends a 503, if the gateway is offline
             self._logger.error("The requested gateway seems to be offline.")
             raise GatewayOfflineError("Gateway offline.")
+
         return responds.json()

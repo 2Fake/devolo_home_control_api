@@ -62,7 +62,8 @@ class MprmRest:
 
     def post(self, data: dict) -> dict:
         """
-        Communicate with the RPC interface.
+        Communicate with the RPC interface. If the call times out, it is assumed that the gateway is offline and the state is
+        changed accordingly.
 
         :param data: Data to be send
         :return: Response to the data
@@ -80,12 +81,15 @@ class MprmRest:
             self.gateway.update_state(False)
             raise GatewayOfflineError("Gateway is offline.") from None
         if response['id'] != data['id']:
-            self._logger.error("Got an unexpected response after posting data.", exc_info=True)
+            self._logger.error("Got an unexpected response after posting data.")
+            self._logger.debug(f"Message had ID {data['id']}, response had ID {response['id']}.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
 
     def refresh_session(self):
-        """ Refresh currently running session. Without this call from time to time especially websockets will terminate. """
+        """
+        Refresh currently running session. Without this call from time to time especially websockets will terminate.
+        """
         self._logger.debug("Refreshing session.")
         data = {"method": "FIM/invokeOperation",
                 "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}

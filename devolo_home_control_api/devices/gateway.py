@@ -6,7 +6,7 @@ from ..mydevolo import Mydevolo
 class Gateway:
     """
     Representing object for devolo Home Control Central Units. As it is a gateway from the IP world to the Z-Wave
-    world, we call it that way.
+    world, we call it that way. Nearly all attributes are delivered by my devolo.
 
     :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
     """
@@ -23,12 +23,15 @@ class Gateway:
         self.full_url = self._mydevolo.get_full_url(self.id)
         self.local_user = self._mydevolo.uuid()
         self.local_passkey = details.get("localPasskey")
-        self.local_connection = False
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
-        self.online = None
-        self.sync = None
+        # Let's assume the gateway is connected remotely. Will be corrected as soon as a real connection is estabished.
+        self.local_connection = False
+
+        # Let's assume the gateway is offline. Will be corrected the twinkling of an eye.
+        self.online = False
+        self.sync = False
 
         self._update_state(status=details.get("status"), state=details.get("state"))
 

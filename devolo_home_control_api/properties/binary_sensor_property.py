@@ -26,7 +26,7 @@ class BinarySensorProperty(SensorProperty):
 
         self.state = kwargs.get("state")
 
-        # Set last activity to 1.1.1970 as a default value
+        # Set last activity to 1.1.1970. Will be corrected by BinarySensorProperty.last_activity.
         self._last_activity = datetime.fromtimestamp(0)
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)

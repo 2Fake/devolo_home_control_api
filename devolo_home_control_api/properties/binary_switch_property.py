@@ -36,4 +36,4 @@ class BinarySwitchProperty(Property):
             self.state = state
             self._logger.debug(f"Binary switch property {self.element_uid} set to {state}")
         else:
-            self._logger.debug(f"Something went wrong. Response to set command:\n{response}", exc_info=True)
+            self._logger.debug(f"Something went wrong. Response to set command:\n{response}")

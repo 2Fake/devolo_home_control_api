@@ -54,11 +54,15 @@ class MprmWebsocket(MprmRest):
         while not self._connected and time.time() < start_time + 600:
             time.sleep(0.1)
         if not self._connected:
-            self._logger.debug("Websocket could not be established", exc_info=True)
+            self._logger.debug("Websocket could not be established")
             raise GatewayOfflineError("Websocket could not be established.")
 
     def websocket_connect(self):
-        """ Set up the websocket connection. """
+        """
+        Set up the websocket connection. The procotol type of the known session URL is exchanged depending on whether TLS is
+        used or not. After establishing the websocket, a ping is sent every 30 seconds to keep the connection alive. If there
+        is no response within 5 seconds, the connection is terminated with error state.
+        """
         ws_url = self._session.url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
@@ -75,7 +79,9 @@ class MprmWebsocket(MprmRest):
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
-        """ Close the websocket connection. """
+        """
+        Close the websocket connection.
+        """
         self._logger.info("Closing web socket connection.")
         if event != "":
             self._logger.info(f"Reason: {event}")

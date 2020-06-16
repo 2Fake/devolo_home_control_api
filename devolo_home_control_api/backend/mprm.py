@@ -18,6 +18,7 @@ class Mprm(MprmWebsocket):
 
     def __init__(self):
         super().__init__()
+
         self._token_url = {}
 
         self.detect_gateway_in_lan()
@@ -25,7 +26,10 @@ class Mprm(MprmWebsocket):
 
 
     def create_connection(self):
-        """ Create session, either locally or via cloud. """
+        """
+        Create session, either locally or remotely via cloud. The remote case has two conditions, that both need to be
+        fulfilled: Remote access must be allowed and my devolo must not be in maintenance mode.
+        """
         if self._local_ip:
             self.gateway.local_connection = True
             self.get_local_session()
@@ -36,10 +40,14 @@ class Mprm(MprmWebsocket):
             raise ConnectionError("Cannot connect to gateway.")
 
     def detect_gateway_in_lan(self):
-        """ Detects a gateway in local network and check if it is the desired one. """
+        """
+        Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
+        to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
+        remote connection is needed.
+        """
         zeroconf = Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
-        self._logger.info("Searching for gateway in LAN")
+        self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
         while not time.time() > start_time + 3 and self._local_ip is None:
             for mdns_name in zeroconf.cache.entries():
@@ -51,28 +59,37 @@ class Mprm(MprmWebsocket):
         return self._local_ip
 
     def get_local_session(self):
-        """ Connect to the gateway locally. """
-        self._logger.info("Connecting to gateway locally")
+        """
+        Connect to the gateway locally. Calling a special portal URL on the gateway returns a secord URL with a token. Calling
+        that URL estabishes the connection.
+        """
+        self._logger.info("Connecting to gateway locally.")
         self._session.url = "http://" + self._local_ip
-        self._logger.debug(f"URL set to 'http://{self._local_ip}'")
+        self._logger.debug(f"Session URL set to 'http://{self._local_ip}'")
         try:
             self._token_url = self._session.get(self._session.url + "/dhlp/portal/full",
                                                 auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
             self._logger.debug(f"Got a token URL: {self._token_url}")
         except JSONDecodeError:
-            self._logger.error("Could not connect to the gateway locally.", exc_info=True)
-            raise GatewayOfflineError("Could not connect to the gateway locally.") from None
+            self._logger.error("Could not connect to the gateway locally.")
+            self._logger.debug(sys.exc_info())
+            raise GatewayOfflineError("Gateway is offline.") from None
         except requests.ConnectTimeout:
-            self._logger.error("Timeout during connecting to the gateway.", exc_info=True)
+            self._logger.error("Timeout during connecting to the gateway.")
+            self._logger.debug(sys.exc_info())
             raise
         self._session.get(self._token_url.get('link'))
 
     def get_remote_session(self):
-        """ Connect to the gateway remotely. """
-        self._logger.info("Connecting to gateway via cloud")
+        """
+        Connect to the gateway remotely. Calling the known portal URL is enought in this case.
+        """
+        self._logger.info("Connecting to gateway via cloud.")
         try:
             self._session.get(self.gateway.full_url, timeout=15)
         except JSONDecodeError:
+            self._logger.error("Could not connect to the gateway remotely.")
+            self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
 
 
@@ -82,7 +99,7 @@ class Mprm(MprmWebsocket):
             zeroconf.get_service_info(service_type, name)
 
     def _try_local_connection(self, mdns_name: DNSRecord):
-        """ Try to connect to an MDNS hostname. If connection was successful, save local IP. """
+        """ Try to connect to an mDNS hostname. If connection was successful, save local IP address. """
         try:
             ip = socket.inet_ntoa(mdns_name.address)
             if mdns_name.key.startswith("devolo-homecontrol") and \
