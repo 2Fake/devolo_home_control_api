@@ -26,6 +26,7 @@ class BinarySensorProperty(SensorProperty):
 
         self.state = kwargs.get("state")
 
+        # Set last activity to 1.1.1970 as a default value
         self._last_activity = datetime.fromtimestamp(0)
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
@@ -41,3 +42,4 @@ class BinarySensorProperty(SensorProperty):
         """ Convert a timestamp in millisecond to a datetime object. """
         if timestamp != -1:
             self._last_activity = datetime.fromtimestamp(timestamp / 1000)
+            self._logger.debug(f"self.last_acitivity of element_uid {self.element_uid} set to {self._last_activity}.")

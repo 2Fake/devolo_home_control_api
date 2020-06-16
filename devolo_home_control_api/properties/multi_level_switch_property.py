@@ -56,3 +56,6 @@ class MultiLevelSwitchProperty(Property):
         response = self.post(data)
         if response.get("result").get("status") == 1:
             self.value = value
+            self._logger.debug(f"Multi level switch property {self.element_uid} set to {value}")
+        else:
+            self._logger.warning(f"Something went wrong. Response to set command:\n{response}", exc_info=True)

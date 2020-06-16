@@ -51,3 +51,4 @@ class MultiLevelSensorProperty(SensorProperty):
             self._unit = units[self.sensor_type].get(unit, unit)
         else:
             self._unit = unit
+        self._logger.debug(f"Unit of {self.element_uid} set to '{self._unit}'.")

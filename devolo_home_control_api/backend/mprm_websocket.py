@@ -52,8 +52,10 @@ class MprmWebsocket(MprmRest):
         """
         start_time = time.time()
         while not self._connected and time.time() < start_time + 600:
+            self._logger.debug("Waiting for websocket establishment")
             time.sleep(0.1)
         if not self._connected:
+            self._logger.debug("Websocket could not be established", exc_info=True)
             raise GatewayOfflineError("Websocket could not be established.")
 
     def websocket_connect(self):
@@ -103,13 +105,15 @@ class MprmWebsocket(MprmRest):
     def _on_message(self, message: str):
         """ Callback method to react on a message. """
         message = json.loads(message)
-
+        self._logger.debug(f"Got message from websocket:\n{message}")
         event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:
-            self._logger.warning("We missed a websocket message.")
-            self._event_sequence = event_sequence
+            self._logger.warning(f"We missed a websocket message. Internal event_sequence is at {self._event_sequence}. "
+                                 f"Event sequence by websocket is at {event_sequence}")
+            self._event_sequence = event_sequence + 1
+            self._logger.debug(f"self._event_sequence is set to {self._event_sequence}")
 
         self.on_update(message)
 

@@ -123,7 +123,6 @@ class Mydevolo:
         :return: All known product information.
         """
         self._logger.debug(f"Getting information for {manufacturer}/{product_type}/{product}")
-        device_info = {}
         try:
             device_info = self._call(f"{self.url}/v1/zwave/products/{manufacturer}/{product_type}/{product}")
         except WrongUrlError:

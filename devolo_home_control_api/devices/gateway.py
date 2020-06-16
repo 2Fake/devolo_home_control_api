@@ -27,6 +27,9 @@ class Gateway:
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
+        self.online = None
+        self.sync = None
+
         self._update_state(status=details.get("status"), state=details.get("state"))
 
 
