@@ -52,7 +52,6 @@ class MprmWebsocket(MprmRest):
         """
         start_time = time.time()
         while not self._connected and time.time() < start_time + 600:
-            self._logger.debug("Waiting for websocket establishment")
             time.sleep(0.1)
         if not self._connected:
             self._logger.debug("Websocket could not be established", exc_info=True)
