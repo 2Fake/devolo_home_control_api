@@ -12,9 +12,9 @@ class Zwave:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
 
-        self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
         for key, value in kwargs.items():
             setattr(self, key, value)
+        self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
 
         # Initialize additional Z-Wave information. Will be filled by Zwave.get_zwave_info, if available.
         z_wave_info_list = ["href", "manufacturer", "productTypeId", "productId", "name", "brand", "identifier", "isZWavePlus",
