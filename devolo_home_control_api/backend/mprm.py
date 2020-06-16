@@ -18,7 +18,7 @@ class Mprm(MprmWebsocket):
 
     def __init__(self):
         super().__init__()
-        self._token_url = None
+        self._token_url = {}
 
         self.detect_gateway_in_lan()
         self.create_connection()
