@@ -61,8 +61,8 @@ class Mprm(MprmWebsocket):
 
     def get_local_session(self):
         """
-        Connect to the gateway locally. Calling a special portal URL on the gateway returns a secord URL with a token. Calling
-        that URL estabishes the connection.
+        Connect to the gateway locally. Calling a special portal URL on the gateway returns a second URL with a token. Calling
+        that URL establishes the connection.
         """
         self._logger.info("Connecting to gateway locally.")
         self._session.url = "http://" + self._local_ip
