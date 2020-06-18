@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 
 from requests import ReadTimeout
 
@@ -77,7 +78,8 @@ class MprmRest:
                                           headers={"content-type": "application/json"},
                                           timeout=30).json()
         except ReadTimeout:
-            self._logger.error("Gateway is offline.", exc_info=True)
+            self._logger.error("Gateway is offline.")
+            self._logger.debug(sys.exc_info())
             self.gateway.update_state(False)
             raise GatewayOfflineError("Gateway is offline.") from None
         if response['id'] != data['id']:
