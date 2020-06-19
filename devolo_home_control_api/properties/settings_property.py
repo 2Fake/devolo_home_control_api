@@ -39,6 +39,12 @@ class SettingsProperty(Property):
         # However, this methods are not working, if the gateway is connected locally, yet.
         self.set = setter_method.get(element_uid.split(".")[0])
 
+        # Clean up as we have attributes which are doubled
+        clean_up_list = ["setting_uid"]
+        for attribute in clean_up_list:
+            if hasattr(self, attribute):
+                delattr(self, attribute)
+
 
     def _set_bas(self, value: bool):
         """
