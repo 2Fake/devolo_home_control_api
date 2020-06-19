@@ -34,3 +34,6 @@ class BinarySwitchProperty(Property):
         response = self.post(data)
         if response.get("result").get("status") == 1:
             self.state = state
+            self._logger.debug(f"Binary switch property {self.element_uid} set to {state}")
+        else:
+            self._logger.debug(f"Something went wrong. Response to set command:\n{response}")

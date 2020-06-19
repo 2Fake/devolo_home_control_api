@@ -10,19 +10,19 @@ class Zwave:
 
     def __init__(self, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
+        self._mydevolo = Mydevolo.get_instance()
 
         for key, value in kwargs.items():
             setattr(self, key, value)
+        self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
 
-        self.mydevolo = Mydevolo.get_instance()
-
+        # Initialize additional Z-Wave information. Will be filled by Zwave.get_zwave_info, if available.
         z_wave_info_list = ["href", "manufacturer", "productTypeId", "productId", "name", "brand", "identifier", "isZWavePlus",
                             "deviceType", "zwaveVersion", "specificDeviceClass", "genericDeviceClass"]
         for key in z_wave_info_list:
             setattr(self, key, None)
 
-        self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
-
+        # Remove battery properties, if device is mains powered.
         if self.batteryLevel == -1:
             delattr(self, "batteryLevel")
             delattr(self, "batteryLow")
@@ -39,11 +39,14 @@ class Zwave:
         return [*getattr(self, f"{name}_property").values()]
 
     def get_zwave_info(self):
-        """ Get publicly available information like manufacturer or model. """
+        """
+        Get publicly available information like manufacturer or model from my devolo. For a complete list, please look at
+        Zwave.__init__.
+        """
         self._logger.debug(f"Getting Z-Wave information for {self.uid}")
-        dict = self.mydevolo.get_zwave_products(manufacturer=self.manID,
-                                                product_type=self.prodTypeID,
-                                                product=self.prodID)
+        dict = self._mydevolo.get_zwave_products(manufacturer=self.manID,
+                                                 product_type=self.prodTypeID,
+                                                 product=self.prodID)
         for key, value in dict.items():
             setattr(self, key, value)
 

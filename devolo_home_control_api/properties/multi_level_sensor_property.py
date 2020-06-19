@@ -26,7 +26,7 @@ class MultiLevelSensorProperty(SensorProperty):
                                        "devolo.VoltageMultiLevelSensor:")):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
 
-        self._unit = None
+        self._unit = ""
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
 
@@ -48,6 +48,7 @@ class MultiLevelSensorProperty(SensorProperty):
                  "voltage": {0: "V"}
                  }
         if units.get(self.sensor_type) is not None:
-            self._unit = units[self.sensor_type].get(unit, unit)
+            self._unit = units[self.sensor_type].get(unit, str(unit))
         else:
-            self._unit = unit
+            self._unit = str(unit)
+        self._logger.debug(f"Unit of {self.element_uid} set to '{self._unit}'.")
