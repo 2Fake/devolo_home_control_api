@@ -77,7 +77,7 @@ class Updater:
         :param value: True for on, False for off
         """
         if element_uid.split(".")[-2] == "smartGroup":
-            # We ignore if a group is switched. We get the information separatly for every device.
+            # We ignore if a group is switched. We get the information separately for every device.
             return
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value

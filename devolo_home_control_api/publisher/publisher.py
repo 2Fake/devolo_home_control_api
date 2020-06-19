@@ -1,4 +1,6 @@
 from typing import Callable
+import logging
+
 
 
 class Publisher:
@@ -7,6 +9,7 @@ class Publisher:
     """
 
     def __init__(self, events: list):
+        self._logger = logging.getLogger(self.__class__.__name__)
         self._events = {event: dict() for event in events}
 
 
@@ -25,10 +28,12 @@ class Publisher:
         if callback is None:
             callback = getattr(who, 'update')
         self._get_subscribers_for_specific_event(event)[who] = callback
+        self._logger.debug(f"Subscriber registered for event {event}")
 
     def unregister(self, event: str, who: object):
         """ Remove a subscriber for a specific event. """
         del self._get_subscribers_for_specific_event(event)[who]
+        self._logger.debug(f"Subscriber deleted for event {event}")
 
 
     def _get_subscribers_for_specific_event(self, event: str):

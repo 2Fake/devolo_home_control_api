@@ -45,7 +45,7 @@ class TestMprmWebsocket:
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 5}}'
         self.mprm._on_message(message)
         assert event_sequence != self.mprm._event_sequence
-        assert self.mprm._event_sequence == 5
+        assert self.mprm._event_sequence == 6
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocket_connection")
