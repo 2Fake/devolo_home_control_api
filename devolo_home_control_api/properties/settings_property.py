@@ -9,7 +9,7 @@ from .property import Property
 
 class SettingsProperty(Property):
     """
-    Object for settings. Basically, everything can be stored in here as long as there is a corrisponding functional item on
+    Object for settings. Basically, everything can be stored in here as long as there is a corresponding functional item on
     the gateway. This is to be as flexible to gateway firmware changes as possible. So if new attributes appear or old ones
     are removed, they should be handled at least in reading them. Nevertheless, a few unwanted attributes are filtered.
 
