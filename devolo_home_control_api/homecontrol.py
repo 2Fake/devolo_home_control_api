@@ -82,7 +82,7 @@ class HomeControl(Mprm):
 
     @property
     def multi_level_switch_devices(self) -> list:
-        """ Get all multi level switch devices. This includes blinds devices. """
+        """ Get all multi level switch devices. This also includes blinds devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_switch_property")]
 
 
