@@ -187,16 +187,6 @@ class TestUpdater:
                                                            "data": 0}}})
         assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
-    def test__dewpoint(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        dewpoint_sensor_property = self.homecontrol.devices.get(uid).dewpoint_sensor_property
-        value_before = dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
-        self.homecontrol.updater._dewpoint({"properties": {
-                                            "uid": f"devolo.DewpointSensor:{uid}",
-                                            "property.value.new": 18}})
-        assert value_before != dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
-        assert dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value == 18
-
     def test__gateway_accessible(self):
         self.homecontrol.gateway.online = True
         self.homecontrol.gateway.sync = True
@@ -260,16 +250,6 @@ class TestUpdater:
         # Check if current value has not changed
         assert self.homecontrol.devices.get(uid).consumption_property \
             .get(f"devolo.Meter:{uid}").current == current_new
-
-    def test__mildew(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        mildew_sensor_property = self.homecontrol.devices.get(uid).mildew_sensor_property
-        state_before = mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-        self.homecontrol.updater._mildew({"properties": {
-                                          "uid": f"devolo.MildewSensor:{uid}",
-                                          "property.value.new": True}})
-        assert state_before != mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-        assert mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
 
     def test__multi_level_sensor(self):
         uid = self.devices.get("sensor").get("uid")
