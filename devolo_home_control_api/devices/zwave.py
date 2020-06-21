@@ -5,7 +5,9 @@ from ..mydevolo import Mydevolo
 
 class Zwave:
     """
-    Representing object for Z-Wave devices.
+    Representing object for Z-Wave devices. Basically, everything can be stored in here. This is to be as flexible to gateway
+    firmware changes as possible. So if new attributes appear or old ones are removed, they should be handled at least in
+    reading them. Nevertheless, a few unwanted attributes are filtered.
     """
 
     def __init__(self, **kwargs):
@@ -17,8 +19,8 @@ class Zwave:
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
 
         # Initialize additional Z-Wave information. Will be filled by Zwave.get_zwave_info, if available.
-        z_wave_info_list = ["href", "manufacturer", "productTypeId", "productId", "name", "brand", "identifier", "isZWavePlus",
-                            "deviceType", "zwaveVersion", "specificDeviceClass", "genericDeviceClass"]
+        z_wave_info_list = ["href", "manufacturerId", "productTypeId", "productId", "name", "brand", "identifier",
+                            "isZWavePlus", "deviceType", "zwaveVersion", "specificDeviceClass", "genericDeviceClass"]
         for key in z_wave_info_list:
             setattr(self, key, None)
 
@@ -49,6 +51,12 @@ class Zwave:
                                                  product=self.prodID)
         for key, value in dict.items():
             setattr(self, key, value)
+
+        # Clean up attributes which are now unwanted.
+        clean_up_list = ["manID", "prodID", "prodTypeID"]
+        for attribute in clean_up_list:
+            if hasattr(self, attribute):
+                delattr(self, attribute)
 
     def is_online(self) -> bool:
         """
