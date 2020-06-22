@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 
 from ..devices.gateway import Gateway
-from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
+from ..helper.uid import get_device_type_from_element_uid, get_device_uid_from_element_uid
 from .publisher import Publisher
 
 

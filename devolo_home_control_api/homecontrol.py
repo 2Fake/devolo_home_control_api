@@ -1,15 +1,15 @@
-import re
 import threading
-from typing import Optional
 
 import requests
 
 from . import __version__
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
-from .devices.zwave import (Zwave, get_device_type_from_element_uid,
-                            get_device_uid_from_element_uid,
-                            get_device_uid_from_setting_uid)
+from .devices.zwave import Zwave
+from .helper.string import camel_case_to_snake_case
+from .helper.uid import (get_device_type_from_element_uid,
+                         get_device_uid_from_element_uid,
+                         get_device_uid_from_setting_uid)
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
@@ -359,23 +359,3 @@ class HomeControl(Mprm):
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
-
-
-def camel_case_to_snake_case(expression: str) -> str:
-    """
-    Turn CamelCaseStrings to snake_case_strings. This is used where the original Java names should by more pythonic.
-
-    :param: expression: Expression, that should be converted to snake case
-    :return: Expression in snake case
-    """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
-
-
-def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
-    """
-    Return the sub device uid of the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Sub device UID, something like 2
-    """
-    return None if "#" not in element_uid else int(element_uid.split("#")[-1])

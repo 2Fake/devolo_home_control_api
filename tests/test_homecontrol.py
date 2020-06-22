@@ -2,8 +2,6 @@ from datetime import datetime
 
 import pytest
 
-from devolo_home_control_api.homecontrol import camel_case_to_snake_case, get_sub_device_uid_from_element_uid
-
 
 @pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
 @pytest.mark.usefixtures("home_control_instance")
@@ -20,10 +18,6 @@ class TestHomeControl:
     def test_blinds_devices(self):
         assert hasattr(self.homecontrol.blinds_devices[0], "multi_level_switch_property")
 
-    def test_camel_case_to_snake_case(self):
-        assert camel_case_to_snake_case("CamelCase") == "camel_case"
-        assert camel_case_to_snake_case("camelCase") == "camel_case"
-
     def test_multi_level_sensor_devices(self):
         assert hasattr(self.homecontrol.multi_level_sensor_devices[0], "multi_level_sensor_property")
 
@@ -32,11 +26,6 @@ class TestHomeControl:
 
     def test_get_publisher(self):
         assert len(self.homecontrol.publisher._events) == 9
-
-    def test_get_sub_device_uid_from_element_uid(self):
-        # TODO: Use test data
-        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
-        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
 
     def test__binary_async_siren(self):
         device = self.devices.get("siren").get("uid")
