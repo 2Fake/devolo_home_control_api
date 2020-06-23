@@ -55,8 +55,7 @@ class Zwave:
             setattr(self, camel_case_to_snake_case(key), value)
 
         # Clean up attributes which are now unwanted.
-        clean_up_list = ["is_z_wave_plus", "manID", "prodID", "prodTypeID"]
-        self.is_zwave_plus = self.is_z_wave_plus
+        clean_up_list = ["manID", "prodID", "prodTypeID"]
         for attribute in clean_up_list:
             if hasattr(self, attribute):
                 delattr(self, attribute)

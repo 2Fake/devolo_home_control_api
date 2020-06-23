@@ -14,4 +14,5 @@ def camel_case_to_snake_case(expression: str) -> str:
     :param: expression: Expression, that should be converted to snake case
     :return: Expression in snake case
     """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
+    # return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
+    return re.sub("([a-z])([A-Z]+)", r"\1_\2", expression).lower()
