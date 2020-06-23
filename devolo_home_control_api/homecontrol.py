@@ -1,21 +1,19 @@
-import re
 import threading
-from typing import Optional
 
 import requests
 
 from . import __version__
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
-from .devices.zwave import (Zwave, get_device_type_from_element_uid,
-                            get_device_uid_from_element_uid,
-                            get_device_uid_from_setting_uid)
+from .devices.zwave import Zwave
+from .helper.string import camel_case_to_snake_case
+from .helper.uid import (get_device_type_from_element_uid,
+                         get_device_uid_from_element_uid,
+                         get_device_uid_from_setting_uid)
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
-from .properties.dewpoint_sensor_property import DewpointSensorProperty
 from .properties.humidity_bar_property import HumidityBarProperty
-from .properties.mildew_sensor_property import MildewSensorProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.multi_level_switch_property import MultiLevelSwitchProperty
 from .properties.settings_property import SettingsProperty
@@ -140,19 +138,6 @@ class HomeControl(Mprm):
                                  element_uid=uid_info.get("UID"),
                                  state=bool(uid_info.get("properties").get("state")))
 
-    def _dewpoint(self, uid_info: dict):
-        """ Process dewpoint sensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "dewpoint_sensor_property"):
-            self.devices[device_uid].dewpoint_sensor_property = {}
-        self._logger.debug(f"Adding dewpoint sensor property to {device_uid}.")
-        self.devices[device_uid].dewpoint_sensor_property[uid_info.get("UID")] = \
-            DewpointSensorProperty(session=self._session,
-                                   gateway=self.gateway,
-                                   element_uid=uid_info.get("UID"),
-                                   value=uid_info.get("properties").get("value"),
-                                   sensor_type=uid_info.get("properties").get("sensorType"))
-
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
@@ -203,13 +188,13 @@ class HomeControl(Mprm):
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
                     "devolo.Blinds": self._multi_level_switch,
-                    "devolo.DewpointSensor": self._dewpoint,
+                    "devolo.DewpointSensor": self._multi_level_sensor,
                     "devolo.Dimmer": self._multi_level_switch,
                     "devolo.HumidityBarValue": self._humidity_bar,
                     "devolo.HumidityBarZone": self._humidity_bar,
                     "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
-                    "devolo.MildewSensor": self._mildew,
+                    "devolo.MildewSensor": self._binary_sensor,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
                     "devolo.SirenBinarySensor": self._binary_sensor,
@@ -299,19 +284,6 @@ class HomeControl(Mprm):
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
 
-    def _mildew(self, uid_info: dict):
-        """ Process mildew sensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "mildew_sensor_property"):
-            self.devices[device_uid].mildew_sensor_property = {}
-        self._logger.debug(f"Adding mildew sensor property to {device_uid}.")
-        self.devices[device_uid].mildew_sensor_property[uid_info.get("UID")] = \
-            MildewSensorProperty(session=self._session,
-                                 gateway=self.gateway,
-                                 element_uid=uid_info.get("UID"),
-                                 state=bool(uid_info.get("properties").get("state")),
-                                 sensor_type=uid_info.get("properties").get("sensorType"))
-
     def _motion_sensitivity(self, uid_info: dict):
         """ Process motion sensitivity setting (mss) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
@@ -387,23 +359,3 @@ class HomeControl(Mprm):
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
-
-
-def camel_case_to_snake_case(expression: str) -> str:
-    """
-    Turn CamelCaseStrings to snake_case_strings. This is used where the original Java names should by more pythonic.
-
-    :param: expression: Expression, that should be converted to snake case
-    :return: Expression in snake case
-    """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
-
-
-def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
-    """
-    Return the sub device uid of the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Sub device UID, something like 2
-    """
-    return None if "#" not in element_uid else int(element_uid.split("#")[-1])

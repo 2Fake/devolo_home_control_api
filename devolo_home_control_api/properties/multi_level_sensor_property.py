@@ -21,7 +21,8 @@ class MultiLevelSensorProperty(SensorProperty):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if not element_uid.startswith(("devolo.MultiLevelSensor:",
+        if not element_uid.startswith(("devolo.DewpointSensor:",
+                                       "devolo.MultiLevelSensor:",
                                        "devolo.SirenMultiLevelSensor:",
                                        "devolo.VoltageMultiLevelSensor:")):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
@@ -42,7 +43,8 @@ class MultiLevelSensorProperty(SensorProperty):
     @unit.setter
     def unit(self, unit: int):
         """ Make the numeric unit human readable, if known. """
-        units = {"humidity": {0: "%"},
+        units = {"dewpoint": {0: "°C"},
+                 "humidity": {0: "%"},
                  "light": {0: "%", 1: "lx"},
                  "temperature": {0: "°C"},
                  "Seismic Intensity": {0: ""},

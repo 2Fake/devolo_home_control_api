@@ -1,11 +1,15 @@
 import logging
 
+from ..helper.string import camel_case_to_snake_case
+from ..helper.uid import get_device_uid_from_element_uid
 from ..mydevolo import Mydevolo
 
 
 class Zwave:
     """
-    Representing object for Z-Wave devices.
+    Representing object for Z-Wave devices. Basically, everything can be stored in here. This is to be as flexible to gateway
+    firmware changes as possible. So if new attributes appear or old ones are removed, they should be handled at least in
+    reading them. Nevertheless, a few unwanted attributes are filtered.
     """
 
     def __init__(self, **kwargs):
@@ -17,8 +21,8 @@ class Zwave:
         self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
 
         # Initialize additional Z-Wave information. Will be filled by Zwave.get_zwave_info, if available.
-        z_wave_info_list = ["href", "manufacturer", "productTypeId", "productId", "name", "brand", "identifier", "isZWavePlus",
-                            "deviceType", "zwaveVersion", "specificDeviceClass", "genericDeviceClass"]
+        z_wave_info_list = ["href", "manufacturer_id", "product_type_id", "product_id", "name", "brand", "identifier",
+                            "is_zwave_plus", "device_type", "zwave_version", "specific_device_class", "generic_device_class"]
         for key in z_wave_info_list:
             setattr(self, key, None)
 
@@ -48,7 +52,14 @@ class Zwave:
                                                  product_type=self.prodTypeID,
                                                  product=self.prodID)
         for key, value in dict.items():
-            setattr(self, key, value)
+            setattr(self, camel_case_to_snake_case(key), value)
+
+        # Clean up attributes which are now unwanted.
+        clean_up_list = ["is_z_wave_plus", "manID", "prodID", "prodTypeID"]
+        self.is_zwave_plus = self.is_z_wave_plus
+        for attribute in clean_up_list:
+            if hasattr(self, attribute):
+                delattr(self, attribute)
 
     def is_online(self) -> bool:
         """
@@ -58,39 +69,3 @@ class Zwave:
         :return: False, if device is offline, else True
         """
         return False if self.status == 1 else True
-
-
-def get_device_type_from_element_uid(element_uid: str) -> str:
-    """
-    Return the device type of the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Device type, something like devolo.MultiLevelSensor
-    """
-    return element_uid.split(":")[0]
-
-
-def get_device_uid_from_setting_uid(setting_uid: str) -> str:
-    """
-    Return the device uid of the given setting UID.
-
-    :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
-    :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
-    """
-    setting_uid = setting_uid.split(".", 1)[-1].split("#")[0]
-    if setting_uid.endswith("secure"):
-        return setting_uid.rsplit(":", 1)[0]
-    return setting_uid
-
-
-def get_device_uid_from_element_uid(element_uid: str) -> str:
-    """
-    Return device UID from the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Device UID, something like hdm:ZWave:CBC56091/24
-    """
-    element_uid = element_uid.split(":", 1)[1].split("#")[0]
-    if element_uid.endswith("secure"):
-        return element_uid.rsplit(":", 1)[0]
-    return element_uid
