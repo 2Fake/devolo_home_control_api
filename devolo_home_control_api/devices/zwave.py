@@ -55,7 +55,7 @@ class Zwave:
             setattr(self, camel_case_to_snake_case(key), value)
 
         # Clean up attributes which are now unwanted.
-        clean_up_list = ["man_id", "prod_id", "prod_type_id"]
+        clean_up_list = ["man_id", "prod_id", "prod_type_id", "statistics_uid", "wrong_device_paired"]
         for attribute in clean_up_list:
             if hasattr(self, attribute):
                 delattr(self, attribute)
