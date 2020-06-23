@@ -38,8 +38,7 @@ class TestZwave:
     def test_battery_level(self, mydevolo):
         # TODO: Use battery driven device
         device = Zwave(**self.devices.get("ambiguous_1"))
-
-        assert device.batteryLevel == 55
+        assert device.battery_level == 55
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_device_online_state_state(self, mydevolo):
