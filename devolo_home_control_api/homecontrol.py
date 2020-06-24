@@ -273,16 +273,17 @@ class HomeControl(Mprm):
     def _meter(self, uid_info: dict):
         """ Process meter properties. """
         device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "consumption_property"):
-            self.devices[device_uid].consumption_property = {}
-        self._logger.debug(f"Adding consumption property to {device_uid}.")
-        self.devices[device_uid].consumption_property[uid_info.get("UID")] = \
-            ConsumptionProperty(session=self._session,
-                                gateway=self.gateway,
-                                element_uid=uid_info.get("UID"),
-                                current=uid_info.get("properties").get("currentValue"),
-                                total=uid_info.get("properties").get("totalValue"),
-                                total_since=uid_info.get("properties").get("sinceTime"))
+        if not hasattr(self.devices[device_uid], "multi_level_sensor_property"):
+            self.devices[device_uid].multi_level_sensor_property = {}
+        self._logger.debug(f"Adding multi_level_sensor property to {device_uid}.")
+        self.devices[device_uid].multi_level_sensor_property[uid_info.get("UID")] = \
+            MultiLevelSensorProperty(session=self._session,
+                                     gateway=self.gateway,
+                                     element_uid=uid_info.get("UID"),
+                                     current=uid_info.get("properties").get("currentValue"),
+                                     total=uid_info.get("properties").get("totalValue"),
+                                     total_since=uid_info.get("properties").get("sinceTime"),
+                                     sensor_type=uid_info.get("properties").get("sensorType"))
 
     def _motion_sensitivity(self, uid_info: dict):
         """ Process motion sensitivity setting (mss) properties. """

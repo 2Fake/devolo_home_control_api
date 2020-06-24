@@ -53,13 +53,13 @@ class TestHomeControl:
     def test__consumption(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
-        del self.homecontrol.devices[device].consumption_property
-        assert not hasattr(self.homecontrol.devices.get(device), "consumption_property")
+        del self.homecontrol.devices[device].multi_level_sensor_property
+        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
         self.homecontrol._meter({"UID": "devolo.Meter:hdm:ZWave:F6BF9812/2", "properties": {
                                  "current": self.devices.get("mains").get("current_consumption"),
                                  "total": self.devices.get("mains").get("total_consumption"),
                                  "sinceTime": self.devices.get("mains").get("properties").get("total_consumption")}})
-        assert hasattr(self.homecontrol.devices.get(device), "consumption_property")
+        assert hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
 
     def test__general_device(self):
         # TODO: Use test data

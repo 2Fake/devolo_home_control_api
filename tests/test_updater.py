@@ -33,7 +33,7 @@ class TestUpdater:
 
     def test_update_consumption_valid(self, fill_device_data):
         uid = self.devices.get("mains").get("uid")
-        consumption_property = self.homecontrol.devices.get(uid).consumption_property
+        consumption_property = self.homecontrol.devices.get(uid).multi_level_sensor_property
         current_before = consumption_property.get(f"devolo.Meter:{uid}").current
         total_before = consumption_property.get(f"devolo.Meter:{uid}").total
         self.homecontrol.updater.update_consumption(element_uid=f"devolo.Meter:{uid}",
@@ -91,13 +91,13 @@ class TestUpdater:
     def test_update_total_since(self, fill_device_data):
         element_uid = self.devices.get("mains").get("elementUIDs")[0]
         total_since = self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .consumption_property.get(element_uid).total_since
+            .multi_level_sensor_property.get(element_uid).total_since
         now = datetime.now()
         self.homecontrol.updater.update_total_since(element_uid=element_uid, total_since=now)
         assert total_since != self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .consumption_property.get(element_uid).total_since
+            .multi_level_sensor_property.get(element_uid).total_since
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-                   .consumption_property.get(element_uid).total_since == now
+                   .multi_level_sensor_property.get(element_uid).total_since == now
 
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
@@ -222,33 +222,33 @@ class TestUpdater:
 
     def test__meter(self):
         uid = self.devices.get("mains").get("uid")
-        self.homecontrol.devices.get(uid).consumption_property \
+        self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").current = 5
-        self.homecontrol.devices.get(uid).consumption_property \
+        self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").total = 230
-        total = self.homecontrol.devices.get(uid).consumption_property \
+        total = self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").total
         # Changing current value
         self.homecontrol.updater._meter(message={"properties": {"property.name": "currentValue",
                                                                 "uid": f"devolo.Meter:{uid}",
                                                                 "property.value.new": 7}})
-        current_new = self.homecontrol.devices.get(uid).consumption_property \
+        current_new = self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").current
         # Check if current value has changed
         assert current_new == 7
         # Check if total has not changed
-        assert total == self.homecontrol.devices.get(uid).consumption_property \
+        assert total == self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").total
         # Changing total value
         self.homecontrol.updater._meter(message={"properties": {"property.name": "totalValue",
                                                                 "uid": f"devolo.Meter:{uid}",
                                                                 "property.value.new": 235}})
-        total_new = self.homecontrol.devices.get(uid).consumption_property \
+        total_new = self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").total
         # Check if total value has changed
         assert total_new == 235
         # Check if current value has not changed
-        assert self.homecontrol.devices.get(uid).consumption_property \
+        assert self.homecontrol.devices.get(uid).multi_level_sensor_property \
             .get(f"devolo.Meter:{uid}").current == current_new
 
     def test__multi_level_sensor(self):
@@ -286,11 +286,11 @@ class TestUpdater:
     def test__since_time(self):
         now = datetime.now()
         total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+            .multi_level_sensor_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
                                               "property.value.new": now})
         new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+            .multi_level_sensor_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         assert total_since != new_total_since
         assert new_total_since == now
 
