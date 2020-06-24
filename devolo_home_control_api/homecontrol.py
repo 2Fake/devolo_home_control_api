@@ -42,7 +42,7 @@ class HomeControl(Mprm):
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([(self.devices.get(device).itemName + "/" + self.devices.get(device).zone)
+        self.device_names = dict(zip([(self.devices.get(device).item_name + "/" + self.devices.get(device).zone)
                                       for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
 
@@ -233,7 +233,7 @@ class HomeControl(Mprm):
                                              value=uid_info.get("properties").get("value"))
 
         # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
-        if self.devices.get(device_uid).deviceModelUID == "devolo.model.Siren":
+        if self.devices.get(device_uid).device_model_uid == "devolo.model.Siren":
             self.devices[device_uid].settings_property["muted"] = settings_property
         # As some devices have multiple binary async settings, we use the settings UID split after a '#' as key
         else:

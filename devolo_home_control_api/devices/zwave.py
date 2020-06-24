@@ -17,8 +17,8 @@ class Zwave:
         self._mydevolo = Mydevolo.get_instance()
 
         for key, value in kwargs.items():
-            setattr(self, key, value)
-        self.uid = get_device_uid_from_element_uid(self.elementUIDs[0])
+            setattr(self, camel_case_to_snake_case(key), value)
+        self.uid = get_device_uid_from_element_uid(self.element_uids[0])
 
         # Initialize additional Z-Wave information. Will be filled by Zwave.get_zwave_info, if available.
         z_wave_info_list = ["href", "manufacturer_id", "product_type_id", "product_id", "name", "brand", "identifier",
@@ -27,9 +27,9 @@ class Zwave:
             setattr(self, key, None)
 
         # Remove battery properties, if device is mains powered.
-        if self.batteryLevel == -1:
-            delattr(self, "batteryLevel")
-            delattr(self, "batteryLow")
+        if self.battery_level == -1:
+            delattr(self, "battery_level")
+            delattr(self, "battery_low")
 
 
     def get_property(self, name: str) -> list:
@@ -48,15 +48,14 @@ class Zwave:
         Zwave.__init__.
         """
         self._logger.debug(f"Getting Z-Wave information for {self.uid}")
-        dict = self._mydevolo.get_zwave_products(manufacturer=self.manID,
-                                                 product_type=self.prodTypeID,
-                                                 product=self.prodID)
+        dict = self._mydevolo.get_zwave_products(manufacturer=self.man_id,
+                                                 product_type=self.prod_type_id,
+                                                 product=self.prod_id)
         for key, value in dict.items():
             setattr(self, camel_case_to_snake_case(key), value)
 
         # Clean up attributes which are now unwanted.
-        clean_up_list = ["is_z_wave_plus", "manID", "prodID", "prodTypeID"]
-        self.is_zwave_plus = self.is_z_wave_plus
+        clean_up_list = ["man_id", "prod_id", "prod_type_id", "statistics_uid", "wrong_device_paired"]
         for attribute in clean_up_list:
             if hasattr(self, attribute):
                 delattr(self, attribute)
