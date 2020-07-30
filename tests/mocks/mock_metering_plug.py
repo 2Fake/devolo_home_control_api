@@ -5,6 +5,7 @@ import requests
 
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
+from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
 from devolo_home_control_api.properties.multi_level_sensor_property import MultiLevelSensorProperty
 from devolo_home_control_api.properties.settings_property import SettingsProperty
 
@@ -36,18 +37,18 @@ def metering_plug(device_uid: str) -> Zwave:
                              session=session,
                              element_uid=f"devolo.BinarySwitch:{device_uid}",
                              state=test_data.get("devices").get("mains").get("properties").get("state"))
-    device.multi_level_sensor_property[f'devolo.Meter:{device_uid}'] = MultiLevelSensorProperty(gateway=gateway,
-                                                                                                session=session,
-                                                                                                element_uid=f"devolo.Meter:{device_uid}",
-                                                                                                current=test_data.get("devices").get(
-                                                                                                    "mains").get("properties").get(
-                                                                                                    "current_consumption"),
-                                                                                                total=test_data.get("devices").get(
-                                                                                                    "mains").get("properties").get(
-                                                                                                    "total_consumption"),
-                                                                                                total_since=test_data.get("devices").get(
-                                                                                                    "mains").get("properties").get(
-                                                                                                    "sinceTime"))
+    device.consumption_property[f'devolo.Meter:{device_uid}'] = ConsumptionProperty(gateway=gateway,
+                                                                                    session=session,
+                                                                                    element_uid=f"devolo.Meter:{device_uid}",
+                                                                                    current=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "current_consumption"),
+                                                                                    total=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "total_consumption"),
+                                                                                    total_since=test_data.get("devices").get(
+                                                                                        "mains").get("properties").get(
+                                                                                        "sinceTime"))
     device.multi_level_sensor_property[f'devolo.VoltageMultiLevelSensor:{device_uid}'] = \
         MultiLevelSensorProperty(gateway=gateway,
                                  session=session,

@@ -94,9 +94,9 @@ class Updater:
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         if consumption == "current":
-            self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).current = value
+            self.devices.get(device_uid).consumption_property.get(element_uid).current = value
         else:
-            self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).total = value
+            self.devices.get(device_uid).consumption_property.get(element_uid).total = value
         self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -177,7 +177,7 @@ class Updater:
         :param total_since: Point in time, the total consumption was reset
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self.devices.get(device_uid).multi_level_sensor_property.get(element_uid).total_since = total_since
+        self.devices.get(device_uid).consumption_property.get(element_uid).total_since = total_since
         self._logger.debug(f"Updating total since of {element_uid} to {total_since}")
         self._publisher.dispatch(device_uid, (element_uid, total_since))
 

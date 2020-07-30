@@ -29,10 +29,10 @@ def test_data_fixture(request):
 @pytest.fixture()
 def fill_device_data(request):
     """ Load test device data. """
-    multi_level_sensor_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")) \
-        .multi_level_sensor_property
-    multi_level_sensor_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").current = 0.58
-    multi_level_sensor_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").total = 125.68
+    consumption_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("mains").get("uid")) \
+        .consumption_property
+    consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").current = 0.58
+    consumption_property.get(f"devolo.Meter:{test_data.get('devices').get('mains').get('uid')}").total = 125.68
 
     binary_sensor_property = request.cls.homecontrol.devices.get(test_data.get("devices").get("sensor").get("uid")) \
         .binary_sensor_property

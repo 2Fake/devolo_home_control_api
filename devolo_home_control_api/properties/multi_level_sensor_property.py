@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any
 
 from requests import Session
@@ -23,7 +22,6 @@ class MultiLevelSensorProperty(SensorProperty):
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.DewpointSensor:",
-                                       "devolo.Meter:",
                                        "devolo.MultiLevelSensor:",
                                        "devolo.SirenMultiLevelSensor:",
                                        "devolo.VoltageMultiLevelSensor:")):
@@ -32,15 +30,9 @@ class MultiLevelSensorProperty(SensorProperty):
         self._unit = ""
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
-        if element_uid.startswith("devolo.Meter:"):
-            self.current = kwargs.get("current")
-            self.current_unit = "W"
-            self.total = kwargs.get("total")
-            self.total_since = datetime.fromtimestamp(kwargs.get("total_since", 0) / 1000)
-            self.total_unit = "kWh"
-        else:
-            self.value = kwargs.get("value")
-            self.unit = kwargs.get("unit")
+
+        self.value = kwargs.get("value")
+        self.unit = kwargs.get("unit")
 
 
     @property
