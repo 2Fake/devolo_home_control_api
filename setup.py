@@ -23,7 +23,7 @@ setuptools.setup(
     ],
     install_requires=[
         "requests",
-        "websocket_client<=0.56.0",
+        "websocket_client",
         "zeroconf"
     ],
     setup_requires=[
