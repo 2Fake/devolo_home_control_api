@@ -76,7 +76,7 @@ class MprmWebsocket(MprmRest):
                                           on_error=self._on_error,
                                           on_close=self._on_close,
                                           on_pong=self._on_pong,
-                                          header={"connection": "Upgrade"})
+                                          header={"Connection": "Upgrade"})
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
