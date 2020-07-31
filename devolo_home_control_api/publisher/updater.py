@@ -98,7 +98,7 @@ class Updater:
         else:
             self.devices.get(device_uid).consumption_property.get(element_uid).total = value
         self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
-        self._publisher.dispatch(device_uid, (element_uid, value))
+        self._publisher.dispatch(device_uid, (element_uid, value, consumption))
 
     def update_device_online_state(self, device_uid: str, value: int):
         """
