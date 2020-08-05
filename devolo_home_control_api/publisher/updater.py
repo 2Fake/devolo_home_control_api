@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 from ..devices.gateway import Gateway
@@ -169,7 +168,7 @@ class Updater:
         self.devices.get(device_uid).multi_level_switch_property.get(element_uid).value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def update_total_since(self, element_uid: str, total_since: datetime):
+    def update_total_since(self, element_uid: str, total_since: int):
         """
         Update the point in time, the total consumption of a device was reset.
 
