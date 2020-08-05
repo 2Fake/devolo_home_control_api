@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime
+from time import time
 
 
 @pytest.mark.usefixtures("home_control_instance")
@@ -92,12 +93,12 @@ class TestUpdater:
         element_uid = self.devices.get("mains").get("elementUIDs")[0]
         total_since = self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .consumption_property.get(element_uid).total_since
-        now = datetime.now()
+        now = time() * 1000
         self.homecontrol.updater.update_total_since(element_uid=element_uid, total_since=now)
         assert total_since != self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .consumption_property.get(element_uid).total_since
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-                   .consumption_property.get(element_uid).total_since == now
+                   .consumption_property.get(element_uid).total_since == datetime.fromtimestamp(now / 1000)
 
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
@@ -284,7 +285,7 @@ class TestUpdater:
         assert current != current_new
 
     def test__since_time(self):
-        now = datetime.now()
+        now = time() * 1000
         total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
             .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
@@ -292,7 +293,7 @@ class TestUpdater:
         new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
             .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         assert total_since != new_total_since
-        assert new_total_since == now
+        assert new_total_since == datetime.fromtimestamp(now / 1000)
 
     def test__voltage_multi_level_sensor(self):
         uid = self.devices.get("mains").get("uid")
