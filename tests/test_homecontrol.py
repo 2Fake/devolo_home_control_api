@@ -25,7 +25,7 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
 
     def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 9
+        assert len(self.homecontrol.publisher._events) == 10
 
     def test__binary_async_siren(self):
         device = self.devices.get("siren").get("uid")
@@ -154,6 +154,16 @@ class TestHomeControl:
                                                      "remote_switch": False}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "local_switching")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "remote_switching")
+
+    def test__remote_control(self):
+        device = self.devices.get("remote").get("uid")
+        element_uid = self.devices.get("remote").get("elementUIDs")[0]
+        del self.homecontrol.devices[device].remote_control_property
+        assert not hasattr(self.homecontrol.devices.get(device), "remote_control_property")
+        self.homecontrol._remote_control({"UID": element_uid,
+                                          "properties": {"keyCount": self.devices.get("remote").get("key_count"),
+                                                         "keyPressed": 1}})
+        assert self.homecontrol.devices.get(device).remote_control_property[element_uid].key_pressed == 1
 
     def test__temperature_report(self):
         # TODO: Use test data
