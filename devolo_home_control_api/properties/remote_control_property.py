@@ -26,3 +26,17 @@ class RemoteControlProperty(Property):
 
         self.key_count = kwargs.get("key_count")
         self.key_pressed = kwargs.get("key_pressed")
+
+    def set(self, value: int):
+        """
+        :param value:
+        :return:
+        """
+        if value > self.key_count or value <= 0:
+            raise ValueError(f"Set value {value} is invalid.")
+
+        data = {"method": "FIM/invokeOperation",
+                "params": [self.element_uid, "pressKey", [value]]}
+        self.post(data)
+        self.key_pressed = value
+        self._logger.debug(f"Remote Control property {self.element_uid} set to {value}")
