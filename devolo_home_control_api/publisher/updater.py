@@ -158,6 +158,7 @@ class Updater:
     def update_multi_level_switch(self, element_uid: str, value: float):
         """
         Update the multi level switch value externally. The value is written into the internal dict.
+
         :param element_uid: Element UID, something like devolo.MultiLevelSwitch* or devolo.Dimmer* or devolo.Blinds*
         :param value: Value to be set
         """
@@ -169,13 +170,21 @@ class Updater:
         self.devices.get(device_uid).multi_level_switch_property.get(element_uid).value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def update_remote_control(self, element_uid: str, value: int):
-        if value is not None:
+    def update_remote_control(self, element_uid: str, key_pressed: int):
+        """
+        Update the remote control button state externally. The value is written into the internal dict.
+
+        :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
+        :param key_pressed: Button that was pressed
+        """
+        # The message for the diary needs to be ignored
+        if key_pressed is not None:
             device_uid = get_device_uid_from_element_uid(element_uid)
-            key_pressed = self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed
-            self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed = value
-            self._logger.debug(f"Updating remote control of {element_uid}. Key {f'pressed: {value}' if value != 0 else f'released: {key_pressed}'} ")
-            self._publisher.dispatch(device_uid, (element_uid, value))
+            old_key_pressed = self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed
+            self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed = key_pressed
+            self._logger.debug(f"Updating remote control of {element_uid}.\
+                               Key {f'pressed: {key_pressed}' if key_pressed != 0 else f'released: {old_key_pressed}'}")
+            self._publisher.dispatch(device_uid, (element_uid, key_pressed))
 
     def update_total_since(self, element_uid: str, total_since: int):
         """
@@ -282,10 +291,10 @@ class Updater:
             self.update_multi_level_switch(element_uid=message.get("properties").get("uid"),
                                            value=message.get("properties").get("property.value.new"))
 
-    def _remote_control(self, message:dict):
-        """ Update a remote Control. """
+    def _remote_control(self, message: dict):
+        """ Update a remote control. """
         self.update_remote_control(element_uid=message.get("properties").get("uid"),
-                                   value=message.get("properties").get("property.value.new"))
+                                   key_pressed=message.get("properties").get("property.value.new"))
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """
