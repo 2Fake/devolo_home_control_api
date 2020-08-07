@@ -172,8 +172,9 @@ class Updater:
     def update_remote_control(self, element_uid: str, value: int):
         if value is not None:
             device_uid = get_device_uid_from_element_uid(element_uid)
+            key_pressed = self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed
             self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed = value
-            self._logger.debug(f"Updating remote control of {element_uid}. Key pressed: {value}")
+            self._logger.debug(f"Updating remote control of {element_uid}. Key {f'pressed: {value}' if value != 0 else f'released: {key_pressed}'} ")
             self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_total_since(self, element_uid: str, total_since: int):
