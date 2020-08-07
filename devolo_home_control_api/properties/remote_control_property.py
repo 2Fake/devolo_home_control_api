@@ -24,5 +24,5 @@ class RemoteControlProperty(Property):
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        for key in kwargs:
-            setattr(self, key, kwargs.get(key))
+        self.key_count = kwargs.get("key_count")
+        self.key_pressed = kwargs.get("key_pressed")
