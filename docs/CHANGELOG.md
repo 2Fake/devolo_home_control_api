@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Support for devolo Key-Fob
+- Support for devolo Wall Switch
+
 ### Changed
 
 - **BREAKING**: MildewProperty was reimplemented as BinarySensorProperty and DewpointProperty was reimplemented as MultiLevelSensorProperty.
