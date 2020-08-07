@@ -16,6 +16,7 @@ from .properties.consumption_property import ConsumptionProperty
 from .properties.humidity_bar_property import HumidityBarProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.multi_level_switch_property import MultiLevelSwitchProperty
+from .properties.remote_control_property import RemoteControlProperty
 from .properties.settings_property import SettingsProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
@@ -197,6 +198,7 @@ class HomeControl(Mprm):
                     "devolo.MildewSensor": self._binary_sensor,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
+                    "devolo.RemoteControl": self._remote_control,
                     "devolo.SirenBinarySensor": self._binary_sensor,
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
@@ -333,6 +335,18 @@ class HomeControl(Mprm):
                              gateway=self.gateway,
                              element_uid=uid_info.get('UID'),
                              param_changed=uid_info.get('properties').get("paramChanged"))
+
+    def _remote_control(self, uid_info:dict):
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding remote control to {device_uid}")
+        if not hasattr(self.devices[device_uid], "remote_control_property"):
+            self.devices[device_uid].remote_control_property = {}
+        self.devices[device_uid].remote_control_property[uid_info.get("UID")] = RemoteControlProperty(session=self._session,
+                                                                                                      gateway=self.gateway,
+                                                                                                      element_uid=uid_info.get("UID"),
+                                                                                                      key_count=uid_info.get("properties").get("keyCount"),
+                                                                                                      key_pressed=uid_info.get("properties").get("keyPressed"),
+                                                                                                      type=uid_info.get("properties").get("type"))
 
     def _protection(self, uid_info: dict):
         """ Process protection setting (ps) properties. """
