@@ -46,6 +46,7 @@ class Updater:
                         "devolo.MildewSensor": self._binary_sensor,
                         "devolo.MultiLevelSensor": self._multi_level_sensor,
                         "devolo.MultiLevelSwitch": self._multi_level_switch,
+                        "devolo.RemoteControl": self._remote_control,
                         "devolo.SirenBinarySensor": self._binary_sensor,
                         "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                         "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
@@ -168,6 +169,13 @@ class Updater:
         self.devices.get(device_uid).multi_level_switch_property.get(element_uid).value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+    def update_remote_control(self, element_uid: str, value: int):
+        if value is not None:
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed = value
+            self._logger.debug(f"Updating remote control of {element_uid}. Key pressed: {value}")
+            self._publisher.dispatch(device_uid, (element_uid, value))
+
     def update_total_since(self, element_uid: str, total_since: int):
         """
         Update the point in time, the total consumption of a device was reset.
@@ -272,6 +280,11 @@ class Updater:
         if not isinstance(message.get("properties").get("property.value.new"), (list, dict, type(None))):
             self.update_multi_level_switch(element_uid=message.get("properties").get("uid"),
                                            value=message.get("properties").get("property.value.new"))
+
+    def _remote_control(self, message:dict):
+        """ Update a remote Control. """
+        self.update_remote_control(element_uid=message.get("properties").get("uid"),
+                                   value=message.get("properties").get("property.value.new"))
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """
