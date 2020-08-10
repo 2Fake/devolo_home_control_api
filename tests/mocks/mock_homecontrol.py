@@ -22,7 +22,7 @@ def mock__inspect_devices(self, devices):
         if device_type == "blinds":
             self.devices[device_uid] = shutter(device_uid=device_uid)
         elif device_type == "humidity":
-            self.devices[device_uid] = humidity_sensor_device(key=device_type)
+            self.devices[device_uid] = humidity_sensor_device(device_uid=device_uid)
         elif device_type == "mains":
             self.devices[device_uid] = metering_plug(device_uid=device_uid)
         elif device_type == "multi_level_switch":
@@ -30,7 +30,7 @@ def mock__inspect_devices(self, devices):
         elif device_type == "remote":
             self.devices[device_uid] = remote_control(device_uid=device_uid)
         elif device_type == "sensor":
-            self.devices[device_uid] = multi_level_sensor_device(key=device_type)
+            self.devices[device_uid] = multi_level_sensor_device(device_uid=device_uid)
         elif device_type == "siren":
             self.devices[device_uid] = siren(device_uid=device_uid)
         else:
