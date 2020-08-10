@@ -83,7 +83,7 @@ class Mprm(MprmWebsocket):
 
     def get_remote_session(self):
         """
-        Connect to the gateway remotely. Calling the known portal URL is enought in this case.
+        Connect to the gateway remotely. Calling the known portal URL is enough in this case.
         """
         self._logger.info("Connecting to gateway via cloud.")
         try:

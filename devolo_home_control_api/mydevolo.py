@@ -100,7 +100,6 @@ class Mydevolo:
         :return: Gateway object
         """
         self._logger.debug(f"Getting details for gateway {gateway_id}")
-        details = {}
         try:
             details = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}")
         except WrongUrlError:
