@@ -97,7 +97,7 @@ class Mydevolo:
         Get gateway details like name, local passkey and other.
 
         :param gateway_id: Gateway ID
-        :return: Gateway object
+        :return: Gateway details
         """
         self._logger.debug(f"Getting details for gateway {gateway_id}")
         try:
