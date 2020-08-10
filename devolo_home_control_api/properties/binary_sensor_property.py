@@ -43,4 +43,4 @@ class BinarySensorProperty(SensorProperty):
         """ Convert a timestamp in millisecond to a datetime object. """
         if timestamp != -1:
             self._last_activity = datetime.fromtimestamp(timestamp / 1000)
-            self._logger.debug(f"self.last_acitivity of element_uid {self.element_uid} set to {self._last_activity}.")
+            self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
