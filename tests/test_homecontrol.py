@@ -24,6 +24,9 @@ class TestHomeControl:
     def test_multi_level_switch_devices(self):
         assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
 
+    def test_remote_control_devices(self):
+        assert hasattr(self.homecontrol.remote_control_devices[0], "remote_control_property")
+
     def test_get_publisher(self):
         assert len(self.homecontrol.publisher._events) == 10
 
