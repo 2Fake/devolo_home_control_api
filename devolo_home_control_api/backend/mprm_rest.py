@@ -2,7 +2,7 @@ import json
 import logging
 import sys
 
-from requests import ReadTimeout
+from requests.exceptions import ReadTimeout
 
 from ..exceptions.gateway import GatewayOfflineError
 from ..mydevolo import Mydevolo
@@ -21,7 +21,6 @@ class MprmRest:
         self._data_id = 0
         self._local_ip = None
 
-
     def get_all_devices(self) -> list:
         """
         Get all devices.
@@ -33,7 +32,7 @@ class MprmRest:
                 "params": [['devolo.DevicesPage'], 0]}
         response = self.post(data)
         self._logger.debug(f"Response of 'get_all_devices':\n{response}")
-        return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
+        return response["result"]["items"][0]["properties"]["deviceUIDs"]
 
     def get_data_from_uid_list(self, uids: list) -> list:
         """
@@ -47,7 +46,7 @@ class MprmRest:
                 "params": [uids, 0]}
         response = self.post(data)
         self._logger.debug(f"Response of 'get_data_from_uid_list':\n{response}")
-        return response.get("result").get("items")
+        return response["result"]["items"]
 
     def get_name_and_element_uids(self, uid: str):
         """
@@ -59,7 +58,7 @@ class MprmRest:
                 "params": [[uid], 0]}
         response = self.post(data)
         self._logger.debug(f"Response of 'get_name_and_element_uids':\n{response}")
-        return response.get("result").get("items")[0].get("properties")
+        return response["result"]["items"][0]["properties"]
 
     def post(self, data: dict) -> dict:
         """

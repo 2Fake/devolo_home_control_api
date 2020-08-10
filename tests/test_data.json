@@ -199,6 +199,7 @@
       "last_activity": 1581419650436,
       "muted": true,
       "uid": "hdm:ZWave:F6BF9812/8",
+      "sensor_type": "siren",
       "state": 1,
       "switch_type": "tone",
       "zone": "Living Room"

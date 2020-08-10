@@ -42,7 +42,9 @@ class TestHomeControl:
         del self.homecontrol.devices[device].binary_sensor_property
         assert not hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
         self.homecontrol._binary_sensor({"UID": self.devices.get("sensor").get("elementUIDs")[0],
-                                         "properties": {"state": self.devices.get("sensor").get("state")}})
+                                         "properties": {"state": self.devices.get("sensor").get("state"),
+                                                        "sensorType": self.devices.get("sensor").get("sensor_type"),
+                                                        "subType": ""}})
         assert hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
 
     def test__binary_switch(self):
@@ -59,8 +61,8 @@ class TestHomeControl:
         del self.homecontrol.devices[device].consumption_property
         assert not hasattr(self.homecontrol.devices.get(device), "consumption_property")
         self.homecontrol._meter({"UID": "devolo.Meter:hdm:ZWave:F6BF9812/2", "properties": {
-                                 "current": self.devices.get("mains").get("current_consumption"),
-                                 "total": self.devices.get("mains").get("total_consumption"),
+                                 "currentValue": self.devices.get("mains").get("current_consumption"),
+                                 "totalValue": self.devices.get("mains").get("total_consumption"),
                                  "sinceTime": self.devices.get("mains").get("properties").get("total_consumption")}})
         assert hasattr(self.homecontrol.devices.get(device), "consumption_property")
 
@@ -68,9 +70,9 @@ class TestHomeControl:
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
         self.homecontrol._general_device({"UID": "gds.hdm:ZWave:F6BF9812/2",
-                                          "properties": {"settings": {"events_enabled": True,
+                                          "properties": {"settings": {"eventsEnabled": True,
                                                                       "name": self.devices.get("mains").get("itemName"),
-                                                                      "zoneId": self.devices.get("mains").get("zone_id"),
+                                                                      "zoneID": self.devices.get("mains").get("zone_id"),
                                                                       "icon": self.devices.get("mains").get("icon")}}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("general_device_settings"), "events_enabled")
 
@@ -90,7 +92,9 @@ class TestHomeControl:
         device = self.devices.get("sensor").get("uid")
         element_uids = self.devices.get("sensor").get("elementUIDs")
         self.homecontrol._binary_sensor({"UID": element_uids[0],
-                                         "properties": {"state": self.devices.get("sensor").get("state")}})
+                                         "properties": {"state": self.devices.get("sensor").get("state"),
+                                                        "sensorType": self.devices.get("sensor").get("sensor_type"),
+                                                        "subType": ""}})
         self.homecontrol._last_activity({"UID": element_uids[1],
                                          "properties": {"lastActivityTime": self.devices.get("sensor").get("last_activity")}})
         assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[0]).last_activity == \
@@ -100,7 +104,9 @@ class TestHomeControl:
         device = self.devices.get("siren").get("uid")
         element_uids = self.devices.get("siren").get("elementUIDs")
         self.homecontrol._binary_sensor({"UID": element_uids[1],
-                                         "properties": {"state": self.devices.get("siren").get("state")}})
+                                         "properties": {"state": self.devices.get("siren").get("state"),
+                                                        "sensorType": self.devices.get("siren").get("sensor_type"),
+                                                        "subType": ""}})
         self.homecontrol._last_activity({"UID": element_uids[3],
                                          "properties": {"lastActivityTime": self.devices.get("siren").get("last_activity")}})
         assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[1]).last_activity == \
@@ -139,22 +145,26 @@ class TestHomeControl:
         del self.homecontrol.devices[device].multi_level_switch_property
         assert not hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
         self.homecontrol._multi_level_switch({"UID": self.devices.get("siren").get("elementUIDs")[0],
-                                              "properties": {"state": self.devices.get("siren").get("state")}})
+                                              "properties": {"state": self.devices.get("multi_level_switch").get("state"),
+                                                             "value": self.devices.get("multi_level_switch").get("value"),
+                                                             "switchType": self.devices.get("multi_level_switch").get("switch_type"),
+                                                             "max": self.devices.get("multi_level_switch").get("max"),
+                                                             "min": self.devices.get("multi_level_switch").get("min")}})
         assert hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
 
     def test__parameter(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
         self.homecontrol._parameter({"UID": "cps.hdm:ZWave:F6BF9812/2",
-                                     "properties": {"param_changed": False}})
+                                     "properties": {"paramChanged": False}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("param_changed"), "param_changed")
 
     def test__protection(self):
         # TODO: Use test data
         device = self.devices.get("mains").get("uid")
         self.homecontrol._protection({"UID": "ps.hdm:ZWave:F6BF9812/2",
-                                      "properties": {"local_switch": True,
-                                                     "remote_switch": False}})
+                                      "properties": {"localSwitch": True,
+                                                     "remoteSwitch": False}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "local_switching")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "remote_switching")
 
@@ -165,8 +175,9 @@ class TestHomeControl:
         assert not hasattr(self.homecontrol.devices.get(device), "remote_control_property")
         self.homecontrol._remote_control({"UID": element_uid,
                                           "properties": {"keyCount": self.devices.get("remote").get("key_count"),
-                                                         "keyPressed": 1}})
-        assert self.homecontrol.devices.get(device).remote_control_property[element_uid].key_pressed == 1
+                                                         "keyPressed": 0,
+                                                         "type": 1}})
+        assert self.homecontrol.devices.get(device).remote_control_property[element_uid].key_pressed == 0
 
     def test__temperature_report(self):
         # TODO: Use test data

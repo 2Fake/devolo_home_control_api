@@ -111,7 +111,7 @@ class MprmWebsocket(MprmRest):
         """ Callback method to react on a message. """
         message = json.loads(message)
         self._logger.debug(f"Got message from websocket:\n{message}")
-        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
+        event_sequence = message["properties"]["com.prosyst.mbs.services.remote.event.sequence.number"]
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:

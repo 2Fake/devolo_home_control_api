@@ -61,7 +61,9 @@ class SettingsProperty(Property):
     def _set_gds(self, **kwargs: Any):
         """
         Set one or more general device setting.
-
+        :Keyword Arguments:
+            * *events_enabled* (``bool``) --
+            Extra stuff
         :key events_enabled: Show events in diary
         :type events_enabled: bool
         :key icon: New icon name

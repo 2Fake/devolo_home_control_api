@@ -32,8 +32,8 @@ class MultiLevelSensorProperty(SensorProperty):
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
 
-        self.value = kwargs.get("value")
-        self.unit = kwargs.get("unit")
+        self.value = kwargs.get("value", 0.0)
+        self.unit = kwargs.get("unit", "")
 
 
     @property
@@ -51,8 +51,8 @@ class MultiLevelSensorProperty(SensorProperty):
                  "Seismic Intensity": {0: ""},
                  "voltage": {0: "V"}
                  }
-        if units.get(self.sensor_type) is not None:
+        try:
             self._unit = units[self.sensor_type].get(unit, str(unit))
-        else:
+        except KeyError:
             self._unit = str(unit)
         self._logger.debug(f"Unit of {self.element_uid} set to '{self._unit}'.")
