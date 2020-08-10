@@ -294,7 +294,7 @@ class HomeControl(Mprm):
     def _motion_sensitivity(self, uid_info: dict):
         """ Process motion sensitivity setting (mss) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
-        self._logger.debug(f"Adding motion sensitiviy settings to {device_uid}.")
+        self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
         self.devices[device_uid].settings_property["motion_sensitivity"] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
