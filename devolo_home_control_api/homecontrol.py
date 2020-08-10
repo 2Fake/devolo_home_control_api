@@ -16,6 +16,7 @@ from .properties.consumption_property import ConsumptionProperty
 from .properties.humidity_bar_property import HumidityBarProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.multi_level_switch_property import MultiLevelSwitchProperty
+from .properties.remote_control_property import RemoteControlProperty
 from .properties.settings_property import SettingsProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
@@ -82,6 +83,11 @@ class HomeControl(Mprm):
     def multi_level_switch_devices(self) -> list:
         """ Get all multi level switch devices. This also includes blinds devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_switch_property")]
+
+    @property
+    def remote_control_devices(self) -> list:
+        """ Get all remote control devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "remote_control_property")]
 
 
     def device_change(self, device_uids: list):
@@ -197,6 +203,7 @@ class HomeControl(Mprm):
                     "devolo.MildewSensor": self._binary_sensor,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
+                    "devolo.RemoteControl": self._remote_control,
                     "devolo.SirenBinarySensor": self._binary_sensor,
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
@@ -344,6 +351,20 @@ class HomeControl(Mprm):
                              element_uid=uid_info.get('UID'),
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
+
+    def _remote_control(self, uid_info: dict):
+        """ Process remote control properties. """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding remote control to {device_uid}")
+        if not hasattr(self.devices[device_uid], "remote_control_property"):
+            self.devices[device_uid].remote_control_property = {}
+        self.devices[device_uid].remote_control_property[uid_info.get("UID")] = \
+            RemoteControlProperty(session=self._session,
+                                  gateway=self.gateway,
+                                  element_uid=uid_info.get("UID"),
+                                  key_count=uid_info.get("properties").get("keyCount"),
+                                  key_pressed=uid_info.get("properties").get("keyPressed"),
+                                  type=uid_info.get("properties").get("type"))
 
     def _temperature_report(self, uid_info: dict):
         """ Process temperature report setting (trs) properties. """

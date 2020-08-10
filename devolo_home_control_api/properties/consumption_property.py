@@ -29,6 +29,8 @@ class ConsumptionProperty(Property):
         self.current_unit = "W"
         self.total = kwargs.get("total")
         self.total_unit = "kWh"
+
+        # Set last activity to 1.1.1970. Will be corrected by ConsumptionProperty.total_since.
         self._total_since = datetime.fromtimestamp(0)
         self.total_since = kwargs.get("total_since", 0)
 

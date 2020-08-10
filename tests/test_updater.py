@@ -284,6 +284,18 @@ class TestUpdater:
         assert current_new == device.get("max")
         assert current != current_new
 
+    def test__remote_control(self):
+        device = self.devices.get("remote")
+        uid = device.get("uid")
+        self.homecontrol.devices.get(uid).remote_control_property \
+            .get(device.get("elementUIDs")[0]).key_pressed = 0
+        self.homecontrol.updater._remote_control(message={"properties":
+                                                 {"uid": device.get("elementUIDs")[0],
+                                                  "property.value.new": 1}})
+
+        assert self.homecontrol.devices.get(uid).remote_control_property \
+            .get(device.get("elementUIDs")[0]).key_pressed == 1
+
     def test__since_time(self):
         now = time() * 1000
         total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \

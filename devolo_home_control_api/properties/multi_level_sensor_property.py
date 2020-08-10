@@ -9,7 +9,8 @@ from .sensor_property import SensorProperty
 
 class MultiLevelSensorProperty(SensorProperty):
     """
-    Object for multi level sensors. It stores the multi level sensor state.
+    Object for multi level sensors. It stores the multi level sensor state and additional information that help displaying the
+    state in the right context.
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
