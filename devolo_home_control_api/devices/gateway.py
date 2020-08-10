@@ -26,7 +26,7 @@ class Gateway:
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
-        # Let's assume the gateway is connected remotely. Will be corrected as soon as a real connection is estabished.
+        # Let's assume the gateway is connected remotely. Will be corrected as soon as a real connection is established.
         self.local_connection = False
 
         # Let's assume the gateway is offline. Will be corrected the twinkling of an eye.
