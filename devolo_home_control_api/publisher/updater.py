@@ -1,10 +1,9 @@
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 from ..devices.gateway import Gateway
-from ..devices.zwave import get_device_type_from_element_uid, get_device_uid_from_element_uid
+from ..helper.uid import get_device_type_from_element_uid, get_device_uid_from_element_uid
 from .publisher import Publisher
 
 
@@ -39,14 +38,15 @@ class Updater:
                         "devolo.DeviceEvents": self._device_events,
                         "devolo.DevicesPage": self._device_change,
                         "devolo.Dimmer": self._multi_level_switch,
-                        "devolo.DewpointSensor": self._dewpoint,
+                        "devolo.DewpointSensor": self._multi_level_sensor,
                         "devolo.HumidityBarValue": self._humidity_bar,
                         "devolo.HumidityBarZone": self._humidity_bar,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
-                        "devolo.MildewSensor": self._mildew,
+                        "devolo.MildewSensor": self._binary_sensor,
                         "devolo.MultiLevelSensor": self._multi_level_sensor,
                         "devolo.MultiLevelSwitch": self._multi_level_switch,
+                        "devolo.RemoteControl": self._remote_control,
                         "devolo.SirenBinarySensor": self._binary_sensor,
                         "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                         "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
@@ -77,7 +77,7 @@ class Updater:
         :param value: True for on, False for off
         """
         if element_uid.split(".")[-2] == "smartGroup":
-            # We ignore if a group is switched. We get the information separatly for every device.
+            # We ignore if a group is switched. We get the information separately for every device.
             return
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices.get(device_uid).binary_switch_property.get(element_uid).state = value
@@ -98,7 +98,7 @@ class Updater:
         else:
             self.devices.get(device_uid).consumption_property.get(element_uid).total = value
         self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
-        self._publisher.dispatch(device_uid, (element_uid, value))
+        self._publisher.dispatch(device_uid, (element_uid, value, consumption))
 
     def update_device_online_state(self, device_uid: str, value: int):
         """
@@ -110,18 +110,6 @@ class Updater:
         self._logger.debug(f"Updating device online state of {device_uid} to {value}")
         self.devices.get(device_uid).status = value
         self._publisher.dispatch(device_uid, (device_uid, value))
-
-    def update_dewpoint_sensor(self, element_uid: str, value: float):
-        """
-        Update the dewpoint sensor value externally. The value is written into the internal dict.
-
-        :param element_uid: Element UID, something like devolo.DewpointSensor:hdm:ZWave:CBC56091/24
-        :param value: Value to be set
-        """
-        device_uid = get_device_uid_from_element_uid(element_uid)
-        self._logger.debug(f"Updating {element_uid} to {value}")
-        self.devices.get(device_uid).dewpoint_sensor_property.get(element_uid).value = value
-        self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_gateway_state(self, accessible: bool, online_sync: bool):
         """
@@ -155,18 +143,6 @@ class Updater:
                                               self.devices.get(device_uid).humidity_bar_property.get(element_uid).zone,
                                               self.devices.get(device_uid).humidity_bar_property.get(element_uid).value))
 
-    def update_mildew_sensor(self, element_uid: str, state: bool):
-        """
-        Update the mildew sensor state externally. The value is written into the internal dict.
-
-        :param element_uid: Element UID, something like devolo.MildewSensor:hdm:ZWave:CBC56091/24
-        :param state: State to be set
-        """
-        device_uid = get_device_uid_from_element_uid(element_uid)
-        self._logger.debug(f"Updating {element_uid} to {state}")
-        self.devices.get(device_uid).mildew_sensor_property.get(element_uid).state = state
-        self._publisher.dispatch(device_uid, (element_uid, state))
-
     def update_multi_level_sensor(self, element_uid: str, value: float):
         """
         Update the multi level sensor value externally. The value is written into the internal dict.
@@ -182,6 +158,7 @@ class Updater:
     def update_multi_level_switch(self, element_uid: str, value: float):
         """
         Update the multi level switch value externally. The value is written into the internal dict.
+
         :param element_uid: Element UID, something like devolo.MultiLevelSwitch* or devolo.Dimmer* or devolo.Blinds*
         :param value: Value to be set
         """
@@ -193,7 +170,23 @@ class Updater:
         self.devices.get(device_uid).multi_level_switch_property.get(element_uid).value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def update_total_since(self, element_uid: str, total_since: datetime):
+    def update_remote_control(self, element_uid: str, key_pressed: int):
+        """
+        Update the remote control button state externally. The value is written into the internal dict.
+
+        :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
+        :param key_pressed: Button that was pressed
+        """
+        # The message for the diary needs to be ignored
+        if key_pressed is not None:
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            old_key_pressed = self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed
+            self.devices.get(device_uid).remote_control_property.get(element_uid).key_pressed = key_pressed
+            self._logger.debug(f"Updating remote control of {element_uid}.\
+                               Key {f'pressed: {key_pressed}' if key_pressed != 0 else f'released: {old_key_pressed}'}")
+            self._publisher.dispatch(device_uid, (element_uid, key_pressed))
+
+    def update_total_since(self, element_uid: str, total_since: int):
         """
         Update the point in time, the total consumption of a device was reset.
 
@@ -263,11 +256,6 @@ class Updater:
             self.update_device_online_state(device_uid=message.get("properties").get("uid"),
                                             value=message.get("properties").get("property.value.new"))
 
-    def _dewpoint(self, message: dict):
-        """ Update a dewpoint sensor. """
-        self.update_dewpoint_sensor(element_uid=message.get("properties").get("uid"),
-                                    value=message.get("properties").get("property.value.new"))
-
     def _gateway_accessible(self, message: dict):
         """ Update the gateway's state. """
         if message.get("properties").get("property.name") == "gatewayAccessible":
@@ -292,11 +280,6 @@ class Updater:
 
         property_name[message.get("properties").get("property.name")](message.get("properties"))
 
-    def _mildew(self, message: dict):
-        """ Update a mildew sensor. """
-        self.update_mildew_sensor(element_uid=message.get("properties").get("uid"),
-                                  state=bool(message.get("properties").get("property.value.new")))
-
     def _multi_level_sensor(self, message: dict):
         """ Update a multi level sensor. """
         self.update_multi_level_sensor(element_uid=message.get("properties").get("uid"),
@@ -307,6 +290,11 @@ class Updater:
         if not isinstance(message.get("properties").get("property.value.new"), (list, dict, type(None))):
             self.update_multi_level_switch(element_uid=message.get("properties").get("uid"),
                                            value=message.get("properties").get("property.value.new"))
+
+    def _remote_control(self, message: dict):
+        """ Update a remote control. """
+        self.update_remote_control(element_uid=message.get("properties").get("uid"),
+                                   key_pressed=message.get("properties").get("property.value.new"))
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """

@@ -1,23 +1,22 @@
-import re
 import threading
-from typing import Optional
 
 import requests
 
 from . import __version__
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
-from .devices.zwave import (Zwave, get_device_type_from_element_uid,
-                            get_device_uid_from_element_uid,
-                            get_device_uid_from_setting_uid)
+from .devices.zwave import Zwave
+from .helper.string import camel_case_to_snake_case
+from .helper.uid import (get_device_type_from_element_uid,
+                         get_device_uid_from_element_uid,
+                         get_device_uid_from_setting_uid)
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
-from .properties.dewpoint_sensor_property import DewpointSensorProperty
 from .properties.humidity_bar_property import HumidityBarProperty
-from .properties.mildew_sensor_property import MildewSensorProperty
 from .properties.multi_level_sensor_property import MultiLevelSensorProperty
 from .properties.multi_level_switch_property import MultiLevelSwitchProperty
+from .properties.remote_control_property import RemoteControlProperty
 from .properties.settings_property import SettingsProperty
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
@@ -44,7 +43,7 @@ class HomeControl(Mprm):
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([(self.devices.get(device).itemName + "/" + self.devices.get(device).zone)
+        self.device_names = dict(zip([(self.devices.get(device).item_name + "/" + self.devices.get(device).zone)
                                       for device in self.devices],
                                      [self.devices.get(device).uid for device in self.devices]))
 
@@ -84,6 +83,11 @@ class HomeControl(Mprm):
     def multi_level_switch_devices(self) -> list:
         """ Get all multi level switch devices. This also includes blinds devices. """
         return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "multi_level_switch_property")]
+
+    @property
+    def remote_control_devices(self) -> list:
+        """ Get all remote control devices. """
+        return [self.devices.get(uid) for uid in self.devices if hasattr(self.devices.get(uid), "remote_control_property")]
 
 
     def device_change(self, device_uids: list):
@@ -140,19 +144,6 @@ class HomeControl(Mprm):
                                  element_uid=uid_info.get("UID"),
                                  state=bool(uid_info.get("properties").get("state")))
 
-    def _dewpoint(self, uid_info: dict):
-        """ Process dewpoint sensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "dewpoint_sensor_property"):
-            self.devices[device_uid].dewpoint_sensor_property = {}
-        self._logger.debug(f"Adding dewpoint sensor property to {device_uid}.")
-        self.devices[device_uid].dewpoint_sensor_property[uid_info.get("UID")] = \
-            DewpointSensorProperty(session=self._session,
-                                   gateway=self.gateway,
-                                   element_uid=uid_info.get("UID"),
-                                   value=uid_info.get("properties").get("value"),
-                                   sensor_type=uid_info.get("properties").get("sensorType"))
-
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
@@ -203,15 +194,16 @@ class HomeControl(Mprm):
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
                     "devolo.Blinds": self._multi_level_switch,
-                    "devolo.DewpointSensor": self._dewpoint,
+                    "devolo.DewpointSensor": self._multi_level_sensor,
                     "devolo.Dimmer": self._multi_level_switch,
                     "devolo.HumidityBarValue": self._humidity_bar,
                     "devolo.HumidityBarZone": self._humidity_bar,
                     "devolo.LastActivity": self._last_activity,
                     "devolo.Meter": self._meter,
-                    "devolo.MildewSensor": self._mildew,
+                    "devolo.MildewSensor": self._binary_sensor,
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
+                    "devolo.RemoteControl": self._remote_control,
                     "devolo.SirenBinarySensor": self._binary_sensor,
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
@@ -248,7 +240,7 @@ class HomeControl(Mprm):
                                              value=uid_info.get("properties").get("value"))
 
         # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
-        if self.devices.get(device_uid).deviceModelUID == "devolo.model.Siren":
+        if self.devices.get(device_uid).device_model_uid == "devolo.model.Siren":
             self.devices[device_uid].settings_property["muted"] = settings_property
         # As some devices have multiple binary async settings, we use the settings UID split after a '#' as key
         else:
@@ -298,19 +290,6 @@ class HomeControl(Mprm):
                                 current=uid_info.get("properties").get("currentValue"),
                                 total=uid_info.get("properties").get("totalValue"),
                                 total_since=uid_info.get("properties").get("sinceTime"))
-
-    def _mildew(self, uid_info: dict):
-        """ Process mildew sensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
-        if not hasattr(self.devices[device_uid], "mildew_sensor_property"):
-            self.devices[device_uid].mildew_sensor_property = {}
-        self._logger.debug(f"Adding mildew sensor property to {device_uid}.")
-        self.devices[device_uid].mildew_sensor_property[uid_info.get("UID")] = \
-            MildewSensorProperty(session=self._session,
-                                 gateway=self.gateway,
-                                 element_uid=uid_info.get("UID"),
-                                 state=bool(uid_info.get("properties").get("state")),
-                                 sensor_type=uid_info.get("properties").get("sensorType"))
 
     def _motion_sensitivity(self, uid_info: dict):
         """ Process motion sensitivity setting (mss) properties. """
@@ -373,6 +352,20 @@ class HomeControl(Mprm):
                              local_switching=uid_info.get("properties").get("localSwitch"),
                              remote_switching=uid_info.get("properties").get("remoteSwitch"))
 
+    def _remote_control(self, uid_info: dict):
+        """ Process remote control properties. """
+        device_uid = get_device_uid_from_element_uid(uid_info.get("UID"))
+        self._logger.debug(f"Adding remote control to {device_uid}")
+        if not hasattr(self.devices[device_uid], "remote_control_property"):
+            self.devices[device_uid].remote_control_property = {}
+        self.devices[device_uid].remote_control_property[uid_info.get("UID")] = \
+            RemoteControlProperty(session=self._session,
+                                  gateway=self.gateway,
+                                  element_uid=uid_info.get("UID"),
+                                  key_count=uid_info.get("properties").get("keyCount"),
+                                  key_pressed=uid_info.get("properties").get("keyPressed"),
+                                  type=uid_info.get("properties").get("type"))
+
     def _temperature_report(self, uid_info: dict):
         """ Process temperature report setting (trs) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info.get("UID"))
@@ -387,23 +380,3 @@ class HomeControl(Mprm):
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
-
-
-def camel_case_to_snake_case(expression: str) -> str:
-    """
-    Turn CamelCaseStrings to snake_case_strings. This is used where the original Java names should by more pythonic.
-
-    :param: expression: Expression, that should be converted to snake case
-    :return: Expression in snake case
-    """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', expression).lower()
-
-
-def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
-    """
-    Return the sub device uid of the given element UID.
-
-    :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-    :return: Sub device UID, something like 2
-    """
-    return None if "#" not in element_uid else int(element_uid.split("#")[-1])

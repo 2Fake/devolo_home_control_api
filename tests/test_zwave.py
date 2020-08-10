@@ -2,8 +2,7 @@ import pytest
 
 import requests
 
-from devolo_home_control_api.devices.zwave import Zwave, get_device_type_from_element_uid,\
-    get_device_uid_from_element_uid, get_device_uid_from_setting_uid
+from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 
 from .mocks.mock_gateway import MockGateway
@@ -39,8 +38,7 @@ class TestZwave:
     def test_battery_level(self, mydevolo):
         # TODO: Use battery driven device
         device = Zwave(**self.devices.get("ambiguous_1"))
-
-        assert device.batteryLevel == 55
+        assert device.battery_level == 55
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_device_online_state_state(self, mydevolo):
@@ -52,21 +50,6 @@ class TestZwave:
 
         device = Zwave(**self.devices.get("ambiguous_1"))
         assert device.status not in [1, 2]
-
-    def test_get_device_type_from_element_uid(self):
-        assert get_device_type_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "devolo.Meter"
-
-    def test_get_device_uid_from_setting_uid(self):
-        assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2") == "hdm:ZWave:EB5A9F6C/2"
-
-    def test_get_device_uid_from_setting_uid_secure(self):
-        assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2:secure") == "hdm:ZWave:EB5A9F6C/2"
-
-    def test_get_device_uid_from_element_uid(self):
-        assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "hdm:ZWave:F6BF9812/2"
-
-    def test_get_device_uid_from_element_uid_secure(self):
-        assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2:secure#2") == "hdm:ZWave:F6BF9812/2"
 
     def test_in_online_online(self, mydevolo):
         device = Zwave(**self.devices.get("mains").get("properties"))

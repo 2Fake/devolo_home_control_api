@@ -28,5 +28,20 @@ class ConsumptionProperty(Property):
         self.current = kwargs.get("current")
         self.current_unit = "W"
         self.total = kwargs.get("total")
-        self.total_since = datetime.fromtimestamp(kwargs.get("total_since", 0) / 1000)
         self.total_unit = "kWh"
+
+        # Set last activity to 1.1.1970. Will be corrected by ConsumptionProperty.total_since.
+        self._total_since = datetime.fromtimestamp(0)
+        self.total_since = kwargs.get("total_since", 0)
+
+
+    @property
+    def total_since(self) -> datetime:
+        """ Date and time the binary sensor was last triggered. """
+        return self._total_since
+
+    @total_since.setter
+    def total_since(self, timestamp: int):
+        """ Convert a timestamp in millisecond to a datetime object. """
+        self._total_since = datetime.fromtimestamp(timestamp / 1000)
+        self._logger.debug(f"self.total_since of element_uid {self.element_uid} set to {self._total_since}.")

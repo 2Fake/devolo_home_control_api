@@ -139,6 +139,18 @@
       "uid": "hdm:ZWave:F6BF9812/5",
       "zone": "Living Room"
     },
+    "remote": {
+      "UID": "hdm:ZWave:F6BF9812/11",
+      "batteryLevel": 90,
+      "batteryLow": false,
+      "elementUIDs": [
+		    "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
+      ],
+      "itemName": "Remote Control",
+      "key_count": 4,
+      "uid": "hdm:ZWave:F6BF9812/11",
+      "zone": "Living Room"
+    },
     "sensor": {
       "UID": "hdm:ZWave:F6BF9812/6",
       "settingUIDs": [

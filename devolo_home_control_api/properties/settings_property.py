@@ -9,7 +9,9 @@ from .property import Property
 
 class SettingsProperty(Property):
     """
-    Object for settings. It stores the different settings.
+    Object for settings. Basically, everything can be stored in here as long as there is a corresponding functional item on
+    the gateway. This is to be as flexible to gateway firmware changes as possible. So if new attributes appear or old ones
+    are removed, they should be handled at least in reading them. Nevertheless, a few unwanted attributes are filtered.
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
@@ -22,7 +24,6 @@ class SettingsProperty(Property):
             raise WrongElementError()
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
-        self.setting_uid = element_uid
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -38,6 +39,12 @@ class SettingsProperty(Property):
         # Depending on the type of setting property, this will create a callable named "set".
         # However, this methods are not working, if the gateway is connected locally, yet.
         self.set = setter_method.get(element_uid.split(".")[0])
+
+        # Clean up attributes which are unwanted.
+        clean_up_list = ["device_uid"]
+        for attribute in clean_up_list:
+            if hasattr(self, attribute):
+                delattr(self, attribute)
 
 
     def _set_bas(self, value: bool):

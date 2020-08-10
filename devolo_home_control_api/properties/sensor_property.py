@@ -8,7 +8,7 @@ from .property import Property
 
 class SensorProperty(Property):
     """
-    Object for sensors. It stores the sensor and sub type
+    Object for sensors. It stores the sensor and sub type.
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object

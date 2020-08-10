@@ -2,8 +2,6 @@ from datetime import datetime
 
 import pytest
 
-from devolo_home_control_api.homecontrol import camel_case_to_snake_case, get_sub_device_uid_from_element_uid
-
 
 @pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
 @pytest.mark.usefixtures("home_control_instance")
@@ -20,23 +18,17 @@ class TestHomeControl:
     def test_blinds_devices(self):
         assert hasattr(self.homecontrol.blinds_devices[0], "multi_level_switch_property")
 
-    def test_camel_case_to_snake_case(self):
-        assert camel_case_to_snake_case("CamelCase") == "camel_case"
-        assert camel_case_to_snake_case("camelCase") == "camel_case"
-
     def test_multi_level_sensor_devices(self):
         assert hasattr(self.homecontrol.multi_level_sensor_devices[0], "multi_level_sensor_property")
 
     def test_multi_level_switch_devices(self):
         assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
 
-    def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 9
+    def test_remote_control_devices(self):
+        assert hasattr(self.homecontrol.remote_control_devices[0], "remote_control_property")
 
-    def test_get_sub_device_uid_from_element_uid(self):
-        # TODO: Use test data
-        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
-        assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
+    def test_get_publisher(self):
+        assert len(self.homecontrol.publisher._events) == 10
 
     def test__binary_async_siren(self):
         device = self.devices.get("siren").get("uid")
@@ -71,15 +63,6 @@ class TestHomeControl:
                                  "total": self.devices.get("mains").get("total_consumption"),
                                  "sinceTime": self.devices.get("mains").get("properties").get("total_consumption")}})
         assert hasattr(self.homecontrol.devices.get(device), "consumption_property")
-
-    def test__dewpoint(self):
-        # TODO: Use test data
-        device = self.devices.get("humidity").get("uid")
-        del self.homecontrol.devices[device].dewpoint_sensor_property
-        assert not hasattr(self.homecontrol.devices.get(device), "dewpoint_sensor_property")
-        self.homecontrol._dewpoint({"UID": self.devices.get("humidity").get("elementUIDs")[1],
-                                   "properties": {"value": 24.4, "sensorType": "dewpoint"}})
-        assert hasattr(self.homecontrol.devices.get(device), "dewpoint_sensor_property")
 
     def test__general_device(self):
         # TODO: Use test data
@@ -132,15 +115,6 @@ class TestHomeControl:
         self.homecontrol._led({"UID": "vfs.hdm:ZWave:F6BF9812/6", "properties": {"feedback": True}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
 
-    def test__mildew(self):
-        # TODO: Use test data
-        device = self.devices.get("humidity").get("uid")
-        del self.homecontrol.devices[device].mildew_sensor_property
-        assert not hasattr(self.homecontrol.devices.get(device), "mildew_sensor_property")
-        self.homecontrol._mildew({"UID": self.devices.get("humidity").get("elementUIDs")[0],
-                                  "properties": {"value": 0, "sensorType": "mildew"}})
-        assert hasattr(self.homecontrol.devices.get(device), "mildew_sensor_property")
-
     def test__motion_sensitivity(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
@@ -183,6 +157,16 @@ class TestHomeControl:
                                                      "remote_switch": False}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "local_switching")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "remote_switching")
+
+    def test__remote_control(self):
+        device = self.devices.get("remote").get("uid")
+        element_uid = self.devices.get("remote").get("elementUIDs")[0]
+        del self.homecontrol.devices[device].remote_control_property
+        assert not hasattr(self.homecontrol.devices.get(device), "remote_control_property")
+        self.homecontrol._remote_control({"UID": element_uid,
+                                          "properties": {"keyCount": self.devices.get("remote").get("key_count"),
+                                                         "keyPressed": 1}})
+        assert self.homecontrol.devices.get(device).remote_control_property[element_uid].key_pressed == 1
 
     def test__temperature_report(self):
         # TODO: Use test data

@@ -21,11 +21,13 @@ class BinarySensorProperty(SensorProperty):
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.BinarySensor:",
+                                       "devolo.MildewSensor:",
                                        "devolo.SirenBinarySensor:")):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
         self.state = kwargs.get("state")
 
+        # Set last activity to 1.1.1970. Will be corrected by BinarySensorProperty.last_activity.
         self._last_activity = datetime.fromtimestamp(0)
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
@@ -41,3 +43,4 @@ class BinarySensorProperty(SensorProperty):
         """ Convert a timestamp in millisecond to a datetime object. """
         if timestamp != -1:
             self._last_activity = datetime.fromtimestamp(timestamp / 1000)
+            self._logger.debug(f"self.last_acitivity of element_uid {self.element_uid} set to {self._last_activity}.")

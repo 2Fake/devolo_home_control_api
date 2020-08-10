@@ -23,7 +23,7 @@ setuptools.setup(
     ],
     install_requires=[
         "requests",
-        "websocket_client<=0.56.0",
+        "websocket_client",
         "zeroconf"
     ],
     setup_requires=[
@@ -32,7 +32,7 @@ setuptools.setup(
     tests_require=[
         "pytest",
         "pytest-cov",
-        "pytest-mock<2"
+        "pytest-mock"
     ],
     python_requires='>=3.6',
 )

@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 
 from requests import ReadTimeout
 
@@ -31,6 +32,7 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
         response = self.post(data)
+        self._logger.debug(f"Response of 'get_all_devices':\n{response}")
         return response.get("result").get("items")[0].get("properties").get("deviceUIDs")
 
     def get_data_from_uid_list(self, uids: list) -> list:
@@ -44,6 +46,7 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [uids, 0]}
         response = self.post(data)
+        self._logger.debug(f"Response of 'get_data_from_uid_list':\n{response}")
         return response.get("result").get("items")
 
     def get_name_and_element_uids(self, uid: str):
@@ -55,11 +58,13 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
         response = self.post(data)
+        self._logger.debug(f"Response of 'get_name_and_element_uids':\n{response}")
         return response.get("result").get("items")[0].get("properties")
 
     def post(self, data: dict) -> dict:
         """
-        Communicate with the RPC interface.
+        Communicate with the RPC interface. If the call times out, it is assumed that the gateway is offline and the state is
+        changed accordingly.
 
         :param data: Data to be send
         :return: Response to the data
@@ -74,15 +79,19 @@ class MprmRest:
                                           timeout=30).json()
         except ReadTimeout:
             self._logger.error("Gateway is offline.")
+            self._logger.debug(sys.exc_info())
             self.gateway.update_state(False)
             raise GatewayOfflineError("Gateway is offline.") from None
         if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")
+            self._logger.debug(f"Message had ID {data['id']}, response had ID {response['id']}.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
 
     def refresh_session(self):
-        """ Refresh curretly running session. Without this call from time to time especially websockets will terminate. """
+        """
+        Refresh currently running session. Without this call from time to time especially websockets will terminate.
+        """
         self._logger.debug("Refreshing session.")
         data = {"method": "FIM/invokeOperation",
                 "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}

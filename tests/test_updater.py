@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime
+from time import time
 
 
 @pytest.mark.usefixtures("home_control_instance")
@@ -92,12 +93,12 @@ class TestUpdater:
         element_uid = self.devices.get("mains").get("elementUIDs")[0]
         total_since = self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .consumption_property.get(element_uid).total_since
-        now = datetime.now()
+        now = time() * 1000
         self.homecontrol.updater.update_total_since(element_uid=element_uid, total_since=now)
         assert total_since != self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
             .consumption_property.get(element_uid).total_since
         assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-                   .consumption_property.get(element_uid).total_since == now
+                   .consumption_property.get(element_uid).total_since == datetime.fromtimestamp(now / 1000)
 
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
@@ -187,16 +188,6 @@ class TestUpdater:
                                                            "data": 0}}})
         assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
-    def test__dewpoint(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        dewpoint_sensor_property = self.homecontrol.devices.get(uid).dewpoint_sensor_property
-        value_before = dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
-        self.homecontrol.updater._dewpoint({"properties": {
-                                            "uid": f"devolo.DewpointSensor:{uid}",
-                                            "property.value.new": 18}})
-        assert value_before != dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value
-        assert dewpoint_sensor_property.get(f"devolo.DewpointSensor:{uid}").value == 18
-
     def test__gateway_accessible(self):
         self.homecontrol.gateway.online = True
         self.homecontrol.gateway.sync = True
@@ -261,16 +252,6 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).consumption_property \
             .get(f"devolo.Meter:{uid}").current == current_new
 
-    def test__mildew(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        mildew_sensor_property = self.homecontrol.devices.get(uid).mildew_sensor_property
-        state_before = mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-        self.homecontrol.updater._mildew({"properties": {
-                                          "uid": f"devolo.MildewSensor:{uid}",
-                                          "property.value.new": True}})
-        assert state_before != mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-        assert mildew_sensor_property.get(f"devolo.MildewSensor:{uid}").state
-
     def test__multi_level_sensor(self):
         uid = self.devices.get("sensor").get("uid")
         self.homecontrol.devices.get(uid).multi_level_sensor_property \
@@ -303,8 +284,20 @@ class TestUpdater:
         assert current_new == device.get("max")
         assert current != current_new
 
+    def test__remote_control(self):
+        device = self.devices.get("remote")
+        uid = device.get("uid")
+        self.homecontrol.devices.get(uid).remote_control_property \
+            .get(device.get("elementUIDs")[0]).key_pressed = 0
+        self.homecontrol.updater._remote_control(message={"properties":
+                                                 {"uid": device.get("elementUIDs")[0],
+                                                  "property.value.new": 1}})
+
+        assert self.homecontrol.devices.get(uid).remote_control_property \
+            .get(device.get("elementUIDs")[0]).key_pressed == 1
+
     def test__since_time(self):
-        now = datetime.now()
+        now = time() * 1000
         total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
             .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
@@ -312,7 +305,7 @@ class TestUpdater:
         new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
             .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
         assert total_since != new_total_since
-        assert new_total_since == now
+        assert new_total_since == datetime.fromtimestamp(now / 1000)
 
     def test__voltage_multi_level_sensor(self):
         uid = self.devices.get("mains").get("uid")

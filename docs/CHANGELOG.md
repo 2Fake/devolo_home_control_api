@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.13.0] - 2020/08/10
+
+### Added
+
+- Support for devolo Key-Fob
+- Support for devolo Wall Switch
+
+### Changed
+
+- **BREAKING**: MildewProperty was reimplemented as BinarySensorProperty and DewpointProperty was reimplemented as MultiLevelSensorProperty.
+- **BREAKING**: Devices attributes manID and manufacturerId, prodID and productId as well as prodTypeID and productTypeId were merged 
+to manufacturer_id, product_id and product_type_id respectively.
+
+### Fixed
+
+- Publisher sends consumption type additionally to element_uid and consumption value.
+
 ## [v0.12.0] - 2020/06/09
 
 ### Added

@@ -9,7 +9,8 @@ from .property import Property
 
 class MultiLevelSwitchProperty(Property):
     """
-    Object for multi level switches. It stores the multi level state
+    Object for multi level switches. It stores the multi level state and additional information that help displaying the state
+    in the right context.
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
@@ -41,7 +42,7 @@ class MultiLevelSwitchProperty(Property):
 
     @property
     def unit(self) -> str:
-        """ Human readable unit of the property. """
+        """ Human readable unit of the property. Defaults to percent. """
         units = {"temperature": "°C",
                  "tone": None}
         return units.get(self.switch_type, "%")
@@ -56,3 +57,6 @@ class MultiLevelSwitchProperty(Property):
         response = self.post(data)
         if response.get("result").get("status") == 1:
             self.value = value
+            self._logger.debug(f"Multi level switch property {self.element_uid} set to {value}")
+        else:
+            self._logger.debug(f"Something went wrong. Response to set command:\n{response}")
