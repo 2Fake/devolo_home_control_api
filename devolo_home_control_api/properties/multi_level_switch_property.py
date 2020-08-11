@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 
 from requests import Session
 
+from .property import Property
 from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
-from .property import Property
 
 
 class MultiLevelSwitchProperty(Property):
@@ -34,19 +34,17 @@ class MultiLevelSwitchProperty(Property):
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        self.value = kwargs.get("value")
-        self.switch_type = kwargs.get("switch_type")
-        self.max = kwargs.get("max", 100)
-        self.min = kwargs.get("min", 0)
-
+        self.value = kwargs.get("value", 0.0)
+        self.switch_type = kwargs.get("switch_type", "")
+        self.max = kwargs.get("max", 100.0)
+        self.min = kwargs.get("min", 0.0)
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> Optional[str]:
         """ Human readable unit of the property. Defaults to percent. """
         units = {"temperature": "°C",
                  "tone": None}
         return units.get(self.switch_type, "%")
-
 
     def set(self, value: float):
         if value > self.max or value < self.min:
@@ -55,7 +53,7 @@ class MultiLevelSwitchProperty(Property):
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "sendValue", [value]]}
         response = self.post(data)
-        if response.get("result").get("status") == 1:
+        if response["result"].get("status") == 1:
             self.value = value
             self._logger.debug(f"Multi level switch property {self.element_uid} set to {value}")
         else:

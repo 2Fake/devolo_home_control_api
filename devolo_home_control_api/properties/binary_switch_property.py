@@ -32,7 +32,7 @@ class BinarySwitchProperty(Property):
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "turnOn" if state else "turnOff", []]}
         response = self.post(data)
-        if response.get("result").get("status") == 1:
+        if response["result"].get("status") == 1:
             self.state = state
             self._logger.debug(f"Binary switch property {self.element_uid} set to {state}")
         else:

@@ -23,8 +23,8 @@ class RemoteControlProperty(Property):
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        self.key_count = kwargs.get("key_count")
-        self.key_pressed = kwargs.get("key_pressed")
+        self.key_count = kwargs.get("key_count", 0)
+        self.key_pressed = kwargs.get("key_pressed", 0)
 
 
     def set(self, key_pressed: int):

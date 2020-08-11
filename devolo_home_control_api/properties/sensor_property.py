@@ -22,5 +22,5 @@ class SensorProperty(Property):
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        self.sensor_type = kwargs.get("sensor_type")
-        self.sub_type = kwargs.get("sub_type")
+        self.sensor_type = kwargs.get("sensor_type", "")
+        self.sub_type = kwargs.get("sub_type", "")
