@@ -212,7 +212,7 @@ class HomeControl(Mprm):
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
-                    "mss.hdm": self._motion_sensitivity,
+                    "mss.hdm": self._multilevel_sync,
                     "ps.hdm": self._protection,
                     "trs.hdm": self._temperature_report,
                     "vfs.hdm": self._led
@@ -291,16 +291,23 @@ class HomeControl(Mprm):
                                 total=uid_info["properties"]["totalValue"],
                                 total_since=uid_info["properties"]["sinceTime"])
 
-    def _motion_sensitivity(self, uid_info: dict):
-        """ Process motion sensitivity setting (mss) properties. """
+    def _multilevel_sync(self, uid_info: dict):
+        """ Process multilevel sync setting (mss) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
         self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
-        self.devices[device_uid].settings_property["motion_sensitivity"] = \
-            SettingsProperty(session=self._session,
-                             gateway=self.gateway,
-                             element_uid=uid_info["UID"],
-                             motion_sensitivity=uid_info["properties"]["value"],
-                             target_motion_sensitivity=uid_info["properties"]["targetValue"])
+        # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely
+        if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
+            self.devices[device_uid].settings_property["tone"] = SettingsProperty(session=self._session,
+                                                                                  gateway=self.gateway,
+                                                                                  element_uid=uid_info["UID"],
+                                                                                  tone=uid_info["properties"]["value"])
+        else:
+            self.devices[device_uid].settings_property["motion_sensitivity"] = \
+                SettingsProperty(session=self._session,
+                                 gateway=self.gateway,
+                                 element_uid=uid_info["UID"],
+                                 motion_sensitivity=uid_info["properties"]["value"],
+                                 target_motion_sensitivity=uid_info["properties"]["targetValue"])
 
     def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """

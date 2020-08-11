@@ -121,15 +121,21 @@ class TestHomeControl:
         self.homecontrol._led({"UID": "vfs.hdm:ZWave:F6BF9812/6", "properties": {"feedback": True}})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
 
-    def test__motion_sensitivity(self):
-        # TODO: Use test data
+    def test__multilevel_sync_sensor(self):
         device = self.devices.get("sensor").get("uid")
-        self.homecontrol._motion_sensitivity({"UID": "mss.hdm:ZWave:F6BF9812/6",
-                                              "properties": {"value": 60, "targetValue": 60}})
+        self.homecontrol._multilevel_sync({"UID": self.devices.get("sensor").get("settingUIDs")[2],
+                                           "properties": self.devices.get("sensor").get("properties")})
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
                        "motion_sensitivity")
         assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
                        "target_motion_sensitivity")
+
+    def test__multilevel_sync_siren(self):
+        device = self.devices.get("siren").get("uid")
+        self.homecontrol._multilevel_sync({"UID": self.devices.get("siren").get("settingUIDs")[0],
+                                           "properties": self.devices.get("siren").get("properties")})
+        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("tone"),
+                       "tone")
 
     def test__multi_level_sensor(self):
         # TODO: Use test data

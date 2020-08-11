@@ -153,15 +153,21 @@
     },
     "sensor": {
       "UID": "hdm:ZWave:F6BF9812/6",
+      "device_model_uid": "devolo.model.Motion",
       "settingUIDs": [
         "gds.hdm:ZWave:F6BF9812/6",
         "cps.hdm:ZWave:F6BF9812/6",
+        "mss.hdm:ZWave:F6BF9812/6",
         "trs.hdm:ZWave:F6BF9812/6",
         "vfs.hdm:ZWave:F6BF9812/6"
       ],
       "icon": "icon_16",
       "prodID": "0x000e",
       "prodTypeID": "0x0002",
+      "properties": {
+        "value": 60,
+        "targetValue": 60
+      },
       "itemName": "Window",
       "elementUIDs": [
         "devolo.BinarySensor:hdm:ZWave:F6BF9812/6",
@@ -199,7 +205,13 @@
       "last_activity": 1581419650436,
       "muted": true,
       "uid": "hdm:ZWave:F6BF9812/8",
+      "properties": {
+        "value": 8
+      },
       "sensor_type": "siren",
+      "settingUIDs": [
+        "mss.hdm:ZWave:F6BF9812/8"
+      ],
       "state": 1,
       "switch_type": "tone",
       "zone": "Living Room"
