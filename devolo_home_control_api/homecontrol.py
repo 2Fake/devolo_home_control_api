@@ -70,8 +70,10 @@ class HomeControl(Mprm):
     def blinds_devices(self) -> list:
         """ Get all blinds devices. """
         blinds_devices = []
-        [[blinds_devices.append(device) for multi_level_switch_property in device.multi_level_switch_property
-          if multi_level_switch_property.startswith("devolo.Blinds")] for device in self.multi_level_switch_devices]
+        for device in self.multi_level_switch_devices:
+            blinds_devices.extend([self.devices[device.uid] for multi_level_switch_property
+                                   in device.multi_level_switch_property
+                                   if multi_level_switch_property.startswith("devolo.Blinds")])
         return blinds_devices
 
     @property
