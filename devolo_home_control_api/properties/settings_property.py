@@ -61,9 +61,7 @@ class SettingsProperty(Property):
     def _set_gds(self, **kwargs: Any):
         """
         Set one or more general device setting.
-        :Keyword Arguments:
-            * *events_enabled* (``bool``) --
-            Extra stuff
+
         :key events_enabled: Show events in diary
         :type events_enabled: bool
         :key icon: New icon name
@@ -74,7 +72,8 @@ class SettingsProperty(Property):
         :type events_enabled: string
         """
         allowed = ["events_enabled", "icon", "name", "zone_id"]
-        [setattr(self, item, kwargs.get(item, getattr(self, item))) for item in allowed]
+        for item in allowed:
+            setattr(self, item, kwargs.get(item, getattr(self, item)))
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "save", [{"events_enabled": self.events_enabled,
                                                        "icon": self.icon,

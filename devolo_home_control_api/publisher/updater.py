@@ -134,10 +134,10 @@ class Updater:
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         if kwargs.get("zone") is not None:
-            self.devices.get(device_uid).humidity_bar_property[element_uid].zone = kwargs["zone"]
+            self.devices[device_uid].humidity_bar_property[element_uid].zone = kwargs["zone"]
             self._logger.debug(f'Updating humidity bar zone of {element_uid} to {kwargs["zone"]}')
         if kwargs.get("value") is not None:
-            self.devices.get(device_uid).humidity_bar_property[element_uid].value = kwargs["value"]
+            self.devices[device_uid].humidity_bar_property[element_uid].value = kwargs["value"]
             self._logger.debug(f'Updating humidity bar value of {element_uid} to {kwargs["value"]}')
         self._publisher.dispatch(device_uid, (element_uid,
                                               self.devices[device_uid].humidity_bar_property[element_uid].zone,

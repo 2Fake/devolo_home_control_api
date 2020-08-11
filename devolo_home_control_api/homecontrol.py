@@ -237,7 +237,7 @@ class HomeControl(Mprm):
         settings_property = SettingsProperty(session=self._session,
                                              gateway=self.gateway,
                                              element_uid=uid_info["UID"],
-                                             value=uid_info["properties"]["property.value.new"])
+                                             value=uid_info["properties"]["value"])
 
         # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
@@ -257,7 +257,7 @@ class HomeControl(Mprm):
             parent_element_uid = uid_info["UID"].replace("LastActivity", "BinarySensor")
             if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
                 self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                    uid_info.get("properties").get("lastActivityTime")
+                    uid_info["properties"]["lastActivityTime"]
             parent_element_uid = uid_info["UID"].replace("LastActivity", "SirenBinarySensor")
             if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
                 self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
@@ -345,8 +345,8 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property["param_changed"] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info.get('UID'),
-                             param_changed=uid_info.get('properties')["paramChanged"])
+                             element_uid=uid_info['UID'],
+                             param_changed=uid_info['properties']["paramChanged"])
 
     def _protection(self, uid_info: dict):
         """ Process protection setting (ps) properties. """
@@ -355,7 +355,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property["protection"] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info.get('UID'),
+                             element_uid=uid_info['UID'],
                              local_switching=uid_info["properties"]["localSwitch"],
                              remote_switching=uid_info["properties"]["remoteSwitch"])
 
@@ -380,7 +380,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property["temperature_report"] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info.get('UID'),
+                             element_uid=uid_info['UID'],
                              temp_report=uid_info["properties"]["tempReport"],
                              target_temp_report=uid_info["properties"]["targetTempReport"])
 

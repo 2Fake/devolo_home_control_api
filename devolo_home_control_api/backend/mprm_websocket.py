@@ -109,9 +109,9 @@ class MprmWebsocket(MprmRest):
 
     def _on_message(self, message: str):
         """ Callback method to react on a message. """
-        message = json.loads(message)
-        self._logger.debug(f"Got message from websocket:\n{message}")
-        event_sequence = message["properties"]["com.prosyst.mbs.services.remote.event.sequence.number"]
+        msg = json.loads(message)
+        self._logger.debug(f"Got message from websocket:\n{msg}")
+        event_sequence = msg["properties"]["com.prosyst.mbs.services.remote.event.sequence.number"]
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:
@@ -120,7 +120,7 @@ class MprmWebsocket(MprmRest):
             self._event_sequence = event_sequence + 1
             self._logger.debug(f"self._event_sequence is set to {self._event_sequence}")
 
-        self.on_update(message)
+        self.on_update(msg)
 
     def _on_open(self):
         """ Callback method to keep the websocket open. """
