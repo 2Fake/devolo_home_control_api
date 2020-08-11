@@ -34,7 +34,7 @@ class TestHomeControl:
         device = self.devices.get("siren").get("uid")
         muted = self.devices.get("siren").get("muted")
         self.homecontrol._binary_async({"UID": f"bas.{device}",
-                                               "properties": {"property.value.new": not muted}})
+                                               "properties": {"value": not muted}})
         assert self.homecontrol.devices.get(device).settings_property.get("muted").value is not muted
 
     def test__binary_sensor(self):
