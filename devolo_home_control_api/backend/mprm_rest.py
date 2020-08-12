@@ -34,7 +34,12 @@ class MprmRest:
         self._logger.debug(f"Response of 'get_all_devices':\n{response}")
         return response["result"]["items"][0]["properties"]["deviceUIDs"]
 
-    def get_all_zones(self):
+    def get_all_zones(self) -> list:
+        """
+        Get all zones, also called rooms.
+
+        :return: All zone IDs and their name.
+        """
         self._logger.debug("Inspecting zones")
         data = {"method": "FIM/getFunctionalItems",
                 "params": [["devolo.Grouping"], 0]}

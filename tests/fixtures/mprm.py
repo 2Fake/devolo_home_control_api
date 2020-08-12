@@ -141,6 +141,22 @@ def mock_mprmrest__post(mocker, request):
         "test_get_all_devices": {
             "result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}
         },
+        "test_get_all_zones": {
+            "result": {
+                "items": [
+                    {
+                        "properties": {
+                            "zones": [
+                                {
+                                    "id": "hz_3",
+                                    "name": "Office"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
     }
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
