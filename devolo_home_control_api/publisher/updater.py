@@ -73,7 +73,6 @@ class Updater:
         :param element_uid: Element UID, something like, bas.hdm:ZWave:CBC56091/24#2
         :param value: True for setting set, False for setting not set
         """
-
         device_uid = get_device_uid_from_setting_uid(element_uid)
         try:
             self.devices[device_uid].settings_property[camel_case_to_snake_case(element_uid).split("#")[-1]].value = value

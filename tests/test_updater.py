@@ -124,6 +124,22 @@ class TestUpdater:
         self.homecontrol.updater.update(message={"properties":
                                         {"uid": "fibaro"}})
 
+    def test__binary_async_blinds(self):
+        uid = self.devices['blinds']['uid']
+        self.homecontrol.devices[uid].settings_property['i2'].value = self.devices['blinds']['i2']
+        self.homecontrol.updater._binary_async(message={"properties": {
+                                               "uid": f"bas.{uid}#i2",
+                                               "property.value.new": not self.devices['blinds']['i2']}})
+        assert not self.homecontrol.devices[uid].settings_property['i2'].value
+
+    def test__binary_async_siren(self):
+        uid = self.devices['siren']['uid']
+        self.homecontrol.devices[uid].settings_property['muted'].value = self.devices['siren']['muted']
+        self.homecontrol.updater._binary_async(message={"properties": {
+                                               "uid": f"bas.{uid}",
+                                               "property.value.new": not self.devices['siren']['muted']}})
+        assert not self.homecontrol.devices[uid].settings_property['muted'].value
+
     def test__binary_sensor(self):
         uid = self.devices.get("sensor").get("uid")
         self.homecontrol.devices.get(uid).binary_sensor_property \
