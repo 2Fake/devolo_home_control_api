@@ -39,11 +39,14 @@ class HomeControl(Mprm):
         self.gateway = Gateway(gateway_id)
         super().__init__()
 
+        self.gateway.zones = self.get_all_zones()
+
         # Create the initial device dict
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([(self.devices[device].item_name + "/" + self.devices[device].zone)
+        self.device_names = dict(zip([(self.devices[device].settings_property["general_device_settings"].name + "/" +
+                                       self.devices[device].settings_property["general_device_settings"].zone)
                                       for device in self.devices],
                                      [self.devices[device].uid for device in self.devices]))
 

@@ -16,6 +16,10 @@ class Zwave:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
 
+        unwanted_value = ["icon", "itemName", "zone", "zoneId"]
+        for value in unwanted_value:
+            del kwargs[value]
+
         for key, value in kwargs.items():
             setattr(self, camel_case_to_snake_case(key), value)
         self.uid = get_device_uid_from_element_uid(self.element_uids[0])

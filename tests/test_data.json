@@ -126,7 +126,7 @@
       "min": 4,
       "max": 28,
       "uid": "hdm:ZWave:F6BF9812/9",    
-      "switch_type": "temperatur",
+      "switch_type": "temperature",
       "value": 20,
       "zone": "Living Room"
     },

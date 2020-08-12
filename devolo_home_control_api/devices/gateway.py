@@ -33,6 +33,8 @@ class Gateway:
         self.online = False
         self.sync = False
 
+        self.zones = {}
+
         self._update_state(status=details.get("status"), state=details.get("state"))
 
 
