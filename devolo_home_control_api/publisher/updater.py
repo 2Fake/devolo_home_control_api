@@ -34,6 +34,7 @@ class Updater:
         :param message: Message to process
         """
         message_type = {"bas.hdm": self._binary_async,
+                        "gds.hdm": self._general_device,
                         "devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.Blinds": self._multi_level_switch,
@@ -61,7 +62,11 @@ class Updater:
 
     def update_binary_async_value(self, element_uid: str, value: bool):
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property[camel_case_to_snake_case(element_uid).split("#")[-1]].value = value
+        try:
+            self.devices[device_uid].settings_property[camel_case_to_snake_case(element_uid).split("#")[-1]].value = value
+        except KeyError:
+            # Siren setting is not initialized like others.
+            self.devices[device_uid].settings_property["muted"].value = value
         self._logger.debug(f"Udating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -129,6 +134,11 @@ class Updater:
         self._logger.debug(f"Updating status and state of gateway to status: {accessible} and state: {online_sync}")
         self._gateway.online = accessible
         self._gateway.sync = online_sync
+
+    def update_general_device_settings(self, element_uid, **kwargs: str):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        for key, value in kwargs.items():
+            setattr(self.devices[device_uid].settings_property["general_device_settings"], key, value)
 
     def update_humidity_bar(self, element_uid: str, **kwargs: Any):
         """
@@ -273,6 +283,13 @@ class Updater:
         if message["properties"]["property.name"] == "gatewayAccessible":
             self.update_gateway_state(accessible=message["properties"]["property.value.new"]["accessible"],
                                       online_sync=message["properties"]["property.value.new"]["onlineSync"])
+
+    def _general_device(self, message: dict):
+        self.update_general_device_settings(element_uid=message["properties"]["uid"],
+                                            events_enabled=message["properties"]["property.value.new"]["eventsEnabled"],
+                                            icon=message["properties"]["property.value.new"]["icon"],
+                                            name=message["properties"]["property.value.new"]["name"],
+                                            zone_id=message["properties"]["property.value.new"]["zoneID"])
 
     def _humidity_bar(self, message: dict):
         """ Update a humidity bar. """
