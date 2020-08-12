@@ -45,8 +45,8 @@ class HomeControl(Mprm):
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([(self.devices[device].settings_property["general_device_settings"].name + "/" +
-                                       self.devices[device].settings_property["general_device_settings"].zone)
+        self.device_names = dict(zip([(self.devices[device].settings_property["general_device_settings"].name + "/"
+                                     + self.devices[device].settings_property["general_device_settings"].zone)
                                       for device in self.devices],
                                      [self.devices[device].uid for device in self.devices]))
 
@@ -224,7 +224,7 @@ class HomeControl(Mprm):
                     }
 
         # List comprehension gets the list of uids from every device
-        nested_uids_lists = [(uid["properties"].get('settingUIDs')
+        nested_uids_lists = [(uid["properties"].get("settingUIDs")
                               + uid["properties"]["elementUIDs"])
                              for uid in devices_properties]
 
@@ -302,10 +302,11 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
         # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
-            self.devices[device_uid].settings_property["tone"] = SettingsProperty(session=self._session,
-                                                                                  gateway=self.gateway,
-                                                                                  element_uid=uid_info["UID"],
-                                                                                  tone=uid_info["properties"]["value"])
+            self.devices[device_uid].settings_property["tone"] = \
+                SettingsProperty(session=self._session,
+                                 gateway=self.gateway,
+                                 element_uid=uid_info["UID"],
+                                 tone=uid_info["properties"]["value"])
         else:
             self.devices[device_uid].settings_property["motion_sensitivity"] = \
                 SettingsProperty(session=self._session,

@@ -71,7 +71,7 @@ def metering_plug(device_uid: str) -> Zwave:
                                                                                "itemName"),
                                                                            zone_id=test_data.get("devices").get(
                                                                                "mains").get("properties").get(
-                                                                               "zone_id"))
+                                                                               "zoneId"))
     device.settings_property["led"] = SettingsProperty(gateway=gateway,
                                                        session=session,
                                                        element_uid=f"lis.{device_uid}",

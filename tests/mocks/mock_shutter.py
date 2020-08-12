@@ -36,9 +36,18 @@ def shutter(device_uid: str) -> Zwave:
                                  max=test_data.get("devices").get("blinds").get("max"),
                                  min=test_data.get("devices").get("blinds").get("min"))
 
-    device.settings_property['i2'] = SettingsProperty(session=session,
-                                                      gateway=gateway,
-                                                      element_uid=f"bas.{device_uid}",
-                                                      value=test_data.get("devices").get("blinds").get("i2"))
+    device.settings_property['i2'] = \
+        SettingsProperty(session=session,
+                         gateway=gateway,
+                         element_uid=f"bas.{device_uid}",
+                         value=test_data.get("devices").get("blinds").get("i2"))
+
+    device.settings_property["general_device_settings"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'gds.{device_uid}',
+                         icon=test_data.get("devices").get("blinds").get("icon"),
+                         name=test_data.get("devices").get("blinds").get("itemName"),
+                         zone_id=test_data.get("devices").get("blinds").get("zoneId"))
 
     return device

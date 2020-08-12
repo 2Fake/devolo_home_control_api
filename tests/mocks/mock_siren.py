@@ -46,5 +46,12 @@ def siren(device_uid: str) -> Zwave:
                          session=session,
                          element_uid=f'bas.{device_uid}',
                          value=test_data.get("devices").get("siren").get("muted"))
+    device.settings_property["general_device_settings"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'gds.{device_uid}',
+                         icon=test_data.get("devices").get("siren").get("icon"),
+                         name=test_data.get("devices").get("blinds").get("itemName"),
+                         zone_id=test_data.get("devices").get("siren").get("zoneId"))
 
     return device

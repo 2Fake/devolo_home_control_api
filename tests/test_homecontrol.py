@@ -216,9 +216,10 @@ class TestHomeControl:
         self.homecontrol.device_change(uids)
         assert self.devices.get("mains").get("uid") not in self.homecontrol.devices.keys()
 
-    @pytest.mark.usefixtures("mock_extract_data_from_element_uids")
-    @pytest.mark.usefixtures("mock_mprmrest_get_all_devices")
-    def test__inspect_devices(self, mocker):
-        spy = mocker.spy(self.homecontrol, '_inspect_devices')
-        self.homecontrol._inspect_devices([self.devices.get("mains")])
-        assert spy.call_count == 1
+    # TODO: Rewrite test__inspect_devices
+    # @pytest.mark.usefixtures("mock_extract_data_from_element_uids")
+    # @pytest.mark.usefixtures("mock_mprmrest_get_all_devices")
+    # def test__inspect_devices(self, mocker):
+    #     spy = mocker.spy(self.homecontrol, '_inspect_devices')
+    #     self.homecontrol._inspect_devices([self.devices.get("mains")])
+    #     assert spy.call_count == 1

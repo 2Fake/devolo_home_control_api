@@ -46,6 +46,7 @@ def mock_mprmrest_get_all_devices(mocker, request):
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_all_devices",
                      return_value=["hdm:ZWave:F6BF9812/2"])
 
+
 @pytest.fixture()
 def mock_mprmrest_get_all_zones(mocker, request):
     """ Mock getting all zones from the mPRM. """
@@ -53,33 +54,60 @@ def mock_mprmrest_get_all_zones(mocker, request):
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_all_zones",
                      return_value={"hz_2": "Living Room"})
 
+
 @pytest.fixture()
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):
     """ Mock extracting device data. """
-    properties = {}
-    properties['test_fetch_binary_switch_state_valid_on'] = {"properties": {"state": 1}}
-    properties['test_fetch_binary_switch_state_valid_off'] = {"properties": {"state": 0}}
-    properties['test_fetch_consumption_valid'] = {
-        "properties": {"currentValue": request.cls.devices.get("mains").get("properties").get("current_consumption"),
-                       "totalValue": request.cls.devices.get("mains").get("properties").get("total_consumption")}}
-    properties['test_fetch_led_setting_valid'] = {
-        "properties": {"led": request.cls.devices.get("mains").get("properties").get("led_setting")}}
-    properties['test_fetch_param_changed_valid'] = {
-        "properties": {"paramChanged": request.cls.devices.get("mains").get("properties").get("param_changed")}}
-    properties['test_fetch_general_device_settings_valid'] = {
-        "properties": {"eventsEnabled": request.cls.devices.get("mains").get("properties").get("events_enabled"),
-                       "name": request.cls.devices.get("mains").get("properties").get("name"),
-                       "icon": request.cls.devices.get("mains").get("properties").get("icon"),
-                       "zoneID": request.cls.devices.get("mains").get("properties").get("zone_id")}}
-    properties['test_fetch_protection_setting_valid'] = {
-        "properties": {"localSwitch": request.cls.devices.get("mains").get("properties").get("local_switch"),
-                       "remoteSwitch": request.cls.devices.get("mains").get("properties").get("remote_switch")}}
-    properties['test_fetch_voltage_valid'] = {
-        "properties": {"value": request.cls.devices.get("mains").get("properties").get("voltage")}}
-    properties['test_update_consumption_valid'] = {
-        "properties": {"currentValue": request.cls.devices.get("mains").get("properties").get("current_consumption"),
-                       "totalValue": request.cls.devices.get("mains").get("properties").get("total_consumption")}}
-    properties['test__inspect_device'] = None
+    properties = {
+        "test_fetch_binary_switch_state_valid_on": {
+            "properties": {"state": 1}
+        },
+        "test_fetch_binary_switch_state_valid_off": {
+            "properties": {"state": 0}
+        },
+        "test_fetch_consumption_valid": {
+            "properties": {
+                "currentValue": request.cls.devices.get("mains").get("properties").get("current_consumption"),
+                "totalValue": request.cls.devices.get("mains").get("properties").get("total_consumption"),
+            }
+        },
+        "test_fetch_led_setting_valid": {
+            "properties": {
+                "led": request.cls.devices.get("mains").get("properties").get("led_setting")
+            }
+        },
+        "test_fetch_param_changed_valid": {
+            "properties": {
+                "paramChanged": request.cls.devices.get("mains").get("properties").get("param_changed")
+            }
+        },
+        "test_fetch_general_device_settings_valid": {
+            "properties": {
+                "eventsEnabled": request.cls.devices.get("mains").get("properties").get("events_enabled"),
+                "name": request.cls.devices.get("mains").get("properties").get("name"),
+                "icon": request.cls.devices.get("mains").get("properties").get("icon"),
+                "zoneID": request.cls.devices.get("mains").get("properties").get("zone_id")
+            }
+        },
+        "test_fetch_protection_setting_valid": {
+            "properties": {
+                "localSwitch": request.cls.devices.get("mains").get("properties").get("local_switch"),
+                "remoteSwitch": request.cls.devices.get("mains").get("properties").get("remote_switch")
+            }
+        },
+        "test_fetch_voltage_valid": {
+            "properties": {
+                "value": request.cls.devices.get("mains").get("properties").get("voltage")
+            }
+        },
+        "test_update_consumption_valid": {
+            "properties": {
+                "currentValue": request.cls.devices.get("mains").get("properties").get("current_consumption"),
+                "totalValue": request.cls.devices.get("mains").get("properties").get("total_consumption")
+            }
+        },
+        "test__inspect_device": None
+    }
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list",
                  return_value=properties.get(request.node.name))
@@ -89,29 +117,29 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 def mock_mprmrest__post(mocker, request):
     """ Mock getting properties from the mPRM. """
     properties = {
-        'test_get_name_and_element_uids': {
-            'result': {
-                'items': [
+        "test_get_name_and_element_uids": {
+            "result": {
+                "items": [
                     {
-                        'properties': {
-                            'itemName': 'test_name',
-                            'zone': 'test_zone',
-                            'batteryLevel': 'test_battery',
-                            'icon': 'test_icon',
-                            'elementUIDs': 'test_element_uids',
-                            'settingUIDs': 'test_setting_uids',
-                            'deviceModelUID': 'test_device_model_uid',
-                            'status': 'test_status',
+                        "properties": {
+                            "itemName": "test_name",
+                            "zone": "test_zone",
+                            "batteryLevel": "test_battery",
+                            "icon": "test_icon",
+                            "elementUIDs": "test_element_uids",
+                            "settingUIDs": "test_setting_uids",
+                            "deviceModelUID": "test_device_model_uid",
+                            "status": "test_status",
                         }
                     }
                 ]
             }
         },
-        'test_get_data_from_uid_list': {
-            'result': {'items': [{'properties': {'itemName': 'test_name'}}]}
+        "test_get_data_from_uid_list": {
+            "result": {"items": [{"properties": {"itemName": "test_name"}}]}
         },
-        'test_get_all_devices': {
-            'result': {'items': [{'properties': {'deviceUIDs': 'deviceUIDs'}}]}
+        "test_get_all_devices": {
+            "result": {"items": [{"properties": {"deviceUIDs": "deviceUIDs"}}]}
         },
     }
 
@@ -122,9 +150,9 @@ def mock_mprmrest__post(mocker, request):
 def mock_mprmrest__post_set(mocker, request):
     """ Mock setting values. """
     status = {
-        'test_set_valid': {'result': {'status': 1}},
-        'test_set_binary_switch_error': {'result': {'status': 2}},
-        'test_set_binary_switch_same': {'result': {'status': 3}},
+        "test_set_valid": {"result": {"status": 1}},
+        "test_set_binary_switch_error": {"result": {"status": 2}},
+        "test_set_binary_switch_same": {"result": {"status": 3}},
     }
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
