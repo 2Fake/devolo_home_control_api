@@ -48,7 +48,8 @@ class SettingsProperty(Property):
 
 
     @property
-    def zone(self):
+    def zone(self) -> str:
+        """ Human readable zone, also called room. """
         return self._gateway.zones[self.zone_id]
 
 

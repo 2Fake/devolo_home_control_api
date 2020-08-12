@@ -148,13 +148,26 @@ class Updater:
         self._gateway.sync = online_sync
 
     def update_general_device_settings(self, element_uid, **kwargs: str):
+        """
+        Update general device settings externally.
+
+        :param element_uid: Element UID, something like gds.hdm:ZWave:CBC56091/24
+        :key events_enabled: Show events in the diary
+        :type events_enabled: bool
+        :key icon: Icon of the device
+        :type icon: string
+        :key name: Name of the deivce
+        :type name: string
+        :key zone_id: ID of the zone, also called room
+        :type zone_id: string
+        """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         for key, value in kwargs.items():
             setattr(self.devices[device_uid].settings_property["general_device_settings"], key, value)
             self._logger.debug(f"Updating attribute: {key} of {element_uid} to {value}")
             self._publisher.dispatch(device_uid, (key, value))
 
-    def update_humidity_bar(self, element_uid: str, **kwargs: Any):
+    def update_humidity_bar(self, element_uid: str, **kwargs: int):
         """
         Update humidity bar zone or value inside that zone.
 
@@ -339,6 +352,7 @@ class Updater:
                                       online_sync=message["properties"]["property.value.new"]["onlineSync"])
 
     def _general_device(self, message: dict):
+        """ Update general device settings. """
         self.update_general_device_settings(element_uid=message["properties"]["uid"],
                                             events_enabled=message["properties"]["property.value.new"]["eventsEnabled"],
                                             icon=message["properties"]["property.value.new"]["icon"],

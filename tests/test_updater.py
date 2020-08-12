@@ -204,6 +204,19 @@ class TestUpdater:
                                                            "data": 0}}})
         assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
+    def test__general_device(self):
+        uid = self.devices['mains']['uid']
+        events_enabled = self.devices['mains']['properties']['events_enabled']
+        self.homecontrol.devices[uid].settings_property['general_device_settings'].events_enabled = events_enabled
+        self.homecontrol.updater._general_device(message={"properties":
+                                                          {"uid": f"gds.{uid}",
+                                                           "property.value.new":
+                                                           {"eventsEnabled": not events_enabled,
+                                                            "icon": self.devices['mains']['properties']['icon'],
+                                                            "name": self.devices['mains']['properties']["itemName"],
+                                                            "zoneID": self.devices['mains']['properties']["zoneId"]}}})
+        assert not self.homecontrol.devices[uid].settings_property['general_device_settings'].events_enabled
+
     def test__gateway_accessible(self):
         self.homecontrol.gateway.online = True
         self.homecontrol.gateway.sync = True
