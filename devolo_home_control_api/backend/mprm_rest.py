@@ -42,7 +42,6 @@ class MprmRest:
         self._logger.debug(f"Response of 'get_all_zones':\n{response}")
         return dict(zip([key["id"] for key in response], [key["name"] for key in response]))
 
-
     def get_data_from_uid_list(self, uids: list) -> list:
         """
         Returns data from an element UID list using an RPC call.

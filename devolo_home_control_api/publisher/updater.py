@@ -66,7 +66,14 @@ class Updater:
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
 
-    def update_binary_async_value(self, element_uid: str, value: bool):
+    def update_binary_async_setting(self, element_uid: str, value: bool):
+        """
+        Update binary async setting of a device externally. The value is written into the internal dict.
+
+        :param element_uid: Element UID, something like, bas.hdm:ZWave:CBC56091/24#2
+        :param value: True for setting set, False for setting not set
+        """
+
         device_uid = get_device_uid_from_setting_uid(element_uid)
         try:
             self.devices[device_uid].settings_property[camel_case_to_snake_case(element_uid).split("#")[-1]].value = value
@@ -276,9 +283,10 @@ class Updater:
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _binary_async(self, message: dict):
+        """ Update a binary async setting. """
         if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_binary_async_value(element_uid=message["properties"]["uid"],
-                                           value=bool(message["properties"]["property.value.new"]))
+            self.update_binary_async_setting(element_uid=message["properties"]["uid"],
+                                             value=bool(message["properties"]["property.value.new"]))
 
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """

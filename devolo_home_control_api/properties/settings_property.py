@@ -51,6 +51,7 @@ class SettingsProperty(Property):
     def zone(self):
         return self._gateway.zones[self.zone_id]
 
+
     def _set_bas(self, value: bool):
         """
         Set a binary async setting. This is e.g. the muted setting of a siren or the three way switch setting of a dimmer.

@@ -46,6 +46,12 @@ def mock_mprmrest_get_all_devices(mocker, request):
         mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_all_devices",
                      return_value=["hdm:ZWave:F6BF9812/2"])
 
+@pytest.fixture()
+def mock_mprmrest_get_all_zones(mocker, request):
+    """ Mock getting all zones from the mPRM. """
+    if request.node.name not in ["test_get_all_zones"]:
+        mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_all_zones",
+                     return_value={"hz_2": "Living Room"})
 
 @pytest.fixture()
 def mock_mprmrest__extract_data_from_element_uid(mocker, request):

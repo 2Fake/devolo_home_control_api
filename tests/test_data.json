@@ -13,7 +13,7 @@
       "prodTypeID": "0x0001",
       "status": 25,
       "uid": "hdm:ZWave:F6BF9812/3",
-      "zone_name": "Kitchen",
+      "zoneId": "hz_3",
       "zone": "Kitchen"
     },
     "ambiguous_2": {
@@ -30,7 +30,7 @@
       "prodTypeID": "0x0001",
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/4",
-      "zone_name": "Living Room",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "blinds": {
@@ -42,11 +42,13 @@
         "devolo.Blinds:hdm:ZWave:F6BF9812/10"
       ],
       "i2": true,
+      "icon": "icon_1",
       "itemName": "Shutter",
       "min": 0,
       "max": 100,
       "uid": "hdm:ZWave:F6BF9812/10",
       "value": 50,
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "humidity": {
@@ -58,11 +60,13 @@
       ],
       "batteryLevel": 100,
       "batteryLow": false,
+      "icon": "icon_1",
       "itemName": "Humidity",
       "mildew": false,
       "status": 2,
       "uid": "hdm:ZWave:F6BF9812/7",
       "value": 75,
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "mains": {
@@ -102,8 +106,7 @@
         "total_consumption": 125.68,
         "sinceTime": 1578558815924,
         "voltage": 237,
-        "zone_id": "hz_2",
-        "zone_name": "Office",
+        "zoneId": "hz_3",
         "zone": "Office"
       },
       "remote_switch": false,
@@ -122,12 +125,14 @@
       "elementUIDs": [
 		    "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
       ],
+      "icon": "icon-1",
       "itemName": "Heating",
       "min": 4,
       "max": 28,
       "uid": "hdm:ZWave:F6BF9812/9",    
       "switch_type": "temperature",
       "value": 20,
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "offline": {
@@ -135,9 +140,11 @@
       "batteryLevel": -1,
       "batteryLow": null,
       "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
+      "icon": "icon-1",
       "itemName": "Offline Device",
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/5",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "remote": {
@@ -148,8 +155,10 @@
 		    "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
       ],
       "itemName": "Remote Control",
+      "icon": "icon-1",
       "key_count": 4,
       "uid": "hdm:ZWave:F6BF9812/11",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "sensor": {
@@ -202,6 +211,7 @@
 		    "devolo.SirenMultiLevelSensor:hdm:ZWave:F6BF9812/8",
         "devolo.LastActivity:hdm:ZWave:F6BF9812/8"
       ],
+      "icon": "icon-1",
       "itemName": "Siren",
       "last_activity": 1581419650436,
       "muted": true,
@@ -215,6 +225,7 @@
       ],
       "state": 1,
       "switch_type": "tone",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     }
   },
