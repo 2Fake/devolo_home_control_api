@@ -30,6 +30,13 @@ class TestHomeControl:
     def test_get_publisher(self):
         assert len(self.homecontrol.publisher._events) == 10
 
+    def test__binary_async_blinds(self):
+        device = self.devices.get("blinds").get("uid")
+        i2 = self.devices.get("blinds").get("i2")
+        self.homecontrol._binary_async({"UID": f"bas.{device}#i2",
+                                               "properties": {"value": not i2}})
+        assert self.homecontrol.devices.get(device).settings_property.get("i2").value is not i2
+
     def test__binary_async_siren(self):
         device = self.devices.get("siren").get("uid")
         muted = self.devices.get("siren").get("muted")
@@ -151,11 +158,12 @@ class TestHomeControl:
         del self.homecontrol.devices[device].multi_level_switch_property
         assert not hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
         self.homecontrol._multi_level_switch({"UID": self.devices.get("siren").get("elementUIDs")[0],
-                                              "properties": {"state": self.devices.get("multi_level_switch").get("state"),
-                                                             "value": self.devices.get("multi_level_switch").get("value"),
-                                                             "switchType": self.devices.get("multi_level_switch").get("switch_type"),
-                                                             "max": self.devices.get("multi_level_switch").get("max"),
-                                                             "min": self.devices.get("multi_level_switch").get("min")}})
+                                              "properties": {
+                                                  "state": self.devices.get("multi_level_switch").get("state"),
+                                                  "value": self.devices.get("multi_level_switch").get("value"),
+                                                  "switchType": self.devices.get("multi_level_switch").get("switch_type"),
+                                                  "max": self.devices.get("multi_level_switch").get("max"),
+                                                  "min": self.devices.get("multi_level_switch").get("min")}})
         assert hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
 
     def test__parameter(self):
