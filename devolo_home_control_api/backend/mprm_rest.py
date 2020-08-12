@@ -34,7 +34,7 @@ class MprmRest:
         self._logger.debug(f"Response of 'get_all_devices':\n{response}")
         return response["result"]["items"][0]["properties"]["deviceUIDs"]
 
-    def get_all_zones(self) -> list:
+    def get_all_zones(self) -> dict:
         """
         Get all zones, also called rooms.
 
