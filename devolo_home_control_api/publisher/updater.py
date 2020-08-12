@@ -37,7 +37,10 @@ class Updater:
                         "cps.hdm": self._parameter,
                         "gds.hdm": self._general_device,
                         "lis.hdm": self._led,
+                        "ps.hdm": self._protection,
+                        "trs.hdm": self._temperature,
                         "vfs.hdm": self._led,
+                        "mss.hdm": self._multilevel_sync,
                         "devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.Blinds": self._multi_level_switch,
@@ -172,6 +175,16 @@ class Updater:
         self.devices[device_uid].settings_property["led"].led_setting = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+    def update_multilevel_sync(self, element_uid: str, value: int):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self._logger.debug(f"Updating {element_uid} to {value}")
+        try:
+            self.devices[device_uid].settings_property["motion_sensitivity"].motion_sensitivity = value
+        except KeyError:
+            # Exception for the siren.
+            self.devices[device_uid].settings_property["tone"].tone = value
+        self._publisher.dispatch(device_uid, (element_uid, value))
+
     def update_multi_level_sensor(self, element_uid: str, value: float):
         """
         Update the multi level sensor value externally. The value is written into the internal dict.
@@ -205,6 +218,17 @@ class Updater:
         self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
         self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
+    def update_protection(self, element_uid: str, name: str, value: bool):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        if name == "targetLocalSwitch":
+            self.devices[device_uid].settings_property["protection"].local_switching = value
+            self._logger.debug(f"Updating local switch protection of {element_uid} to {value}")
+            self._publisher.dispatch(device_uid, (element_uid, value, "local_switching"))
+        else:
+            self.devices[device_uid].settings_property["protection"].remote_switching = value
+            self._logger.debug(f"Updating remote switch protection of {element_uid} to {value}")
+            self._publisher.dispatch(device_uid, (element_uid, value, "remote_switching"))
+
     def update_remote_control(self, element_uid: str, key_pressed: int):
         """
         Update the remote control button state externally. The value is written into the internal dict.
@@ -220,6 +244,12 @@ class Updater:
             self._logger.debug(f"Updating remote control of {element_uid}.\
                                Key {f'pressed: {key_pressed}' if key_pressed != 0 else f'released: {old_key_pressed}'}")
             self._publisher.dispatch(device_uid, (element_uid, key_pressed))
+
+    def update_temperature(self, element_uid: str, value: bool):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self.devices[device_uid].settings_property["temperature_report"].temp_report = value
+        self._logger.debug(f"Updating temperature report of {element_uid} to {value}")
+        self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_total_since(self, element_uid: str, total_since: int):
         """
@@ -319,8 +349,9 @@ class Updater:
                                      value=message["properties"]["property.value.new"])
 
     def _led(self, message: dict):
-        self.update_led(element_uid=message["properties"]["uid"],
-                        value=message["properties"]["property.value.new"])
+        if type(message["properties"].get("property.value.new")) not in [dict, list]:
+            self.update_led(element_uid=message["properties"]["uid"],
+                            value=message["properties"]["property.value.new"])
 
     def _meter(self, message: dict):
         """ Update a meter value. """
@@ -341,9 +372,21 @@ class Updater:
             self.update_multi_level_switch(element_uid=message["properties"]["uid"],
                                            value=message["properties"]["property.value.new"])
 
+    def _multilevel_sync(self, message: dict):
+        if type(message["properties"].get("property.value.new")) not in [dict, list]:
+            self.update_multilevel_sync(element_uid=message["properties"]["uid"],
+                                        value=message["properties"]["property.value.new"])
+
     def _parameter(self, message: dict):
-        self.update_parameter(element_uid=message["properties"]["uid"],
-                              param_changed=message["properties"]["property.value.new"])
+        if type(message["properties"].get("property.value.new")) not in [dict, list]:
+            self.update_parameter(element_uid=message["properties"]["uid"],
+                                  param_changed=message["properties"]["property.value.new"])
+
+    def _protection(self, message: dict):
+        if type(message["properties"].get("property.value.new")) not in [dict, list]:
+            self.update_protection(element_uid=message["properties"]["uid"],
+                                   name=message["properties"]["property.name"],
+                                   value=message["properties"]["property.value.new"])
 
     def _remote_control(self, message: dict):
         """ Update a remote control. """
@@ -354,6 +397,11 @@ class Updater:
         """ Update point in time the total consumption was reset. """
         self.update_total_since(element_uid=property["uid"],
                                 total_since=property["property.value.new"])
+
+    def _temperature(self, message: dict):
+        if type(message["properties"].get("property.value.new")) not in [dict, list]:
+            self.update_temperature(element_uid=message["properties"]["uid"],
+                                    value=message["properties"]["property.value.new"])
 
     def _total_consumption(self, property: dict):
         """ Update total consumption. """
