@@ -3,7 +3,8 @@ import logging
 from typing import Any
 
 from ..devices.gateway import Gateway
-from ..helper.uid import get_device_type_from_element_uid, get_device_uid_from_element_uid
+from ..helper.string import camel_case_to_snake_case
+from ..helper.uid import get_device_type_from_element_uid, get_device_uid_from_element_uid, get_device_uid_from_setting_uid
 from .publisher import Publisher
 
 
@@ -32,7 +33,8 @@ class Updater:
 
         :param message: Message to process
         """
-        message_type = {"devolo.BinarySensor": self._binary_sensor,
+        message_type = {"bas.hdm": self._binary_async,
+                        "devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.Blinds": self._multi_level_switch,
                         "devolo.DeviceEvents": self._device_events,
@@ -56,6 +58,12 @@ class Updater:
             message_type[get_device_type_from_element_uid(message["properties"]["uid"])](message)
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
+
+    def update_binary_async_value(self, element_uid: str, value: bool):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self.devices[device_uid].settings_property[camel_case_to_snake_case(element_uid).split("#")[-1]].value = value
+        self._logger.debug(f"Udating value of {element_uid} to {value}")
+        self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_binary_sensor_state(self, element_uid: str, value: bool):
         """
@@ -210,6 +218,10 @@ class Updater:
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+    def _binary_async(self, message: dict):
+        if type(message["properties"].get("property.value.new")) not in [dict, list]:
+            self.update_binary_async_value(element_uid=message["properties"]["uid"],
+                                           value=bool(message["properties"]["property.value.new"]))
 
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """
