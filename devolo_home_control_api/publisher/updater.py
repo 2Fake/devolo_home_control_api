@@ -34,8 +34,10 @@ class Updater:
         :param message: Message to process
         """
         message_type = {"bas.hdm": self._binary_async,
+                        "cps.hdm": self._parameter,
                         "gds.hdm": self._general_device,
                         "lis.hdm": self._led,
+                        "vfs.hdm": self._led,
                         "devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.Blinds": self._multi_level_switch,
@@ -190,12 +192,18 @@ class Updater:
         :param value: Value to be set
         """
         if element_uid.split(".")[-2] == "smartGroup":
-            # We ignore if a group is switched. We get the information separatly for every device.
+            # We ignore if a group is switched. We get the information separately for every device.
             return
         device_uid = get_device_uid_from_element_uid(element_uid)
         self._logger.debug(f"Updating {element_uid} to {value}")
         self.devices[device_uid].multi_level_switch_property[element_uid].value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
+
+    def update_parameter(self, element_uid: str, param_changed: bool):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self.devices[device_uid].settings_property["param_changed"].param_chaned = param_changed
+        self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
+        self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
     def update_remote_control(self, element_uid: str, key_pressed: int):
         """
@@ -311,9 +319,8 @@ class Updater:
                                      value=message["properties"]["property.value.new"])
 
     def _led(self, message: dict):
-        if message["properties"]["uid"].startswith("lis"):
-            self.update_led(element_uid=message["properties"]["uid"],
-                            led_setting=message["properties"]["property.value.new"])
+        self.update_led(element_uid=message["properties"]["uid"],
+                        value=message["properties"]["property.value.new"])
 
     def _meter(self, message: dict):
         """ Update a meter value. """
@@ -333,6 +340,10 @@ class Updater:
         if not isinstance(message["properties"]["property.value.new"], (list, dict, type(None))):
             self.update_multi_level_switch(element_uid=message["properties"]["uid"],
                                            value=message["properties"]["property.value.new"])
+
+    def _parameter(self, message: dict):
+        self.update_parameter(element_uid=message["properties"]["uid"],
+                              param_changed=message["properties"]["property.value.new"])
 
     def _remote_control(self, message: dict):
         """ Update a remote control. """
