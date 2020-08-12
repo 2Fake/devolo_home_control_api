@@ -35,6 +35,7 @@ class Updater:
         """
         message_type = {"bas.hdm": self._binary_async,
                         "gds.hdm": self._general_device,
+                        "lis.hdm": self._led,
                         "devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.Blinds": self._multi_level_switch,
@@ -139,6 +140,8 @@ class Updater:
         device_uid = get_device_uid_from_setting_uid(element_uid)
         for key, value in kwargs.items():
             setattr(self.devices[device_uid].settings_property["general_device_settings"], key, value)
+            self._logger.debug(f"Updating attribute: {key} of {element_uid} to {value}")
+            self._publisher.dispatch(device_uid, (key, value))
 
     def update_humidity_bar(self, element_uid: str, **kwargs: Any):
         """
@@ -160,6 +163,12 @@ class Updater:
         self._publisher.dispatch(device_uid, (element_uid,
                                               self.devices[device_uid].humidity_bar_property[element_uid].zone,
                                               self.devices[device_uid].humidity_bar_property[element_uid].value))
+
+    def update_led(self, element_uid: str, value: bool):
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self._logger.debug(f"Updating {element_uid} to {value}.")
+        self.devices[device_uid].settings_property["led"].led_setting = value
+        self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_multi_level_sensor(self, element_uid: str, value: float):
         """
@@ -300,6 +309,11 @@ class Updater:
         elif message["properties"]["uid"].startswith("devolo.HumidityBarValue"):
             self.update_humidity_bar(element_uid=fake_element_uid,
                                      value=message["properties"]["property.value.new"])
+
+    def _led(self, message: dict):
+        if message["properties"]["uid"].startswith("lis"):
+            self.update_led(element_uid=message["properties"]["uid"],
+                            led_setting=message["properties"]["property.value.new"])
 
     def _meter(self, message: dict):
         """ Update a meter value. """
