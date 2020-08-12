@@ -131,7 +131,7 @@ class MprmWebsocket(MprmRest):
         threading.Thread(target=run).start()
         self._connected = True
 
-    def _on_pong(self):
+    def _on_pong(self, *args):
         """ Callback method to keep the session valid. """
         self.refresh_session()
 
