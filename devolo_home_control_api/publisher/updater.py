@@ -61,7 +61,7 @@ class Updater:
                         "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                         "devolo.ShutterMovementFI": self._binary_sensor,
                         "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
-                        "devolo.WarningBinaryFI:" self._binary_sensor,
+                        "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
         try:
             message_type[get_device_type_from_element_uid(message["properties"]["uid"])](message)
