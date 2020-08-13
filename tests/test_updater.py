@@ -313,7 +313,7 @@ class TestUpdater:
         assert current_new == device.get("max")
         assert current != current_new
 
-    def test___multilevel_sync_sensor(self):
+    def test__multilevel_sync_sensor(self):
         device = self.devices['sensor']
         uid = device['uid']
         value = device['properties']['value']
@@ -323,7 +323,7 @@ class TestUpdater:
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['motion_sensitivity'].motion_sensitivity == value - 1
 
-    def test___multilevel_sync_siren(self):
+    def test__multilevel_sync_siren(self):
         device = self.devices['siren']
         uid = device['uid']
         value = device['properties']['value']
@@ -333,7 +333,7 @@ class TestUpdater:
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['tone'].tone == value - 1
 
-    def test___led(self):
+    def test__led(self):
         device = self.devices['mains']
         uid = device['uid']
         led_setting = device['properties']['led_setting']
@@ -342,6 +342,16 @@ class TestUpdater:
                                                {"uid": f"lis.{uid}",
                                                 "property.value.new": not led_setting}})
         assert self.homecontrol.devices[uid].settings_property['led'].led_setting is not led_setting
+
+    def test__parameter(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        param_changed = device['properties']['param_changed']
+        self.homecontrol.devices[uid].settings_property['param_changed'].param_changed = param_changed
+        self.homecontrol.updater._parameter(message={"properties":
+                                                     {"uid": f"cps.{uid}",
+                                                      "property.value.new": not param_changed}})
+        assert self.homecontrol.devices[uid].settings_property['param_changed'].param_changed is not param_changed
 
     def test__remote_control(self):
         device = self.devices.get("remote")

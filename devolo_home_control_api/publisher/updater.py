@@ -245,6 +245,12 @@ class Updater:
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_parameter(self, element_uid: str, param_changed: bool):
+        """
+        Update the setting, that stores if Z-Wave expert settings were used.
+
+        :param element_uid: Element UID, something like cps.hdm:ZWave:CBC56091/24
+        :param param_changed: True, if settings were used, otherwise false
+        """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self.devices[device_uid].settings_property['param_changed'].param_chaned = param_changed
         self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
@@ -414,6 +420,7 @@ class Updater:
                                         value=message['properties']['property.value.new'])
 
     def _parameter(self, message: dict):
+        """ Update parameter settings. """
         if type(message['properties'].get("property.value.new")) not in [dict, list]:
             self.update_parameter(element_uid=message['properties']['uid'],
                                   param_changed=message['properties']['property.value.new'])
