@@ -122,7 +122,6 @@ class HomeControl(Mprm):
         """
         self.updater.update(message)
 
-
     def _binary_sensor(self, uid_info: dict):
         """ Process BinarySensor properties"""
         device_uid = get_device_uid_from_element_uid(uid_info["UID"])
@@ -212,7 +211,9 @@ class HomeControl(Mprm):
                     "devolo.SirenBinarySensor": self._binary_sensor,
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
+                    "devolo.ShutterMovementFI": self._binary_sensor,
                     "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
+                    "devolo.WarningBinaryFI": self._binary_sensor,
                     "bas.hdm": self._binary_async,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
