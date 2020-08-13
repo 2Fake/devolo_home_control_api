@@ -333,6 +333,16 @@ class TestUpdater:
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['tone'].tone == value - 1
 
+    def test___led(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        led_setting = device['properties']['led_setting']
+        self.homecontrol.devices[uid].settings_property['led'].led_setting = led_setting
+        self.homecontrol.updater._led(message={"properties":
+                                               {"uid": f"lis.{uid}",
+                                                "property.value.new": not led_setting}})
+        assert self.homecontrol.devices[uid].settings_property['led'].led_setting is not led_setting
+
     def test__remote_control(self):
         device = self.devices.get("remote")
         uid = device.get("uid")

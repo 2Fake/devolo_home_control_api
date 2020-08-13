@@ -190,6 +190,12 @@ class Updater:
                                               self.devices[device_uid].humidity_bar_property[element_uid].value))
 
     def update_led(self, element_uid: str, value: bool):
+        """
+        Update led settings externally.
+
+        :param element_uid: Element UID, something like lis.hdm:ZWave:CBC56091/24
+        :param value: True for led on, false for led off
+        """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self._logger.debug(f"Updating {element_uid} to {value}.")
         self.devices[device_uid].settings_property['led'].led_setting = value
@@ -377,7 +383,8 @@ class Updater:
                                      value=message['properties']['property.value.new'])
 
     def _led(self, message: dict):
-        if type(message['properties'].get("property.value.new")) not in [dict, list]:
+        """ Update LED settings. """
+        if type(message['properties']['property.value.new']) not in [dict, list]:
             self.update_led(element_uid=message['properties']['uid'],
                             value=message['properties']['property.value.new'])
 
