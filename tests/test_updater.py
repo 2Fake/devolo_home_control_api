@@ -206,7 +206,7 @@ class TestUpdater:
 
     def test__general_device(self):
         uid = self.devices['mains']['uid']
-        events_enabled = self.devices['mains']['properties']['events_enabled']
+        events_enabled = self.devices['mains']['properties']['eventsEnabled']
         self.homecontrol.devices[uid].settings_property['general_device_settings'].events_enabled = events_enabled
         self.homecontrol.updater._general_device(message={"properties":
                                                           {"uid": f"gds.{uid}",

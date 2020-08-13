@@ -86,12 +86,13 @@
           "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
           "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
         ],
-        "events_enabled": true,
+        "eventsEnabled": true,
         "icon": "light-bulb",
         "itemName": "Light",
         "led_setting": true,
         "local_switch": true,
         "manID": "0x0175",
+        "name": "Light",
         "param_changed": false,
         "prodID": "0x0011",
         "prodTypeID": "0x0001",
@@ -108,6 +109,7 @@
         "sinceTime": 1578558815924,
         "voltage": 237,
         "zoneId": "hz_3",
+        "zoneID": "hz_3",
         "zone": "Office"
       },
       "remote_switch": false,
@@ -240,7 +242,10 @@
     "name": "Home",
     "online": true,
     "role": "owner",
-    "sync": true
+    "sync": true,
+    "zones": {
+      "hz_2": "Living Room",
+      "hz_3": "Kitchen"}
   },
   "user": {
     "password": "7fee3cdb598b45a459ffe2aa720c8532",

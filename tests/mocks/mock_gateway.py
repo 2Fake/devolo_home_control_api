@@ -19,9 +19,7 @@ class MockGateway:
         self.state = test_data.get("gateway").get("state")
         self.firmware_version = test_data.get("gateway").get("firmware_version")
         self.online = True
-        self.zones = {
-            "hz_2": "Living Room",
-            "hz_3": "Kitchen"}
+        self.zones = test_data.get("gateway").get("zones")
 
 
     def update_state(self, online: bool):
