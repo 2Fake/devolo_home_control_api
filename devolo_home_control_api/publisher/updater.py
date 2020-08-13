@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import Any
 
 from ..devices.gateway import Gateway
 from ..helper.string import camel_case_to_snake_case
@@ -64,7 +63,7 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
         try:
-            message_type[get_device_type_from_element_uid(message["properties"]["uid"])](message)
+            message_type[get_device_type_from_element_uid(message['properties']['uid'])](message)
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
 
@@ -80,7 +79,7 @@ class Updater:
             self.devices[device_uid].settings_property[camel_case_to_snake_case(element_uid).split("#")[-1]].value = value
         except KeyError:
             # Siren setting is not initialized like others.
-            self.devices[device_uid].settings_property["muted"].value = value
+            self.devices[device_uid].settings_property['muted'].value = value
         self._logger.debug(f"Udating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -165,7 +164,7 @@ class Updater:
         """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         for key, value in kwargs.items():
-            setattr(self.devices[device_uid].settings_property["general_device_settings"], key, value)
+            setattr(self.devices[device_uid].settings_property['general_device_settings'], key, value)
             self._logger.debug(f"Updating attribute: {key} of {element_uid} to {value}")
             self._publisher.dispatch(device_uid, (key, value))
 
@@ -181,11 +180,11 @@ class Updater:
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         if kwargs.get("zone") is not None:
-            self.devices[device_uid].humidity_bar_property[element_uid].zone = kwargs["zone"]
-            self._logger.debug(f'Updating humidity bar zone of {element_uid} to {kwargs["zone"]}')
+            self.devices[device_uid].humidity_bar_property[element_uid].zone = kwargs['zone']
+            self._logger.debug(f"Updating humidity bar zone of {element_uid} to {kwargs['zone']}")
         if kwargs.get("value") is not None:
-            self.devices[device_uid].humidity_bar_property[element_uid].value = kwargs["value"]
-            self._logger.debug(f'Updating humidity bar value of {element_uid} to {kwargs["value"]}')
+            self.devices[device_uid].humidity_bar_property[element_uid].value = kwargs['value']
+            self._logger.debug(f"Updating humidity bar value of {element_uid} to {kwargs['value']}")
         self._publisher.dispatch(device_uid, (element_uid,
                                               self.devices[device_uid].humidity_bar_property[element_uid].zone,
                                               self.devices[device_uid].humidity_bar_property[element_uid].value))
@@ -193,17 +192,23 @@ class Updater:
     def update_led(self, element_uid: str, value: bool):
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self._logger.debug(f"Updating {element_uid} to {value}.")
-        self.devices[device_uid].settings_property["led"].led_setting = value
+        self.devices[device_uid].settings_property['led'].led_setting = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_multilevel_sync(self, element_uid: str, value: int):
+        """
+        Update multilevel sync settings externally.
+
+        :param element_uid: Element UID, something like mss.hdm:ZWave:CBC56091/24
+        :param value: Value (e.g. the tone for the siren) the setting is set to
+        """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self._logger.debug(f"Updating {element_uid} to {value}")
         try:
-            self.devices[device_uid].settings_property["motion_sensitivity"].motion_sensitivity = value
+            self.devices[device_uid].settings_property['motion_sensitivity'].motion_sensitivity = value
         except KeyError:
-            # Exception for the siren.
-            self.devices[device_uid].settings_property["tone"].tone = value
+            # The devolo Siren uses multilevel sync settings for a different reason.
+            self.devices[device_uid].settings_property['tone'].tone = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_multi_level_sensor(self, element_uid: str, value: float):
@@ -235,18 +240,18 @@ class Updater:
 
     def update_parameter(self, element_uid: str, param_changed: bool):
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property["param_changed"].param_chaned = param_changed
+        self.devices[device_uid].settings_property['param_changed'].param_chaned = param_changed
         self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
         self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
     def update_protection(self, element_uid: str, name: str, value: bool):
         device_uid = get_device_uid_from_setting_uid(element_uid)
         if name == "targetLocalSwitch":
-            self.devices[device_uid].settings_property["protection"].local_switching = value
+            self.devices[device_uid].settings_property['protection'].local_switching = value
             self._logger.debug(f"Updating local switch protection of {element_uid} to {value}")
             self._publisher.dispatch(device_uid, (element_uid, value, "local_switching"))
         else:
-            self.devices[device_uid].settings_property["protection"].remote_switching = value
+            self.devices[device_uid].settings_property['protection'].remote_switching = value
             self._logger.debug(f"Updating remote switch protection of {element_uid} to {value}")
             self._publisher.dispatch(device_uid, (element_uid, value, "remote_switching"))
 
@@ -268,7 +273,7 @@ class Updater:
 
     def update_temperature(self, element_uid: str, value: bool):
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property["temperature_report"].temp_report = value
+        self.devices[device_uid].settings_property['temperature_report'].temp_report = value
         self._logger.debug(f"Updating temperature report of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -298,83 +303,83 @@ class Updater:
 
     def _binary_async(self, message: dict):
         """ Update a binary async setting. """
-        if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_binary_async_setting(element_uid=message["properties"]["uid"],
-                                             value=bool(message["properties"]["property.value.new"]))
+        if type(message['properties']['property.value.new']) not in [dict, list]:
+            self.update_binary_async_setting(element_uid=message['properties']['uid'],
+                                             value=bool(message['properties']['property.value.new']))
 
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """
-        if message["properties"]["property.value.new"] is not None:
-            self.update_binary_sensor_state(element_uid=message["properties"]["uid"],
-                                            value=bool(message["properties"]["property.value.new"]))
+        if message['properties']['property.value.new'] is not None:
+            self.update_binary_sensor_state(element_uid=message['properties']['uid'],
+                                            value=bool(message['properties']['property.value.new']))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
-        if message["properties"]["property.name"] == "state" and \
-                message["properties"]["property.value.new"] is not None:
-            self.update_binary_switch_state(element_uid=message["properties"]["uid"],
-                                            value=bool(message["properties"]["property.value.new"]))
+        if message['properties']['property.name'] == "state" and \
+                message['properties']['property.value.new'] is not None:
+            self.update_binary_switch_state(element_uid=message['properties']['uid'],
+                                            value=bool(message['properties']['property.value.new']))
 
     def _current_consumption(self, property: dict):
         """ Update current consumption. """
-        self.update_consumption(element_uid=property["uid"],
+        self.update_consumption(element_uid=property['uid'],
                                 consumption="current",
-                                value=property["property.value.new"])
+                                value=property['property.value.new'])
 
     def _device_change(self, message: dict):
         """ Call method if a new device appears or an old one disappears. """
         if not callable(self.on_device_change):
             self._logger.error("on_device_change is not set.")
             return
-        if type(message["properties"]["property.value.new"]) == list \
-           and message["properties"]["uid"] == "devolo.DevicesPage":
-            self.on_device_change(uids=message["properties"]["property.value.new"])
+        if type(message['properties']['property.value.new']) == list \
+           and message['properties']['uid'] == "devolo.DevicesPage":
+            self.on_device_change(uids=message['properties']['property.value.new'])
 
     def _device_events(self, message: dict):
         """ If an operation was not successful, we need to correct our internal state. """
-        properties = {"properties": message["properties"]["property.value.new"]}
-        if type(properties["properties"]) is dict:
-            properties['properties']['uid'] = properties["properties"]["widgetElementUID"]
+        properties = {"properties": message['properties']['property.value.new']}
+        if type(properties['properties']) is dict:
+            properties['properties']['uid'] = properties['properties']['widgetElementUID']
             if get_device_type_from_element_uid(properties['properties']['uid']) == "devolo.BinarySwitch":
                 # TODO: Check, if we need to handle other device types than BinarySwitch on unsuccessful operations
                 properties['properties']['property.name'] = "state"
-                properties['properties']['property.value.new'] = int(properties["properties"]["data"])
+                properties['properties']['property.value.new'] = int(properties['properties']['data'])
             self.update(properties)
 
     def _device_online_state(self, message: dict):
         """ Update the device's online state. """
-        if message["properties"]["property.name"] == "status":
-            self.update_device_online_state(device_uid=message["properties"]["uid"],
-                                            value=message["properties"]["property.value.new"])
+        if message['properties']['property.name'] == "status":
+            self.update_device_online_state(device_uid=message['properties']['uid'],
+                                            value=message['properties']['property.value.new'])
 
     def _gateway_accessible(self, message: dict):
         """ Update the gateway's state. """
-        if message["properties"]["property.name"] == "gatewayAccessible":
-            self.update_gateway_state(accessible=message["properties"]["property.value.new"]["accessible"],
-                                      online_sync=message["properties"]["property.value.new"]["onlineSync"])
+        if message['properties']['property.name'] == "gatewayAccessible":
+            self.update_gateway_state(accessible=message['properties']['property.value.new']['accessible'],
+                                      online_sync=message['properties']['property.value.new']['onlineSync'])
 
     def _general_device(self, message: dict):
         """ Update general device settings. """
-        self.update_general_device_settings(element_uid=message["properties"]["uid"],
-                                            events_enabled=message["properties"]["property.value.new"]["eventsEnabled"],
-                                            icon=message["properties"]["property.value.new"]["icon"],
-                                            name=message["properties"]["property.value.new"]["name"],
-                                            zone_id=message["properties"]["property.value.new"]["zoneID"])
+        self.update_general_device_settings(element_uid=message['properties']['uid'],
+                                            events_enabled=message['properties']['property.value.new']['eventsEnabled'],
+                                            icon=message['properties']['property.value.new']['icon'],
+                                            name=message['properties']['property.value.new']['name'],
+                                            zone_id=message['properties']['property.value.new']['zoneID'])
 
     def _humidity_bar(self, message: dict):
         """ Update a humidity bar. """
-        fake_element_uid = f'devolo.HumidityBar:{message["properties"]["uid"].split(":", 1)[1]}'
-        if message["properties"]["uid"].startswith("devolo.HumidityBarZone"):
+        fake_element_uid = f"devolo.HumidityBar:{message['properties']['uid'].split(':', 1)[1]}"
+        if message['properties']['uid'].startswith("devolo.HumidityBarZone"):
             self.update_humidity_bar(element_uid=fake_element_uid,
-                                     zone=message["properties"]["property.value.new"])
-        elif message["properties"]["uid"].startswith("devolo.HumidityBarValue"):
+                                     zone=message['properties']['property.value.new'])
+        elif message['properties']['uid'].startswith("devolo.HumidityBarValue"):
             self.update_humidity_bar(element_uid=fake_element_uid,
-                                     value=message["properties"]["property.value.new"])
+                                     value=message['properties']['property.value.new'])
 
     def _led(self, message: dict):
-        if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_led(element_uid=message["properties"]["uid"],
-                            value=message["properties"]["property.value.new"])
+        if type(message['properties'].get("property.value.new")) not in [dict, list]:
+            self.update_led(element_uid=message['properties']['uid'],
+                            value=message['properties']['property.value.new'])
 
     def _meter(self, message: dict):
         """ Update a meter value. """
@@ -382,57 +387,58 @@ class Updater:
                          "totalValue": self._total_consumption,
                          "sinceTime": self._since_time}
 
-        property_name[message["properties"]["property.name"]](message["properties"])
+        property_name[message['properties']['property.name']](message['properties'])
 
     def _multi_level_sensor(self, message: dict):
         """ Update a multi level sensor. """
-        self.update_multi_level_sensor(element_uid=message["properties"]["uid"],
-                                       value=message["properties"]["property.value.new"])
+        self.update_multi_level_sensor(element_uid=message['properties']['uid'],
+                                       value=message['properties']['property.value.new'])
 
     def _multi_level_switch(self, message: dict):
         """ Update a multi level switch. """
-        if not isinstance(message["properties"]["property.value.new"], (list, dict, type(None))):
-            self.update_multi_level_switch(element_uid=message["properties"]["uid"],
-                                           value=message["properties"]["property.value.new"])
+        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))):
+            self.update_multi_level_switch(element_uid=message['properties']['uid'],
+                                           value=message['properties']['property.value.new'])
 
     def _multilevel_sync(self, message: dict):
-        if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_multilevel_sync(element_uid=message["properties"]["uid"],
-                                        value=message["properties"]["property.value.new"])
+        """ Update multilevel sync settings. """
+        if type(message['properties']['property.value.new']) not in [dict, list]:
+            self.update_multilevel_sync(element_uid=message['properties']['uid'],
+                                        value=message['properties']['property.value.new'])
 
     def _parameter(self, message: dict):
-        if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_parameter(element_uid=message["properties"]["uid"],
-                                  param_changed=message["properties"]["property.value.new"])
+        if type(message['properties'].get("property.value.new")) not in [dict, list]:
+            self.update_parameter(element_uid=message['properties']['uid'],
+                                  param_changed=message['properties']['property.value.new'])
 
     def _protection(self, message: dict):
-        if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_protection(element_uid=message["properties"]["uid"],
-                                   name=message["properties"]["property.name"],
-                                   value=message["properties"]["property.value.new"])
+        if type(message['properties'].get("property.value.new")) not in [dict, list]:
+            self.update_protection(element_uid=message['properties']['uid'],
+                                   name=message['properties']['property.name'],
+                                   value=message['properties']['property.value.new'])
 
     def _remote_control(self, message: dict):
         """ Update a remote control. """
-        self.update_remote_control(element_uid=message["properties"]["uid"],
-                                   key_pressed=message["properties"]["property.value.new"])
+        self.update_remote_control(element_uid=message['properties']['uid'],
+                                   key_pressed=message['properties']['property.value.new'])
 
     def _since_time(self, property: dict):
         """ Update point in time the total consumption was reset. """
-        self.update_total_since(element_uid=property["uid"],
-                                total_since=property["property.value.new"])
+        self.update_total_since(element_uid=property['uid'],
+                                total_since=property['property.value.new'])
 
     def _temperature(self, message: dict):
-        if type(message["properties"].get("property.value.new")) not in [dict, list]:
-            self.update_temperature(element_uid=message["properties"]["uid"],
-                                    value=message["properties"]["property.value.new"])
+        if type(message['properties'].get("property.value.new")) not in [dict, list]:
+            self.update_temperature(element_uid=message['properties']['uid'],
+                                    value=message['properties']['property.value.new'])
 
     def _total_consumption(self, property: dict):
         """ Update total consumption. """
-        self.update_consumption(element_uid=property["uid"],
+        self.update_consumption(element_uid=property['uid'],
                                 consumption="total",
-                                value=property["property.value.new"])
+                                value=property['property.value.new'])
 
     def _voltage_multi_level_sensor(self, message: dict):
         """ Update a voltage value. """
-        self.update_voltage(element_uid=message["properties"]["uid"],
-                            value=message["properties"]["property.value.new"])
+        self.update_voltage(element_uid=message['properties']['uid'],
+                            value=message['properties']['property.value.new'])

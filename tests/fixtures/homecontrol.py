@@ -23,7 +23,6 @@ def mock_inspect_devices_metering_plug(mocker, request, mock_mydevolo__call, moc
 
 @pytest.fixture()
 def mock_extract_data_from_element_uids(mocker, request):
-    return_dict = [request.cls.devices.get("mains")]
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.get_data_from_uid_list", mock_get_data_from_uid_list)
 
 

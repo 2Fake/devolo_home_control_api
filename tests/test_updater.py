@@ -313,6 +313,26 @@ class TestUpdater:
         assert current_new == device.get("max")
         assert current != current_new
 
+    def test___multilevel_sync_sensor(self):
+        device = self.devices['sensor']
+        uid = device['uid']
+        value = device['properties']['value']
+        self.homecontrol.devices[uid].settings_property['motion_sensitivity'].motion_sensitivity = value
+        self.homecontrol.updater._multilevel_sync(message={"properties":
+                                                  {"uid": f"mss.{uid}",
+                                                   "property.value.new": value - 1}})
+        assert self.homecontrol.devices[uid].settings_property['motion_sensitivity'].motion_sensitivity == value - 1
+
+    def test___multilevel_sync_siren(self):
+        device = self.devices['siren']
+        uid = device['uid']
+        value = device['properties']['value']
+        self.homecontrol.devices[uid].settings_property['tone'].tone = value
+        self.homecontrol.updater._multilevel_sync(message={"properties":
+                                                  {"uid": f"mss.{uid}",
+                                                   "property.value.new": value - 1}})
+        assert self.homecontrol.devices[uid].settings_property['tone'].tone == value - 1
+
     def test__remote_control(self):
         device = self.devices.get("remote")
         uid = device.get("uid")
