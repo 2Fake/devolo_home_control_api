@@ -188,6 +188,7 @@
         "devolo.MultiLevelSensor:hdm:ZWave:F6BF9812/6#MultilevelSensor(1)",
         "devolo.MultiLevelSensor:hdm:ZWave:F6BF9812/6#MultilevelSensor(3)"
       ],
+      "led_setting": false,
       "manID": "0x0175",
       "zoneId": "hz_2",
       "batteryLow": false,

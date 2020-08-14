@@ -27,6 +27,9 @@ class SettingsProperty(Property):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        if element_uid.split(".")[0] == "gds":
+            self.zone = self._gateway.zones[self.zone_id]
+
         setter_method = {"bas": self._set_bas,
                          "gds": self._set_gds,
                          "lis": self._set_lis,
@@ -45,12 +48,6 @@ class SettingsProperty(Property):
         for attribute in clean_up_list:
             if hasattr(self, attribute):
                 delattr(self, attribute)
-
-
-    @property
-    def zone(self) -> str:
-        """ Human readable zone, also called room. """
-        return self._gateway.zones[self.zone_id]
 
 
     def _set_bas(self, value: bool):

@@ -74,14 +74,17 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.devices.get(device), "consumption_property")
 
     def test__general_device(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        self.homecontrol._general_device({"UID": "gds.hdm:ZWave:F6BF9812/2",
-                                          "properties": {"settings": {"eventsEnabled": True,
-                                                                      "name": self.devices.get("mains").get("itemName"),
-                                                                      "zoneID": self.devices.get("mains").get("zone_id"),
-                                                                      "icon": self.devices.get("mains").get("icon")}}})
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("general_device_settings"), "events_enabled")
+        device = self.devices['mains']
+        element_uid = f"gds.{device['uid']}"
+        self.homecontrol.devices[device['uid']].settings_property['general_device_settings'].events_enabled = \
+            not device['properties']['eventsEnabled']
+        self.homecontrol._general_device({"UID": element_uid,
+                                          "properties": {"settings": {"eventsEnabled": device['properties']['eventsEnabled'],
+                                                                      "name": device['properties']['itemName'],
+                                                                      "zoneID": device['properties']['zoneId'],
+                                                                      "icon": device['properties']['icon']}}})
+        assert self.homecontrol.devices[device['uid']].settings_property['general_device_settings'].events_enabled == \
+            device['properties']['eventsEnabled']
 
     def test__humidity_bar(self):
         # TODO: Use test data
@@ -120,13 +123,16 @@ class TestHomeControl:
             datetime.fromtimestamp(self.devices.get("siren").get("last_activity") / 1000)
 
     def test__led(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        self.homecontrol._led({"UID": "gds.hdm:ZWave:F6BF9812/2", "properties": {"led": True}})
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
-        device = self.devices.get("sensor").get("uid")
-        self.homecontrol._led({"UID": "vfs.hdm:ZWave:F6BF9812/6", "properties": {"feedback": True}})
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("led"), "led_setting")
+        device = self.devices['mains']
+        element_uid = f"lis.{device['UID']}"
+        led_setting = device['properties']['led_setting']
+        self.homecontrol._led({"UID": element_uid, "properties": {"led": led_setting}})
+        assert self.homecontrol.devices[device['UID']].settings_property['led'].led_setting == led_setting
+        device = self.devices['sensor']
+        element_uid = f"vfs.{device['UID']}"
+        led_setting = device['led_setting']
+        self.homecontrol._led({"UID": element_uid, "properties": {"feedback": led_setting}})
+        assert self.homecontrol.devices[device['UID']].settings_property['led'].led_setting == led_setting
 
     def test__multilevel_sync_sensor(self):
         device = self.devices.get("sensor").get("uid")
