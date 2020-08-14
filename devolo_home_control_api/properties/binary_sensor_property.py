@@ -46,3 +46,5 @@ class BinarySensorProperty(SensorProperty):
         if timestamp != -1:
             self._last_activity = datetime.fromtimestamp(timestamp / 1000)
             self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
+        else:
+            self._last_activity = datetime.now()

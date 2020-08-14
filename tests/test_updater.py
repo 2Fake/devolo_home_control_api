@@ -8,14 +8,6 @@ from time import time
 class TestUpdater:
     # TODO: Check, if all test cases here are needed. Some seem redundant.
 
-    def test_update_binary_sensor_state(self, fill_device_data):
-        uid = self.devices.get("sensor").get("uid")
-        binary_sensor_property = self.homecontrol.devices.get(uid).binary_sensor_property
-        state = binary_sensor_property.get(f"devolo.BinarySensor:{uid}").state
-        self.homecontrol.updater.update_binary_sensor_state(element_uid=f"devolo.BinarySensor:{uid}",
-                                                            value=True)
-        assert state != binary_sensor_property.get(f"devolo.BinarySensor:{uid}").state
-
     def test_update_binary_switch_state_valid(self, fill_device_data):
         uid = self.devices.get("mains").get("uid")
         binary_switch_property = self.homecontrol.devices.get(uid).binary_switch_property
@@ -146,19 +138,33 @@ class TestUpdater:
                                                "property.value.new": not self.devices['siren']['muted']}})
         assert not self.homecontrol.devices[uid].settings_property['muted'].value
 
-    def test__binary_sensor(self):
-        uid = self.devices.get("sensor").get("uid")
-        self.homecontrol.devices.get(uid).binary_sensor_property \
-            .get(f"devolo.BinarySensor:{uid}").state = True
-        state = self.homecontrol.devices.get(uid).binary_sensor_property \
-            .get(f"devolo.BinarySensor:{uid}").state
+    def test__binary_sensor_with_timestamp(self):
+        uid = self.devices['sensor']['uid']
+        device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
+        timestamp = time() * 1000
+        device.state = True
+        state = device.state
+        self.homecontrol.updater._binary_sensor(message={"properties":
+                                                {"property.name": "state",
+                                                 "uid": f"devolo.BinarySensor:{uid}",
+                                                 "property.value.new": 0,
+                                                 "timestamp": timestamp}})
+        state_new = device.state
+        assert state != state_new
+        assert device.last_activity == datetime.fromtimestamp(timestamp / 1000)
+
+    def test__binary_sensor_without_timestamp(self):
+        uid = self.devices['sensor']['uid']
+        device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
+        device.state = True
+        state = device.state
         self.homecontrol.updater._binary_sensor(message={"properties":
                                                 {"property.name": "state",
                                                  "uid": f"devolo.BinarySensor:{uid}",
                                                  "property.value.new": 0}})
-        state_new = self.homecontrol.devices.get(uid).binary_sensor_property \
-            .get(f"devolo.BinarySensor:{uid}").state
+        state_new = device.state
         assert state != state_new
+        assert device.last_activity != datetime.fromtimestamp(0)
 
     def test__binary_switch(self):
         uid = self.devices.get("mains").get("uid")

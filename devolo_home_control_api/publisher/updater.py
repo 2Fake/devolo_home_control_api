@@ -86,15 +86,17 @@ class Updater:
         self._logger.debug(f"Udating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def update_binary_sensor_state(self, element_uid: str, value: bool):
+    def update_binary_sensor_state(self, element_uid: str, value: bool, timestamp: int):
         """
         Update the binary switch state of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
         :param value: True for on, False for off
+        :param timestamp: Timestamp the binary sensor was last triggered in milliseconds.
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices[device_uid].binary_sensor_property[element_uid].state = value
+        self.devices[device_uid].binary_sensor_property[element_uid].last_activity = timestamp
         self._logger.debug(f"Updating state of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -351,7 +353,8 @@ class Updater:
         """ Update a binary sensor's state. """
         if message['properties']['property.value.new'] is not None:
             self.update_binary_sensor_state(element_uid=message['properties']['uid'],
-                                            value=bool(message['properties']['property.value.new']))
+                                            value=bool(message['properties']['property.value.new']),
+                                            timestamp=message['properties'].get("timestamp", -1))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
