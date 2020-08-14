@@ -63,7 +63,10 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
         try:
-            message_type[get_device_type_from_element_uid(message['properties']['uid'])](message)
+            if message['properties']['property.name'] == "pendingOperations":
+                self._pending_operations(message)
+            else:
+                message_type[get_device_type_from_element_uid(message['properties']['uid'])](message)
         except KeyError:
             self._logger.debug(json.dumps(message, indent=4))
 
@@ -342,9 +345,10 @@ class Updater:
                 message['properties']['property.value.new'] is not None:
             self.update_binary_switch_state(element_uid=message['properties']['uid'],
                                             value=bool(message['properties']['property.value.new']))
-        elif message['properties']['property.name'] == "pendingOperations":
-            self.update_pending_operations(element_uid=message['properties']['uid'],
-                                           pending_operations=bool(message['properties'].get('property.value.new')))
+
+    def _pending_operations(self, message: dict):
+        self.update_pending_operations(element_uid=message['properties']['uid'],
+                                       pending_operations=bool(message['properties'].get('property.value.new')))
 
     def _current_consumption(self, property: dict):
         """ Update current consumption. """
