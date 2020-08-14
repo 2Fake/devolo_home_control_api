@@ -378,6 +378,28 @@ class TestUpdater:
                                                                "property.value.new": {"status": 1}}})
         assert not self.homecontrol.devices[uid].pending_operation
 
+    def test__protection_local(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        local_switch = device['properties']['local_switch']
+        self.homecontrol.devices[uid].settings_property['protection'].local_switching = local_switch
+        self.homecontrol.updater._protection(message={"properties":
+                                                      {"uid": f"ps.{uid}",
+                                                       "property.name": "targetLocalSwitch",
+                                                       "property.value.new": not local_switch}})
+        assert self.homecontrol.devices[uid].settings_property['protection'].local_switching is not local_switch
+
+    def test__protection_remote(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        remote_switch = device['properties']['remote_switch']
+        self.homecontrol.devices[uid].settings_property['protection'].remote_switching = remote_switch
+        self.homecontrol.updater._protection(message={"properties":
+                                                      {"uid": f"ps.{uid}",
+                                                       "property.name": "targetRemoteSwitch",
+                                                       "property.value.new": not remote_switch}})
+        assert self.homecontrol.devices[uid].settings_property['protection'].remote_switching is not remote_switch
+
     def test__remote_control(self):
         device = self.devices.get("remote")
         uid = device.get("uid")

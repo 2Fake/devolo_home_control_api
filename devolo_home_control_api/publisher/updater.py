@@ -272,6 +272,13 @@ class Updater:
         self._publisher.dispatch(device_uid, ("pending_operations", pending_operations))
 
     def update_protection(self, element_uid: str, name: str, value: bool):
+        """
+        Update the protection mode setting of a device.
+
+        :param element_uid: Any kind of element UID, that represents a device property
+        :param name: Either targetLocalSwitch to prevent local switching or targetRemoteSwitch to prevent remote switching
+        :param value: True to prevent switching, false to allow switching
+        """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         if name == "targetLocalSwitch":
             self.devices[device_uid].settings_property['protection'].local_switching = value
@@ -446,6 +453,7 @@ class Updater:
                                   param_changed=message['properties']['property.value.new'])
 
     def _protection(self, message: dict):
+        """ Update protection settings. """
         if type(message['properties'].get("property.value.new")) not in [dict, list]:
             self.update_protection(element_uid=message['properties']['uid'],
                                    name=message['properties']['property.name'],
