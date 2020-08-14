@@ -423,6 +423,15 @@ class TestUpdater:
         assert total_since != new_total_since
         assert new_total_since == datetime.fromtimestamp(now / 1000)
 
+    def test__temperature(self):
+        device = self.devices['sensor']
+        uid = device['uid']
+        self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report = device['temp_report']
+        self.homecontrol.updater._temperature({"properties":
+                                               {"uid": f"trs.{uid}",
+                                                "property.value.new": not device['temp_report']}})
+        assert self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report is not device['temp_report']
+
     def test__voltage_multi_level_sensor(self):
         uid = self.devices.get("mains").get("uid")
         self.homecontrol.devices.get(uid).multi_level_sensor_property \

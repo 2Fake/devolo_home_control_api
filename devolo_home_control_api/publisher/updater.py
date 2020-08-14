@@ -306,6 +306,12 @@ class Updater:
             self._publisher.dispatch(device_uid, (element_uid, key_pressed))
 
     def update_temperature(self, element_uid: str, value: bool):
+        """
+        Update temperature report state externally.
+
+        :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
+        :param value: True, if temperature reports shall be send, false otherwise
+        """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self.devices[device_uid].settings_property['temperature_report'].temp_report = value
         self._logger.debug(f"Updating temperature report of {element_uid} to {value}")
@@ -470,6 +476,7 @@ class Updater:
                                 total_since=property['property.value.new'])
 
     def _temperature(self, message: dict):
+        """ Update temperature report settings. """
         if type(message['properties'].get("property.value.new")) not in [dict, list]:
             self.update_temperature(element_uid=message['properties']['uid'],
                                     value=message['properties']['property.value.new'])
