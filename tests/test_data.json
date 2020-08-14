@@ -77,6 +77,7 @@
         "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
       ],
       "brand": "devolo",
+      "pending_operation": false,
       "properties": {
         "batteryLevel": -1,
         "batteryLow": null,

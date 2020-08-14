@@ -116,13 +116,19 @@ class TestUpdater:
             voltage_property.get(f"devolo.VoltageMultiLevelSensor:{uid}").value
         assert voltage_property.get(f"devolo.VoltageMultiLevelSensor:{uid}").value == 257
 
-    def test_update(self):
-        self.homecontrol.updater.update(message={"properties":
-                                        {"uid": f"devolo.BinarySwitch:{self.devices.get('mains').get('uid')}"}})
+    @pytest.mark.usefixtures("mock_updater_binary_switch")
+    def test_update_device(self, mocker):
+        message = {"properties": {"property.name": "state", "uid": f"devolo.BinarySwitch:{self.devices['mains']['uid']}"}}
+        spy = mocker.spy(self.homecontrol.updater, '_binary_switch')
+        self.homecontrol.updater.update(message=message)
+        spy.assert_called_once_with(message)
 
-    def test_update_invalid(self):
-        self.homecontrol.updater.update(message={"properties":
-                                        {"uid": "fibaro"}})
+    @pytest.mark.usefixtures("mock_updater_pending_operations")
+    def test_update_pending_operations(self, mocker):
+        message = {"properties": {"property.name": "pendingOperations"}}
+        spy = mocker.spy(self.homecontrol.updater, '_pending_operations')
+        self.homecontrol.updater.update(message=message)
+        spy.assert_called_once_with(message)
 
     def test__binary_async_blinds(self):
         uid = self.devices['blinds']['uid']
@@ -352,6 +358,25 @@ class TestUpdater:
                                                      {"uid": f"cps.{uid}",
                                                       "property.value.new": not param_changed}})
         assert self.homecontrol.devices[uid].settings_property['param_changed'].param_changed is not param_changed
+
+    def test__pending_operations_false(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        pending_operation = device['pending_operation']
+        self.homecontrol.devices[uid].pending_operation = not pending_operation
+        self.homecontrol.updater._pending_operations(message={"properties":
+                                                              {"uid": device['elementUIDs'][1]}})
+        assert self.homecontrol.devices[uid].pending_operation
+
+    def test__pending_operations_true(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        pending_operation = device['pending_operation']
+        self.homecontrol.devices[uid].pending_operation = pending_operation
+        self.homecontrol.updater._pending_operations(message={"properties":
+                                                              {"uid": device['elementUIDs'][1],
+                                                               "property.value.new": {"status": 1}}})
+        assert not self.homecontrol.devices[uid].pending_operation
 
     def test__remote_control(self):
         device = self.devices.get("remote")

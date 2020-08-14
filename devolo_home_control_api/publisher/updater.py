@@ -262,8 +262,9 @@ class Updater:
     def update_pending_operations(self, element_uid: str, pending_operations: bool):
         """
         Update the pending operation attribute of a device.
-        :param element_uid: Element UID, something like devolo.MultiLevelSwitch* or devolo.Dimmer* or devolo.Blinds*
-        :param pending_operations: Bool value of pending operations
+
+        :param element_uid: Any kind of element UID, that represents a device property
+        :param pending_operations: True, if operations are pending, otherwise false
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         self._logger.debug(f"Updating pending operations of device {device_uid} to {pending_operations}")
@@ -347,6 +348,7 @@ class Updater:
                                             value=bool(message['properties']['property.value.new']))
 
     def _pending_operations(self, message: dict):
+        """ Update pending operation state. """
         self.update_pending_operations(element_uid=message['properties']['uid'],
                                        pending_operations=bool(message['properties'].get('property.value.new')))
 
