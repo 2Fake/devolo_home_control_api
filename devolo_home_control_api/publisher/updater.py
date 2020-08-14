@@ -256,6 +256,17 @@ class Updater:
         self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
         self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
+    def update_pending_operations(self, element_uid: str, pending_operations: bool):
+        """
+        Update the pending operation attribute of a device.
+        :param element_uid: Element UID, something like devolo.MultiLevelSwitch* or devolo.Dimmer* or devolo.Blinds*
+        :param pending_operations: Bool value of pending operations
+        """
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        self._logger.debug(f"Updating pending operations of device {device_uid} to {pending_operations}")
+        self.devices[device_uid].pending_operations = pending_operations
+        self._publisher.dispatch(device_uid, ("pending_operations", pending_operations))
+
     def update_protection(self, element_uid: str, name: str, value: bool):
         device_uid = get_device_uid_from_setting_uid(element_uid)
         if name == "targetLocalSwitch":
@@ -331,6 +342,9 @@ class Updater:
                 message['properties']['property.value.new'] is not None:
             self.update_binary_switch_state(element_uid=message['properties']['uid'],
                                             value=bool(message['properties']['property.value.new']))
+        elif message['properties']['property.name'] == "pendingOperations":
+            self.update_pending_operations(element_uid=message['properties']['uid'],
+                                           pending_operations=bool(message['properties'].get('property.value.new', False)))
 
     def _current_consumption(self, property: dict):
         """ Update current consumption. """
