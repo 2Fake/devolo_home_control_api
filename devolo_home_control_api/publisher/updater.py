@@ -252,7 +252,7 @@ class Updater:
         :param param_changed: True, if settings were used, otherwise false
         """
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property['param_changed'].param_chaned = param_changed
+        self.devices[device_uid].settings_property['param_changed'].param_changed = param_changed
         self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
         self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
