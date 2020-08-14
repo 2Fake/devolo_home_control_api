@@ -344,7 +344,7 @@ class Updater:
                                             value=bool(message['properties']['property.value.new']))
         elif message['properties']['property.name'] == "pendingOperations":
             self.update_pending_operations(element_uid=message['properties']['uid'],
-                                           pending_operations=bool(message['properties'].get('property.value.new', False)))
+                                           pending_operations=bool(message['properties'].get('property.value.new')))
 
     def _current_consumption(self, property: dict):
         """ Update current consumption. """
