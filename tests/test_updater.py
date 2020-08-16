@@ -1,6 +1,5 @@
 import pytest
 from datetime import datetime, timezone
-from time import time
 
 
 @pytest.mark.usefixtures("home_control_instance")
