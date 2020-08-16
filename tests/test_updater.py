@@ -81,17 +81,6 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).status == 1
         assert self.homecontrol.devices.get(uid).status != online_state
 
-    def test_update_total_since(self, fill_device_data):
-        element_uid = self.devices.get("mains").get("elementUIDs")[0]
-        total_since = self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .consumption_property.get(element_uid).total_since
-        now = time() * 1000
-        self.homecontrol.updater.update_total_since(element_uid=element_uid, total_since=now)
-        assert total_since != self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .consumption_property.get(element_uid).total_since
-        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-                   .consumption_property.get(element_uid).total_since == datetime.fromtimestamp(now / 1000)
-
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
         assert self.homecontrol.gateway.online
@@ -419,15 +408,15 @@ class TestUpdater:
             .get(device.get("elementUIDs")[0]).key_pressed == 1
 
     def test__since_time(self):
-        now = time() * 1000
-        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
-        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
-                                              "property.value.new": now})
-        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        device = self.devices['mains']
+        uid = device['uid']
+        now = datetime.now()
+        total_since = self.homecontrol.devices[uid].consumption_property[f'devolo.Meter:{uid}'].total_since
+        self.homecontrol.updater._since_time({"uid": f"devolo.Meter:{uid}",
+                                              "property.value.new": now.replace(tzinfo=timezone.utc).timestamp() * 1000})
+        new_total_since = self.homecontrol.devices[uid].consumption_property[f'devolo.Meter:{uid}'].total_since
         assert total_since != new_total_since
-        assert new_total_since == datetime.fromtimestamp(now / 1000)
+        assert new_total_since == now
 
     def test__temperature(self):
         device = self.devices['sensor']
