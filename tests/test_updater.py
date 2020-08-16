@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone
 from time import time
 
 
@@ -141,17 +141,17 @@ class TestUpdater:
     def test__binary_sensor_with_timestamp(self):
         uid = self.devices['sensor']['uid']
         device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
-        timestamp = time() * 1000
+        now = datetime.now()
         device.state = True
         state = device.state
         self.homecontrol.updater._binary_sensor(message={"properties":
                                                 {"property.name": "state",
                                                  "uid": f"devolo.BinarySensor:{uid}",
                                                  "property.value.new": 0,
-                                                 "timestamp": timestamp}})
+                                                 "timestamp": now.replace(tzinfo=timezone.utc).timestamp() * 1000}})
         state_new = device.state
         assert state != state_new
-        assert device.last_activity == datetime.fromtimestamp(timestamp / 1000)
+        assert device.last_activity == now
 
     def test__binary_sensor_without_timestamp(self):
         uid = self.devices['sensor']['uid']
