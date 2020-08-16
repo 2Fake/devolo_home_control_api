@@ -83,7 +83,7 @@ class Mydevolo:
         """
         if not self._gateway_ids:
             self._logger.debug("Getting list of gateways")
-            items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")["items"]
+            items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")['items']
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
                 self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
@@ -115,7 +115,7 @@ class Mydevolo:
         :return: URL to access the gateway's portal.
         """
         self._logger.debug("Getting full URL of gateway.")
-        return self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}/fullURL")["url"]
+        return self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}/fullURL")['url']
 
     def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> dict:
         """
@@ -152,7 +152,7 @@ class Mydevolo:
         """
         If devolo Home Control is in maintenance, there is not much we can do via cloud.
         """
-        state = self._call(f"{self.url}/v1/hc/maintenance").get("state")
+        state = self._call(f"{self.url}/v1/hc/maintenance")['state']
         if state == "on":
             return False
         else:
@@ -165,7 +165,7 @@ class Mydevolo:
         """
         if self._uuid is None:
             self._logger.debug("Getting UUID")
-            self._uuid = self._call(f"{self.url}/v1/users/uuid")["uuid"]
+            self._uuid = self._call(f"{self.url}/v1/users/uuid")['uuid']
         return self._uuid
 
 
