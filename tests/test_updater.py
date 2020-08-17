@@ -1,20 +1,11 @@
 import pytest
-from datetime import datetime
-from time import time
+from datetime import datetime, timezone
 
 
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
     # TODO: Check, if all test cases here are needed. Some seem redundant.
-
-    def test_update_binary_sensor_state(self, fill_device_data):
-        uid = self.devices.get("sensor").get("uid")
-        binary_sensor_property = self.homecontrol.devices.get(uid).binary_sensor_property
-        state = binary_sensor_property.get(f"devolo.BinarySensor:{uid}").state
-        self.homecontrol.updater.update_binary_sensor_state(element_uid=f"devolo.BinarySensor:{uid}",
-                                                            value=True)
-        assert state != binary_sensor_property.get(f"devolo.BinarySensor:{uid}").state
 
     def test_update_binary_switch_state_valid(self, fill_device_data):
         uid = self.devices.get("mains").get("uid")
@@ -89,17 +80,6 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).status == 1
         assert self.homecontrol.devices.get(uid).status != online_state
 
-    def test_update_total_since(self, fill_device_data):
-        element_uid = self.devices.get("mains").get("elementUIDs")[0]
-        total_since = self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .consumption_property.get(element_uid).total_since
-        now = time() * 1000
-        self.homecontrol.updater.update_total_since(element_uid=element_uid, total_since=now)
-        assert total_since != self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .consumption_property.get(element_uid).total_since
-        assert self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-                   .consumption_property.get(element_uid).total_since == datetime.fromtimestamp(now / 1000)
-
     def test_update_gateway_state(self):
         self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
         assert self.homecontrol.gateway.online
@@ -146,19 +126,33 @@ class TestUpdater:
                                                "property.value.new": not self.devices['siren']['muted']}})
         assert not self.homecontrol.devices[uid].settings_property['muted'].value
 
-    def test__binary_sensor(self):
-        uid = self.devices.get("sensor").get("uid")
-        self.homecontrol.devices.get(uid).binary_sensor_property \
-            .get(f"devolo.BinarySensor:{uid}").state = True
-        state = self.homecontrol.devices.get(uid).binary_sensor_property \
-            .get(f"devolo.BinarySensor:{uid}").state
+    def test__binary_sensor_with_timestamp(self):
+        uid = self.devices['sensor']['uid']
+        device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
+        now = datetime.now()
+        device.state = True
+        state = device.state
+        self.homecontrol.updater._binary_sensor(message={"properties":
+                                                {"property.name": "state",
+                                                 "uid": f"devolo.BinarySensor:{uid}",
+                                                 "property.value.new": 0,
+                                                 "timestamp": now.replace(tzinfo=timezone.utc).timestamp() * 1000}})
+        state_new = device.state
+        assert state != state_new
+        assert device.last_activity == now
+
+    def test__binary_sensor_without_timestamp(self):
+        uid = self.devices['sensor']['uid']
+        device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
+        device.state = True
+        state = device.state
         self.homecontrol.updater._binary_sensor(message={"properties":
                                                 {"property.name": "state",
                                                  "uid": f"devolo.BinarySensor:{uid}",
                                                  "property.value.new": 0}})
-        state_new = self.homecontrol.devices.get(uid).binary_sensor_property \
-            .get(f"devolo.BinarySensor:{uid}").state
+        state_new = device.state
         assert state != state_new
+        assert device.last_activity != datetime.fromtimestamp(0)
 
     def test__binary_switch(self):
         uid = self.devices.get("mains").get("uid")
@@ -339,6 +333,28 @@ class TestUpdater:
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['tone'].tone == value - 1
 
+    def test__last_activity_sensor(self):
+        device = self.devices['sensor']
+        uid = device['uid']
+        last_activity = device['last_activity']
+        self.homecontrol.devices[uid].binary_sensor_property[f'devolo.BinarySensor:{uid}'].last_activity = last_activity
+        self.homecontrol.updater._last_activity(message={"properties":
+                                                {"uid": f"devolo.LastActivity:{uid}",
+                                                 "property.value.new": last_activity + 1000}})
+        assert self.homecontrol.devices[uid].binary_sensor_property[f'devolo.BinarySensor:{uid}'].last_activity.second \
+            - datetime.utcfromtimestamp(last_activity / 1000).second == 1
+
+    def test__last_activity_siren(self):
+        device = self.devices['siren']
+        uid = device['uid']
+        last_activity = device['last_activity']
+        self.homecontrol.devices[uid].binary_sensor_property[f'devolo.SirenBinarySensor:{uid}'].last_activity = last_activity
+        self.homecontrol.updater._last_activity(message={"properties":
+                                                {"uid": f"devolo.LastActivity:{uid}",
+                                                 "property.value.new": last_activity + 1000}})
+        assert self.homecontrol.devices[uid].binary_sensor_property[f'devolo.SirenBinarySensor:{uid}'].last_activity.second \
+            - datetime.utcfromtimestamp(last_activity / 1000).second == 1
+
     def test__led(self):
         device = self.devices['mains']
         uid = device['uid']
@@ -362,7 +378,7 @@ class TestUpdater:
     def test__pending_operations_false(self):
         device = self.devices['mains']
         uid = device['uid']
-        pending_operation = device['pending_operation']
+        pending_operation = device['properties']['pending_operations']
         self.homecontrol.devices[uid].pending_operation = not pending_operation
         self.homecontrol.updater._pending_operations(message={"properties":
                                                               {"uid": device['elementUIDs'][1]}})
@@ -371,7 +387,7 @@ class TestUpdater:
     def test__pending_operations_true(self):
         device = self.devices['mains']
         uid = device['uid']
-        pending_operation = device['pending_operation']
+        pending_operation = device['properties']['pending_operations']
         self.homecontrol.devices[uid].pending_operation = pending_operation
         self.homecontrol.updater._pending_operations(message={"properties":
                                                               {"uid": device['elementUIDs'][1],
@@ -413,15 +429,15 @@ class TestUpdater:
             .get(device.get("elementUIDs")[0]).key_pressed == 1
 
     def test__since_time(self):
-        now = time() * 1000
-        total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
-        self.homecontrol.updater._since_time({"uid": "devolo.Meter:hdm:ZWave:F6BF9812/2",
-                                              "property.value.new": now})
-        new_total_since = self.homecontrol.devices['hdm:ZWave:F6BF9812/2'] \
-            .consumption_property['devolo.Meter:hdm:ZWave:F6BF9812/2'].total_since
+        device = self.devices['mains']
+        uid = device['uid']
+        now = datetime.now()
+        total_since = self.homecontrol.devices[uid].consumption_property[f'devolo.Meter:{uid}'].total_since
+        self.homecontrol.updater._since_time({"uid": f"devolo.Meter:{uid}",
+                                              "property.value.new": now.replace(tzinfo=timezone.utc).timestamp() * 1000})
+        new_total_since = self.homecontrol.devices[uid].consumption_property[f'devolo.Meter:{uid}'].total_since
         assert total_since != new_total_since
-        assert new_total_since == datetime.fromtimestamp(now / 1000)
+        assert new_total_since == now
 
     def test__temperature(self):
         device = self.devices['sensor']

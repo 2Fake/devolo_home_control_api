@@ -99,28 +99,28 @@ class TestHomeControl:
         assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").zone == 1
 
     def test__last_activity_binary_sensor(self):
-        device = self.devices.get("sensor").get("uid")
-        element_uids = self.devices.get("sensor").get("elementUIDs")
+        device = self.devices['sensor']['uid']
+        element_uids = self.devices['sensor']['elementUIDs']
         self.homecontrol._binary_sensor({"UID": element_uids[0],
-                                         "properties": {"state": self.devices.get("sensor").get("state"),
-                                                        "sensorType": self.devices.get("sensor").get("sensor_type"),
+                                         "properties": {"state": self.devices['sensor']['state'],
+                                                        "sensorType": self.devices['sensor']['sensor_type'],
                                                         "subType": ""}})
         self.homecontrol._last_activity({"UID": element_uids[1],
-                                         "properties": {"lastActivityTime": self.devices.get("sensor").get("last_activity")}})
+                                         "properties": {"lastActivityTime": self.devices['sensor']['last_activity']}})
         assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[0]).last_activity == \
-            datetime.fromtimestamp(self.devices.get("sensor").get("last_activity") / 1000)
+            datetime.utcfromtimestamp(self.devices['sensor']['last_activity'] / 1000)
 
     def test__last_activity_siren(self):
-        device = self.devices.get("siren").get("uid")
-        element_uids = self.devices.get("siren").get("elementUIDs")
+        device = self.devices['siren']['uid']
+        element_uids = self.devices['siren']['elementUIDs']
         self.homecontrol._binary_sensor({"UID": element_uids[1],
-                                         "properties": {"state": self.devices.get("siren").get("state"),
-                                                        "sensorType": self.devices.get("siren").get("sensor_type"),
+                                         "properties": {"state": self.devices['siren']['state'],
+                                                        "sensorType": self.devices['siren']['sensor_type'],
                                                         "subType": ""}})
         self.homecontrol._last_activity({"UID": element_uids[3],
-                                         "properties": {"lastActivityTime": self.devices.get("siren").get("last_activity")}})
+                                         "properties": {"lastActivityTime": self.devices['siren']['last_activity']}})
         assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[1]).last_activity == \
-            datetime.fromtimestamp(self.devices.get("siren").get("last_activity") / 1000)
+            datetime.utcfromtimestamp(self.devices['siren']['last_activity'] / 1000)
 
     def test__led(self):
         device = self.devices['mains']

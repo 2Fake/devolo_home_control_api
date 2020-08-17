@@ -30,7 +30,7 @@ class ConsumptionProperty(Property):
         self.total = kwargs.get("total")
         self.total_unit = "kWh"
 
-        # Set last activity to 1.1.1970. Will be corrected by ConsumptionProperty.total_since.
+        # Set total_since to 1.1.1970. Will be corrected by ConsumptionProperty.total_since.
         self._total_since = datetime.fromtimestamp(0)
         self.total_since = kwargs.get("total_since", 0)
 
@@ -43,5 +43,5 @@ class ConsumptionProperty(Property):
     @total_since.setter
     def total_since(self, timestamp: int):
         """ Convert a timestamp in millisecond to a datetime object. """
-        self._total_since = datetime.fromtimestamp(timestamp / 1000)
+        self._total_since = datetime.utcfromtimestamp(timestamp / 1000)
         self._logger.debug(f"self.total_since of element_uid {self.element_uid} set to {self._total_since}.")

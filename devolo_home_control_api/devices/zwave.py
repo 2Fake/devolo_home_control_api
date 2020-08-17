@@ -16,7 +16,7 @@ class Zwave:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
 
-        unwanted_value = ["icon", "itemName", "zone", "zoneId"]
+        unwanted_value = ["icon", "itemName", "operationStatus", "zone", "zoneId"]
         for value in unwanted_value:
             del kwargs[value]
 

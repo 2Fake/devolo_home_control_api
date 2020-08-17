@@ -45,9 +45,9 @@ class SettingsProperty(Property):
 
         # Clean up attributes which are unwanted.
         clean_up_list = ["device_uid"]
+
         for attribute in clean_up_list:
-            if hasattr(self, attribute):
-                delattr(self, attribute)
+            delattr(self, attribute)
 
 
     def _set_bas(self, value: bool):
