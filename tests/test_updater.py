@@ -333,6 +333,28 @@ class TestUpdater:
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['tone'].tone == value - 1
 
+    def test__last_activity_sensor(self):
+        device = self.devices['sensor']
+        uid = device['uid']
+        last_activity = device['last_activity']
+        self.homecontrol.devices[uid].binary_sensor_property[f'devolo.BinarySensor:{uid}'].last_activity = last_activity
+        self.homecontrol.updater._last_activity(message={"properties":
+                                                {"uid": f"devolo.LastActivity:{uid}",
+                                                 "property.value.new": last_activity + 1000}})
+        assert self.homecontrol.devices[uid].binary_sensor_property[f'devolo.BinarySensor:{uid}'].last_activity.second \
+            - datetime.utcfromtimestamp(last_activity / 1000).second == 1
+
+    def test__last_activity_siren(self):
+        device = self.devices['siren']
+        uid = device['uid']
+        last_activity = device['last_activity']
+        self.homecontrol.devices[uid].binary_sensor_property[f'devolo.SirenBinarySensor:{uid}'].last_activity = last_activity
+        self.homecontrol.updater._last_activity(message={"properties":
+                                                {"uid": f"devolo.LastActivity:{uid}",
+                                                 "property.value.new": last_activity + 1000}})
+        assert self.homecontrol.devices[uid].binary_sensor_property[f'devolo.SirenBinarySensor:{uid}'].last_activity.second \
+            - datetime.utcfromtimestamp(last_activity / 1000).second == 1
+
     def test__led(self):
         device = self.devices['mains']
         uid = device['uid']
@@ -356,7 +378,7 @@ class TestUpdater:
     def test__pending_operations_false(self):
         device = self.devices['mains']
         uid = device['uid']
-        pending_operation = device['pending_operation']
+        pending_operation = device['properties']['pending_operations']
         self.homecontrol.devices[uid].pending_operation = not pending_operation
         self.homecontrol.updater._pending_operations(message={"properties":
                                                               {"uid": device['elementUIDs'][1]}})
@@ -365,7 +387,7 @@ class TestUpdater:
     def test__pending_operations_true(self):
         device = self.devices['mains']
         uid = device['uid']
-        pending_operation = device['pending_operation']
+        pending_operation = device['properties']['pending_operations']
         self.homecontrol.devices[uid].pending_operation = pending_operation
         self.homecontrol.updater._pending_operations(message={"properties":
                                                               {"uid": device['elementUIDs'][1],
