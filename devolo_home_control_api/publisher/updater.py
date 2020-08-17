@@ -49,6 +49,7 @@ class Updater:
                         "devolo.DewpointSensor": self._multi_level_sensor,
                         "devolo.HumidityBarValue": self._humidity_bar,
                         "devolo.HumidityBarZone": self._humidity_bar,
+                        "devolo.LastActivity": self._last_activity,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
                         "devolo.MildewSensor": self._binary_sensor,
@@ -193,6 +194,15 @@ class Updater:
         self._publisher.dispatch(device_uid, (element_uid,
                                               self.devices[device_uid].humidity_bar_property[element_uid].zone,
                                               self.devices[device_uid].humidity_bar_property[element_uid].value))
+
+    def update_last_activity(self, element_uid: str, timestamp: int):
+        device_uid = get_device_uid_from_element_uid(element_uid)
+        try:
+            self.devices[device_uid].binary_sensor_property[element_uid.replace("LastActivity", "BinarySensor")].last_activity = timestamp
+        except KeyError:
+            self.devices[device_uid].binary_sensor_property[element_uid.replace("LastActivity", "SirenBinarySensor")].last_activity = timestamp
+        self._logger.debug(f"Updating timestamp of device {device_uid} to {timestamp}")
+        self._publisher.dispatch(device_uid, (element_uid, timestamp, "last_activity"))
 
     def update_led(self, element_uid: str, value: bool):
         """
@@ -423,6 +433,10 @@ class Updater:
         elif message['properties']['uid'].startswith("devolo.HumidityBarValue"):
             self.update_humidity_bar(element_uid=fake_element_uid,
                                      value=message['properties']['property.value.new'])
+
+    def _last_activity(self, message: dict):
+        self.update_last_activity(element_uid=message['properties']['uid'],
+                                  timestamp=message['properties']['property.value.new'])
 
     def _led(self, message: dict):
         """ Update LED settings. """
