@@ -196,6 +196,12 @@ class Updater:
                                               self.devices[device_uid].humidity_bar_property[element_uid].value))
 
     def update_last_activity(self, element_uid: str, timestamp: int):
+        """
+        Update last activity of binary sensors.
+
+        :param element_uid: Element UID, something like devolo.LastActivity:hdm:ZWave:CBC56091/24#2
+        :param timestamp: Timestamp to set the last activity to in milliseconds
+        """
         device_uid = get_device_uid_from_element_uid(element_uid)
         try:
             parent_element_uid = element_uid.replace("LastActivity", "BinarySensor")
@@ -437,6 +443,7 @@ class Updater:
                                      value=message['properties']['property.value.new'])
 
     def _last_activity(self, message: dict):
+        """ Update last activity. """
         self.update_last_activity(element_uid=message['properties']['uid'],
                                   timestamp=message['properties']['property.value.new'])
 
