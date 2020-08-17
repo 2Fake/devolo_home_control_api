@@ -234,7 +234,14 @@ class HomeControl(Mprm):
 
         for uid_info in device_properties_list:
             elements.get(get_device_type_from_element_uid(uid_info["UID"]), self._unknown)(uid_info)
+            try:
+                uid = self.devices[get_device_uid_from_element_uid(uid_info["UID"])]
+            except KeyError:
+                uid = self.devices[get_device_uid_from_setting_uid(uid_info["UID"])]
+            if uid.pending_operations is not True:
+                uid.pending_operations = bool(uid_info["properties"].get("operationStatus"))
 
+        # Last activity messages arrive before a device initialized and therefore need to be handled afterwards.
         for uid_info in device_properties_list:
             if uid_info["UID"].startswith("devolo.LastActivity"):
                 self._last_activity(uid_info)
