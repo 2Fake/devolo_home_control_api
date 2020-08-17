@@ -24,8 +24,8 @@ def mock__inspect_devices(self, devices):
                "sensor": multi_level_sensor_device,
                "siren": siren}
 
-    for device_type, device in test_data.get("devices").items():
-        device_uid = device.get("uid")
+    for device_type, device in test_data['devices'].items():
+        device_uid = device['uid']
         self.devices[device_uid] = mapping.get(device_type, dummy_device)(device_uid
                                                                           if device_type in mapping.keys()
                                                                           else device_type)

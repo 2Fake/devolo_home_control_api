@@ -198,9 +198,11 @@ class Updater:
     def update_last_activity(self, element_uid: str, timestamp: int):
         device_uid = get_device_uid_from_element_uid(element_uid)
         try:
-            self.devices[device_uid].binary_sensor_property[element_uid.replace("LastActivity", "BinarySensor")].last_activity = timestamp
+            parent_element_uid = element_uid.replace("LastActivity", "BinarySensor")
+            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = timestamp
         except KeyError:
-            self.devices[device_uid].binary_sensor_property[element_uid.replace("LastActivity", "SirenBinarySensor")].last_activity = timestamp
+            parent_element_uid = element_uid.replace("LastActivity", "SirenBinarySensor")
+            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = timestamp
         self._logger.debug(f"Updating timestamp of device {device_uid} to {timestamp}")
         self._publisher.dispatch(device_uid, (element_uid, timestamp, "last_activity"))
 
