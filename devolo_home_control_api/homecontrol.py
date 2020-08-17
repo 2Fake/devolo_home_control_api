@@ -233,17 +233,11 @@ class HomeControl(Mprm):
         device_properties_list = self.get_data_from_uid_list(uid_list)
 
         for uid_info in device_properties_list:
-            try:
-                elements.get(get_device_type_from_element_uid(uid_info["UID"]), self._unknown)(uid_info)
-            except KeyError:
-                pass
+            elements.get(get_device_type_from_element_uid(uid_info["UID"]), self._unknown)(uid_info)
 
         for uid_info in device_properties_list:
-            try:
-                if uid_info["UID"].startswith("devolo.LastActivity"):
-                    self._last_activity(uid_info)
-            except KeyError:
-                pass
+            if uid_info["UID"].startswith("devolo.LastActivity"):
+                self._last_activity(uid_info)
 
     def _binary_async(self, uid_info: dict):
         """ Process binary async setting (bas) properties. """
