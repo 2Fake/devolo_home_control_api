@@ -46,7 +46,7 @@ class HomeControl(Mprm):
         self._inspect_devices(self.get_all_devices())
 
         self.device_names = dict(zip([(self.devices[device].settings_property["general_device_settings"].name + "/"
-                                     + self.devices[device].settings_property["general_device_settings"].zone)
+                                       + self.devices[device].settings_property["general_device_settings"].zone)
                                       for device in self.devices],
                                      [self.devices[device].uid for device in self.devices]))
 
@@ -57,7 +57,6 @@ class HomeControl(Mprm):
 
         threading.Thread(target=self.websocket_connect).start()
         self.wait_for_websocket_establishment()
-
 
     @property
     def binary_sensor_devices(self) -> list:
@@ -93,7 +92,6 @@ class HomeControl(Mprm):
     def remote_control_devices(self) -> list:
         """ Get all remote control devices. """
         return [self.devices[uid] for uid in self.devices if hasattr(self.devices[uid], "remote_control_property")]
-
 
     def device_change(self, device_uids: list):
         """
@@ -232,9 +230,20 @@ class HomeControl(Mprm):
         # List comprehension gets all uids into one list to make one big call against the mPRM
         uid_list = [uid for sublist in nested_uids_lists for uid in sublist]
 
-        for uid_info in self.get_data_from_uid_list(uid_list):
-            if uid_info.get("UID") is not None:
-                elements.get(get_device_type_from_element_uid(uid_info.get("UID")), self._unknown)(uid_info)
+        device_properties_list = self.get_data_from_uid_list(uid_list)
+
+        for uid_info in device_properties_list:
+            try:
+                elements.get(get_device_type_from_element_uid(uid_info["UID"]), self._unknown)(uid_info)
+            except KeyError:
+                pass
+
+        for uid_info in device_properties_list:
+            try:
+                if uid_info["UID"].startswith("devolo.LastActivity"):
+                    self._last_activity(uid_info)
+            except KeyError:
+                pass
 
     def _binary_async(self, uid_info: dict):
         """ Process binary async setting (bas) properties. """
@@ -259,15 +268,14 @@ class HomeControl(Mprm):
         This parent property is found by string replacement.
         """
         device_uid = get_device_uid_from_element_uid(uid_info["UID"])
-        if hasattr(self.devices[device_uid], "binary_sensor_property"):
-            parent_element_uid = uid_info["UID"].replace("LastActivity", "BinarySensor")
-            if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
-                self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                    uid_info["properties"]["lastActivityTime"]
+        parent_element_uid = uid_info["UID"].replace("LastActivity", "BinarySensor")
+        try:
+            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                uid_info["properties"]["lastActivityTime"]
+        except KeyError:
             parent_element_uid = uid_info["UID"].replace("LastActivity", "SirenBinarySensor")
-            if self.devices[device_uid].binary_sensor_property.get(parent_element_uid) is not None:
-                self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                    uid_info["properties"]["lastActivityTime"]
+            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+                uid_info["properties"]["lastActivityTime"]
 
     def _led(self, uid_info: dict):
         """ Process LED information setting (lis) and visual feedback setting (vfs) properties. """
