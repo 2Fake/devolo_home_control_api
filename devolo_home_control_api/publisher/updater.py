@@ -33,6 +33,7 @@ class Updater:
         :param message: Message to process
         """
         message_type = {"bas.hdm": self._binary_async,
+                        "bss.hdm": self._binary_sync,
                         "cps.hdm": self._parameter,
                         "gds.hdm": self._general_device,
                         "lis.hdm": self._led,
@@ -69,7 +70,9 @@ class Updater:
             else:
                 message_type[get_device_type_from_element_uid(message['properties']['uid'])](message)
         except KeyError:
-            self._logger.debug(json.dumps(message, indent=4))
+            ignore = ("ss", "mcs")
+            if not message["properties"]["uid"].startswith(ignore):
+                self._logger.debug(json.dumps(message, indent=4))
 
     def update_binary_async_setting(self, element_uid: str, value: bool):
         """
@@ -87,6 +90,19 @@ class Updater:
         self._logger.debug(f"Udating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
+    def update_binary_sync_setting(self, element_uid: str, value: bool):
+        """
+        Update binary sync setting of a device externally. The value is written into the internal dict.
+        Actually we just know that the shutter has a property like this.
+
+        :param element_uid: Element UID, something like,  bss.hdm:ZWave:CBC56091/24#2
+        :param value: True for inverted, False for default
+        """
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self.devices[device_uid].settings_property["direction"].direction = value
+        self._logger.debug(f"Updating value of {element_uid} to {value}")
+        self._publisher.dispatch(device_uid, (element_uid, value))
+        
     def update_binary_sensor_state(self, element_uid: str, value: bool, timestamp: int):
         """
         Update the binary switch state of a device externally. The value is written into the internal dict.
@@ -367,6 +383,10 @@ class Updater:
             self.update_binary_async_setting(element_uid=message['properties']['uid'],
                                              value=bool(message['properties']['property.value.new']))
 
+    def _binary_sync(self, message: dict):
+        """ Update a binary sync setting. """
+        self.update_binary_sync_setting(element_uid=message['properties']['uid'],
+                                        value=bool(message['properties']['property.value.new']))
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """
         if message['properties']['property.value.new'] is not None:
