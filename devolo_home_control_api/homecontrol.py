@@ -257,7 +257,7 @@ class HomeControl(Mprm):
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info["UID"],
-                             calibration_status=uid_info["properties"]["calibrationStatus"])
+                             calibration_status=bool(uid_info["properties"]["calibrationStatus"]))
 
     def _binary_sync(self, uid_info: dict):
         """ Process binary sync (bss) properties. Actually we know just the direction of a shutter. """

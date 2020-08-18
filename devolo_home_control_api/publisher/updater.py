@@ -32,7 +32,8 @@ class Updater:
 
         :param message: Message to process
         """
-        message_type = {"bas.hdm": self._binary_async,
+        message_type = {"acs.hdm": self._automatic_calibration,
+                        "bas.hdm": self._binary_async,
                         "bss.hdm": self._binary_sync,
                         "cps.hdm": self._parameter,
                         "gds.hdm": self._general_device,
@@ -74,6 +75,17 @@ class Updater:
             ignore = ("ss", "mcs")
             if not message["properties"]["uid"].startswith(ignore):
                 self._logger.debug(json.dumps(message, indent=4))
+
+    def update_automatic_calibration(self, element_uid: str, calibration_status: bool):
+        """
+        Update automatic calibration setting of a device externally. The value is written into the internal dict.
+        :param element_uid: Element UID, something like, acs.hdm:ZWave:F6BF9812/20
+        :param calibration_status: Bool for the setting
+        """
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self.devices[device_uid].settings_property["automatic_calibration"].calibration_status = calibration_status
+        self._logger.debug(f"Updating value of {element_uid} to {calibration_status}")
+        self._publisher.dispatch(device_uid, (element_uid, calibration_status))
 
     def update_binary_async_setting(self, element_uid: str, value: bool):
         """
@@ -379,6 +391,17 @@ class Updater:
         self.devices[device_uid].multi_level_sensor_property[element_uid].value = value
         self._logger.debug(f"Updating voltage of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
+
+    def _automatic_calibration(self, message: dict):
+        """ Update a automatic calibration message. """
+        try:
+            calibration_status = message["properties"]["property.value.new"]["status"]
+            self.update_automatic_calibration(element_uid=message["properties"]["uid"],
+                                              calibration_status=False if calibration_status == 2 else True)
+        except KeyError:
+            if type(message["properties"]["property.value.new"]) not in [dict, list]:
+                self.update_automatic_calibration(element_uid=message["properties"]["uid"],
+                                                  calibration_status=bool(message["properties"]["property.value.new"]))
 
     def _binary_async(self, message: dict):
         """ Update a binary async setting. """
