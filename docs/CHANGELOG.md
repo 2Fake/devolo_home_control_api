@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-- Datetime objects are now in local time
+- Datetime objects are now in local time - https://github.com/2Fake/devolo_home_control_api/issues/59
 
 ## [v0.13.0] - 2020/08/10
 
@@ -37,7 +37,7 @@ to manufacturer_id, product_id and product_type_id respectively.
 
 ### Fixed
 
-- Publisher sends consumption type additionally to element_uid and consumption value.
+- Publisher sends consumption type additionally to element_uid and consumption value. - https://github.com/2Fake/devolo_home_control_api/issues/54
 
 ## [v0.12.0] - 2020/06/09
 
