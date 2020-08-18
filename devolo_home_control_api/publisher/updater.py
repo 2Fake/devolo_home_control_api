@@ -99,7 +99,7 @@ class Updater:
         :param value: True for inverted, False for default
         """
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property["direction"].direction = value
+        self.devices[device_uid].settings_property["movement_direction"].direction = value
         self._logger.debug(f"Updating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -387,6 +387,7 @@ class Updater:
         """ Update a binary sync setting. """
         self.update_binary_sync_setting(element_uid=message['properties']['uid'],
                                         value=bool(message['properties']['property.value.new']))
+
     def _binary_sensor(self, message: dict):
         """ Update a binary sensor's state. """
         if message['properties']['property.value.new'] is not None:
