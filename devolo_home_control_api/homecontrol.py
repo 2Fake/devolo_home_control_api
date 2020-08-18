@@ -240,7 +240,7 @@ class HomeControl(Mprm):
                 uid = self.devices[get_device_uid_from_setting_uid(uid_info["UID"])]
             uid.pending_operations = uid.pending_operations or bool(uid_info["properties"].get("pendingOperations"))
 
-        # Last activity messages somtimes arrive before a device was initialized and therefore need to be handled afterwards.
+        # Last activity messages sometimes arrive before a device was initialized and therefore need to be handled afterwards.
         [self._last_activity(uid_info) for uid_info in device_properties_list if uid_info["UID"].startswith("devolo.LastActivity")]
 
     def _binary_async(self, uid_info: dict):
