@@ -246,7 +246,8 @@ class HomeControl(Mprm):
             uid.pending_operations = uid.pending_operations or bool(uid_info["properties"].get("pendingOperations"))
 
         # Last activity messages sometimes arrive before a device was initialized and therefore need to be handled afterwards.
-        [self._last_activity(uid_info) for uid_info in device_properties_list if uid_info["UID"].startswith("devolo.LastActivity")]
+        [self._last_activity(uid_info) for uid_info in device_properties_list
+            if uid_info["UID"].startswith("devolo.LastActivity")]
 
     def _automatic_calibration(self, uid_info: dict):
         """ Process automatic calibraton (acs) properties. """
@@ -256,7 +257,7 @@ class HomeControl(Mprm):
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info["UID"],
-                             calibration_status = uid_info["properties"]["calibrationStatus"])
+                             calibration_status=uid_info["properties"]["calibrationStatus"])
 
     def _binary_sync(self, uid_info: dict):
         """ Process binary sync (bss) properties. Actually we know just the direction of a shutter. """
@@ -341,7 +342,8 @@ class HomeControl(Mprm):
     def _multilevel_sync(self, uid_info: dict):
         """ Process multilevel sync setting (mss) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
-        # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely
+
+        # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
             self._logger.debug(f"Adding tone settings to {device_uid}.")
             self.devices[device_uid].settings_property["tone"] = \
@@ -349,12 +351,17 @@ class HomeControl(Mprm):
                                  gateway=self.gateway,
                                  element_uid=uid_info["UID"],
                                  tone=uid_info["properties"]["value"])
+
+        # The shutter needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
             self._logger.debug(f"Adding shutter duration settings to {device_uid}.")
-            self.devices[device_uid].settings_property["shutter_duration"] = SettingsProperty(session=self._session,
+            self.devices[device_uid].settings_property["shutter_duration"] = \
+                SettingsProperty(session=self._session,
                                  gateway=self.gateway,
                                  element_uid=uid_info["UID"],
                                  shutter_duration=uid_info["properties"]["value"])
+
+        # Other devices are up to now always motion sensors.
         else:
             self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
             self.devices[device_uid].settings_property["motion_sensitivity"] = \
@@ -432,10 +439,11 @@ class HomeControl(Mprm):
         """ Process switch type setting (sts) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
         self._logger.debug(f"Adding switch type setting to {device_uid}")
-        self.devices[device_uid].settings_property["switch_type"] = SettingsProperty(session=self._session,
-                                                                                     gateway=self.gateway,
-                                                                                     element_uid=uid_info["UID"],
-                                                                                     value=uid_info["properties"]["switchType"])
+        self.devices[device_uid].settings_property["switch_type"] = \
+            SettingsProperty(session=self._session,
+                             gateway=self.gateway,
+                             element_uid=uid_info["UID"],
+                             value=uid_info["properties"]["switchType"])
 
     def _temperature_report(self, uid_info: dict):
         """ Process temperature report setting (trs) properties. """
