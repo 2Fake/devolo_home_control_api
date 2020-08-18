@@ -20,7 +20,8 @@ class SettingsProperty(Property):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if element_uid.split(".")[0] not in ["bas", "cps", "gds", "lis", "mas", "mss", "ps", "trs", "vfs"]:
+        if not element_uid.startswith(("acs", "bas", "bss", "cps", "gds", "lis", "mas",
+                                       "mss", "ps", "sts", "stmss", "trs", "vfs")):
             raise WrongElementError()
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)

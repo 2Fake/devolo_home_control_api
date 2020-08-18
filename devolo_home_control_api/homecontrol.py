@@ -212,13 +212,17 @@ class HomeControl(Mprm):
                     "devolo.ShutterMovementFI": self._binary_sensor,
                     "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                     "devolo.WarningBinaryFI": self._binary_sensor,
+                    "acs.hdm": self._automatic_calibration,
                     "bas.hdm": self._binary_async,
+                    "bss.hdm": self._binary_sync,
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
                     "mas.hdm": self._multilevel_async,
                     "mss.hdm": self._multilevel_sync,
                     "ps.hdm": self._protection,
+                    "sts.hdm": self._switch_type,
+                    "stmss.hdm": self._multilevel_sync,
                     "trs.hdm": self._temperature_report,
                     "vfs.hdm": self._led
                     }
@@ -243,6 +247,26 @@ class HomeControl(Mprm):
 
         # Last activity messages sometimes arrive before a device was initialized and therefore need to be handled afterwards.
         [self._last_activity(uid_info) for uid_info in device_properties_list if uid_info["UID"].startswith("devolo.LastActivity")]
+
+    def _automatic_calibration(self, uid_info: dict):
+        """ Process automatic calibraton (acs) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        self._logger.debug(f"Adding automatic calibration setting to {device_uid}")
+        self.devices[device_uid].settings_property["automatic_calibration"] = \
+            SettingsProperty(session=self._session,
+                             gateway=self.gateway,
+                             element_uid=uid_info["UID"],
+                             calibration_status = uid_info["properties"]["calibrationStatus"])
+
+    def _binary_sync(self, uid_info: dict):
+        """ Process binary sync (bss) properties. Actually we know just the direction of a shutter. """
+        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        self._logger.debug(f"Adding binary sync setting to {device_uid}")
+        self.devices[device_uid].settings_property["movement_direction"] = \
+            SettingsProperty(session=self._session,
+                             gateway=self.gateway,
+                             element_uid=uid_info["UID"],
+                             direction=uid_info["properties"]["value"])
 
     def _binary_async(self, uid_info: dict):
         """ Process binary async setting (bas) properties. """
@@ -317,15 +341,22 @@ class HomeControl(Mprm):
     def _multilevel_sync(self, uid_info: dict):
         """ Process multilevel sync setting (mss) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
-        self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
         # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
+            self._logger.debug(f"Adding tone settings to {device_uid}.")
             self.devices[device_uid].settings_property["tone"] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
                                  element_uid=uid_info["UID"],
                                  tone=uid_info["properties"]["value"])
+        elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
+            self._logger.debug(f"Adding shutter duration settings to {device_uid}.")
+            self.devices[device_uid].settings_property["shutter_duration"] = SettingsProperty(session=self._session,
+                                 gateway=self.gateway,
+                                 element_uid=uid_info["UID"],
+                                 shutter_duration=uid_info["properties"]["value"])
         else:
+            self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
             self.devices[device_uid].settings_property["motion_sensitivity"] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
@@ -397,6 +428,15 @@ class HomeControl(Mprm):
                                   key_pressed=uid_info["properties"]["keyPressed"],
                                   type=uid_info["properties"]["type"])
 
+    def _switch_type(self, uid_info: dict):
+        """ Process switch type setting (sts) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        self._logger.debug(f"Adding switch type setting to {device_uid}")
+        self.devices[device_uid].settings_property["switch_type"] = SettingsProperty(session=self._session,
+                                                                                     gateway=self.gateway,
+                                                                                     element_uid=uid_info["UID"],
+                                                                                     value=uid_info["properties"]["switchType"])
+
     def _temperature_report(self, uid_info: dict):
         """ Process temperature report setting (trs) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
@@ -410,6 +450,6 @@ class HomeControl(Mprm):
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
-        ignore = ("ss")
-        if not uid_info["UID"].startswith(ignore) or uid_info["properties"]["itemId"] not in ignore:
+        ignore = ("ss", "mcs")
+        if not uid_info["UID"].startswith(ignore):
             self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
