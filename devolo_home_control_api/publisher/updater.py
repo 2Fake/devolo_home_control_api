@@ -51,6 +51,7 @@ class Updater:
                         "devolo.DevicesPage": self._device_change,
                         "devolo.Dimmer": self._multi_level_switch,
                         "devolo.DewpointSensor": self._multi_level_sensor,
+                        "devolo.Grouping": self._grouping,
                         "devolo.HumidityBarValue": self._humidity_bar,
                         "devolo.HumidityBarZone": self._humidity_bar,
                         "devolo.LastActivity": self._last_activity,
@@ -491,6 +492,10 @@ class Updater:
                                             icon=message['properties']['property.value.new']['icon'],
                                             name=message['properties']['property.value.new']['name'],
                                             zone_id=message['properties']['property.value.new']['zoneID'])
+
+    def _grouping(self, message: dict):
+        self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
+        self._logger.debug(f"Updated gateway zones.")
 
     def _humidity_bar(self, message: dict):
         """ Update a humidity bar. """
