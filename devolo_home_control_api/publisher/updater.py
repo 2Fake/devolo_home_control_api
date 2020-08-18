@@ -87,7 +87,7 @@ class Updater:
         except KeyError:
             # Siren setting is not initialized like others.
             self.devices[device_uid].settings_property['muted'].value = value
-        self._logger.debug(f"Udating value of {element_uid} to {value}")
+        self._logger.debug(f"Updating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_binary_sync_setting(self, element_uid: str, value: bool):
@@ -102,7 +102,7 @@ class Updater:
         self.devices[device_uid].settings_property["direction"].direction = value
         self._logger.debug(f"Updating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
-        
+
     def update_binary_sensor_state(self, element_uid: str, value: bool, timestamp: int):
         """
         Update the binary switch state of a device externally. The value is written into the internal dict.
