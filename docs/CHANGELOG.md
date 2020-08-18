@@ -37,7 +37,7 @@ to manufacturer_id, product_id and product_type_id respectively.
 
 ### Fixed
 
-- Publisher sends consumption type additionally to element_uid and consumption value.
+- Publisher sends consumption type additionally to element_uid and consumption value. - https://github.com/2Fake/devolo_home_control_api/issues/54
 
 ## [v0.12.0] - 2020/06/09
 
