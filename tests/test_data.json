@@ -52,6 +52,7 @@
       "itemName": "Shutter",
       "min": 0,
       "max": 100,
+      "motorActivity": 30,
       "operationStatus": false,
       "pending_operations": false,
       "uid": "hdm:ZWave:F6BF9812/10",

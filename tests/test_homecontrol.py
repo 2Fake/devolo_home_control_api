@@ -149,6 +149,13 @@ class TestHomeControl:
         self.homecontrol._led({"UID": element_uid, "properties": {"feedback": led_setting}})
         assert self.homecontrol.devices[device['UID']].settings_property['led'].led_setting == led_setting
 
+    def test__multilevel_async(self):
+        device = self.devices['blinds']
+        uid = device['uid']
+        self.homecontrol._multilevel_async({"UID": f"mas.{uid}",
+                                            "properties": {"itemId": "motorActivity", "value": device['motorActivity']}})
+        assert self.homecontrol.devices[uid].settings_property['motor_activity'].value == device['motorActivity']
+
     def test__multilevel_sync_sensor(self):
         device = self.devices.get("sensor").get("uid")
         self.homecontrol._multilevel_sync({"UID": self.devices.get("sensor").get("settingUIDs")[2],

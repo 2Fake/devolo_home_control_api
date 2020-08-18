@@ -335,8 +335,9 @@ class HomeControl(Mprm):
     def _multilevel_async(self, uid_info: dict):
         """ Process multilevel async setting (mas) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
-        self._logger.debug(f"Adding {uid_info['properties']['itemId']} setting to {device_uid}.")
-        self.devices[device_uid].settings_property[uid_info['properties']['itemId']] = \
+        name = camel_case_to_snake_case(uid_info['properties']['itemId'])
+        self._logger.debug(f"Adding {name} setting to {device_uid}.")
+        self.devices[device_uid].settings_property[name] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info['UID'],
