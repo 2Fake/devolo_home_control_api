@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Settings now update via websocket
+- Last activity now updates via websocket
+- Support for shutter movement as binary sensor
+- Support for shutter overload warning as binary sensor
+- Support for pending operations
+
+### Changed
+
+- **BREAKING**: Name and zone (also called room) moved into the general device settings property because they may change.
+
+### Fixed
+
+- Datetime objects are now in local time
+
 ## [v0.13.0] - 2020/08/10
 
 ### Added
