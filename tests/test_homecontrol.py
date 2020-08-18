@@ -30,18 +30,26 @@ class TestHomeControl:
     def test_get_publisher(self):
         assert len(self.homecontrol.publisher._events) == 10
 
+    def test__automatic_calibration(self):
+        device = self.devices['blinds']
+        uid = device['uid']
+        self.homecontrol._automatic_calibration({"UID": f"acs.{uid}",
+                                                 "properties": {"calibrationStatus": device['calibrationStatus']}})
+        assert self.homecontrol.devices.get(uid).settings_property['automatic_calibration'].calibration_status == \
+            bool(device['calibrationStatus'])
+
     def test__binary_async_blinds(self):
         device = self.devices.get("blinds").get("uid")
         i2 = self.devices.get("blinds").get("i2")
         self.homecontrol._binary_async({"UID": f"bas.{device}#i2",
-                                               "properties": {"value": not i2}})
+                                        "properties": {"value": not i2}})
         assert self.homecontrol.devices.get(device).settings_property.get("i2").value is not i2
 
     def test__binary_async_siren(self):
         device = self.devices.get("siren").get("uid")
         muted = self.devices.get("siren").get("muted")
         self.homecontrol._binary_async({"UID": f"bas.{device}",
-                                               "properties": {"value": not muted}})
+                                        "properties": {"value": not muted}})
         assert self.homecontrol.devices.get(device).settings_property.get("muted").value is not muted
 
     def test__binary_sensor(self):

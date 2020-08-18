@@ -45,8 +45,8 @@ class HomeControl(Mprm):
         self.devices = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([(self.devices[device].settings_property["general_device_settings"].name + "/"
-                                       + self.devices[device].settings_property["general_device_settings"].zone)
+        self.device_names = dict(zip([(self.devices[device].settings_property['general_device_settings'].name + "/"
+                                       + self.devices[device].settings_property['general_device_settings'].zone)
                                       for device in self.devices],
                                      [self.devices[device].uid for device in self.devices]))
 
@@ -122,43 +122,43 @@ class HomeControl(Mprm):
 
     def _binary_sensor(self, uid_info: dict):
         """ Process BinarySensor properties"""
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         if not hasattr(self.devices[device_uid], "binary_sensor_property"):
             self.devices[device_uid].binary_sensor_property = {}
         self._logger.debug(f"Adding binary sensor property to {device_uid}.")
-        self.devices[device_uid].binary_sensor_property[uid_info["UID"]] = \
+        self.devices[device_uid].binary_sensor_property[uid_info['UID']] = \
             BinarySensorProperty(session=self._session,
                                  gateway=self.gateway,
-                                 element_uid=uid_info["UID"],
-                                 state=bool(uid_info["properties"]["state"]),
-                                 sensor_type=uid_info["properties"]["sensorType"],
-                                 sub_type=uid_info["properties"]["subType"])
+                                 element_uid=uid_info['UID'],
+                                 state=bool(uid_info['properties']['state']),
+                                 sensor_type=uid_info['properties']['sensorType'],
+                                 sub_type=uid_info['properties']['subType'])
 
     def _binary_switch(self, uid_info: dict):
         """ Process BinarySwitch properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         if not hasattr(self.devices[device_uid], "binary_switch_property"):
             self.devices[device_uid].binary_switch_property = {}
         self._logger.debug(f"Adding binary switch property to {device_uid}.")
-        self.devices[device_uid].binary_switch_property[uid_info["UID"]] = \
+        self.devices[device_uid].binary_switch_property[uid_info['UID']] = \
             BinarySwitchProperty(session=self._session,
                                  gateway=self.gateway,
-                                 element_uid=uid_info["UID"],
-                                 state=bool(uid_info["properties"]["state"]))
+                                 element_uid=uid_info['UID'],
+                                 state=bool(uid_info['properties']['state']))
 
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding general device settings to {device_uid}.")
         self.devices[device_uid]. \
-            settings_property["general_device_settings"] = \
+            settings_property['general_device_settings'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info["UID"],
-                             events_enabled=uid_info["properties"]["settings"]["eventsEnabled"],
-                             name=uid_info["properties"]["settings"]["name"],
-                             zone_id=uid_info["properties"]["settings"]["zoneID"],
-                             icon=uid_info["properties"]["settings"]["icon"])
+                             element_uid=uid_info['UID'],
+                             events_enabled=uid_info['properties']['settings']['eventsEnabled'],
+                             name=uid_info['properties']['settings']['name'],
+                             zone_id=uid_info['properties']['settings']['zoneID'],
+                             icon=uid_info['properties']['settings']['icon'])
 
     def _humidity_bar(self, uid_info: dict):
         """
@@ -167,8 +167,8 @@ class HomeControl(Mprm):
         For whatever reason, the zone and the position within that zone are two different FIs. Nevertheless, it does not make
         sense to separate them. So we fake an FI and a sensorType to combine them together into one object.
         """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
-        fake_element_uid = f'devolo.HumidityBar:{uid_info["UID"].split(":", 1)[1]}'
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
+        fake_element_uid = f"devolo.HumidityBar:{uid_info['UID'].split(':', 1)[1]}"
         if not hasattr(self.devices[device_uid], "humidity_bar_property"):
             self.devices[device_uid].humidity_bar_property = {}
         if self.devices[device_uid].humidity_bar_property.get(fake_element_uid) is None:
@@ -177,21 +177,21 @@ class HomeControl(Mprm):
                                     gateway=self.gateway,
                                     element_uid=fake_element_uid,
                                     sensorType="humidityBar")
-        if uid_info["properties"]["sensorType"] == "humidityBarZone":
+        if uid_info['properties']['sensorType'] == "humidityBarZone":
             self._logger.debug(f"Adding humidity bar zone property to {device_uid}.")
-            self.devices[device_uid].humidity_bar_property[fake_element_uid].zone = uid_info["properties"]["value"]
-        elif uid_info["properties"]["sensorType"] == "humidityBarPos":
+            self.devices[device_uid].humidity_bar_property[fake_element_uid].zone = uid_info['properties']['value']
+        elif uid_info['properties']['sensorType'] == "humidityBarPos":
             self._logger.debug(f"Adding humidity bar position property to {device_uid}.")
-            self.devices[device_uid].humidity_bar_property[fake_element_uid].value = uid_info["properties"]["value"]
+            self.devices[device_uid].humidity_bar_property[fake_element_uid].value = uid_info['properties']['value']
 
     def _inspect_devices(self, devices: list):
         """ Inspect device properties of given list of devices. """
         devices_properties = self.get_data_from_uid_list(devices)
         for device_properties in devices_properties:
-            properties = device_properties["properties"]
-            self.devices[device_properties["UID"]] = Zwave(**properties)
-            self.devices[device_properties["UID"]].settings_property = {}
-            threading.Thread(target=self.devices[device_properties["UID"]].get_zwave_info).start()
+            properties = device_properties['properties']
+            self.devices[device_properties['UID']] = Zwave(**properties)
+            self.devices[device_properties['UID']].settings_property = {}
+            threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info).start()
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
@@ -228,8 +228,8 @@ class HomeControl(Mprm):
                     }
 
         # List comprehension gets the list of uids from every device
-        nested_uids_lists = [(uid["properties"].get("settingUIDs")
-                              + uid["properties"]["elementUIDs"])
+        nested_uids_lists = [(uid['properties'].get("settingUIDs")
+                              + uid['properties']['elementUIDs'])
                              for uid in devices_properties]
 
         # List comprehension gets all uids into one list to make one big call against the mPRM
@@ -238,52 +238,52 @@ class HomeControl(Mprm):
         device_properties_list = self.get_data_from_uid_list(uid_list)
 
         for uid_info in device_properties_list:
-            elements.get(get_device_type_from_element_uid(uid_info["UID"]), self._unknown)(uid_info)
+            elements.get(get_device_type_from_element_uid(uid_info['UID']), self._unknown)(uid_info)
             try:
-                uid = self.devices[get_device_uid_from_element_uid(uid_info["UID"])]
+                uid = self.devices[get_device_uid_from_element_uid(uid_info['UID'])]
             except KeyError:
-                uid = self.devices[get_device_uid_from_setting_uid(uid_info["UID"])]
-            uid.pending_operations = uid.pending_operations or bool(uid_info["properties"].get("pendingOperations"))
+                uid = self.devices[get_device_uid_from_setting_uid(uid_info['UID'])]
+            uid.pending_operations = uid.pending_operations or bool(uid_info['properties'].get("pendingOperations"))
 
         # Last activity messages sometimes arrive before a device was initialized and therefore need to be handled afterwards.
         [self._last_activity(uid_info) for uid_info in device_properties_list
-            if uid_info["UID"].startswith("devolo.LastActivity")]
+            if uid_info['UID'].startswith("devolo.LastActivity")]
 
     def _automatic_calibration(self, uid_info: dict):
         """ Process automatic calibraton (acs) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding automatic calibration setting to {device_uid}")
-        self.devices[device_uid].settings_property["automatic_calibration"] = \
+        self.devices[device_uid].settings_property['automatic_calibration'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info["UID"],
-                             calibration_status=bool(uid_info["properties"]["calibrationStatus"]))
+                             element_uid=uid_info['UID'],
+                             calibration_status=bool(uid_info['properties']['calibrationStatus']))
 
     def _binary_sync(self, uid_info: dict):
         """ Process binary sync (bss) properties. Actually we know just the direction of a shutter. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding binary sync setting to {device_uid}")
-        self.devices[device_uid].settings_property["movement_direction"] = \
+        self.devices[device_uid].settings_property['movement_direction'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info["UID"],
-                             direction=uid_info["properties"]["value"])
+                             element_uid=uid_info['UID'],
+                             direction=uid_info['properties']['value'])
 
     def _binary_async(self, uid_info: dict):
         """ Process binary async setting (bas) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding binary async settings to {device_uid}.")
         settings_property = SettingsProperty(session=self._session,
                                              gateway=self.gateway,
-                                             element_uid=uid_info["UID"],
-                                             value=uid_info["properties"]["value"])
+                                             element_uid=uid_info['UID'],
+                                             value=uid_info['properties']['value'])
 
         # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
-            self.devices[device_uid].settings_property["muted"] = settings_property
+            self.devices[device_uid].settings_property['muted'] = settings_property
         # As some devices have multiple binary async settings, we use the settings UID split after a '#' as key
         else:
-            key = camel_case_to_snake_case(uid_info["UID"].split("#")[-1])
+            key = camel_case_to_snake_case(uid_info['UID'].split("#")[-1])
             self.devices[device_uid].settings_property[key] = settings_property
 
     def _last_activity(self, uid_info: dict):
@@ -291,173 +291,173 @@ class HomeControl(Mprm):
         Process last activity properties. Those don't go into an own property but will be appended to a parent property.
         This parent property is found by string replacement.
         """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
-        parent_element_uid = uid_info["UID"].replace("LastActivity", "BinarySensor")
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
+        parent_element_uid = uid_info['UID'].replace("LastActivity", "BinarySensor")
         try:
             self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                uid_info["properties"]["lastActivityTime"]
+                uid_info['properties']['lastActivityTime']
         except KeyError:
-            parent_element_uid = uid_info["UID"].replace("LastActivity", "SirenBinarySensor")
+            parent_element_uid = uid_info['UID'].replace("LastActivity", "SirenBinarySensor")
             self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
-                uid_info["properties"]["lastActivityTime"]
+                uid_info['properties']['lastActivityTime']
 
     def _led(self, uid_info: dict):
         """ Process LED information setting (lis) and visual feedback setting (vfs) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding led settings to {device_uid}.")
         try:
-            led_setting = uid_info["properties"]["led"]
+            led_setting = uid_info['properties']['led']
         except KeyError:
-            led_setting = uid_info["properties"]["feedback"]
-        self.devices[device_uid].settings_property["led"] = \
+            led_setting = uid_info['properties']['feedback']
+        self.devices[device_uid].settings_property['led'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info["UID"],
+                             element_uid=uid_info['UID'],
                              led_setting=led_setting)
 
     def _meter(self, uid_info: dict):
         """ Process meter properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         if not hasattr(self.devices[device_uid], "consumption_property"):
             self.devices[device_uid].consumption_property = {}
         self._logger.debug(f"Adding consumption property to {device_uid}.")
-        self.devices[device_uid].consumption_property[uid_info["UID"]] = \
+        self.devices[device_uid].consumption_property[uid_info['UID']] = \
             ConsumptionProperty(session=self._session,
                                 gateway=self.gateway,
-                                element_uid=uid_info["UID"],
-                                current=uid_info["properties"]["currentValue"],
-                                total=uid_info["properties"]["totalValue"],
-                                total_since=uid_info["properties"]["sinceTime"])
+                                element_uid=uid_info['UID'],
+                                current=uid_info['properties']['currentValue'],
+                                total=uid_info['properties']['totalValue'],
+                                total_since=uid_info['properties']['sinceTime'])
 
     def _multilevel_async(self, uid_info: dict):
         """ Process multilevel async setting (mas) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding {uid_info['properties']['itemId']} setting to {device_uid}.")
-        self.devices[device_uid].settings_property[uid_info["properties"]["itemId"]] = \
+        self.devices[device_uid].settings_property[uid_info['properties']['itemId']] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
-                             element_uid=uid_info["UID"],
-                             value=uid_info["properties"]["value"])
+                             element_uid=uid_info['UID'],
+                             value=uid_info['properties']['value'])
 
     def _multilevel_sync(self, uid_info: dict):
         """ Process multilevel sync setting (mss) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
 
         # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
             self._logger.debug(f"Adding tone settings to {device_uid}.")
-            self.devices[device_uid].settings_property["tone"] = \
+            self.devices[device_uid].settings_property['tone'] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
-                                 element_uid=uid_info["UID"],
-                                 tone=uid_info["properties"]["value"])
+                                 element_uid=uid_info['UID'],
+                                 tone=uid_info['properties']['value'])
 
         # The shutter needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
             self._logger.debug(f"Adding shutter duration settings to {device_uid}.")
-            self.devices[device_uid].settings_property["shutter_duration"] = \
+            self.devices[device_uid].settings_property['shutter_duration'] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
-                                 element_uid=uid_info["UID"],
-                                 shutter_duration=uid_info["properties"]["value"])
+                                 element_uid=uid_info['UID'],
+                                 shutter_duration=uid_info['properties']['value'])
 
         # Other devices are up to now always motion sensors.
         else:
             self._logger.debug(f"Adding motion sensitivity settings to {device_uid}.")
-            self.devices[device_uid].settings_property["motion_sensitivity"] = \
+            self.devices[device_uid].settings_property['motion_sensitivity'] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
-                                 element_uid=uid_info["UID"],
-                                 motion_sensitivity=uid_info["properties"]["value"],
-                                 target_motion_sensitivity=uid_info["properties"]["targetValue"])
+                                 element_uid=uid_info['UID'],
+                                 motion_sensitivity=uid_info['properties']['value'],
+                                 target_motion_sensitivity=uid_info['properties']['targetValue'])
 
     def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         if not hasattr(self.devices[device_uid], "multi_level_sensor_property"):
             self.devices[device_uid].multi_level_sensor_property = {}
         self._logger.debug(f"Adding multi level sensor property {uid_info.get('UID')} to {device_uid}.")
-        self.devices[device_uid].multi_level_sensor_property[uid_info["UID"]] = \
+        self.devices[device_uid].multi_level_sensor_property[uid_info['UID']] = \
             MultiLevelSensorProperty(session=self._session,
                                      gateway=self.gateway,
-                                     element_uid=uid_info["UID"],
-                                     value=uid_info["properties"]["value"],
-                                     unit=uid_info["properties"]["unit"],
-                                     sensor_type=uid_info["properties"]["sensorType"])
+                                     element_uid=uid_info['UID'],
+                                     value=uid_info['properties']['value'],
+                                     unit=uid_info['properties']['unit'],
+                                     sensor_type=uid_info['properties']['sensorType'])
 
     def _multi_level_switch(self, uid_info: dict):
         """ Process multi level switch properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         if not hasattr(self.devices[device_uid], "multi_level_switch_property"):
             self.devices[device_uid].multi_level_switch_property = {}
         self._logger.debug(f"Adding multi level switch property {uid_info.get('UID')} to {device_uid}.")
-        self.devices[device_uid].multi_level_switch_property[uid_info["UID"]] = \
+        self.devices[device_uid].multi_level_switch_property[uid_info['UID']] = \
             MultiLevelSwitchProperty(session=self._session,
                                      gateway=self.gateway,
-                                     element_uid=uid_info["UID"],
-                                     value=uid_info["properties"]["value"],
-                                     switch_type=uid_info["properties"]["switchType"],
-                                     max=uid_info["properties"]["max"],
-                                     min=uid_info["properties"]["min"])
+                                     element_uid=uid_info['UID'],
+                                     value=uid_info['properties']['value'],
+                                     switch_type=uid_info['properties']['switchType'],
+                                     max=uid_info['properties']['max'],
+                                     min=uid_info['properties']['min'])
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding parameter settings to {device_uid}.")
-        self.devices[device_uid].settings_property["param_changed"] = \
+        self.devices[device_uid].settings_property['param_changed'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info['UID'],
-                             param_changed=uid_info['properties']["paramChanged"])
+                             param_changed=uid_info['properties']['paramChanged'])
 
     def _protection(self, uid_info: dict):
         """ Process protection setting (ps) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding protection settings to {device_uid}.")
-        self.devices[device_uid].settings_property["protection"] = \
+        self.devices[device_uid].settings_property['protection'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info['UID'],
-                             local_switching=uid_info["properties"]["localSwitch"],
-                             remote_switching=uid_info["properties"]["remoteSwitch"])
+                             local_switching=uid_info['properties']['localSwitch'],
+                             remote_switching=uid_info['properties']['remoteSwitch'])
 
     def _remote_control(self, uid_info: dict):
         """ Process remote control properties. """
-        device_uid = get_device_uid_from_element_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         self._logger.debug(f"Adding remote control to {device_uid}")
         if not hasattr(self.devices[device_uid], "remote_control_property"):
             self.devices[device_uid].remote_control_property = {}
-        self.devices[device_uid].remote_control_property[uid_info["UID"]] = \
+        self.devices[device_uid].remote_control_property[uid_info['UID']] = \
             RemoteControlProperty(session=self._session,
                                   gateway=self.gateway,
-                                  element_uid=uid_info["UID"],
-                                  key_count=uid_info["properties"]["keyCount"],
-                                  key_pressed=uid_info["properties"]["keyPressed"],
-                                  type=uid_info["properties"]["type"])
+                                  element_uid=uid_info['UID'],
+                                  key_count=uid_info['properties']['keyCount'],
+                                  key_pressed=uid_info['properties']['keyPressed'],
+                                  type=uid_info['properties']['type'])
 
     def _switch_type(self, uid_info: dict):
         """ Process switch type setting (sts) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding switch type setting to {device_uid}")
-        self.devices[device_uid].settings_property["switch_type"] = \
-            SettingsProperty(session=self._session,
-                             gateway=self.gateway,
-                             element_uid=uid_info["UID"],
-                             value=uid_info["properties"]["switchType"] * 2)
-
-    def _temperature_report(self, uid_info: dict):
-        """ Process temperature report setting (trs) properties. """
-        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
-        self._logger.debug(f"Adding temperature report settings to {device_uid}.")
-        self.devices[device_uid].settings_property["temperature_report"] = \
+        self.devices[device_uid].settings_property['switch_type'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info['UID'],
-                             temp_report=uid_info["properties"]["tempReport"],
-                             target_temp_report=uid_info["properties"]["targetTempReport"])
+                             value=uid_info['properties']['switchType'] * 2)
+
+    def _temperature_report(self, uid_info: dict):
+        """ Process temperature report setting (trs) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
+        self._logger.debug(f"Adding temperature report settings to {device_uid}.")
+        self.devices[device_uid].settings_property['temperature_report'] = \
+            SettingsProperty(session=self._session,
+                             gateway=self.gateway,
+                             element_uid=uid_info['UID'],
+                             temp_report=uid_info['properties']['tempReport'],
+                             target_temp_report=uid_info['properties']['targetTempReport'])
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
         ignore = ("ss", "mcs")
-        if not uid_info["UID"].startswith(ignore):
+        if not uid_info['UID'].startswith(ignore):
             self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")

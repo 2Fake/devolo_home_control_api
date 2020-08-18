@@ -41,6 +41,7 @@
       "UID": "hdm:ZWave:F6BF9812/10",
       "batteryLevel": -1,
       "batteryLow": null,
+      "calibrationStatus": 1,
       "device_model_uid": "devolo.model.Blinds",
       "elementUIDs": [
         "devolo.Blinds:hdm:ZWave:F6BF9812/10"
