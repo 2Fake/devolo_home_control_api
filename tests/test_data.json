@@ -89,6 +89,7 @@
         "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
       ],
       "brand": "devolo",
+      "flashMode": 1,
       "properties": {
         "batteryLevel": -1,
         "batteryLow": null,

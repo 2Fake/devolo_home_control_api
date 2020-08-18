@@ -335,7 +335,12 @@ class HomeControl(Mprm):
     def _multilevel_async(self, uid_info: dict):
         """ Process multilevel async setting (mas) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
-        name = camel_case_to_snake_case(uid_info['properties']['itemId'])
+        try:
+            name = camel_case_to_snake_case(uid_info['properties']['itemId'])
+        # The Metering Plug has an multilevel async setting without an ID
+        except TypeError:
+            name = "flash_mode"
+
         self._logger.debug(f"Adding {name} setting to {device_uid}.")
         self.devices[device_uid].settings_property[name] = \
             SettingsProperty(session=self._session,
@@ -439,7 +444,10 @@ class HomeControl(Mprm):
                                   type=uid_info['properties']['type'])
 
     def _switch_type(self, uid_info: dict):
-        """ Process switch type setting (sts) properties. """
+        """
+        Process switch type setting (sts) properties. Interestingly, a switch with two buttons reports a switchType of 1 and a
+        swtich with four buttons reports a swtichType of 2. This confusing behavior is corrected by doubling the value.
+        """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding switch type setting to {device_uid}")
         self.devices[device_uid].settings_property['switch_type'] = \

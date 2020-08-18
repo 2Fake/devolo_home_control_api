@@ -156,6 +156,13 @@ class TestHomeControl:
                                             "properties": {"itemId": "motorActivity", "value": device['motorActivity']}})
         assert self.homecontrol.devices[uid].settings_property['motor_activity'].value == device['motorActivity']
 
+    def test__multilevel_async_mains(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        self.homecontrol._multilevel_async({"UID": f"mas.{uid}",
+                                            "properties": {"itemId": None, "value": device['flashMode']}})
+        assert self.homecontrol.devices[uid].settings_property['flash_mode'].value == device['flashMode']
+
     def test__multilevel_sync_sensor(self):
         device = self.devices['sensor']['uid']
         self.homecontrol._multilevel_sync({"UID": self.devices['sensor']['settingUIDs'][2],
