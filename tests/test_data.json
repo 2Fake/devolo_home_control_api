@@ -48,6 +48,7 @@
       ],
       "i2": true,
       "icon": "icon_1",
+      "inverted": false,
       "itemName": "Shutter",
       "min": 0,
       "max": 100,

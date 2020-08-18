@@ -260,14 +260,17 @@ class HomeControl(Mprm):
                              calibration_status=bool(uid_info['properties']['calibrationStatus']))
 
     def _binary_sync(self, uid_info: dict):
-        """ Process binary sync (bss) properties. Actually we know just the direction of a shutter. """
+        """
+        Process binary sync setting (bss) properties. Currently only the direction of a shutter in known to be a binary sync
+        setting property, so it is named nicely.
+        """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding binary sync setting to {device_uid}")
         self.devices[device_uid].settings_property['movement_direction'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info['UID'],
-                             direction=uid_info['properties']['value'])
+                             inverted=uid_info['properties']['value'])
 
     def _binary_async(self, uid_info: dict):
         """ Process binary async setting (bas) properties. """

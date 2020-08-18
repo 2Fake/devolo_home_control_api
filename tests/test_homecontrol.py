@@ -38,6 +38,13 @@ class TestHomeControl:
         assert self.homecontrol.devices.get(uid).settings_property['automatic_calibration'].calibration_status == \
             bool(device['calibrationStatus'])
 
+    def test___binary_sync(self):
+        device = self.devices['blinds']
+        uid = device['uid']
+        self.homecontrol._binary_sync({"UID": f"acs.{uid}",
+                                       "properties": {"value": device['inverted']}})
+        assert self.homecontrol.devices.get(uid).settings_property['movement_direction'].inverted is device['inverted']
+
     def test__binary_async_blinds(self):
         device = self.devices.get("blinds").get("uid")
         i2 = self.devices.get("blinds").get("i2")
