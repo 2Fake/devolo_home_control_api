@@ -20,14 +20,14 @@ class SettingsProperty(Property):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if element_uid.split(".")[0] not in ["bas", "cps", "gds", "lis", "mss", "ps", "trs", "vfs"]:
+        if element_uid.split(".")[0] not in ["bas", "cps", "gds", "lis", "mas", "mss", "ps", "trs", "vfs"]:
             raise WrongElementError()
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        if element_uid.split(".")[0] == "gds":
+        if element_uid.startswith("gds"):
             self.zone = self._gateway.zones[self.zone_id]
 
         setter_method = {"bas": self._set_bas,

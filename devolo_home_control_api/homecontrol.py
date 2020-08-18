@@ -216,6 +216,7 @@ class HomeControl(Mprm):
                     "lis.hdm": self._led,
                     "gds.hdm": self._general_device,
                     "cps.hdm": self._parameter,
+                    "mas.hdm": self._multilevel_async,
                     "mss.hdm": self._multilevel_sync,
                     "ps.hdm": self._protection,
                     "trs.hdm": self._temperature_report,
@@ -302,6 +303,16 @@ class HomeControl(Mprm):
                                 current=uid_info["properties"]["currentValue"],
                                 total=uid_info["properties"]["totalValue"],
                                 total_since=uid_info["properties"]["sinceTime"])
+
+    def _multilevel_async(self, uid_info: dict):
+        """ Process multilevel async setting (mas) properties. """
+        device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
+        self._logger.debug(f"Adding {uid_info['properties']['itemId']} setting to {device_uid}.")
+        self.devices[device_uid].settings_property[uid_info["properties"]["itemId"]] = \
+            SettingsProperty(session=self._session,
+                             gateway=self.gateway,
+                             element_uid=uid_info["UID"],
+                             value=uid_info["properties"]["value"])
 
     def _multilevel_sync(self, uid_info: dict):
         """ Process multilevel sync setting (mss) properties. """
@@ -399,4 +410,6 @@ class HomeControl(Mprm):
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
-        self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
+        ignore = ("ss")
+        if not uid_info["UID"].startswith(ignore) or uid_info["properties"]["itemId"] not in ignore:
+            self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
