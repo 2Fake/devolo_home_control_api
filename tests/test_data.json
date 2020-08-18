@@ -42,9 +42,9 @@
       "batteryLevel": -1,
       "batteryLow": null,
       "calibrationStatus": 1,
-      "device_model_uid": "devolo.model.Blinds",
+      "device_model_uid": "devolo.model.Shutter",
       "elementUIDs": [
-        "devolo.Blinds:hdm:ZWave:F6BF9812/10"
+        "devolo.Shutter:hdm:ZWave:F6BF9812/10"
       ],
       "i2": true,
       "icon": "icon_1",
@@ -55,6 +55,7 @@
       "motorActivity": 30,
       "operationStatus": false,
       "pending_operations": false,
+      "shutter_duration": 3000,
       "uid": "hdm:ZWave:F6BF9812/10",
       "value": 50,
       "zoneId": "hz_2",

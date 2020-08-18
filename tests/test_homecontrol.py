@@ -157,20 +157,24 @@ class TestHomeControl:
         assert self.homecontrol.devices[uid].settings_property['motor_activity'].value == device['motorActivity']
 
     def test__multilevel_sync_sensor(self):
-        device = self.devices.get("sensor").get("uid")
-        self.homecontrol._multilevel_sync({"UID": self.devices.get("sensor").get("settingUIDs")[2],
-                                           "properties": self.devices.get("sensor").get("properties")})
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
-                       "motion_sensitivity")
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("motion_sensitivity"),
-                       "target_motion_sensitivity")
+        device = self.devices['sensor']['uid']
+        self.homecontrol._multilevel_sync({"UID": self.devices['sensor']['settingUIDs'][2],
+                                           "properties": self.devices['sensor']['properties']})
+        assert self.homecontrol.devices[device].settings_property['motion_sensitivity'].motion_sensitivity == \
+            self.devices['sensor']['properties']['value']
+
+    def test__multilevel_sync_shutter(self):
+        device = self.devices['blinds']['uid']
+        self.homecontrol._multilevel_sync({"UID": f"mss.{device}",
+                                           "properties": {"value": self.devices['blinds']['shutter_duration']}})
+        assert self.homecontrol.devices[device].settings_property['shutter_duration'].shutter_duration == \
+            self.devices['blinds']['shutter_duration']
 
     def test__multilevel_sync_siren(self):
-        device = self.devices.get("siren").get("uid")
-        self.homecontrol._multilevel_sync({"UID": self.devices.get("siren").get("settingUIDs")[0],
-                                           "properties": self.devices.get("siren").get("properties")})
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("tone"),
-                       "tone")
+        device = self.devices['siren']['uid']
+        self.homecontrol._multilevel_sync({"UID": self.devices['siren']['settingUIDs'][0],
+                                           "properties": self.devices['siren']['properties']})
+        assert self.homecontrol.devices[device].settings_property['tone'].tone == self.devices['siren']['properties']['value']
 
     def test__multi_level_sensor(self):
         # TODO: Use test data

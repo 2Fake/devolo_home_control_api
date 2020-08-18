@@ -372,8 +372,7 @@ class HomeControl(Mprm):
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
                                  element_uid=uid_info['UID'],
-                                 motion_sensitivity=uid_info['properties']['value'],
-                                 target_motion_sensitivity=uid_info['properties']['targetValue'])
+                                 motion_sensitivity=uid_info['properties']['value'])
 
     def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
