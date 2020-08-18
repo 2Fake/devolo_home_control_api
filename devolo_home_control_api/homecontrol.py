@@ -446,7 +446,7 @@ class HomeControl(Mprm):
     def _switch_type(self, uid_info: dict):
         """
         Process switch type setting (sts) properties. Interestingly, a switch with two buttons reports a switchType of 1 and a
-        swtich with four buttons reports a swtichType of 2. This confusing behavior is corrected by doubling the value.
+        switch with four buttons reports a switchType of 2. This confusing behavior is corrected by doubling the value.
         """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding switch type setting to {device_uid}")

@@ -232,6 +232,12 @@ class TestHomeControl:
                                                          "type": 1}})
         assert self.homecontrol.devices.get(device).remote_control_property[element_uid].key_pressed == 0
 
+    def test__switch_type(self):
+        device = self.devices['remote']['uid']
+        self.homecontrol._switch_type({"UID": f"sts.{device}",
+                                       "properties": {"switchType": self.devices['remote']['key_count'] / 2}})
+        assert self.homecontrol.devices[device].settings_property['switch_type'].value == self.devices['remote']['key_count']
+
     def test__temperature_report(self):
         # TODO: Use test data
         device = self.devices.get("sensor").get("uid")
