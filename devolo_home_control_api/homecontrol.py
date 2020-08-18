@@ -443,7 +443,7 @@ class HomeControl(Mprm):
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info["UID"],
-                             value=uid_info["properties"]["switchType"])
+                             value=uid_info["properties"]["switchType"] * 2)
 
     def _temperature_report(self, uid_info: dict):
         """ Process temperature report setting (trs) properties. """

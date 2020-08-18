@@ -40,6 +40,7 @@ class Updater:
                         "lis.hdm": self._led,
                         "ps.hdm": self._protection,
                         "stmss.hdm": self._multilevel_sync,
+                        "sts.hdm": self._switch_type,
                         "trs.hdm": self._temperature,
                         "vfs.hdm": self._led,
                         "mss.hdm": self._multilevel_sync,
@@ -356,6 +357,18 @@ class Updater:
                                Key {f'pressed: {key_pressed}' if key_pressed != 0 else f'released: {old_key_pressed}'}")
             self._publisher.dispatch(device_uid, (element_uid, key_pressed))
 
+    def update_switch_type(self, element_uid: str, value: int):
+        """
+        Update switch type setting externally.
+
+        :param element_uid: Element UID, something like sts.hdm:ZWave:F6BF9812/8
+        :param value: Count of buttons
+        """
+        device_uid = get_device_uid_from_setting_uid(element_uid)
+        self.devices[device_uid].settings_property["switch_type"].value = value
+        self._logger.debug(f"Updating switch type of {device_uid} to {value}")
+        self._publisher.dispatch(device_uid, (element_uid, value))
+
     def update_temperature(self, element_uid: str, value: bool):
         """
         Update temperature report state externally.
@@ -547,6 +560,11 @@ class Updater:
         """ Update point in time the total consumption was reset. """
         self.update_total_since(element_uid=property['uid'],
                                 total_since=property['property.value.new'])
+
+    def _switch_type(self, message: dict):
+        """ Update switch type setting (sts). """
+        self.update_switch_type(element_uid=message["properties"]["uid"],
+                                value=message["properties"]["property.value.new"] * 2)
 
     def _temperature(self, message: dict):
         """ Update temperature report settings. """
