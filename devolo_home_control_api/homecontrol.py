@@ -238,7 +238,7 @@ class HomeControl(Mprm):
                 uid = self.devices[get_device_uid_from_element_uid(uid_info["UID"])]
             except KeyError:
                 uid = self.devices[get_device_uid_from_setting_uid(uid_info["UID"])]
-            uid.pending_operations = uid.pending_operations or bool(uid_info["properties"].get("operationStatus"))
+            uid.pending_operations = uid.pending_operations or bool(uid_info["properties"].get("pendingOperations")) or bool(uid_info["properties"].get("operationStatus"))
 
         # Last activity messages arrive before a device initialized and therefore need to be handled afterwards.
         for uid_info in device_properties_list:
