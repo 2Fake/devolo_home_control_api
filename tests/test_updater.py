@@ -110,6 +110,22 @@ class TestUpdater:
         self.homecontrol.updater.update(message=message)
         spy.assert_called_once_with(message)
 
+    def test__automatic_calibration(self):
+        uid = self.devices['blinds']['uid']
+        calibration_status = self.devices['blinds']['calibrationStatus']
+        self.homecontrol.updater._automatic_calibration(message={"properties": {
+                                                        "uid": f"acs.{uid}",
+                                                        "property.value.new": {"status": calibration_status}}})
+        assert self.homecontrol.devices[uid].settings_property['automatic_calibration'].calibration_status
+
+    def test__automatic_calibration_key_error(self):
+        uid = self.devices['blinds']['uid']
+        calibration_status = self.devices['blinds']['calibrationStatus']
+        self.homecontrol.updater._automatic_calibration(message={"properties": {
+                                                        "uid": f"acs.{uid}",
+                                                        "property.value.new": calibration_status}})
+        assert self.homecontrol.devices[uid].settings_property['automatic_calibration'].calibration_status
+
     def test__binary_async_blinds(self):
         uid = self.devices['blinds']['uid']
         self.homecontrol.devices[uid].settings_property['i2'].value = self.devices['blinds']['i2']
