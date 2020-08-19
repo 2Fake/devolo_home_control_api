@@ -244,6 +244,15 @@ class TestUpdater:
         assert accessible != accessible_new
         assert online_sync != online_sync_new
 
+    def test__grouping(self):
+        id = "hz_3"
+        name = self.gateway['zones'][id]
+        self.homecontrol.updater._grouping(message={"properties":
+                                                    {"property.value.new":
+                                                     [{"id": id, "name": self.devices['mains']['properties']['zone']}]}})
+        assert self.homecontrol.gateway.zones[id] != name
+        assert self.homecontrol.gateway.zones[id] == self.devices['mains']['properties']['zone']
+
     def test__humidity_bar(self):
         uid = self.devices.get("humidity").get("uid")
         self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value = 75

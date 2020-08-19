@@ -486,6 +486,7 @@ class Updater:
                                             zone_id=message['properties']['property.value.new']['zoneID'])
 
     def _grouping(self, message: dict):
+        """ Update zone (also called room) of a device. """
         self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
         self._logger.debug("Updating gateway zones.")
 
