@@ -68,7 +68,9 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
 
-        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations" and "smartGroup" not in message["properties"]["uid"]:
+        if "property.name" in message["properties"] \
+                and message['properties']['property.name'] == "pendingOperations" \
+                and "smartGroup" not in message["properties"]["uid"]:
             self._pending_operations(message)
         else:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
@@ -581,7 +583,7 @@ class Updater:
 
     def _unknown(self, message: dict):
         """ Ignore unknown messages. """
-        ignore = ("ss", "mcs")
+        ignore = ("devolo.DeviceEvents", "ss", "mcs")
         if not message["properties"]["uid"].startswith(ignore):
             self._logger.debug(json.dumps(message, indent=4))
 
