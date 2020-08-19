@@ -105,7 +105,8 @@ class TestUpdater:
 
     @pytest.mark.usefixtures("mock_updater_pending_operations")
     def test_update_pending_operations(self, mocker):
-        message = {"properties": {"property.name": "pendingOperations"}}
+        message = {"properties": {"property.name": "pendingOperations",
+                                  "uid": ""}}
         spy = mocker.spy(self.homecontrol.updater, '_pending_operations')
         self.homecontrol.updater.update(message=message)
         spy.assert_called_once_with(message)
@@ -177,7 +178,7 @@ class TestUpdater:
         state = self.homecontrol.devices.get(uid).binary_switch_property \
             .get(f"devolo.BinarySwitch:{uid}").state
         self.homecontrol.updater._binary_switch(message={"properties":
-                                                {"property.name": "state",
+                                                {"property.name": "targetState",
                                                  "uid": f"devolo.BinarySwitch:{uid}",
                                                  "property.value.new": 0}})
         state_new = self.homecontrol.devices.get(uid).binary_switch_property \
@@ -209,16 +210,17 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).status == 1
         assert online_state != self.homecontrol.devices.get(uid).status
 
-    def test__device_events(self):
-        uid = self.devices.get("mains").get("uid")
-        self.homecontrol.devices.get(uid).binary_switch_property \
-            .get(f"devolo.BinarySwitch:{uid}").state = True
-        self.homecontrol.updater._device_events(message={"properties":
-                                                         {"property.value.new":
-                                                          {"widgetElementUID": f"devolo.BinarySwitch:{uid}",
-                                                           "property.name": "state",
-                                                           "data": 0}}})
-        assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
+    # TODO: Decide if deviceEvents are obsolet. If yes, remove this test
+    # def test__device_events(self):
+    #     uid = self.devices.get("mains").get("uid")
+    #     self.homecontrol.devices.get(uid).binary_switch_property \
+    #         .get(f"devolo.BinarySwitch:{uid}").state = True
+    #     self.homecontrol.updater._device_events(message={"properties":
+    #                                                      {"property.value.new":
+    #                                                       {"widgetElementUID": f"devolo.BinarySwitch:{uid}",
+    #                                                        "property.name": "state",
+    #                                                        "data": 0}}})
+    #     assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
 
     def test__general_device(self):
         uid = self.devices['mains']['uid']
