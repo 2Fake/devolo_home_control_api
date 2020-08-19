@@ -62,4 +62,10 @@ def shutter(device_uid: str) -> Zwave:
                          element_uid=f'bss.{device_uid}',
                          direction=not bool(test_data['devices']['blinds']['movement_direction']))
 
+    device.settings_property["shutter_duration"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'mss.{device_uid}',
+                         shutter_duration=test_data['devices']['blinds']['shutter_duration'])
+
     return device

@@ -337,6 +337,16 @@ class TestUpdater:
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['motion_sensitivity'].motion_sensitivity == value - 1
 
+    def test__multilevel_sync_shutter(self):
+        device = self.devices['blinds']
+        uid = device['uid']
+        value = device['shutter_duration']
+        self.homecontrol.devices[uid].settings_property['shutter_duration'].shutter_duration = value
+        self.homecontrol.updater._multilevel_sync(message={"properties":
+                                                  {"uid": f"mss.{uid}",
+                                                   "property.value.new": value - 1}})
+        assert self.homecontrol.devices[uid].settings_property['shutter_duration'].shutter_duration == value - 1
+
     def test__multilevel_sync_siren(self):
         device = self.devices['siren']
         uid = device['uid']

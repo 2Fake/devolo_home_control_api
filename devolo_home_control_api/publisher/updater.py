@@ -107,7 +107,7 @@ class Updater:
         Update binary sync setting of a device externally. The value is written into the internal dict.
         Actually we just know that the shutter has a property like this.
 
-        :param element_uid: Element UID, something like,  bss.hdm:ZWave:CBC56091/24#2
+        :param element_uid: Element UID, something like, bss.hdm:ZWave:CBC56091/24#2
         :param value: True for inverted, False for default
         """
         device_uid = get_device_uid_from_setting_uid(element_uid)
@@ -261,13 +261,19 @@ class Updater:
         """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self._logger.debug(f"Updating {element_uid} to {value}")
+
+        # The devolo Siren uses multilevel sync settings for a different reason.
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
-            # The devolo Siren uses multilevel sync settings for a different reason.
             self.devices[device_uid].settings_property['tone'].tone = value
+
+        # The shutter use multilevel sync settings for a different reason.
         elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
-            self.devices[device_uid].settings_property['shutter_duration'].motion_sensitivity = value
+            self.devices[device_uid].settings_property['shutter_duration'].shutter_duration = value
+
+        # Other devices are up to now always motion sensors.
         else:
             self.devices[device_uid].settings_property['motion_sensitivity'].motion_sensitivity = value
+
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def update_multi_level_sensor(self, element_uid: str, value: float):
