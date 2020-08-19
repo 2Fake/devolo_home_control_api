@@ -68,15 +68,11 @@ class Updater:
                         "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
-        try:
-            if message['properties']['property.name'] == "pendingOperations":
-                self._pending_operations(message)
-            else:
-                message_type[get_device_type_from_element_uid(message['properties']['uid'])](message)
-        except KeyError:
-            ignore = ("ss", "mcs")
-            if not message["properties"]["uid"].startswith(ignore):
-                self._logger.debug(json.dumps(message, indent=4))
+
+        if message['properties']['property.name'] == "pendingOperations":
+            self._pending_operations(message)
+        else:
+            message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
 
     def update_automatic_calibration(self, element_uid: str, calibration_status: bool):
         """
@@ -495,7 +491,7 @@ class Updater:
 
     def _grouping(self, message: dict):
         self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
-        self._logger.debug(f"Updated gateway zones.")
+        self._logger.debug("Updating gateway zones.")
 
     def _humidity_bar(self, message: dict):
         """ Update a humidity bar. """
@@ -582,6 +578,12 @@ class Updater:
         self.update_consumption(element_uid=property['uid'],
                                 consumption="total",
                                 value=property['property.value.new'])
+
+    def _unknown(self, message: dict):
+        """ Ignore unknown messages. """
+        ignore = ("ss", "mcs")
+        if not message["properties"]["uid"].startswith(ignore):
+            self._logger.debug(json.dumps(message, indent=4))
 
     def _voltage_multi_level_sensor(self, message: dict):
         """ Update a voltage value. """
