@@ -5,16 +5,6 @@ from datetime import datetime, timezone
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
-    # TODO: Check, if all test cases here are needed. Some seem redundant.
-
-    def test_update_binary_switch_state_valid(self, fill_device_data):
-        uid = self.devices.get("mains").get("uid")
-        binary_switch_property = self.homecontrol.devices.get(uid).binary_switch_property
-        state = binary_switch_property.get(f"devolo.BinarySwitch:{uid}").state
-        self.homecontrol.updater.update_binary_switch_state(element_uid=f"devolo.BinarySwitch:{uid}",
-                                                            value=True)
-        assert state != binary_switch_property.get(f"devolo.BinarySwitch:{uid}").state
-
     def test_update_binary_switch_state_group(self, fill_device_data):
         try:
             self.homecontrol.updater.update_binary_switch_state(element_uid="devolo.BinarySwitch:devolo.smartGroup.1",
@@ -23,47 +13,6 @@ class TestUpdater:
         except KeyError:
             assert False
 
-    def test_update_consumption_valid(self, fill_device_data):
-        uid = self.devices.get("mains").get("uid")
-        consumption_property = self.homecontrol.devices.get(uid).consumption_property
-        current_before = consumption_property.get(f"devolo.Meter:{uid}").current
-        total_before = consumption_property.get(f"devolo.Meter:{uid}").total
-        self.homecontrol.updater.update_consumption(element_uid=f"devolo.Meter:{uid}",
-                                                    consumption="current", value=1.58)
-        self.homecontrol.updater.update_consumption(element_uid=f"devolo.Meter:{uid}",
-                                                    consumption="total", value=254)
-        assert current_before != consumption_property.get(f"devolo.Meter:{uid}").current
-        assert total_before != consumption_property.get(f"devolo.Meter:{uid}").total
-        assert consumption_property.get(f"devolo.Meter:{uid}").current == 1.58
-        assert consumption_property.get(f"devolo.Meter:{uid}").total == 254
-
-    def test_update_humidity_bar(self, fill_device_data):
-        uid = self.devices.get("humidity").get("uid")
-        humidity_bar_property = self.homecontrol.devices.get(uid).humidity_bar_property
-        current_zone = \
-            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone
-        current_value = \
-            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
-        self.homecontrol.updater.update_humidity_bar(element_uid=f"devolo.HumidityBar:{uid}",
-                                                     zone=2)
-        self.homecontrol.updater.update_humidity_bar(element_uid=f"devolo.HumidityBar:{uid}",
-                                                     value=50)
-        assert current_zone != \
-            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone
-        assert humidity_bar_property.get(f"devolo.HumidityBar:{uid}").zone == 2
-        assert current_value != \
-            humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value
-        assert humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value == 50
-
-    def test_update_multi_level_sensor_valid(self, fill_device_data):
-        uid = self.devices.get("sensor").get("uid")
-        multi_level_sensor_property = self.homecontrol.devices.get(uid).multi_level_sensor_property
-        value_before = multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
-        self.homecontrol.updater.update_multi_level_sensor(element_uid=f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)",
-                                                           value=50)
-        assert value_before != multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
-        assert multi_level_sensor_property.get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value == 50
-
     def test_update_multi_level_switch_state_group(self, fill_device_data):
         try:
             self.homecontrol.updater.update_multi_level_switch(element_uid="devolo.MultiLevelSwitch:devolo.smartGroup.1",
@@ -71,30 +20,6 @@ class TestUpdater:
             assert True
         except KeyError:
             assert False
-
-    def test_device_online_state(self):
-        uid = self.devices.get("mains").get("uid")
-        online_state = self.homecontrol.devices.get(uid).status
-        self.homecontrol.updater.update_device_online_state(device_uid=self.devices.get('mains').get('uid'),
-                                                            value=1)
-        assert self.homecontrol.devices.get(uid).status == 1
-        assert self.homecontrol.devices.get(uid).status != online_state
-
-    def test_update_gateway_state(self):
-        self.homecontrol.updater.update_gateway_state(accessible=True, online_sync=False)
-        assert self.homecontrol.gateway.online
-        assert not self.homecontrol.gateway.sync
-
-    def test_update_voltage_valid(self, fill_device_data):
-        uid = self.devices.get("mains").get("uid")
-        voltage_property = self.homecontrol.devices.get(uid).multi_level_sensor_property
-        current_voltage = \
-            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{uid}").value
-        self.homecontrol.updater.update_voltage(element_uid=f"devolo.VoltageMultiLevelSensor:{uid}",
-                                                value=257)
-        assert current_voltage != \
-            voltage_property.get(f"devolo.VoltageMultiLevelSensor:{uid}").value
-        assert voltage_property.get(f"devolo.VoltageMultiLevelSensor:{uid}").value == 257
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
