@@ -163,6 +163,13 @@ class TestHomeControl:
                                             "properties": {"itemId": None, "value": device['flashMode']}})
         assert self.homecontrol.devices[uid].settings_property['flash_mode'].value == device['flashMode']
 
+    def test__multilevel_async_type_error(self):
+        with pytest.raises(TypeError):
+            device = self.devices['sensor']
+            uid = device['uid']
+            self.homecontrol._multilevel_async({"UID": f"mas.{uid}",
+                                                "properties": {"itemId": None, "value": device['motion_sensitivity']}})
+
     def test__multilevel_sync_sensor(self):
         device = self.devices['sensor']['uid']
         self.homecontrol._multilevel_sync({"UID": self.devices['sensor']['settingUIDs'][2],
