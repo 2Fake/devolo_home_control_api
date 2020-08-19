@@ -56,4 +56,10 @@ def shutter(device_uid: str) -> Zwave:
                          element_uid=f'acs.{device_uid}',
                          calibration_status=True if test_data['devices']['blinds']['calibrationStatus'] == 2 else False)
 
+    device.settings_property["movement_direction"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'bss.{device_uid}',
+                         direction=not bool(test_data['devices']['blinds']['movement_direction']))
+
     return device

@@ -53,6 +53,7 @@
       "min": 0,
       "max": 100,
       "motorActivity": 30,
+      "movement_direction": 1,
       "operationStatus": false,
       "pending_operations": false,
       "shutter_duration": 3000,

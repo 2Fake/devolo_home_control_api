@@ -145,7 +145,7 @@ class TestUpdater:
 
     def test__binary_sensor_with_timestamp(self):
         uid = self.devices['sensor']['uid']
-        device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
+        device = self.homecontrol.devices[uid].binary_sensor_property[f"devolo.BinarySensor:{uid}"]
         now = datetime.now()
         device.state = True
         state = device.state
@@ -160,7 +160,7 @@ class TestUpdater:
 
     def test__binary_sensor_without_timestamp(self):
         uid = self.devices['sensor']['uid']
-        device = self.homecontrol.devices.get(uid).binary_sensor_property[f"devolo.BinarySensor:{uid}"]
+        device = self.homecontrol.devices[uid].binary_sensor_property[f"devolo.BinarySensor:{uid}"]
         device.state = True
         state = device.state
         self.homecontrol.updater._binary_sensor(message={"properties":
@@ -170,6 +170,14 @@ class TestUpdater:
         state_new = device.state
         assert state != state_new
         assert device.last_activity != datetime.fromtimestamp(0)
+
+    def test__binary_sync(self):
+        uid = self.devices['blinds']['uid']
+        self.homecontrol.updater._binary_sync(message={"properties":
+                                              {"uid": f"bss.{uid}",
+                                               "property.value.new": self.devices['blinds']['movement_direction']}})
+        assert self.homecontrol.devices[uid].settings_property["movement_direction"].direction is \
+            bool(self.devices['blinds']['movement_direction'])
 
     def test__binary_switch(self):
         uid = self.devices.get("mains").get("uid")
