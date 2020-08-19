@@ -339,7 +339,10 @@ class HomeControl(Mprm):
             name = camel_case_to_snake_case(uid_info['properties']['itemId'])
         # The Metering Plug has an multilevel async setting without an ID
         except TypeError:
-            name = "flash_mode"
+            if self.devices[device_uid].device_model_uid == "devolo.model.Wall:Plug:Switch:and:Meter":
+                name = "flash_mode"
+            else:
+                raise
 
         self._logger.debug(f"Adding {name} setting to {device_uid}.")
         self.devices[device_uid].settings_property[name] = \
