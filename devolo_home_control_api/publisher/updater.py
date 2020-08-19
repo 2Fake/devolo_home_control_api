@@ -408,7 +408,7 @@ class Updater:
             calibration_status = message["properties"]["property.value.new"]["status"]
             self.update_automatic_calibration(element_uid=message["properties"]["uid"],
                                               calibration_status=False if calibration_status == 2 else True)
-        except KeyError:
+        except (KeyError, TypeError):
             if type(message["properties"]["property.value.new"]) not in [dict, list]:
                 self.update_automatic_calibration(element_uid=message["properties"]["uid"],
                                                   calibration_status=bool(message["properties"]["property.value.new"]))
