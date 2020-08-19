@@ -94,6 +94,7 @@
         "batteryLevel": -1,
         "batteryLow": null,
         "current_consumption": 0.58,
+        "device_model_uid": "devolo.model.Wall:Plug:Switch:and:Meter",
         "elementUIDs": [
           "devolo.Meter:hdm:ZWave:F6BF9812/2",
           "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
