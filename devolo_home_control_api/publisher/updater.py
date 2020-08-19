@@ -47,7 +47,6 @@ class Updater:
                         "devolo.BinarySensor": self._binary_sensor,
                         "devolo.BinarySwitch": self._binary_switch,
                         "devolo.Blinds": self._multi_level_switch,
-                        "devolo.DeviceEvents": self._device_events,
                         "devolo.DevicesPage": self._device_change,
                         "devolo.Dimmer": self._multi_level_switch,
                         "devolo.DewpointSensor": self._multi_level_sensor,
@@ -69,7 +68,7 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
 
-        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations":
+        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations" and "smartGroup" not in message["properties"]["uid"]:
             self._pending_operations(message)
         else:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
@@ -433,7 +432,7 @@ class Updater:
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
-        if message['properties']['property.name'] == "state" and \
+        if message['properties']['property.name'] == "targetState" and \
                 message['properties']['property.value.new'] is not None:
             self.update_binary_switch_state(element_uid=message['properties']['uid'],
                                             value=bool(message['properties']['property.value.new']))
@@ -529,7 +528,8 @@ class Updater:
 
     def _multi_level_switch(self, message: dict):
         """ Update a multi level switch. """
-        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))):
+        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))) \
+                or "smartGroup" not in message["properties"]["uid"]:
             self.update_multi_level_switch(element_uid=message['properties']['uid'],
                                            value=message['properties']['property.value.new'])
 
