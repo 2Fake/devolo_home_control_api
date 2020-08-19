@@ -69,9 +69,12 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
 
-        if message['properties']['property.name'] == "pendingOperations":
-            self._pending_operations(message)
-        else:
+        try:
+            if message['properties']['property.name'] == "pendingOperations":
+                self._pending_operations(message)
+            else:
+                message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
+        except KeyError:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
 
     def update_automatic_calibration(self, element_uid: str, calibration_status: bool):
