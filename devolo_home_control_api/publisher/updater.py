@@ -69,12 +69,9 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
 
-        try:
-            if message['properties']['property.name'] == "pendingOperations":
-                self._pending_operations(message)
-            else:
-                message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
-        except KeyError:
+        if hasattr(message["properties"], "property.name") and message['properties']['property.name'] == "pendingOperations":
+            self._pending_operations(message)
+        else:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
 
     def update_automatic_calibration(self, element_uid: str, calibration_status: bool):
@@ -470,7 +467,7 @@ class Updater:
                 # TODO: Check, if we need to handle other device types than BinarySwitch on unsuccessful operations
                 properties['properties']['property.name'] = "state"
                 properties['properties']['property.value.new'] = int(properties['properties']['data'])
-            self.update(properties)
+                self.update(properties)
 
     def _device_online_state(self, message: dict):
         """ Update the device's online state. """
