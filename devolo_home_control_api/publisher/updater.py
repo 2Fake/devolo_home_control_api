@@ -69,7 +69,7 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_online_state}
 
-        if hasattr(message["properties"], "property.name") and message['properties']['property.name'] == "pendingOperations":
+        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations":
             self._pending_operations(message)
         else:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
