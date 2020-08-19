@@ -210,18 +210,6 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).status == 1
         assert online_state != self.homecontrol.devices.get(uid).status
 
-    # TODO: Decide if deviceEvents are obsolet. If yes, remove this test
-    # def test__device_events(self):
-    #     uid = self.devices.get("mains").get("uid")
-    #     self.homecontrol.devices.get(uid).binary_switch_property \
-    #         .get(f"devolo.BinarySwitch:{uid}").state = True
-    #     self.homecontrol.updater._device_events(message={"properties":
-    #                                                      {"property.value.new":
-    #                                                       {"widgetElementUID": f"devolo.BinarySwitch:{uid}",
-    #                                                        "property.name": "state",
-    #                                                        "data": 0}}})
-    #     assert not self.homecontrol.devices.get(uid).binary_switch_property .get(f"devolo.BinarySwitch:{uid}").state
-
     def test__general_device(self):
         uid = self.devices['mains']['uid']
         events_enabled = self.devices['mains']['properties']['eventsEnabled']

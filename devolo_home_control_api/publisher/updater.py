@@ -459,17 +459,6 @@ class Updater:
            and message['properties']['uid'] == "devolo.DevicesPage":
             self.on_device_change(uids=message['properties']['property.value.new'])
 
-    def _device_events(self, message: dict):
-        """ If an operation was not successful, we need to correct our internal state. """
-        properties = {"properties": message['properties']['property.value.new']}
-        if type(properties['properties']) is dict:
-            properties['properties']['uid'] = properties['properties']['widgetElementUID']
-            if get_device_type_from_element_uid(properties['properties']['uid']) == "devolo.BinarySwitch":
-                # TODO: Check, if we need to handle other device types than BinarySwitch on unsuccessful operations
-                properties['properties']['property.name'] = "state"
-                properties['properties']['property.value.new'] = int(properties['properties']['data'])
-                self.update(properties)
-
     def _device_online_state(self, message: dict):
         """ Update the device's online state. """
         if message['properties']['property.name'] == "status":
