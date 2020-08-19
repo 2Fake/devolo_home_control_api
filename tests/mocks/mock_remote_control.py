@@ -21,8 +21,8 @@ def remote_control(device_uid: str) -> Zwave:
     with file.open("r") as fh:
         test_data = json.load(fh)
 
-    device = Zwave(**test_data.get("devices").get("remote"))
-    gateway = MockGateway(test_data.get("gateway").get("id"))
+    device = Zwave(**test_data['devices']['remote'])
+    gateway = MockGateway(test_data['gateway']['id'])
     session = requests.Session()
 
     device.remote_control_property = {}
@@ -32,15 +32,22 @@ def remote_control(device_uid: str) -> Zwave:
         RemoteControlProperty(gateway=gateway,
                               session=session,
                               element_uid=f'devolo.RemoteControl:{device_uid}',
-                              key_count=test_data.get("devices").get("remote").get("key_count"),
+                              key_count=test_data['devices']['remote']['key_count'],
                               key_pressed=0)
 
     device.settings_property["general_device_settings"] = \
         SettingsProperty(gateway=gateway,
                          session=session,
                          element_uid=f'gds.{device_uid}',
-                         icon=test_data.get("devices").get("remote").get("icon"),
-                         name=test_data.get("devices").get("remote").get("itemName"),
-                         zone_id=test_data.get("devices").get("remote").get("zoneId"))
+                         icon=test_data['devices']['remote']['icon'],
+                         name=test_data['devices']['remote']['itemName'],
+                         zone_id=test_data['devices']['remote']['zoneId'])
+
+
+    device.settings_property["switch_type"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'sts.{device_uid}',
+                         value=test_data['devices']['remote']['key_count'])
 
     return device

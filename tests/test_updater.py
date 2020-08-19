@@ -472,13 +472,21 @@ class TestUpdater:
         assert total_since != new_total_since
         assert new_total_since == now
 
+    def test__switch_type(self):
+        device = self.devices['remote']
+        uid = device['uid']
+        self.homecontrol.updater._switch_type(message={"properties":
+                                                       {"uid": f"sts.{uid}",
+                                                        "property.value.new": device['key_count'] / 4}})
+        assert self.homecontrol.devices[uid].settings_property['switch_type'].value == device['key_count'] / 2
+
     def test__temperature(self):
         device = self.devices['sensor']
         uid = device['uid']
         self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report = device['temp_report']
-        self.homecontrol.updater._temperature({"properties":
-                                               {"uid": f"trs.{uid}",
-                                                "property.value.new": not device['temp_report']}})
+        self.homecontrol.updater._temperature(message={"properties":
+                                                       {"uid": f"trs.{uid}",
+                                                        "property.value.new": not device['temp_report']}})
         assert self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report is not device['temp_report']
 
     def test__voltage_multi_level_sensor(self):
