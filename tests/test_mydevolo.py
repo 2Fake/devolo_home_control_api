@@ -43,8 +43,8 @@ class TestMydevolo:
 
     @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
     def test_get_zwave_products_invalid(self, mydevolo):
-        device_infos = mydevolo.get_zwave_products(manufacturer="0x0070", product_type="0x0001", product="0x000")
-        assert device_infos.get("name") == "Unknown"
+        device_info = mydevolo.get_zwave_products(manufacturer="0x0070", product_type="0x0001", product="0x000")
+        assert device_info.get("name") == "Unknown"
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_maintenance_on(self, mydevolo):
