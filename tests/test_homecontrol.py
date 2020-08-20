@@ -270,7 +270,7 @@ class TestHomeControl:
 
     @pytest.mark.usefixtures("mock_extract_data_from_element_uids")
     @pytest.mark.usefixtures("mock_mprmrest_get_all_devices")
-    def test__inspect_devices(self, mocker):
+    def test__inspect_devices(self):
         uid = self.devices.get("mains").get("uid")
         del self.homecontrol.devices[uid]
         self.homecontrol._inspect_devices(self.homecontrol.get_all_devices())
