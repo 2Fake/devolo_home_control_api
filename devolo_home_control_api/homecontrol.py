@@ -251,7 +251,7 @@ class HomeControl(Mprm):
             if uid_info['UID'].startswith("devolo.LastActivity")]
 
     def _automatic_calibration(self, uid_info: dict):
-        """ Process automatic calibraton (acs) properties. """
+        """ Process automatic calibration (acs) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug(f"Adding automatic calibration setting to {device_uid}")
         self.devices[device_uid].settings_property['automatic_calibration'] = \
