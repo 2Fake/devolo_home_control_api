@@ -40,7 +40,7 @@ class BinarySensorProperty(SensorProperty):
 
     @last_activity.setter
     def last_activity(self, timestamp: int):
-        """ The gateway persists the last activity of some binary sensors. They can be inititialized with that value. """
+        """ The gateway persists the last activity of some binary sensors. They can be initialized with that value. """
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
             self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
