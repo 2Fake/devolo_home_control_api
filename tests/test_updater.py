@@ -155,13 +155,13 @@ class TestUpdater:
         assert online_sync != online_sync_new
 
     def test__grouping(self):
-        id = "hz_3"
-        name = self.gateway['zones'][id]
+        zone_id = "hz_3"
+        name = self.gateway['zones'][zone_id]
         self.homecontrol.updater._grouping(message={"properties":
                                                     {"property.value.new":
-                                                     [{"id": id, "name": self.devices['mains']['properties']['zone']}]}})
-        assert self.homecontrol.gateway.zones[id] != name
-        assert self.homecontrol.gateway.zones[id] == self.devices['mains']['properties']['zone']
+                                                     [{"id": zone_id, "name": self.devices['mains']['properties']['zone']}]}})
+        assert self.homecontrol.gateway.zones[zone_id] != name
+        assert self.homecontrol.gateway.zones[zone_id] == self.devices['mains']['properties']['zone']
 
     def test__humidity_bar(self):
         uid = self.devices.get("humidity").get("uid")
