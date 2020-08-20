@@ -68,22 +68,7 @@ class TestUpdater:
                                                "property.value.new": not self.devices['siren']['muted']}})
         assert not self.homecontrol.devices[uid].settings_property['muted'].value
 
-    def test__binary_sensor_with_timestamp(self):
-        uid = self.devices['sensor']['uid']
-        device = self.homecontrol.devices[uid].binary_sensor_property[f"devolo.BinarySensor:{uid}"]
-        now = datetime.now()
-        device.state = True
-        state = device.state
-        self.homecontrol.updater._binary_sensor(message={"properties":
-                                                {"property.name": "state",
-                                                 "uid": f"devolo.BinarySensor:{uid}",
-                                                 "property.value.new": 0,
-                                                 "timestamp": now.replace(tzinfo=timezone.utc).timestamp() * 1000}})
-        state_new = device.state
-        assert state != state_new
-        assert device.last_activity == now
-
-    def test__binary_sensor_without_timestamp(self):
+    def test__binary_sensor(self):
         uid = self.devices['sensor']['uid']
         device = self.homecontrol.devices[uid].binary_sensor_property[f"devolo.BinarySensor:{uid}"]
         device.state = True
@@ -290,28 +275,6 @@ class TestUpdater:
                                                   {"uid": f"mss.{uid}",
                                                    "property.value.new": value - 1}})
         assert self.homecontrol.devices[uid].settings_property['tone'].tone == value - 1
-
-    def test__last_activity_sensor(self):
-        device = self.devices['sensor']
-        uid = device['uid']
-        last_activity = device['last_activity']
-        self.homecontrol.devices[uid].binary_sensor_property[f'devolo.BinarySensor:{uid}'].last_activity = last_activity
-        self.homecontrol.updater._last_activity(message={"properties":
-                                                {"uid": f"devolo.LastActivity:{uid}",
-                                                 "property.value.new": last_activity + 1000}})
-        assert self.homecontrol.devices[uid].binary_sensor_property[f'devolo.BinarySensor:{uid}'].last_activity.second \
-            - datetime.utcfromtimestamp(last_activity / 1000).second == 1
-
-    def test__last_activity_siren(self):
-        device = self.devices['siren']
-        uid = device['uid']
-        last_activity = device['last_activity']
-        self.homecontrol.devices[uid].binary_sensor_property[f'devolo.SirenBinarySensor:{uid}'].last_activity = last_activity
-        self.homecontrol.updater._last_activity(message={"properties":
-                                                {"uid": f"devolo.LastActivity:{uid}",
-                                                 "property.value.new": last_activity + 1000}})
-        assert self.homecontrol.devices[uid].binary_sensor_property[f'devolo.SirenBinarySensor:{uid}'].last_activity.second \
-            - datetime.utcfromtimestamp(last_activity / 1000).second == 1
 
     def test__led(self):
         device = self.devices['mains']

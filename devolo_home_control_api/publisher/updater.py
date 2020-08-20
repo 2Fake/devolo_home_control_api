@@ -53,7 +53,6 @@ class Updater:
                         "devolo.Grouping": self._grouping,
                         "devolo.HumidityBarValue": self._humidity_bar,
                         "devolo.HumidityBarZone": self._humidity_bar,
-                        "devolo.LastActivity": self._last_activity,
                         "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
                         "devolo.Meter": self._meter,
                         "devolo.MildewSensor": self._binary_sensor,
@@ -115,17 +114,15 @@ class Updater:
         self._logger.debug(f"Updating value of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def update_binary_sensor_state(self, element_uid: str, value: bool, timestamp: int):
+    def update_binary_sensor_state(self, element_uid: str, value: bool):
         """
         Update the binary switch state of a device externally. The value is written into the internal dict.
 
         :param element_uid: Element UID, something like, devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
         :param value: True for on, False for off
-        :param timestamp: Timestamp the binary sensor was last triggered in milliseconds.
         """
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices[device_uid].binary_sensor_property[element_uid].state = value
-        self.devices[device_uid].binary_sensor_property[element_uid].last_activity = timestamp
         self._logger.debug(f"Updating state of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -222,23 +219,6 @@ class Updater:
         self._publisher.dispatch(device_uid, (element_uid,
                                               self.devices[device_uid].humidity_bar_property[element_uid].zone,
                                               self.devices[device_uid].humidity_bar_property[element_uid].value))
-
-    def update_last_activity(self, element_uid: str, timestamp: int):
-        """
-        Update last activity of binary sensors.
-
-        :param element_uid: Element UID, something like devolo.LastActivity:hdm:ZWave:CBC56091/24#2
-        :param timestamp: Timestamp to set the last activity to in milliseconds
-        """
-        device_uid = get_device_uid_from_element_uid(element_uid)
-        try:
-            parent_element_uid = element_uid.replace("LastActivity", "BinarySensor")
-            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = timestamp
-        except KeyError:
-            parent_element_uid = element_uid.replace("LastActivity", "SirenBinarySensor")
-            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = timestamp
-        self._logger.debug(f"Updating timestamp of device {device_uid} to {timestamp}")
-        self._publisher.dispatch(device_uid, (element_uid, timestamp, "last_activity"))
 
     def update_led(self, element_uid: str, value: bool):
         """
@@ -435,8 +415,7 @@ class Updater:
         """ Update a binary sensor's state. """
         if message['properties']['property.value.new'] is not None:
             self.update_binary_sensor_state(element_uid=message['properties']['uid'],
-                                            value=bool(message['properties']['property.value.new']),
-                                            timestamp=message['properties'].get("timestamp", -1))
+                                            value=bool(message['properties']['property.value.new']))
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
@@ -499,11 +478,6 @@ class Updater:
         elif message['properties']['uid'].startswith("devolo.HumidityBarValue"):
             self.update_humidity_bar(element_uid=fake_element_uid,
                                      value=message['properties']['property.value.new'])
-
-    def _last_activity(self, message: dict):
-        """ Update last activity. """
-        self.update_last_activity(element_uid=message['properties']['uid'],
-                                  timestamp=message['properties']['property.value.new'])
 
     def _led(self, message: dict):
         """ Update LED settings. """
@@ -579,7 +553,7 @@ class Updater:
 
     def _unknown(self, message: dict):
         """ Ignore unknown messages. """
-        ignore = ("devolo.DeviceEvents", "ss", "mcs")
+        ignore = ("devolo.DeviceEvents", "devolo.LastActivity", "ss", "mcs")
         if not message["properties"]["uid"].startswith(ignore):
             self._logger.debug(json.dumps(message, indent=4))
 

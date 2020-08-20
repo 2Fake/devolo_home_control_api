@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from requests import Session
 
 from ..devices.gateway import Gateway
@@ -20,7 +22,20 @@ class BinarySwitchProperty(Property):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
-        self.state = state
+
+        self._state = state
+
+
+    @property
+    def state(self) -> bool:
+        """ State of the binary sensor. """
+        return self._state
+
+    @state.setter
+    def state(self, state: bool):
+        """ Update state of the binary sensor and set point in time of the last_activity. """
+        self._state = state
+        self._last_activity = datetime.now()
 
 
     def set(self, state: bool):
