@@ -188,7 +188,7 @@ class Updater:
         :type events_enabled: bool
         :key icon: Icon of the device
         :type icon: string
-        :key name: Name of the deivce
+        :key name: Name of the device
         :type name: string
         :key zone_id: ID of the zone, also called room
         :type zone_id: string
@@ -429,11 +429,11 @@ class Updater:
         self.update_pending_operations(element_uid=message['properties']['uid'],
                                        pending_operations=bool(message['properties'].get('property.value.new')))
 
-    def _current_consumption(self, property: dict):
+    def _current_consumption(self, message: dict):
         """ Update current consumption. """
-        self.update_consumption(element_uid=property['uid'],
+        self.update_consumption(element_uid=message['uid'],
                                 consumption="current",
-                                value=property['property.value.new'])
+                                value=message['property.value.new'])
 
     def _device_change(self, message: dict):
         """ Call method if a new device appears or an old one disappears. """
@@ -529,10 +529,10 @@ class Updater:
         self.update_remote_control(element_uid=message['properties']['uid'],
                                    key_pressed=message['properties']['property.value.new'])
 
-    def _since_time(self, property: dict):
+    def _since_time(self, message: dict):
         """ Update point in time the total consumption was reset. """
-        self.update_total_since(element_uid=property['uid'],
-                                total_since=property['property.value.new'])
+        self.update_total_since(element_uid=message['uid'],
+                                total_since=message['property.value.new'])
 
     def _switch_type(self, message: dict):
         """ Update switch type setting (sts). """
@@ -545,11 +545,11 @@ class Updater:
             self.update_temperature(element_uid=message['properties']['uid'],
                                     value=message['properties']['property.value.new'])
 
-    def _total_consumption(self, property: dict):
+    def _total_consumption(self, message: dict):
         """ Update total consumption. """
-        self.update_consumption(element_uid=property['uid'],
+        self.update_consumption(element_uid=message['uid'],
                                 consumption="total",
-                                value=property['property.value.new'])
+                                value=message['property.value.new'])
 
     def _unknown(self, message: dict):
         """ Ignore unknown messages. """
