@@ -128,7 +128,7 @@ class MprmWebsocket(MprmRest):
             self._logger.info("Starting web socket connection.")
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
-        threading.Thread(target=run).start()
+        threading.Thread(target=run, name="devolo_home_control_api.websocket.run").start()
         self._connected = True
 
     def _on_pong(self, *args):
