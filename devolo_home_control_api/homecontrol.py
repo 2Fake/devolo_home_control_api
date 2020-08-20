@@ -55,7 +55,7 @@ class HomeControl(Mprm):
         self.updater = Updater(devices=self.devices, gateway=self.gateway, publisher=self.publisher)
         self.updater.on_device_change = self.device_change
 
-        threading.Thread(target=self.websocket_connect).start()
+        threading.Thread(target=self.websocket_connect, name="websocket_connect").start()
         self.wait_for_websocket_establishment()
 
     @property
@@ -191,7 +191,8 @@ class HomeControl(Mprm):
             properties = device_properties['properties']
             self.devices[device_properties['UID']] = Zwave(**properties)
             self.devices[device_properties['UID']].settings_property = {}
-            threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info).start()
+            threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info,
+                             name=self.devices[device_properties['UID']].uid).start()
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,

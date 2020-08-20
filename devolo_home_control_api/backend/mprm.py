@@ -55,8 +55,8 @@ class Mprm(MprmWebsocket):
                 self._try_local_connection(mdns_name)
             else:
                 time.sleep(0.05)
-        Thread(target=browser.cancel).start()
-        Thread(target=zeroconf.close).start()
+        Thread(target=browser.cancel, name="browser.cancel").start()
+        Thread(target=zeroconf.close, name="zeroconf.close").start()
         return self._local_ip
 
     def get_local_session(self):
