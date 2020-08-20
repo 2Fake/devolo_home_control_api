@@ -58,7 +58,7 @@ class MprmWebsocket(MprmRest):
 
     def websocket_connect(self):
         """
-        Set up the websocket connection. The procotol type of the known session URL is exchanged depending on whether TLS is
+        Set up the websocket connection. The protocol type of the known session URL is exchanged depending on whether TLS is
         used or not. After establishing the websocket, a ping is sent every 30 seconds to keep the connection alive. If there
         is no response within 5 seconds, the connection is terminated with error state.
         """
