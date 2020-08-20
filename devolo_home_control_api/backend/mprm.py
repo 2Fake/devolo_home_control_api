@@ -75,7 +75,7 @@ class Mprm(MprmWebsocket):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-        except requests.ConnectTimeout:
+        except requests.exceptions.ConnectTimeout:
             self._logger.error("Timeout during connecting to the gateway.")
             self._logger.debug(sys.exc_info())
             raise
