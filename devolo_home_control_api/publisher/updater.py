@@ -349,7 +349,8 @@ class Updater:
         :param value: Count of buttons
         """
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property["switch_type"].value = value
+        self.devices[device_uid].settings_property['switch_type'].value = value
+        self.devices[device_uid].remote_control_property[f'devolo.RemoteControl:{device_uid}'].key_count = value
         self._logger.debug(f"Updating switch type of {device_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
