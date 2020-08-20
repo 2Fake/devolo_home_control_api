@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from ..devices.gateway import Gateway
@@ -14,7 +15,9 @@ class RemoteControlProperty(Property):
     :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
     :key key_count: Number of buttons this remote control has
+    :type key_count: int
     :key key_pressed: Number of the button pressed
+    :type key_pressed: int
     """
 
     def __init__(self, gateway: Gateway, session, element_uid: str, **kwargs: Any):
@@ -23,8 +26,20 @@ class RemoteControlProperty(Property):
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
+        self._key_pressed = kwargs.get("key_pressed", 0)
         self.key_count = kwargs.get("key_count", 0)
-        self.key_pressed = kwargs.get("key_pressed", 0)
+
+
+    @property
+    def key_pressed(self) -> int:
+        """ Multi level value. """
+        return self._key_pressed
+
+    @key_pressed.setter
+    def key_pressed(self, key_pressed: float):
+        """ Update value of the multilevel value and set point in time of the last_activity. """
+        self._key_pressed = key_pressed
+        self._last_activity = datetime.now()
 
 
     def set(self, key_pressed: int):

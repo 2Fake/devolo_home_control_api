@@ -28,7 +28,7 @@ class BinarySensorProperty(SensorProperty):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
         self._state = False
-        self.state = kwargs.get("state")
+        self.state = kwargs.get("state", False)
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
 
