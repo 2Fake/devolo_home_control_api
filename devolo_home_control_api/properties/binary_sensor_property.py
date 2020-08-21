@@ -22,25 +22,36 @@ class BinarySensorProperty(SensorProperty):
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.BinarySensor:",
                                        "devolo.MildewSensor:",
-                                       "devolo.SirenBinarySensor:")):
+                                       "devolo.SirenBinarySensor:",
+                                       "devolo.ShutterMovementFI:",
+                                       "devolo.WarningBinaryFI:",)):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
-        self.state = kwargs.get("state")
-
-        # Set last activity to 1.1.1970. Will be corrected by BinarySensorProperty.last_activity.
-        self._last_activity = datetime.fromtimestamp(0)
+        self._state = False
+        self.state = kwargs.get("state", False)
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
 
 
     @property
     def last_activity(self) -> datetime:
-        """ Date and time the binary sensor was last triggered. """
-        return self._last_activity
+        """ Date and time the state of the binary sensor was last updated. """
+        return super().last_activity
 
     @last_activity.setter
     def last_activity(self, timestamp: int):
-        """ Convert a timestamp in millisecond to a datetime object. """
+        """ The gateway persists the last activity of some binary sensors. They can be initialized with that value. """
         if timestamp != -1:
-            self._last_activity = datetime.fromtimestamp(timestamp / 1000)
-            self._logger.debug(f"self.last_acitivity of element_uid {self.element_uid} set to {self._last_activity}.")
+            self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
+            self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
+
+    @property
+    def state(self) -> bool:
+        """ State of the binary sensor. """
+        return self._state
+
+    @state.setter
+    def state(self, state: bool):
+        """ Update state of the binary sensor and set point in time of the last_activity. """
+        self._state = state
+        self._last_activity = datetime.now()

@@ -1,10 +1,11 @@
-from typing import Any
+from datetime import datetime
+from typing import Any, Optional
 
 from requests import Session
 
+from .property import Property
 from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
-from .property import Property
 
 
 class MultiLevelSwitchProperty(Property):
@@ -34,28 +35,44 @@ class MultiLevelSwitchProperty(Property):
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        self.value = kwargs.get("value")
-        self.switch_type = kwargs.get("switch_type")
-        self.max = kwargs.get("max", 100)
-        self.min = kwargs.get("min", 0)
+        self._value = kwargs.get("value", 0.0)
+        self.switch_type = kwargs.get("switch_type", "")
+        self.max = kwargs.get("max", 100.0)
+        self.min = kwargs.get("min", 0.0)
 
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> Optional[str]:
         """ Human readable unit of the property. Defaults to percent. """
         units = {"temperature": "°C",
                  "tone": None}
         return units.get(self.switch_type, "%")
 
+    @property
+    def value(self) -> float:
+        """ Multi level value. """
+        return self._value
+
+    @value.setter
+    def value(self, value: float):
+        """ Update value of the multilevel value and set point in time of the last_activity. """
+        self._value = value
+        self._last_activity = datetime.now()
+
 
     def set(self, value: float):
+        """
+        Set the multilevel switch of the given element_uid to the given value.
+
+        :param value: Value to set
+        """
         if value > self.max or value < self.min:
             raise ValueError(f"Set value {value} is too {'low' if value < self.min else 'high'}. The min value is {self.min}. \
                              The max value is {self.max}")
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "sendValue", [value]]}
         response = self.post(data)
-        if response.get("result").get("status") == 1:
+        if response["result"].get("status") == 1:
             self.value = value
             self._logger.debug(f"Multi level switch property {self.element_uid} set to {value}")
         else:

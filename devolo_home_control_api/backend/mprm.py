@@ -55,8 +55,8 @@ class Mprm(MprmWebsocket):
                 self._try_local_connection(mdns_name)
             else:
                 time.sleep(0.05)
-        Thread(target=browser.cancel).start()
-        Thread(target=zeroconf.close).start()
+        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()
+        Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()
         return self._local_ip
 
     def get_local_session(self):
@@ -75,7 +75,7 @@ class Mprm(MprmWebsocket):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-        except requests.ConnectTimeout:
+        except requests.exceptions.ConnectTimeout:
             self._logger.error("Timeout during connecting to the gateway.")
             self._logger.debug(sys.exc_info())
             raise
@@ -83,7 +83,7 @@ class Mprm(MprmWebsocket):
 
     def get_remote_session(self):
         """
-        Connect to the gateway remotely. Calling the known portal URL is enought in this case.
+        Connect to the gateway remotely. Calling the known portal URL is enough in this case.
         """
         self._logger.info("Connecting to gateway via cloud.")
         try:

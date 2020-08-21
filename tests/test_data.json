@@ -9,11 +9,13 @@
       "icon": "icon_1",
       "itemName": "Heating",
       "manID": "0x0175",
+      "operationStatus": false,
+      "pending_operations": false,
       "prodID": "0x0011",
       "prodTypeID": "0x0001",
       "status": 25,
       "uid": "hdm:ZWave:F6BF9812/3",
-      "zone_name": "Kitchen",
+      "zoneId": "hz_3",
       "zone": "Kitchen"
     },
     "ambiguous_2": {
@@ -26,26 +28,38 @@
       "icon": "icon_1",
       "itemName": "Heating",
       "manID": "0x0175",
+      "operationStatus": false,
+      "pending_operations": false,
       "prodID": "0x0011",
       "prodTypeID": "0x0001",
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/4",
-      "zone_name": "Living Room",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "blinds": {
       "UID": "hdm:ZWave:F6BF9812/10",
       "batteryLevel": -1,
       "batteryLow": null,
+      "calibrationStatus": 1,
+      "device_model_uid": "devolo.model.Shutter",
       "elementUIDs": [
-        "devolo.Blinds:hdm:ZWave:F6BF9812/10"
+        "devolo.Shutter:hdm:ZWave:F6BF9812/10"
       ],
       "i2": true,
+      "icon": "icon_1",
+      "inverted": false,
       "itemName": "Shutter",
       "min": 0,
       "max": 100,
+      "motorActivity": 30,
+      "movement_direction": 1,
+      "operationStatus": false,
+      "pending_operations": false,
+      "shutter_duration": 3000,
       "uid": "hdm:ZWave:F6BF9812/10",
       "value": 50,
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "humidity": {
@@ -57,11 +71,15 @@
       ],
       "batteryLevel": 100,
       "batteryLow": false,
+      "icon": "icon_1",
       "itemName": "Humidity",
       "mildew": false,
+      "operationStatus": false,
+      "pending_operations": false,
       "status": 2,
       "uid": "hdm:ZWave:F6BF9812/7",
       "value": 75,
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "mains": {
@@ -71,21 +89,27 @@
         "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
         "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
       ],
+      "brand": "devolo",
+      "flashMode": 1,
       "properties": {
         "batteryLevel": -1,
         "batteryLow": null,
         "current_consumption": 0.58,
+        "device_model_uid": "devolo.model.Wall:Plug:Switch:and:Meter",
         "elementUIDs": [
           "devolo.Meter:hdm:ZWave:F6BF9812/2",
           "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2",
           "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
         ],
-        "events_enabled": true,
+        "eventsEnabled": true,
         "icon": "light-bulb",
         "itemName": "Light",
         "led_setting": true,
         "local_switch": true,
         "manID": "0x0175",
+        "name": "Light",
+        "operationStatus": false,
+        "pending_operations": false,
         "param_changed": false,
         "prodID": "0x0011",
         "prodTypeID": "0x0001",
@@ -101,8 +125,8 @@
         "total_consumption": 125.68,
         "sinceTime": 1578558815924,
         "voltage": 237,
-        "zone_id": "hz_2",
-        "zone_name": "Office",
+        "zoneId": "hz_3",
+        "zoneID": "hz_3",
         "zone": "Office"
       },
       "remote_switch": false,
@@ -121,12 +145,16 @@
       "elementUIDs": [
 		    "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
       ],
+      "icon": "icon-1",
       "itemName": "Heating",
       "min": 4,
       "max": 28,
+      "operationStatus": false,
+      "pending_operations": false,
       "uid": "hdm:ZWave:F6BF9812/9",    
-      "switch_type": "temperatur",
+      "switch_type": "temperature",
       "value": 20,
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "offline": {
@@ -134,9 +162,13 @@
       "batteryLevel": -1,
       "batteryLow": null,
       "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
+      "icon": "icon-1",
       "itemName": "Offline Device",
+      "operationStatus": false,
+      "pending_operations": false,
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/5",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "remote": {
@@ -147,21 +179,31 @@
 		    "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
       ],
       "itemName": "Remote Control",
+      "icon": "icon-1",
+      "operationStatus": false,
+      "pending_operations": false,
       "key_count": 4,
       "uid": "hdm:ZWave:F6BF9812/11",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     },
     "sensor": {
       "UID": "hdm:ZWave:F6BF9812/6",
+      "device_model_uid": "devolo.model.Motion",
       "settingUIDs": [
         "gds.hdm:ZWave:F6BF9812/6",
         "cps.hdm:ZWave:F6BF9812/6",
+        "mss.hdm:ZWave:F6BF9812/6",
         "trs.hdm:ZWave:F6BF9812/6",
         "vfs.hdm:ZWave:F6BF9812/6"
       ],
       "icon": "icon_16",
       "prodID": "0x000e",
       "prodTypeID": "0x0002",
+      "properties": {
+        "value": 60,
+        "targetValue": 60
+      },
       "itemName": "Window",
       "elementUIDs": [
         "devolo.BinarySensor:hdm:ZWave:F6BF9812/6",
@@ -169,7 +211,10 @@
         "devolo.MultiLevelSensor:hdm:ZWave:F6BF9812/6#MultilevelSensor(1)",
         "devolo.MultiLevelSensor:hdm:ZWave:F6BF9812/6#MultilevelSensor(3)"
       ],
+      "led_setting": false,
       "manID": "0x0175",
+      "operationStatus": false,
+      "pending_operations": false,
       "zoneId": "hz_2",
       "batteryLow": false,
       "last_activity": 1581419650436,
@@ -195,12 +240,23 @@
 		    "devolo.SirenMultiLevelSensor:hdm:ZWave:F6BF9812/8",
         "devolo.LastActivity:hdm:ZWave:F6BF9812/8"
       ],
+      "icon": "icon-1",
       "itemName": "Siren",
       "last_activity": 1581419650436,
       "muted": true,
+      "operationStatus": false,
+      "pending_operations": false,
       "uid": "hdm:ZWave:F6BF9812/8",
+      "properties": {
+        "value": 8
+      },
+      "sensor_type": "siren",
+      "settingUIDs": [
+        "mss.hdm:ZWave:F6BF9812/8"
+      ],
       "state": 1,
       "switch_type": "tone",
+      "zoneId": "hz_2",
       "zone": "Living Room"
     }
   },
@@ -214,7 +270,10 @@
     "name": "Home",
     "online": true,
     "role": "owner",
-    "sync": true
+    "sync": true,
+    "zones": {
+      "hz_2": "Living Room",
+      "hz_3": "Kitchen"}
   },
   "user": {
     "password": "7fee3cdb598b45a459ffe2aa720c8532",

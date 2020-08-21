@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.14.0] - 2020/08/21
+
+### Added
+
+- Settings now update via websocket
+- Last activity now updates via websocket
+- Support for shutter movement as binary sensor
+- Support for shutter overload warning as binary sensor
+- Support for pending operations
+
+### Changed
+
+- **BREAKING**: Name and zone (also called room) moved into the general device settings property because they may change.
+
+### Fixed
+
+- Datetime objects are now in local time - [#59](https://github.com/2Fake/devolo_home_control_api/issues/59)
+
 ## [v0.13.0] - 2020/08/10
 
 ### Added
@@ -19,7 +37,7 @@ to manufacturer_id, product_id and product_type_id respectively.
 
 ### Fixed
 
-- Publisher sends consumption type additionally to element_uid and consumption value.
+- Publisher sends consumption type additionally to element_uid and consumption value. - [#54](https://github.com/2Fake/devolo_home_control_api/issues/54)
 
 ## [v0.12.0] - 2020/06/09
 

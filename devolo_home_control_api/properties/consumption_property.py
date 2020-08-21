@@ -25,15 +25,35 @@ class ConsumptionProperty(Property):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
-        self.current = kwargs.get("current")
+        self._current = kwargs.get("current", 0.0)
         self.current_unit = "W"
-        self.total = kwargs.get("total")
+        self._total = kwargs.get("total", 0.0)
         self.total_unit = "kWh"
 
-        # Set last activity to 1.1.1970. Will be corrected by ConsumptionProperty.total_since.
-        self._total_since = datetime.fromtimestamp(0)
-        self.total_since = kwargs.get("total_since", 0)
+        self._total_since = datetime.utcfromtimestamp(kwargs.get("total_since", 0) / 1000)
 
+
+    @property
+    def current(self) -> float:
+        """ Consumption value. """
+        return self._current
+
+    @current.setter
+    def current(self, current: float):
+        """ Update current consumption and set point in time of the last_activity. """
+        self._current = current
+        self._last_activity = datetime.now()
+
+    @property
+    def total(self) -> float:
+        """ Total consumption value. """
+        return self._total
+
+    @total.setter
+    def total(self, total: float):
+        """ Update total consumption and set point in time of the last_activity. """
+        self._total = total
+        self._last_activity = datetime.now()
 
     @property
     def total_since(self) -> datetime:
@@ -43,5 +63,5 @@ class ConsumptionProperty(Property):
     @total_since.setter
     def total_since(self, timestamp: int):
         """ Convert a timestamp in millisecond to a datetime object. """
-        self._total_since = datetime.fromtimestamp(timestamp / 1000)
+        self._total_since = datetime.utcfromtimestamp(timestamp / 1000)
         self._logger.debug(f"self.total_since of element_uid {self.element_uid} set to {self._total_since}.")

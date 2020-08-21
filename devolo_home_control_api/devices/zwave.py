@@ -16,6 +16,10 @@ class Zwave:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = Mydevolo.get_instance()
 
+        unwanted_value = ["icon", "itemName", "operationStatus", "zone", "zoneId"]
+        for value in unwanted_value:
+            del kwargs[value]
+
         for key, value in kwargs.items():
             setattr(self, camel_case_to_snake_case(key), value)
         self.uid = get_device_uid_from_element_uid(self.element_uids[0])
@@ -48,10 +52,10 @@ class Zwave:
         Zwave.__init__.
         """
         self._logger.debug(f"Getting Z-Wave information for {self.uid}")
-        dict = self._mydevolo.get_zwave_products(manufacturer=self.man_id,
-                                                 product_type=self.prod_type_id,
-                                                 product=self.prod_id)
-        for key, value in dict.items():
+        zwave_product = self._mydevolo.get_zwave_products(manufacturer=self.man_id,
+                                                          product_type=self.prod_type_id,
+                                                          product=self.prod_id)
+        for key, value in zwave_product.items():
             setattr(self, camel_case_to_snake_case(key), value)
 
         # Clean up attributes which are now unwanted.
@@ -64,7 +68,6 @@ class Zwave:
         """
         Get the online state of a device.
 
-        :param uid: Device UID, something like hdm:ZWave:CBC56091/24
         :return: False, if device is offline, else True
         """
         return False if self.status == 1 else True

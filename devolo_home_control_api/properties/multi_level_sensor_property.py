@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from requests import Session
@@ -28,12 +29,11 @@ class MultiLevelSensorProperty(SensorProperty):
                                        "devolo.VoltageMultiLevelSensor:")):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
 
-        self._unit = ""
-
         super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
 
-        self.value = kwargs.get("value")
-        self.unit = kwargs.get("unit")
+        self._value = kwargs.get("value", 0.0)
+        self._unit = ""
+        self.unit = kwargs.get("unit", "")
 
 
     @property
@@ -51,8 +51,19 @@ class MultiLevelSensorProperty(SensorProperty):
                  "Seismic Intensity": {0: ""},
                  "voltage": {0: "V"}
                  }
-        if units.get(self.sensor_type) is not None:
+        try:
             self._unit = units[self.sensor_type].get(unit, str(unit))
-        else:
+        except KeyError:
             self._unit = str(unit)
         self._logger.debug(f"Unit of {self.element_uid} set to '{self._unit}'.")
+
+    @property
+    def value(self) -> float:
+        """ Multi level value. """
+        return self._value
+
+    @value.setter
+    def value(self, value: float):
+        """ Update value of the multilevel sensor and set point in time of the last_activity. """
+        self._value = value
+        self._last_activity = datetime.now()

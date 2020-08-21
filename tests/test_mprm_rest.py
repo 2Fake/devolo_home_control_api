@@ -22,6 +22,11 @@ class TestMprmRest:
         devices = self.mprm.get_all_devices()
         assert devices == "deviceUIDs"
 
+    @pytest.mark.usefixtures("mock_mprmrest__post")
+    def test_get_all_zones(self):
+        zones = self.mprm.get_all_zones()
+        assert zones == {"hz_3": "Office"}
+
     @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
     def test_post_ReadTimeOut(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session

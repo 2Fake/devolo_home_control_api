@@ -22,29 +22,42 @@ def siren(device_uid: str) -> Zwave:
     with file.open("r") as fh:
         test_data = json.load(fh)
 
-    device = Zwave(**test_data.get("devices").get("siren"))
-    gateway = MockGateway(test_data.get("gateway").get("id"))
+    device = Zwave(**test_data['devices']['siren'])
+    gateway = MockGateway(test_data['gateway']['id'])
     session = requests.Session()
 
     device.binary_sensor_property = {}
     device.binary_sensor_property[f'devolo.SirenBinarySensor:{device_uid}'] = \
         BinarySensorProperty(gateway=gateway,
                              session=session,
-                             element_uid=f'devolo.SirenBinarySensor:{device_uid}',
-                             state=test_data.get("devices").get("siren").get("state"))
+                             element_uid=f"devolo.SirenBinarySensor:{device_uid}",
+                             state=test_data['devices']['siren']['state'])
 
     device.multi_level_switch_property = {}
     device.multi_level_switch_property[f'devolo.SirenMultiLevelSwitch:{device_uid}'] = \
         MultiLevelSwitchProperty(gateway=gateway,
                                  session=session,
-                                 element_uid=f'devolo.SirenMultiLevelSwitch:{device_uid}',
-                                 state=test_data.get("devices").get("siren").get("state"))
+                                 element_uid=f"devolo.SirenMultiLevelSwitch:{device_uid}",
+                                 state=test_data['devices']['siren']['state'])
 
     device.settings_property = {}
     device.settings_property['muted'] = \
         SettingsProperty(gateway=gateway,
                          session=session,
-                         element_uid=f'bas.{device_uid}',
-                         value=test_data.get("devices").get("siren").get("muted"))
+                         element_uid=f"bas.{device_uid}",
+                         value=test_data['devices']['siren']['muted'])
+    device.settings_property["general_device_settings"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f"gds.{device_uid}",
+                         icon=test_data['devices']['siren']['icon'],
+                         name=test_data['devices']['siren']['itemName'],
+                         zone_id=test_data['devices']['siren']['zoneId'])
+
+    device.settings_property["tone"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f"mss.{device_uid}",
+                         value=test_data['devices']['siren']['properties']['value'])
 
     return device

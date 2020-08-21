@@ -14,11 +14,13 @@ class SensorProperty(Property):
     :param session: Instance of a requests.Session object
     :param element_uid: Element UID
     :key sensor_type: Type of the sensor sensor, something like 'alarm'
+    :type sensor_type: str
     :key sub_type: Subtype of the sensor, something like 'overload'
+    :type sub_type: str
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        self.sensor_type = kwargs.get("sensor_type")
-        self.sub_type = kwargs.get("sub_type")
+        self.sensor_type = kwargs.get("sensor_type", "")
+        self.sub_type = kwargs.get("sub_type", "")

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from requests import Session
 
 from ..backend.mprm_rest import MprmRest
@@ -17,6 +19,15 @@ class Property(MprmRest):
     def __init__(self, gateway: Gateway, session: Session, element_uid: str):
         self.element_uid = element_uid
         self.device_uid = get_device_uid_from_element_uid(element_uid)
+
+        self._last_activity = datetime.fromtimestamp(0)  # Set last activity to 1.1.1970. Will be corrected on update.
         self._gateway = gateway
         self._session = session
+
         super().__init__()
+
+
+    @property
+    def last_activity(self) -> datetime:
+        """ Date and time the property was last updated. """
+        return self._last_activity

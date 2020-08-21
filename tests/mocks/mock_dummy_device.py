@@ -5,6 +5,7 @@ import requests
 
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
+from devolo_home_control_api.properties.settings_property import SettingsProperty
 
 from .mock_gateway import MockGateway
 
@@ -30,5 +31,14 @@ def dummy_device(key: str) -> Zwave:
                              session=session,
                              element_uid=f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}',
                              state=test_data.get("devices").get(key).get("state"))
+
+    device.settings_property = {}
+    device.settings_property["general_device_settings"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'gds.{test_data.get("devices").get(key).get("uid")}',
+                         icon=test_data.get("devices").get(key).get("icon"),
+                         name=test_data.get("devices").get(key).get("itemName"),
+                         zone_id=test_data.get("devices").get(key).get("zoneId"))
 
     return device

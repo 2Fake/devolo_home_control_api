@@ -1,10 +1,9 @@
 import json
 import threading
 import time
-from typing import Any
 
 import websocket
-from requests import ConnectionError, ReadTimeout
+from requests import ConnectionError
 from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
@@ -59,7 +58,7 @@ class MprmWebsocket(MprmRest):
 
     def websocket_connect(self):
         """
-        Set up the websocket connection. The procotol type of the known session URL is exchanged depending on whether TLS is
+        Set up the websocket connection. The protocol type of the known session URL is exchanged depending on whether TLS is
         used or not. After establishing the websocket, a ping is sent every 30 seconds to keep the connection alive. If there
         is no response within 5 seconds, the connection is terminated with error state.
         """
@@ -110,9 +109,9 @@ class MprmWebsocket(MprmRest):
 
     def _on_message(self, message: str):
         """ Callback method to react on a message. """
-        message = json.loads(message)
-        self._logger.debug(f"Got message from websocket:\n{message}")
-        event_sequence = message.get("properties").get("com.prosyst.mbs.services.remote.event.sequence.number")
+        msg = json.loads(message)
+        self._logger.debug(f"Got message from websocket:\n{msg}")
+        event_sequence = msg["properties"]["com.prosyst.mbs.services.remote.event.sequence.number"]
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:
@@ -121,18 +120,18 @@ class MprmWebsocket(MprmRest):
             self._event_sequence = event_sequence + 1
             self._logger.debug(f"self._event_sequence is set to {self._event_sequence}")
 
-        self.on_update(message)
+        self.on_update(msg)
 
     def _on_open(self):
         """ Callback method to keep the websocket open. """
-        def run(*args: Any):
+        def run():
             self._logger.info("Starting web socket connection.")
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
-        threading.Thread(target=run).start()
+        threading.Thread(target=run, name=f"{__class__.__name__}.websocket_run").start()
         self._connected = True
 
-    def _on_pong(self, *args: Any):
+    def _on_pong(self, *args):
         """ Callback method to keep the session valid. """
         self.refresh_session()
 
@@ -143,6 +142,6 @@ class MprmWebsocket(MprmRest):
             # TODO: Check if local_ip is still correct after lost connection
             self.get_local_session() if self._local_ip else self.get_remote_session()
             self._reachable = True
-        except (json.JSONDecodeError, ConnectTimeoutError, ReadTimeout, ConnectionError, GatewayOfflineError):
+        except (json.JSONDecodeError, ConnectTimeoutError, ConnectionError, GatewayOfflineError):
             self._logger.info(f"Sleeping for {sleep_interval} seconds.")
             time.sleep(sleep_interval)

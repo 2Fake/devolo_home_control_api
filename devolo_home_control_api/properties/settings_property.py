@@ -20,12 +20,16 @@ class SettingsProperty(Property):
     """
 
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        if element_uid.split(".")[0] not in ["bas", "cps", "gds", "lis", "mss", "ps", "trs", "vfs"]:
+        if not element_uid.startswith(("acs", "bas", "bss", "cps", "gds", "lis", "mas",
+                                       "mss", "ps", "sts", "stmss", "trs", "vfs")):
             raise WrongElementError()
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+        if element_uid.startswith("gds"):
+            self.zone = self._gateway.zones[self.zone_id]
 
         setter_method = {"bas": self._set_bas,
                          "gds": self._set_gds,
@@ -42,9 +46,9 @@ class SettingsProperty(Property):
 
         # Clean up attributes which are unwanted.
         clean_up_list = ["device_uid"]
+
         for attribute in clean_up_list:
-            if hasattr(self, attribute):
-                delattr(self, attribute)
+            delattr(self, attribute)
 
 
     def _set_bas(self, value: bool):
@@ -72,7 +76,8 @@ class SettingsProperty(Property):
         :type events_enabled: string
         """
         allowed = ["events_enabled", "icon", "name", "zone_id"]
-        [setattr(self, item, kwargs.get(item, getattr(self, item))) for item in allowed]
+        for item in allowed:
+            setattr(self, item, kwargs.get(item, getattr(self, item)))
         data = {"method": "FIM/invokeOperation",
                 "params": [self.element_uid, "save", [{"events_enabled": self.events_enabled,
                                                        "icon": self.icon,

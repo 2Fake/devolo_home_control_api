@@ -45,15 +45,22 @@ def multi_level_sensor_device(device_uid: str) -> Zwave:
                                  value=test_data.get("devices").get("sensor").get("value"),
                                  unit=test_data.get("devices").get("sensor").get("unit"))
 
-    device.settings_property['temperature_report'] = SettingsProperty(gateway=gateway,
-                                                                      session=session,
-                                                                      element_uid=f"trs.{device_uid}",
-                                                                      temp_report=test_data.get("devices").get("sensor").get(
-                                                                          "temp_report"))
-    device.settings_property['motion_sensitivity'] = SettingsProperty(gateway=gateway,
-                                                                      session=session,
-                                                                      element_uid=f"mss.{device_uid}",
-                                                                      motion_sensitivity=test_data.get("devices").get("sensor").get(
-                                                                          "motion_sensitivity"))
+    device.settings_property['temperature_report'] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f"trs.{device_uid}",
+                         temp_report=test_data.get("devices").get("sensor").get("temp_report"))
+    device.settings_property['motion_sensitivity'] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f"mss.{device_uid}",
+                         motion_sensitivity=test_data.get("devices").get("sensor").get("motion_sensitivity"))
+    device.settings_property["general_device_settings"] = \
+        SettingsProperty(gateway=gateway,
+                         session=session,
+                         element_uid=f'gds.{device_uid}',
+                         icon=test_data.get("devices").get("sensor").get("icon"),
+                         name=test_data.get("devices").get("sensor").get("itemName"),
+                         zone_id=test_data.get("devices").get("sensor").get("zoneId"))
 
     return device
