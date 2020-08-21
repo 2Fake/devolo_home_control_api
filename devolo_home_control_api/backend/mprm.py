@@ -55,8 +55,8 @@ class Mprm(MprmWebsocket):
                 self._try_local_connection(mdns_name)
             else:
                 time.sleep(0.05)
-        Thread(target=browser.cancel, name="devolo_home_control_api.browser.cancel").start()
-        Thread(target=zeroconf.close, name="devolo_home_control_api.zeroconf.close").start()
+        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()
+        Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()
         return self._local_ip
 
     def get_local_session(self):
