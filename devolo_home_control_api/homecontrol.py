@@ -192,7 +192,7 @@ class HomeControl(Mprm):
             self.devices[device_properties['UID']] = Zwave(**properties)
             self.devices[device_properties['UID']].settings_property = {}
             threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info,
-                             name=f"devolo_home_control_api..{self.devices[device_properties['UID']].uid}").start()
+                             name=f"devolo_home_control_api.{self.devices[device_properties['UID']].uid}").start()
 
         elements = {"devolo.BinarySensor": self._binary_sensor,
                     "devolo.BinarySwitch": self._binary_switch,
