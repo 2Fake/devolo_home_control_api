@@ -3,6 +3,7 @@ import sys
 import time
 from json import JSONDecodeError
 from threading import Thread
+from typing import Optional
 
 import requests
 from zeroconf import DNSRecord, ServiceBrowser, ServiceStateChange, Zeroconf
@@ -15,14 +16,16 @@ class Mprm(MprmWebsocket):
     """
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
+
+    :param zeroconf_instance: Zeroconf instance to be potentially reused
     """
 
-    def __init__(self):
+    def __init__(self, zeroconf_instance: Optional[Zeroconf]):
         super().__init__()
 
         self._token_url = {}
 
-        self.detect_gateway_in_lan()
+        self.detect_gateway_in_lan(zeroconf_instance)
         self.create_connection()
 
 
@@ -40,13 +43,15 @@ class Mprm(MprmWebsocket):
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def detect_gateway_in_lan(self):
+    def detect_gateway_in_lan(self, zeroconf_instance):
         """
         Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
         to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
         remote connection is needed.
+
+        :param zeroconf_instance: Zeroconf instance to be potentially reused
         """
-        zeroconf = Zeroconf()
+        zeroconf = zeroconf_instance or Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
@@ -56,7 +61,8 @@ class Mprm(MprmWebsocket):
             else:
                 time.sleep(0.05)
         Thread(target=browser.cancel, name="devolo_home_control_api.browser.cancel").start()
-        Thread(target=zeroconf.close, name="devolo_home_control_api.zeroconf.close").start()
+        if not zeroconf_instance:
+            Thread(target=zeroconf.close, name="devolo_home_control_api.zeroconf.close").start()
         return self._local_ip
 
     def get_local_session(self):

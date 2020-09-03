@@ -1,6 +1,8 @@
 import threading
+from typing import Optional
 
 import requests
+from zeroconf import Zeroconf
 
 from . import __version__
 from .backend.mprm import Mprm
@@ -28,16 +30,18 @@ class HomeControl(Mprm):
     Unit, your devices and their properties.
 
     :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
+    :param zeroconf_instance: Zeroconf instance to be potentially reused
     :param url: URL of the mPRM (typically leave it at default)
     """
 
-    def __init__(self, gateway_id: str, url: str = "https://homecontrol.mydevolo.com"):
+    def __init__(self, gateway_id: str, zeroconf_instance: Optional[Zeroconf] = None,
+                 url: str = "https://homecontrol.mydevolo.com"):
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
         self._session.url = url
 
         self.gateway = Gateway(gateway_id)
-        super().__init__()
+        super().__init__(zeroconf_instance)
 
         self.gateway.zones = self.get_all_zones()
 

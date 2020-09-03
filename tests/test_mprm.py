@@ -30,7 +30,7 @@ class TestMprm:
     @pytest.mark.usefixtures("mock_mprm__try_local_connection")
     @pytest.mark.usefixtures("mock_mprm_zeroconf_cache_entries")
     def test_detect_gateway_in_lan(self):
-        assert self.mprm.detect_gateway_in_lan() == self.gateway.get("local_ip")
+        assert self.mprm.detect_gateway_in_lan(None) == self.gateway.get("local_ip")
 
     @pytest.mark.usefixtures("mock_session_get")
     @pytest.mark.usefixtures("mock_response_json")
