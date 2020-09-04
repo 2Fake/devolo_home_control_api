@@ -3,8 +3,6 @@ from requests.exceptions import ConnectTimeout
 
 from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
-from .mocks.mock_dnsrecord import MockDNSRecord
-
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprm:
@@ -62,8 +60,6 @@ class TestMprm:
     @pytest.mark.usefixtures("mock_socket_inet_ntoa")
     @pytest.mark.usefixtures("mock_response_valid")
     def test__try_local_connection_success(self, mprm_session):
-        mdns_name = MockDNSRecord()
-        mdns_name.address = self.gateway.get("local_ip")
         self.mprm._session = mprm_session
-        self.mprm._try_local_connection(mdns_name)
+        self.mprm._try_local_connection([self.gateway.get("local_ip")])
         assert self.mprm._local_ip == self.gateway.get("local_ip")
