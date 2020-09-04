@@ -5,21 +5,6 @@ from datetime import datetime, timezone
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
-    def test_update_binary_switch_state_group(self, fill_device_data):
-        try:
-            self.homecontrol.updater.update_binary_switch_state(element_uid="devolo.BinarySwitch:devolo.smartGroup.1",
-                                                                value=True)
-            assert True
-        except KeyError:
-            assert False
-
-    def test_update_multi_level_switch_state_group(self, fill_device_data):
-        try:
-            self.homecontrol.updater.update_multi_level_switch(element_uid="devolo.MultiLevelSwitch:devolo.smartGroup.1",
-                                                               value=True)
-            assert True
-        except KeyError:
-            assert False
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
@@ -215,16 +200,14 @@ class TestUpdater:
             .get(f"devolo.Meter:{uid}").current == current_new
 
     def test__multi_level_sensor(self):
-        uid = self.devices.get("sensor").get("uid")
-        self.homecontrol.devices.get(uid).multi_level_sensor_property \
-            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value = 100
-        current = self.homecontrol.devices.get(uid).multi_level_sensor_property \
-            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        uid = self.devices['sensor']['uid']
+        element_uid = f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)"
+        self.homecontrol.devices[uid].multi_level_sensor_property[element_uid].value = 100
+        current = self.homecontrol.devices[uid].multi_level_sensor_property[element_uid].value
         self.homecontrol.updater._multi_level_sensor(message={"properties":
-                                                     {"uid": f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)",
+                                                     {"uid": element_uid,
                                                       "property.value.new": 50}})
-        current_new = self.homecontrol.devices.get(uid).multi_level_sensor_property \
-            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        current_new = self.homecontrol.devices[uid].multi_level_sensor_property[element_uid].value
 
         assert current_new == 50
         assert current != current_new
