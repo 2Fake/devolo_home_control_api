@@ -254,18 +254,16 @@ class Updater:
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_setting_uid(element_uid)
+            device_model = self.devices[device_uid].device_model_uid
             self._logger.debug(f"Updating {element_uid} to {value}")
+            sync_type = {"devolo.model.Siren": "tone",
+                         "devolo.model.OldShutter": "shutter_duration",
+                         "devolo.model.Shutter": "shutter_duration"}
 
-            # The devolo Siren uses multilevel sync settings for a different reason.
-            if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
-                self.devices[device_uid].settings_property['tone'].tone = value
-
-            # The shutter use multilevel sync settings for a different reason.
-            elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
-                self.devices[device_uid].settings_property['shutter_duration'].shutter_duration = value
-
-            # Other devices are up to now always motion sensors.
-            else:
+            try:
+                setattr(self.devices[device_uid].settings_property[sync_type[device_model]], sync_type[device_model], value)
+            except KeyError:
+                # Other devices are up to now always motion sensors.
                 self.devices[device_uid].settings_property['motion_sensitivity'].motion_sensitivity = value
 
             self._publisher.dispatch(device_uid, (element_uid, value))
@@ -285,15 +283,14 @@ class Updater:
         if type(message['properties'].get("property.value.new")) not in [dict, list]:
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
+            name = message['properties']['property.name']
             device_uid = get_device_uid_from_setting_uid(element_uid)
-            if message['properties']['property.name'] == "targetLocalSwitch":
-                self.devices[device_uid].settings_property['protection'].local_switching = value
-                self._logger.debug(f"Updating local switch protection of {element_uid} to {value}")
-                self._publisher.dispatch(device_uid, (element_uid, value, "local_switching"))
-            elif message['properties']['property.name'] == "targetRemoteSwitch":
-                self.devices[device_uid].settings_property['protection'].remote_switching = value
-                self._logger.debug(f"Updating remote switch protection of {element_uid} to {value}")
-                self._publisher.dispatch(device_uid, (element_uid, value, "remote_switching"))
+            switching_type = {"targetLocalSwitch": "local_switching",
+                              "targetRemoteSwitch": "remote_switching"}
+
+            setattr(self.devices[device_uid].settings_property['protection'], switching_type[name], value)
+            self._logger.debug(f"Updating {switching_type[name]} protection of {element_uid} to {value}")
+            self._publisher.dispatch(device_uid, (element_uid, value, switching_type[name]))
 
     def _remote_control(self, message: dict):
         """ Update a remote control. """
@@ -365,10 +362,7 @@ class Updater:
     def _update_consumption(self, element_uid: str, consumption: str, value: float):
         """ Update the consumption of a device. """
         device_uid = get_device_uid_from_element_uid(element_uid)
-        if consumption == "current":
-            self.devices[device_uid].consumption_property[element_uid].current = value
-        else:
-            self.devices[device_uid].consumption_property[element_uid].total = value
+        setattr(self.devices[device_uid].consumption_property[element_uid], consumption, value)
         self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value, consumption))
 
