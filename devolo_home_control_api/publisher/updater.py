@@ -79,8 +79,10 @@ class Updater:
         """ Update a automatic calibration message. """
         try:
             calibration_status = message["properties"]["property.value.new"]["status"]
-            self._update_automatic_calibration(element_uid=message["properties"]["uid"],
-                                               calibration_status=False if calibration_status == 2 else True)
+            self._update_automatic_calibration(
+                element_uid=message["properties"]["uid"],
+                calibration_status=calibration_status != 2,
+            )
         except (KeyError, TypeError):
             if type(message["properties"]["property.value.new"]) not in [dict, list]:
                 self._update_automatic_calibration(element_uid=message["properties"]["uid"],
@@ -135,9 +137,13 @@ class Updater:
         """ Update pending operation state. """
         element_uid = message['properties']['uid']
         pending_operations = bool(message['properties'].get('property.value.new'))
-        device_uid = get_device_uid_from_element_uid(element_uid)
+        try:
+            device_uid = get_device_uid_from_element_uid(element_uid)
+            self.devices[device_uid].pending_operations = pending_operations
+        except KeyError:
+            device_uid = get_device_uid_from_setting_uid(element_uid)
+            self.devices[device_uid].pending_operations = pending_operations
         self._logger.debug(f"Updating pending operations of device {device_uid} to {pending_operations}")
-        self.devices[device_uid].pending_operations = pending_operations
         self._publisher.dispatch(device_uid, ("pending_operations", pending_operations))
 
     def _current_consumption(self, message: dict):
@@ -217,7 +223,10 @@ class Updater:
                          "totalValue": self._total_consumption,
                          "sinceTime": self._since_time}
 
-        property_name[message['properties']['property.name']](message['properties'])
+        try:
+            property_name[message['properties']['property.name']](message['properties'])
+        except KeyError:
+            self._unknown(message)
 
     def _multi_level_sensor(self, message: dict):
         """ Update a multi level sensor. """
@@ -281,7 +290,7 @@ class Updater:
                 self.devices[device_uid].settings_property['protection'].local_switching = value
                 self._logger.debug(f"Updating local switch protection of {element_uid} to {value}")
                 self._publisher.dispatch(device_uid, (element_uid, value, "local_switching"))
-            else:
+            elif message['properties']['property.name'] == "targetRemoteSwitch":
                 self.devices[device_uid].settings_property['protection'].remote_switching = value
                 self._logger.debug(f"Updating remote switch protection of {element_uid} to {value}")
                 self._publisher.dispatch(device_uid, (element_uid, value, "remote_switching"))

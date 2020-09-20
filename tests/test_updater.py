@@ -298,6 +298,16 @@ class TestUpdater:
                                                                "property.value.new": {"status": 1}}})
         assert not self.homecontrol.devices[uid].pending_operation
 
+    def test__pending_operations_setting(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        pending_operation = device['properties']['pending_operations']
+        self.homecontrol.devices[uid].pending_operation = pending_operation
+        self.homecontrol.updater._pending_operations(message={"properties":
+                                                              {"uid": device['settingUIDs'][3],
+                                                               "property.value.new": {"status": 1}}})
+        assert not self.homecontrol.devices[uid].pending_operation
+
     def test__protection_local(self):
         device = self.devices['mains']
         uid = device['uid']

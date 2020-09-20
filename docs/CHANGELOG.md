@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Shared zeroconf instances can now be used
 
+### Fixed
+
+- Protection mode settings don't lead to websocket errors any more - [#65](https://github.com/2Fake/devolo_home_control_api/issues/65)
+
 ## [v0.14.0] - 2020/08/21
 
 ### Added
