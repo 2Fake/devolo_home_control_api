@@ -286,7 +286,9 @@ class Updater:
             name = message['properties']['property.name']
             device_uid = get_device_uid_from_setting_uid(element_uid)
             switching_type = {"targetLocalSwitch": "local_switching",
-                              "targetRemoteSwitch": "remote_switching"}
+                              "localSwitch": "local_switching",
+                              "targetRemoteSwitch": "remote_switching",
+                              "remoteSwitch": "remote_switching"}
 
             setattr(self.devices[device_uid].settings_property['protection'], switching_type[name], value)
             self._logger.debug(f"Updating {switching_type[name]} protection of {element_uid} to {value}")
