@@ -44,12 +44,12 @@ class MultiLevelSensorProperty(SensorProperty):
     @unit.setter
     def unit(self, unit: int):
         """ Make the numeric unit human readable, if known. """
-        units = {"dewpoint": {0: "°C"},
-                 "humidity": {0: "%"},
+        units = {"dewpoint": {0: "°C", 1: "°F"},
+                 "humidity": {0: "%", 1: "g/m³"},
                  "light": {0: "%", 1: "lx"},
-                 "temperature": {0: "°C"},
+                 "temperature": {0: "°C", 1: "°F"},
                  "Seismic Intensity": {0: ""},
-                 "voltage": {0: "V"}
+                 "voltage": {0: "V", 1: "mV"}
                  }
         try:
             self._unit = units[self.sensor_type].get(unit, str(unit))
