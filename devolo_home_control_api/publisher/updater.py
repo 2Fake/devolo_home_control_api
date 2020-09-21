@@ -192,6 +192,15 @@ class Updater:
         self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
         self._logger.debug("Updating gateway zones.")
 
+    def _gui_enabled(self, message: dict):
+        """ Update protection setting of binary switches. """
+        device_uid = get_device_uid_from_element_uid(message['uid'])
+        enabled = message['property.value.new']
+        for element_uid in self.devices[device_uid].binary_switch_property:
+            self.devices[device_uid].binary_switch_property[element_uid].enabled = enabled
+            self._logger.debug(f"Updating enabled state of {element_uid} to {enabled}")
+            self._publisher.dispatch(device_uid, (element_uid, enabled, "guiEnabled"))
+
     def _humidity_bar(self, message: dict):
         """ Update a humidity bar. """
         fake_element_uid = f"devolo.HumidityBar:{message['properties']['uid'].split(':', 1)[1]}"
@@ -221,12 +230,10 @@ class Updater:
         """ Update a meter value. """
         property_name = {"currentValue": self._current_consumption,
                          "totalValue": self._total_consumption,
-                         "sinceTime": self._since_time}
+                         "sinceTime": self._since_time,
+                         "guiEnabled": self._gui_enabled}
 
-        try:
-            property_name[message['properties']['property.name']](message['properties'])
-        except KeyError:
-            self._unknown(message)
+        property_name[message['properties']['property.name']](message['properties'])
 
     def _multi_level_sensor(self, message: dict):
         """ Update a multi level sensor. """

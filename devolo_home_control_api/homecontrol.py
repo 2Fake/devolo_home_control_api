@@ -148,7 +148,8 @@ class HomeControl(Mprm):
             BinarySwitchProperty(session=self._session,
                                  gateway=self.gateway,
                                  element_uid=uid_info['UID'],
-                                 state=bool(uid_info['properties']['state']))
+                                 state=bool(uid_info['properties']['state']),
+                                 enabled=uid_info['properties']['guiEnabled'])
 
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """

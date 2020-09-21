@@ -21,24 +21,25 @@ def dummy_device(key: str) -> Zwave:
     with file.open("r") as fh:
         test_data = json.load(fh)
 
-    device = Zwave(**test_data.get("devices").get(key))
-    gateway = MockGateway(test_data.get("gateway").get("id"))
+    device = Zwave(**test_data['devices'][key])
+    gateway = MockGateway(test_data['gateway']['id'])
     session = requests.Session()
 
     device.binary_switch_property = {}
-    device.binary_switch_property[f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}'] = \
+    device.binary_switch_property[f"devolo.BinarySwitch:{test_data['devices'][key]['uid']}"] = \
         BinarySwitchProperty(gateway=gateway,
                              session=session,
-                             element_uid=f'devolo.BinarySwitch:{test_data.get("devices").get(key).get("uid")}',
-                             state=test_data.get("devices").get(key).get("state"))
+                             element_uid=f"devolo.BinarySwitch:{test_data['devices'][key]['uid']}",
+                             state=test_data['devices'][key]['state'],
+                             enabled=test_data['devices'][key]['guiEnabled'])
 
     device.settings_property = {}
     device.settings_property["general_device_settings"] = \
         SettingsProperty(gateway=gateway,
                          session=session,
-                         element_uid=f'gds.{test_data.get("devices").get(key).get("uid")}',
-                         icon=test_data.get("devices").get(key).get("icon"),
-                         name=test_data.get("devices").get(key).get("itemName"),
-                         zone_id=test_data.get("devices").get(key).get("zoneId"))
+                         element_uid=f"gds.{test_data['devices'][key]['uid']}",
+                         icon=test_data['devices'][key]['icon'],
+                         name=test_data['devices'][key]['itemName'],
+                         zone_id=test_data['devices'][key]['zoneId'])
 
     return device

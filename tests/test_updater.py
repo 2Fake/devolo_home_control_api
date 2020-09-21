@@ -148,6 +148,15 @@ class TestUpdater:
         assert self.homecontrol.gateway.zones[zone_id] != name
         assert self.homecontrol.gateway.zones[zone_id] == self.devices['mains']['properties']['zone']
 
+    def test__gui_enabled(self):
+        uid = self.devices['mains']['uid']
+        element_uids = self.devices['mains']['properties']['elementUIDs']
+        enabled = self.devices['mains']['properties']['guiEnabled']
+        self.homecontrol.devices[uid].binary_switch_property[element_uids[1]].enabled = enabled
+        self.homecontrol.updater._gui_enabled(message={"uid": element_uids[0],
+                                                       "property.value.new": not enabled})
+        assert self.homecontrol.devices[uid].binary_switch_property[element_uids[1]].enabled != enabled
+
     def test__humidity_bar(self):
         uid = self.devices.get("humidity").get("uid")
         self.homecontrol.devices.get(uid).humidity_bar_property.get(f"devolo.HumidityBar:{uid}").value = 75

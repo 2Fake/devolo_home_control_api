@@ -6,6 +6,7 @@
       "elementUIDs": [
         "devolo.Meter:hdm:ZWave:F6BF9812/3"
       ],
+      "guiEnabled": true,
       "icon": "icon_1",
       "itemName": "Heating",
       "manID": "0x0175",
@@ -14,6 +15,7 @@
       "prodID": "0x0011",
       "prodTypeID": "0x0001",
       "status": 25,
+      "state": 1,
       "uid": "hdm:ZWave:F6BF9812/3",
       "zoneId": "hz_3",
       "zone": "Kitchen"
@@ -25,6 +27,7 @@
         "devolo.Meter:hdm:ZWave:F6BF9812/4",
         "devolo.BinarySwitch:hdm:ZWave:F6BF9812/4"
       ],
+      "guiEnabled": true,
       "icon": "icon_1",
       "itemName": "Heating",
       "manID": "0x0175",
@@ -33,6 +36,7 @@
       "prodID": "0x0011",
       "prodTypeID": "0x0001",
       "status": 1,
+      "state": 1,
       "uid": "hdm:ZWave:F6BF9812/4",
       "zoneId": "hz_2",
       "zone": "Living Room"
@@ -46,6 +50,7 @@
       "elementUIDs": [
         "devolo.Shutter:hdm:ZWave:F6BF9812/10"
       ],
+      "guiEnabled": true,
       "i2": true,
       "icon": "icon_1",
       "inverted": false,
@@ -71,6 +76,7 @@
       ],
       "batteryLevel": 100,
       "batteryLow": false,
+      "guiEnabled": true,
       "icon": "icon_1",
       "itemName": "Humidity",
       "mildew": false,
@@ -102,6 +108,7 @@
           "devolo.VoltageMultiLevelSensor:hdm:ZWave:F6BF9812/2"
         ],
         "eventsEnabled": true,
+        "guiEnabled": true,
         "icon": "light-bulb",
         "itemName": "Light",
         "led_setting": true,
@@ -145,6 +152,7 @@
       "elementUIDs": [
 		    "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
       ],
+      "guiEnabled": true,
       "icon": "icon-1",
       "itemName": "Heating",
       "min": 4,
@@ -162,10 +170,12 @@
       "batteryLevel": -1,
       "batteryLow": null,
       "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
+      "guiEnabled": false,
       "icon": "icon-1",
       "itemName": "Offline Device",
       "operationStatus": false,
       "pending_operations": false,
+      "state": 1,
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/5",
       "zoneId": "hz_2",
@@ -178,6 +188,7 @@
       "elementUIDs": [
 		    "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
       ],
+      "guiEnabled": true,
       "itemName": "Remote Control",
       "icon": "icon-1",
       "operationStatus": false,
@@ -204,6 +215,7 @@
         "value": 60,
         "targetValue": 60
       },
+      "guiEnabled": true,
       "itemName": "Window",
       "elementUIDs": [
         "devolo.BinarySensor:hdm:ZWave:F6BF9812/6",
@@ -242,6 +254,7 @@
       ],
       "icon": "icon-1",
       "itemName": "Siren",
+      "guiEnabled": true,
       "last_activity": 1581419650436,
       "muted": true,
       "operationStatus": false,

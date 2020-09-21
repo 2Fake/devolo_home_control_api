@@ -8,3 +8,7 @@ class MprmDeviceNotFoundError(Exception):
 
 class WrongElementError(Exception):
     """ This element was not meant for this property. """
+
+
+class SwitchingProtected(Exception):
+    """ This device is protected against remote switching. """
