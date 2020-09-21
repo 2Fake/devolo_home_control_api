@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from requests import Session
 
@@ -14,17 +15,18 @@ class BinarySwitchProperty(Property):
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
-    :param state: State the switch has at time of creating this instance
+    :key enabled: State of the remote protection setting
+    :key state: State the switch has at time of creating this instance
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, state: bool, enabled: bool):
+    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
         super().__init__(gateway=gateway, session=session, element_uid=element_uid)
 
-        self._state = state
-        self.enabled = enabled
+        self._state = kwargs.get("state", False)
+        self.enabled = kwargs.get("enabled", False)
 
 
     @property
