@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Support for Eurotronic Spirit
 - Shared zeroconf instances can now be used
 - More units for multi level sensors
 - Prevent switching of binary switches that have active remote switching protection

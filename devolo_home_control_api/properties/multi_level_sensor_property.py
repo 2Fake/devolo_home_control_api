@@ -26,6 +26,7 @@ class MultiLevelSensorProperty(SensorProperty):
         if not element_uid.startswith(("devolo.DewpointSensor:",
                                        "devolo.MultiLevelSensor:",
                                        "devolo.SirenMultiLevelSensor:",
+                                       "devolo.ValveTemperatureSensor",
                                        "devolo.VoltageMultiLevelSensor:")):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
 

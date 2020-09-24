@@ -216,6 +216,7 @@ class HomeControl(Mprm):
                     "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.ShutterMovementFI": self._binary_sensor,
+                    "devolo.ValveTemperatureSensor": self._multi_level_sensor,
                     "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                     "devolo.WarningBinaryFI": self._binary_sensor,
                     "acs.hdm": self._automatic_calibration,
