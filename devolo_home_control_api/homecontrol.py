@@ -38,7 +38,7 @@ class HomeControl(Mprm):
                  url: str = "https://homecontrol.mydevolo.com"):
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
-        self._session.url = url
+        self._session.url = url.rstrip("/")
 
         self.gateway = Gateway(gateway_id)
         super().__init__(zeroconf_instance)
