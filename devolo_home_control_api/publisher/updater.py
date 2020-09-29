@@ -66,7 +66,7 @@ class Updater:
                         "devolo.ValveTemperatureSensor": self._multi_level_sensor,
                         "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
                         "devolo.WarningBinaryFI:": self._binary_sensor,
-                        "hdm": self._device_online_state}
+                        "hdm": self._device_state}
 
         if "property.name" in message["properties"] \
                 and message['properties']['property.name'] == "pendingOperations" \
@@ -137,6 +137,11 @@ class Updater:
     def _pending_operations(self, message: dict):
         """ Update pending operation state. """
         element_uid = message['properties']['uid']
+
+        # Early return on useless messages
+        if element_uid == "devolo.PairDevice":
+            return
+
         pending_operations = bool(message['properties'].get('property.value.new'))
         try:
             device_uid = get_device_uid_from_element_uid(element_uid)
@@ -162,14 +167,21 @@ class Updater:
            and message['properties']['uid'] == "devolo.DevicesPage":
             self.on_device_change(uids=message['properties']['property.value.new'])
 
-    def _device_online_state(self, message: dict):
-        """ Update the device's online state. """
-        if message['properties']['property.name'] == "status":
-            device_uid = message['properties']['uid']
-            value = message['properties']['property.value.new']
-            self._logger.debug(f"Updating device online state of {device_uid} to {value}")
-            self.devices[device_uid].status = value
-            self._publisher.dispatch(device_uid, (device_uid, value))
+    def _device_state(self, message: dict):
+        """ Update the device state. """
+        propery_name = {"batteryLevel": "battery_level",
+                        "batteryLow": "battery_low",
+                        "status": "status"}
+        
+        name = message['properties']['property.name']
+        device_uid = message['properties']['uid']
+        value = message['properties']['property.value.new']
+        try:
+            self._logger.debug(f"Updating {propery_name[name]} of {device_uid} to {value}")
+            setattr(self.devices[device_uid], propery_name[name], value)
+            self._publisher.dispatch(device_uid, (device_uid, value, propery_name[name]))
+        except KeyError:
+            self._unknown(message)
 
     def _gateway_accessible(self, message: dict):
         """ Update the gateway's state. """
@@ -200,7 +212,7 @@ class Updater:
         for element_uid in self.devices[device_uid].binary_switch_property:
             self.devices[device_uid].binary_switch_property[element_uid].enabled = enabled
             self._logger.debug(f"Updating enabled state of {element_uid} to {enabled}")
-            self._publisher.dispatch(device_uid, (element_uid, enabled, "guiEnabled"))
+            self._publisher.dispatch(device_uid, (element_uid, enabled, "gui_enabled"))
 
     def _humidity_bar(self, message: dict):
         """ Update a humidity bar. """
@@ -323,7 +335,7 @@ class Updater:
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices[device_uid].consumption_property[element_uid].total_since = total_since
         self._logger.debug(f"Updating total since of {element_uid} to {total_since}")
-        self._publisher.dispatch(device_uid, (element_uid, total_since))
+        self._publisher.dispatch(device_uid, (element_uid, total_since, "total_since"))
 
     def _switch_type(self, message: dict):
         """ Update switch type setting (sts). """
@@ -355,6 +367,8 @@ class Updater:
         """ Ignore unknown messages. """
         ignore = ("devolo.DeviceEvents",
                   "devolo.LastActivity",
+                  "devolo.PairDevice",
+                  "devolo.mprm.gw.GatewayManager",
                   "devolo.mprm.gw.PortalManager",
                   "devolo.smartGroup",
                   "ss",

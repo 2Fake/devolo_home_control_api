@@ -104,12 +104,12 @@ class TestUpdater:
         self.homecontrol.updater._device_change({})
         spy.assert_called_once_with("on_device_change is not set.")
 
-    def test__device_online_state(self):
+    def test__device_state(self):
         uid = self.devices.get("mains").get("uid")
         online_state = self.homecontrol.devices.get(uid).status
-        self.homecontrol.updater._device_online_state(message={"properties": {"uid": uid,
-                                                                              "property.name": "status",
-                                                                              "property.value.new": 1}})
+        self.homecontrol.updater._device_state(message={"properties": {"uid": uid,
+                                                                       "property.name": "status",
+                                                                       "property.value.new": 1}})
         assert self.homecontrol.devices.get(uid).status == 1
         assert online_state != self.homecontrol.devices.get(uid).status
 
