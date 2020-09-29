@@ -3,9 +3,10 @@ import sys
 import time
 from json import JSONDecodeError
 from threading import Thread
+from typing import Optional
 
 import requests
-from zeroconf import DNSRecord, ServiceBrowser, ServiceStateChange, Zeroconf
+from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..exceptions.gateway import GatewayOfflineError
 from .mprm_websocket import MprmWebsocket
@@ -15,14 +16,16 @@ class Mprm(MprmWebsocket):
     """
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
+
+    :param zeroconf_instance: Zeroconf instance to be potentially reused
     """
 
-    def __init__(self):
+    def __init__(self, zeroconf_instance: Optional[Zeroconf]):
         super().__init__()
 
         self._token_url = {}
 
-        self.detect_gateway_in_lan()
+        self.detect_gateway_in_lan(zeroconf_instance)
         self.create_connection()
 
 
@@ -40,23 +43,25 @@ class Mprm(MprmWebsocket):
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def detect_gateway_in_lan(self):
+    def detect_gateway_in_lan(self, zeroconf_instance):
         """
         Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
         to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
         remote connection is needed.
+
+        :param zeroconf_instance: Zeroconf instance to be potentially reused
         """
-        zeroconf = Zeroconf()
+        zeroconf = zeroconf_instance or Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
         while not time.time() > start_time + 3 and self._local_ip is None:
-            for mdns_name in zeroconf.cache.entries():
-                self._try_local_connection(mdns_name)
-            else:
-                time.sleep(0.05)
+            time.sleep(0.05)
+
         Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()
-        Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()
+        if not zeroconf_instance:
+            Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()
+
         return self._local_ip
 
     def get_local_session(self):
@@ -97,20 +102,16 @@ class Mprm(MprmWebsocket):
     def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
         """ Service handler for Zeroconf state changes. """
         if state_change is ServiceStateChange.Added:
-            zeroconf.get_service_info(service_type, name)
+            service_info = zeroconf.get_service_info(service_type, name)
+            if service_info.server.startswith("devolo-homecontrol"):
+                self._try_local_connection(service_info.addresses)
 
-    def _try_local_connection(self, mdns_name: DNSRecord):
+    def _try_local_connection(self, addresses: list):
         """ Try to connect to an mDNS hostname. If connection was successful, save local IP address. """
-        try:
-            ip = socket.inet_ntoa(mdns_name.address)
-            if mdns_name.key.startswith("devolo-homecontrol") and \
-                requests.get("http://" + ip + "/dhlp/port/full",
-                             auth=(self.gateway.local_user, self.gateway.local_passkey),
-                             timeout=0.5).status_code == requests.codes.ok:
+        for address in addresses:
+            ip = socket.inet_ntoa(address)
+            if requests.get("http://" + ip + "/dhlp/port/full",
+                            auth=(self.gateway.local_user, self.gateway.local_passkey),
+                            timeout=0.5).status_code == requests.codes.ok:
                 self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                 self._local_ip = ip
-        except (OSError, AttributeError):
-            # OSError: Got IPv6 address which isn't supported by socket.inet_ntoa and the gateway as well.
-            # AttributeError: The MDNS entry does not provide address information
-            # TODO: We can somehow delete the ip in zeroconf, because if we can't connect once, we won't connect at second try
-            pass

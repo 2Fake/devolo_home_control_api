@@ -70,12 +70,12 @@ class TestHomeControl:
         assert hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
 
     def test__binary_switch(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
+        device = self.devices['mains']['uid']
         del self.homecontrol.devices[device].binary_switch_property
-        assert not hasattr(self.homecontrol.devices.get(device), "binary_switch_property")
-        self.homecontrol._binary_switch({"UID": "devolo.BinarySwitch:hdm:ZWave:F6BF9812/2", "properties": {"state": 1}})
-        assert hasattr(self.homecontrol.devices.get(device), "binary_switch_property")
+        assert not hasattr(self.homecontrol.devices[device], "binary_switch_property")
+        self.homecontrol._binary_switch({"UID": self.devices['mains']['properties']['elementUIDs'][1],
+                                         "properties": self.devices['mains']['properties']})
+        assert hasattr(self.homecontrol.devices[device], "binary_switch_property")
 
     def test__consumption(self):
         # TODO: Use test data

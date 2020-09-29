@@ -70,4 +70,4 @@ class Zwave:
 
         :return: False, if device is offline, else True
         """
-        return False if self.status == 1 else True
+        return self.status != 1

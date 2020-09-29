@@ -5,21 +5,6 @@ from datetime import datetime, timezone
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
-    def test_update_binary_switch_state_group(self, fill_device_data):
-        try:
-            self.homecontrol.updater.update_binary_switch_state(element_uid="devolo.BinarySwitch:devolo.smartGroup.1",
-                                                                value=True)
-            assert True
-        except KeyError:
-            assert False
-
-    def test_update_multi_level_switch_state_group(self, fill_device_data):
-        try:
-            self.homecontrol.updater.update_multi_level_switch(element_uid="devolo.MultiLevelSwitch:devolo.smartGroup.1",
-                                                               value=True)
-            assert True
-        except KeyError:
-            assert False
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
@@ -119,12 +104,12 @@ class TestUpdater:
         self.homecontrol.updater._device_change({})
         spy.assert_called_once_with("on_device_change is not set.")
 
-    def test__device_online_state(self):
+    def test__device_state(self):
         uid = self.devices.get("mains").get("uid")
         online_state = self.homecontrol.devices.get(uid).status
-        self.homecontrol.updater._device_online_state(message={"properties": {"uid": uid,
-                                                                              "property.name": "status",
-                                                                              "property.value.new": 1}})
+        self.homecontrol.updater._device_state(message={"properties": {"uid": uid,
+                                                                       "property.name": "status",
+                                                                       "property.value.new": 1}})
         assert self.homecontrol.devices.get(uid).status == 1
         assert online_state != self.homecontrol.devices.get(uid).status
 
@@ -162,6 +147,15 @@ class TestUpdater:
                                                      [{"id": zone_id, "name": self.devices['mains']['properties']['zone']}]}})
         assert self.homecontrol.gateway.zones[zone_id] != name
         assert self.homecontrol.gateway.zones[zone_id] == self.devices['mains']['properties']['zone']
+
+    def test__gui_enabled(self):
+        uid = self.devices['mains']['uid']
+        element_uids = self.devices['mains']['properties']['elementUIDs']
+        enabled = self.devices['mains']['properties']['guiEnabled']
+        self.homecontrol.devices[uid].binary_switch_property[element_uids[1]].enabled = enabled
+        self.homecontrol.updater._gui_enabled(message={"uid": element_uids[0],
+                                                       "property.value.new": not enabled})
+        assert self.homecontrol.devices[uid].binary_switch_property[element_uids[1]].enabled != enabled
 
     def test__humidity_bar(self):
         uid = self.devices.get("humidity").get("uid")
@@ -215,16 +209,14 @@ class TestUpdater:
             .get(f"devolo.Meter:{uid}").current == current_new
 
     def test__multi_level_sensor(self):
-        uid = self.devices.get("sensor").get("uid")
-        self.homecontrol.devices.get(uid).multi_level_sensor_property \
-            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value = 100
-        current = self.homecontrol.devices.get(uid).multi_level_sensor_property \
-            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        uid = self.devices['sensor']['uid']
+        element_uid = f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)"
+        self.homecontrol.devices[uid].multi_level_sensor_property[element_uid].value = 100
+        current = self.homecontrol.devices[uid].multi_level_sensor_property[element_uid].value
         self.homecontrol.updater._multi_level_sensor(message={"properties":
-                                                     {"uid": f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)",
+                                                     {"uid": element_uid,
                                                       "property.value.new": 50}})
-        current_new = self.homecontrol.devices.get(uid).multi_level_sensor_property \
-            .get(f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)").value
+        current_new = self.homecontrol.devices[uid].multi_level_sensor_property[element_uid].value
 
         assert current_new == 50
         assert current != current_new
@@ -312,6 +304,16 @@ class TestUpdater:
         self.homecontrol.devices[uid].pending_operation = pending_operation
         self.homecontrol.updater._pending_operations(message={"properties":
                                                               {"uid": device['elementUIDs'][1],
+                                                               "property.value.new": {"status": 1}}})
+        assert not self.homecontrol.devices[uid].pending_operation
+
+    def test__pending_operations_setting(self):
+        device = self.devices['mains']
+        uid = device['uid']
+        pending_operation = device['properties']['pending_operations']
+        self.homecontrol.devices[uid].pending_operation = pending_operation
+        self.homecontrol.updater._pending_operations(message={"properties":
+                                                              {"uid": device['settingUIDs'][3],
                                                                "property.value.new": {"status": 1}}})
         assert not self.homecontrol.devices[uid].pending_operation
 

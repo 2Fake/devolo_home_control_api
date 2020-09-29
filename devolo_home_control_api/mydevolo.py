@@ -165,7 +165,7 @@ class Mydevolo:
         """
         if self._uuid is None:
             self._logger.debug("Getting UUID")
-            self._uuid = self._call(f"{self.url}/v1/users/uuid")['uuid']
+            self._uuid = self._call(f"{self.url.rstrip('/')}/v1/users/uuid")['uuid']
         return self._uuid
 
 

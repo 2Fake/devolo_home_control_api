@@ -1,9 +1,8 @@
 import pytest
+import zeroconf
 from requests.exceptions import ConnectTimeout
 
 from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
-
-from .mocks.mock_dnsrecord import MockDNSRecord
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -27,10 +26,10 @@ class TestMprm:
             self.mprm.gateway.external_access = False
             self.mprm.create_connection()
 
-    @pytest.mark.usefixtures("mock_mprm__try_local_connection")
-    @pytest.mark.usefixtures("mock_mprm_zeroconf_cache_entries")
+    @pytest.mark.usefixtures("mock_mprm_service_browser")
     def test_detect_gateway_in_lan(self):
-        assert self.mprm.detect_gateway_in_lan() == self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway.get("local_ip")
+        assert self.mprm.detect_gateway_in_lan("zeroconf") == self.gateway.get("local_ip")
 
     @pytest.mark.usefixtures("mock_session_get")
     @pytest.mark.usefixtures("mock_response_json")
@@ -59,11 +58,17 @@ class TestMprm:
         with pytest.raises(GatewayOfflineError):
             self.mprm.get_remote_session()
 
+    @pytest.mark.usefixtures("mock_mprm_service_browser")
+    @pytest.mark.usefixtures("mock_mprm__try_local_connection")
+    def test__on_service_state_change(self):
+        zc = zeroconf.Zeroconf()
+        service_type = "_http._tcp.local."
+        self.mprm._on_service_state_change(zc, service_type, service_type, zeroconf.ServiceStateChange.Added)
+        assert self.mprm._local_ip == self.gateway.get("local_ip")
+
     @pytest.mark.usefixtures("mock_socket_inet_ntoa")
     @pytest.mark.usefixtures("mock_response_valid")
     def test__try_local_connection_success(self, mprm_session):
-        mdns_name = MockDNSRecord()
-        mdns_name.address = self.gateway.get("local_ip")
         self.mprm._session = mprm_session
-        self.mprm._try_local_connection(mdns_name)
+        self.mprm._try_local_connection([self.gateway.get("local_ip")])
         assert self.mprm._local_ip == self.gateway.get("local_ip")

@@ -1,8 +1,8 @@
 import json
 
 import pytest
-import requests
 
+import requests
 from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
@@ -10,8 +10,10 @@ from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from ..mocks.mock_gateway import MockGateway
 from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
+from ..mocks.mock_service_browser import ServiceBrowser
 from ..mocks.mock_websocket import try_reconnect
 from ..mocks.mock_websocketapp import MockWebsocketapp
+from ..mocks.mock_zeroconf import Zeroconf
 
 
 @pytest.fixture()
@@ -21,16 +23,18 @@ def mock_mprm_get_local_session(mocker):
 
 
 @pytest.fixture()
-def mock_mprm_zeroconf_cache_entries(mocker):
-    """ Mock Zeroconf entries. """
-    mocker.patch("zeroconf.DNSCache.entries", return_value=[1])
+def mock_mprm_service_browser(mocker):
+    """ Mock Zeroconf ServiceBrowser. """
+    mocker.patch("zeroconf.ServiceBrowser.__init__", ServiceBrowser.__init__)
+    mocker.patch("zeroconf.ServiceBrowser.cancel", ServiceBrowser.cancel)
+    mocker.patch("zeroconf.Zeroconf.get_service_info", Zeroconf.get_service_info)
 
 
 @pytest.fixture()
 def mock_mprm__detect_gateway_in_lan(mocker, request):
     """ Mock detecting a gateway in the local area network to speed up tests. """
     if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
-        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=None)
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=request.cls.gateway['local_ip'])
 
 
 @pytest.fixture()
