@@ -72,6 +72,9 @@ class Updater:
                 and message['properties']['property.name'] == "pendingOperations" \
                 and "smartGroup" not in message["properties"]["uid"]:
             self._pending_operations(message)
+        elif "property.name" in message["properties"] \
+                and message['properties']['property.name'] == "operationStatus":
+            pass
         else:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
 
@@ -260,7 +263,7 @@ class Updater:
     def _multi_level_switch(self, message: dict):
         """ Update a multi level switch. """
         if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))) \
-                or "smartGroup" not in message["properties"]["uid"]:
+                or "smartGroup" not in message['properties']['uid']:
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_element_uid(element_uid)
