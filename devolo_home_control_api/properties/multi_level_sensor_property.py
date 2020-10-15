@@ -25,7 +25,6 @@ class MultiLevelSensorProperty(SensorProperty):
     def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.DewpointSensor:",
                                        "devolo.MultiLevelSensor:",
-                                       "devolo.SirenMultiLevelSensor:",
                                        "devolo.ValveTemperatureSensor",
                                        "devolo.VoltageMultiLevelSensor:")):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")

@@ -26,13 +26,6 @@ def siren(device_uid: str) -> Zwave:
     gateway = MockGateway(test_data['gateway']['id'])
     session = requests.Session()
 
-    device.binary_sensor_property = {}
-    device.binary_sensor_property[f'devolo.SirenBinarySensor:{device_uid}'] = \
-        BinarySensorProperty(gateway=gateway,
-                             session=session,
-                             element_uid=f"devolo.SirenBinarySensor:{device_uid}",
-                             state=test_data['devices']['siren']['state'])
-
     device.multi_level_switch_property = {}
     device.multi_level_switch_property[f'devolo.SirenMultiLevelSwitch:{device_uid}'] = \
         MultiLevelSwitchProperty(gateway=gateway,

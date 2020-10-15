@@ -42,6 +42,18 @@ class MultiLevelSwitchProperty(Property):
 
 
     @property
+    def last_activity(self) -> datetime:
+        """ Date and time the state of the multi level switch was last updated. """
+        return super().last_activity
+
+    @last_activity.setter
+    def last_activity(self, timestamp: int):
+        """ The gateway persists the last activity of some multi level switchs. They can be initialized with that value. """
+        if timestamp != -1:
+            self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
+            self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
+
+    @property
     def unit(self) -> Optional[str]:
         """ Human readable unit of the property. Defaults to percent. """
         units = {"temperature": "°C",

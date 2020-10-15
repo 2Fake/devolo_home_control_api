@@ -212,8 +212,6 @@ class HomeControl(Mprm):
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
                     "devolo.RemoteControl": self._remote_control,
-                    "devolo.SirenBinarySensor": self._binary_sensor,
-                    "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.ShutterMovementFI": self._binary_sensor,
                     "devolo.ValveTemperatureSensor": self._multi_level_sensor,
@@ -306,9 +304,9 @@ class HomeControl(Mprm):
         try:
             self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
                 uid_info['properties']['lastActivityTime']
-        except KeyError:
-            parent_element_uid = uid_info['UID'].replace("LastActivity", "SirenBinarySensor")
-            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+        except AttributeError:
+            parent_element_uid = uid_info['UID'].replace("LastActivity", "SirenMultiLevelSwitch")
+            self.devices[device_uid].multi_level_switch_property[parent_element_uid].last_activity = \
                 uid_info['properties']['lastActivityTime']
 
     def _led(self, uid_info: dict):
@@ -479,6 +477,6 @@ class HomeControl(Mprm):
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
-        ignore = ("ss", "mcs")
+        ignore = ("devolo.SirenBinarySensor", "devolo.SirenMultiLevelSensor", "ss", "mcs")
         if not uid_info['UID'].startswith(ignore):
             self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")
