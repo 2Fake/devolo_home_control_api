@@ -68,13 +68,16 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_state}
 
+        unwanted_properties = [".unregistering", "operationStatus"]
+
+        # Early return on unwanted messages
+        if "UNREGISTERED" in message['topic'] or message['properties']['property.name'] in unwanted_properties:
+            return
+
         if "property.name" in message["properties"] \
                 and message['properties']['property.name'] == "pendingOperations" \
                 and "smartGroup" not in message["properties"]["uid"]:
             self._pending_operations(message)
-        elif "property.name" in message["properties"] \
-                and message['properties']['property.name'] == "operationStatus":
-            pass
         else:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
 
@@ -142,7 +145,7 @@ class Updater:
         element_uid = message['properties']['uid']
 
         # Early return on useless messages
-        if element_uid == "devolo.PairDevice":
+        if element_uid == "devolo.PairDevice" or element_uid == "devolo.RemoveDevice":
             return
 
         pending_operations = bool(message['properties'].get('property.value.new'))
@@ -168,7 +171,8 @@ class Updater:
             return
         if type(message['properties']['property.value.new']) == list \
            and message['properties']['uid'] == "devolo.DevicesPage":
-            self.on_device_change(uids=message['properties']['property.value.new'])
+            device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
+            self._publisher.dispatch(device_uid, (device_uid, mode))
 
     def _device_state(self, message: dict):
         """ Update the device state. """
@@ -176,9 +180,11 @@ class Updater:
                         "batteryLow": "battery_low",
                         "status": "status"}
         
-        name = message['properties']['property.name']
         device_uid = message['properties']['uid']
-        value = message['properties']['property.value.new']
+
+        name = message['properties'].get("property.name")
+        value = message['properties'].get("property.value.new")
+
         try:
             self._logger.debug(f"Updating {propery_name[name]} of {device_uid} to {value}")
             setattr(self.devices[device_uid], propery_name[name], value)
@@ -374,6 +380,7 @@ class Updater:
                   "devolo.mprm.gw.GatewayManager",
                   "devolo.mprm.gw.PortalManager",
                   "devolo.smartGroup",
+                  "hdm",
                   "ss",
                   "mcs")
         if not message["properties"]["uid"].startswith(ignore):
