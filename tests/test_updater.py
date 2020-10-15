@@ -8,14 +8,16 @@ class TestUpdater:
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
-        message = {"properties": {"property.name": "state", "uid": f"devolo.BinarySwitch:{self.devices['mains']['uid']}"}}
+        message = {"topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+                   "properties": {"property.name": "state", "uid": f"devolo.BinarySwitch:{self.devices['mains']['uid']}"}}
         spy = mocker.spy(self.homecontrol.updater, '_binary_switch')
         self.homecontrol.updater.update(message=message)
         spy.assert_called_once_with(message)
 
     @pytest.mark.usefixtures("mock_updater_pending_operations")
     def test_update_pending_operations(self, mocker):
-        message = {"properties": {"property.name": "pendingOperations",
+        message = {"topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+                   "properties": {"property.name": "pendingOperations",
                                   "uid": ""}}
         spy = mocker.spy(self.homecontrol.updater, '_pending_operations')
         self.homecontrol.updater.update(message=message)
@@ -89,14 +91,10 @@ class TestUpdater:
         assert state != state_new
 
     def test__device_change(self):
-        self.homecontrol.updater.on_device_change = lambda uids: AssertionError()
-        try:
-            self.homecontrol.updater._device_change(message={"properties":
-                                                    {"uid": "devolo.DevicesPage",
-                                                     "property.value.new": []}})
-            assert False
-        except AssertionError:
-            assert True
+        self.homecontrol.updater.on_device_change = lambda device_uids: ("test", "test")
+        self.homecontrol.updater._device_change(message={"properties":
+                                                         {"uid": "devolo.DevicesPage",
+                                                          "property.value.new": []}})
 
     def test__device_change_error(self, mocker):
         self.homecontrol.updater.on_device_change = None

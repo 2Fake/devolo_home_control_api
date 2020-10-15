@@ -106,15 +106,18 @@ class HomeControl(Mprm):
         :param device_uids: List of UIDs known by the backend
         """
         if len(device_uids) > len(self.devices):
-            new_device = [device for device in device_uids if device not in self.devices]
-            self._logger.debug(f"New device found {new_device}")
-            self._inspect_devices([new_device[0]])
+            devices = [device for device in device_uids if device not in self.devices]
+            mode = "add"
+            self._logger.debug(f"New device found {devices[0]}")
+            self._inspect_devices([devices[0]])
             self.publisher = Publisher([device for device in self.devices])
         else:
             devices = [device for device in self.devices if device not in device_uids]
-            self._logger.debug(f"Device {devices} removed")
+            mode = "del"
+            self._logger.debug(f"Device {devices[0]} removed")
             del self.devices[devices[0]]
         self.updater.devices = self.devices
+        return (devices[0], mode)
 
     def on_update(self, message):
         """
@@ -160,10 +163,10 @@ class HomeControl(Mprm):
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
                              element_uid=uid_info['UID'],
-                             events_enabled=uid_info['properties']['settings']['eventsEnabled'],
-                             name=uid_info['properties']['settings']['name'],
-                             zone_id=uid_info['properties']['settings']['zoneID'],
-                             icon=uid_info['properties']['settings']['icon'])
+                             events_enabled=uid_info['properties']['settings'].get('eventsEnabled'),
+                             name=uid_info['properties']['settings'].get('name'),
+                             zone_id=uid_info['properties']['settings'].get('zoneID'),
+                             icon=uid_info['properties']['settings'].get('icon'))
 
     def _humidity_bar(self, uid_info: dict):
         """
