@@ -177,7 +177,7 @@ class Updater:
         propery_name = {"batteryLevel": "battery_level",
                         "batteryLow": "battery_low",
                         "status": "status"}
-        
+
         device_uid = message['properties']['uid']
 
         name = message['properties'].get("property.name")

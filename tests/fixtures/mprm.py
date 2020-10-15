@@ -34,7 +34,8 @@ def mock_mprm_service_browser(mocker):
 def mock_mprm__detect_gateway_in_lan(mocker, request):
     """ Mock detecting a gateway in the local area network to speed up tests. """
     if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
-        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=request.cls.gateway['local_ip'])
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan",
+                     return_value=request.cls.gateway['local_ip'])
 
 
 @pytest.fixture()
