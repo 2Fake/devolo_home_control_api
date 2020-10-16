@@ -92,9 +92,9 @@ class MprmWebsocket(MprmRest):
         """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
 
-    def _on_error(self, error: str):
+    def _on_error(self, error: Exception):
         """ Callback method to react on errors. We will try reconnecting with prolonging intervals. """
-        self._logger.error(error)
+        self._logger.exception(error)
         self._connected = False
         self._reachable = False
         self._ws.close()

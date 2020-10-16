@@ -13,6 +13,14 @@ class Publisher:
         self._events = {event: dict() for event in events}
 
 
+    def add_event(self, event: str):
+        """ Add a new event to listen to. """
+        self._events[event] = {}
+
+    def delete_event(self, event: str):
+        """ Delete a not longer needed event. """
+        self._events.pop(event)
+
     def dispatch(self, event: str, message: tuple):
         """ Dispatch the message to the subscribers. """
         for callback in self._get_subscribers_for_specific_event(event).values():

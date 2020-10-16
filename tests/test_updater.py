@@ -23,6 +23,12 @@ class TestUpdater:
         self.homecontrol.updater.update(message=message)
         spy.assert_called_once_with(message)
 
+    def test_update_unwanted(self, mocker):
+        message = {"topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED"}
+        spy = mocker.spy(self.homecontrol.updater, '_unknown')
+        self.homecontrol.updater.update(message=message)
+        spy.assert_not_called()
+
     def test__automatic_calibration(self):
         uid = self.devices['blinds']['uid']
         calibration_status = self.devices['blinds']['calibrationStatus']
@@ -89,12 +95,6 @@ class TestUpdater:
         state_new = self.homecontrol.devices.get(uid).binary_switch_property \
             .get(f"devolo.BinarySwitch:{uid}").state
         assert state != state_new
-
-    def test__device_change(self):
-        self.homecontrol.updater.on_device_change = lambda device_uids: ("test", "test")
-        self.homecontrol.updater._device_change(message={"properties":
-                                                         {"uid": "devolo.DevicesPage",
-                                                          "property.value.new": []}})
 
     def test__device_change_error(self, mocker):
         self.homecontrol.updater.on_device_change = None
@@ -314,6 +314,12 @@ class TestUpdater:
                                                               {"uid": device['settingUIDs'][3],
                                                                "property.value.new": {"status": 1}}})
         assert not self.homecontrol.devices[uid].pending_operation
+
+    def test__pending_operations_useless(self, mocker):
+        spy = mocker.spy(self.homecontrol.updater._publisher, 'dispatch')
+        self.homecontrol.updater._pending_operations(message={"properties":
+                                                              {"uid": "devolo.PairDevice"}})
+        spy.assert_not_called()
 
     def test__protection_local(self):
         device = self.devices['mains']
