@@ -83,7 +83,7 @@ class MprmWebsocket(MprmRest):
         Close the websocket connection.
         """
         self._logger.info("Closing web socket connection.")
-        if event:
+        if event != "":
             self._logger.info(f"Reason: {event}")
         self._ws.close()
 
