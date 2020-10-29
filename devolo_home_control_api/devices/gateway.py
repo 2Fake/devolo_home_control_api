@@ -44,7 +44,7 @@ class Gateway:
 
         :param online: Detected state of the gateway
         """
-        if not online:
+        if online is None:
             details = self._mydevolo.get_gateway(self.id)
             self._update_state(status=details.get("status"), state=details.get("state"))
         else:
