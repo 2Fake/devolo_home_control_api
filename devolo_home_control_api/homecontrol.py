@@ -12,7 +12,7 @@ from .helper.string import camel_case_to_snake_case
 from .helper.uid import (get_device_type_from_element_uid,
                          get_device_uid_from_element_uid,
                          get_device_uid_from_setting_uid,
-                         get_home_id_from_device_uid,)
+                         get_home_id_from_device_uid)
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty

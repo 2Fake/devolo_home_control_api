@@ -34,6 +34,7 @@ class Gateway:
         self.sync = False
 
         self.zones = {}
+        self.home_id = ""
 
         self._update_state(status=details.get("status"), state=details.get("state"))
 
@@ -54,5 +55,5 @@ class Gateway:
 
     def _update_state(self, status: str, state: str):
         """ Helper to update the state. """
-        self.online = True if status == "devolo.hc_gateway.status.online" else False
-        self.sync = True if state == "devolo.hc_gateway.state.idle" else False
+        self.online = status == "devolo.hc_gateway.status.online"
+        self.sync = state == "devolo.hc_gateway.state.idle"

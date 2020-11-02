@@ -47,6 +47,7 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
     """
     return element_uid.split(":")[0]
 
+
 def get_home_id_from_device_uid(device_uid: str) -> str:
     """
     Return the home id of the given device UID
