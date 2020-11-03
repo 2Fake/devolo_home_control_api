@@ -69,11 +69,9 @@ class Updater:
         unwanted_properties = [".unregistering", "operationStatus"]
 
         # Early return on unwanted messages
-        if "UNREGISTERED" in message['topic'] or message['properties']['property.name'] in unwanted_properties:
-            return
-
-        # Early return on smart group messages
-        if "smartGroup" in message['properties']['uid']:
+        if "UNREGISTERED" in message['topic'] or \
+                message['properties']['property.name'] in unwanted_properties or \
+                "smartGroup" in message['properties']['uid']:
             return
 
         # Handle pending operations messages
