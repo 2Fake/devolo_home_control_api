@@ -72,10 +72,12 @@ class Updater:
         if "UNREGISTERED" in message['topic'] or message['properties']['property.name'] in unwanted_properties:
             return
 
+        # Early return on smart group messages
+        if "smartGroup" in message['properties']['uid']:
+            return
+
         # Handle pending operations messages
-        if "property.name" in message["properties"] \
-                and message['properties']['property.name'] == "pendingOperations" \
-                and "smartGroup" not in message["properties"]["uid"]:
+        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations":
             self._pending_operations(message)
             return
 
@@ -136,8 +138,7 @@ class Updater:
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
         if message['properties']['property.name'] == "targetState" and \
-                message['properties']['property.value.new'] is not None and \
-                "smartGroup" not in message["properties"]["uid"]:
+                message['properties']['property.value.new'] is not None:
             element_uid = message['properties']['uid']
             value = bool(message['properties']['property.value.new'])
             device_uid = get_device_uid_from_element_uid(element_uid)
@@ -280,8 +281,7 @@ class Updater:
 
     def _multi_level_switch(self, message: dict):
         """ Update a multi level switch. """
-        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))) \
-                or "smartGroup" not in message['properties']['uid']:
+        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))):
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_element_uid(element_uid)
@@ -393,7 +393,6 @@ class Updater:
                   "devolo.SirenMultiLevelSensor",
                   "devolo.mprm.gw.GatewayManager",
                   "devolo.mprm.gw.PortalManager",
-                  "devolo.smartGroup",
                   "hdm",
                   "ss",
                   "mcs")

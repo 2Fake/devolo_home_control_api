@@ -29,6 +29,20 @@ class TestUpdater:
         self.homecontrol.updater.update(message=message)
         spy.assert_not_called()
 
+    def test_update_smart_group(self, mocker):
+        message = {"topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+                   "properties": {"uid": "devolo.MultiLevelSwitch:devolo.smartGroup.Group",
+                                  "property.name": "value"}}
+        spy = mocker.spy(self.homecontrol.updater, '_multi_level_switch')
+        self.homecontrol.updater.update(message=message)
+        spy.assert_not_called()
+        message = {"topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+                   "properties": {"uid": "devolo.BinarySwitch:devolo.smartGroup.Group",
+                                  "property.name": "value"}}
+        spy = mocker.spy(self.homecontrol.updater, '_binary_switch')
+        self.homecontrol.updater.update(message=message)
+        spy.assert_not_called()
+
     def test__automatic_calibration(self):
         uid = self.devices['blinds']['uid']
         calibration_status = self.devices['blinds']['calibrationStatus']

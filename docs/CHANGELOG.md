@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Removed devices are now announced via Publisher
+- The gateway object contains the Z-Wave home_id
 
 ### Changed
 
@@ -19,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - operationStatus messages were misinterpreted as new state
+- pendingOperations of smart groups were misinterpreted as new values for devices
 
 ## [v0.15.0] - 2020/09/29
 
