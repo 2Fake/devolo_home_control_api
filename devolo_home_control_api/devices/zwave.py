@@ -10,11 +10,13 @@ class Zwave:
     Representing object for Z-Wave devices. Basically, everything can be stored in here. This is to be as flexible to gateway
     firmware changes as possible. So if new attributes appear or old ones are removed, they should be handled at least in
     reading them. Nevertheless, a few unwanted attributes are filtered.
+
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, mydevolo_instance: Mydevolo, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._mydevolo = Mydevolo.get_instance()
+        self._mydevolo = mydevolo_instance
 
         unwanted_value = ["icon", "itemName", "operationStatus", "zone", "zoneId"]
         for value in unwanted_value:

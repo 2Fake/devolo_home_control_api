@@ -3,6 +3,7 @@ import pathlib
 
 import requests
 
+from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_sensor_property import BinarySensorProperty
 from devolo_home_control_api.properties.humidity_bar_property import HumidityBarProperty
@@ -23,8 +24,9 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
     with file.open("r") as fh:
         test_data = json.load(fh)
 
-    device = Zwave(**test_data.get("devices").get("humidity"))
-    gateway = MockGateway(test_data.get("gateway").get("id"))
+    mydevolo = Mydevolo()
+    device = Zwave(mydevolo_instance=mydevolo, **test_data.get("devices").get("humidity"))
+    gateway = MockGateway(test_data.get("gateway").get("id"), mydevolo=mydevolo)
     session = requests.Session()
 
     device.binary_sensor_property = {}
@@ -36,6 +38,7 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
     device.multi_level_sensor_property[element_uid] = \
         MultiLevelSensorProperty(gateway=gateway,
                                  session=session,
+                                 mydevolo=mydevolo,
                                  element_uid=element_uid,
                                  value=test_data.get("devices").get("humidity").get("dewpoint"))
 
@@ -43,6 +46,7 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
     device.binary_sensor_property[element_uid] = \
         BinarySensorProperty(gateway=gateway,
                              session=session,
+                             mydevolo=mydevolo,
                              element_uid=element_uid,
                              state=test_data.get("devices").get("humidity").get("mildew"))
 
@@ -50,6 +54,7 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
     device.humidity_bar_property[element_uid] = \
         HumidityBarProperty(gateway=gateway,
                             session=session,
+                            mydevolo=mydevolo,
                             element_uid=element_uid,
                             zone=test_data.get("devices").get("humidity").get("zone"),
                             value=test_data.get("devices").get("humidity").get("value"))
@@ -57,6 +62,7 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
     device.settings_property["general_device_settings"] = \
         SettingsProperty(gateway=gateway,
                          session=session,
+                         mydevolo=mydevolo,
                          element_uid=f'gds.{test_data.get("devices").get("humidity").get("uid")}',
                          icon=test_data.get("devices").get("humidity").get("icon"),
                          name=test_data.get("devices").get("humidity").get("itemName"),

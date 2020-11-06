@@ -5,6 +5,7 @@ from requests import Session
 
 from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
+from ..mydevolo import Mydevolo
 from .property import Property
 
 
@@ -14,17 +15,18 @@ class ConsumptionProperty(Property):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
+    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
     :key current: Consumption value valid at time of creating the instance
     :key total: Total consumption since last reset
     :key total_since: Timestamp in milliseconds of last reset
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session: Session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid)
         self._current = kwargs.get("current", 0.0)
         self.current_unit = "W"
         self._total = kwargs.get("total", 0.0)

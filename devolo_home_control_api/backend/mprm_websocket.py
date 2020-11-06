@@ -7,6 +7,7 @@ from requests import ConnectionError
 from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
+from ..mydevolo import Mydevolo
 from .mprm_rest import MprmRest
 
 
@@ -19,11 +20,13 @@ class MprmWebsocket(MprmRest):
 
     The websocket connection itself runs in a thread, that might not terminate as expected. Using a with-statement is
     recommended.
+
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self):
-        super().__init__()
-        self._ws = None
+    def __init__(self, mydevolo_instance: Mydevolo):
+        super().__init__(mydevolo_instance)
+        self._ws: websocket.WebSocketApp = None
         self._connected = False     # This attribute saves, if the websocket is fully established
         self._reachable = True      # This attribute saves, if the a new session can be established
         self._event_sequence = 0

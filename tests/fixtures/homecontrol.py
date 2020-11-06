@@ -11,7 +11,7 @@ def home_control_instance(request, mydevolo, mock_gateway, mock_mprmwebsocket_we
                           mock_inspect_devices_metering_plug, mock_mprmrest_get_all_zones, mock_mprm__detect_gateway_in_lan,
                           mock_mprmwebsocket_get_remote_session):
     """ Create a mocked Home Control instance with static test data. """
-    request.cls.homecontrol = HomeControl(request.cls.gateway.get("id"))
+    request.cls.homecontrol = HomeControl(request.cls.gateway.get("id"), mydevolo_instance=mydevolo)
 
 
 @pytest.fixture()

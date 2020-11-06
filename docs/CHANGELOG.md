@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **BREAKING**: The siren now contains only a multi level switch to turn on a certain sound. The other properties moved to settings.
+- Mydevolo is no longer a singleton
 
 ## [v0.15.1] - 2020/10/13
 

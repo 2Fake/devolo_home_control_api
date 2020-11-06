@@ -10,6 +10,7 @@ import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..exceptions.gateway import GatewayOfflineError
+from ..mydevolo import Mydevolo
 from .mprm_websocket import MprmWebsocket
 
 
@@ -18,11 +19,12 @@ class Mprm(MprmWebsocket):
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
 
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     :param zeroconf_instance: Zeroconf instance to be potentially reused
     """
 
-    def __init__(self, zeroconf_instance: Optional[Zeroconf]):
-        super().__init__()
+    def __init__(self, mydevolo_instance: Mydevolo, zeroconf_instance: Optional[Zeroconf]):
+        super().__init__(mydevolo_instance)
 
         self.detect_gateway_in_lan(zeroconf_instance)
         self.create_connection()
@@ -54,7 +56,7 @@ class Mprm(MprmWebsocket):
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
-        while not time.time() > start_time + 3 and self._local_ip is None:
+        while not time.time() > start_time + 3 and self._local_ip == "":
             time.sleep(0.05)
 
         Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()

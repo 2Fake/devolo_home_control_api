@@ -3,6 +3,7 @@ from typing import Any
 from requests import Session
 
 from ..devices.gateway import Gateway
+from ..mydevolo import Mydevolo
 from .property import Property
 
 
@@ -12,6 +13,7 @@ class SensorProperty(Property):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
+    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Element UID
     :key sensor_type: Type of the sensor sensor, something like 'alarm'
     :type sensor_type: str
@@ -19,8 +21,8 @@ class SensorProperty(Property):
     :type sub_type: str
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
+    def __init__(self, gateway: Gateway, session: Session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
+        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid)
 
         self.sensor_type = kwargs.get("sensor_type", "")
         self.sub_type = kwargs.get("sub_type", "")

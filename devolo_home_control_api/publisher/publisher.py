@@ -1,6 +1,5 @@
-from typing import Callable
+from typing import Callable, Dict
 import logging
-
 
 
 class Publisher:
@@ -10,7 +9,7 @@ class Publisher:
 
     def __init__(self, events: list):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._events = {event: dict() for event in events}
+        self._events: Dict = {event: dict() for event in events}
 
 
     def add_event(self, event: str):

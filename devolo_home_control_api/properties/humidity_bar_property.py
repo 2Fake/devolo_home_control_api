@@ -5,6 +5,7 @@ from requests import Session
 
 from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
+from ..mydevolo import Mydevolo
 from .sensor_property import SensorProperty
 
 
@@ -14,6 +15,7 @@ class HumidityBarProperty(SensorProperty):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
+    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Fake element UID, something like devolo.HumidityBar:hdm:ZWave:CBC56091/24
     :key value: Position inside a zone
     :type value: int
@@ -21,14 +23,14 @@ class HumidityBarProperty(SensorProperty):
     :type zone: int
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session: Session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.HumidityBar:"):
             raise WrongElementError(f"{element_uid} is not a humidity bar.")
 
         self._value = kwargs.get("value", 0)
         self.zone = kwargs.get("zone", 0)
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid, **kwargs)
+        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid, **kwargs)
 
 
     @property

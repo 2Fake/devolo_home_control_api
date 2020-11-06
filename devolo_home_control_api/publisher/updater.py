@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Callable, Optional
 
 from ..devices.gateway import Gateway
 from ..helper.string import camel_case_to_snake_case
@@ -23,7 +24,7 @@ class Updater:
         self._publisher = publisher
 
         self.devices = devices
-        self.on_device_change = None
+        self.on_device_change: Optional[Callable] = None
 
 
     def update(self, message: dict):

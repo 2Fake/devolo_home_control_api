@@ -3,6 +3,7 @@ from typing import Any
 
 from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
+from ..mydevolo import Mydevolo
 from .property import Property
 
 
@@ -13,6 +14,7 @@ class RemoteControlProperty(Property):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
+    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
     :key key_count: Number of buttons this remote control has
     :type key_count: int
@@ -20,11 +22,11 @@ class RemoteControlProperty(Property):
     :type key_pressed: int
     """
 
-    def __init__(self, gateway: Gateway, session, element_uid: str, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(f"{element_uid} is not a remote control.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid)
 
         self._key_pressed = kwargs.get("key_pressed", 0)
         self.key_count = kwargs.get("key_count", 0)

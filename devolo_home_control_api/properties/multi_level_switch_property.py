@@ -6,6 +6,7 @@ from requests import Session
 from .property import Property
 from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
+from ..mydevolo import Mydevolo
 
 
 class MultiLevelSwitchProperty(Property):
@@ -15,6 +16,7 @@ class MultiLevelSwitchProperty(Property):
 
     :param gateway: Instance of a Gateway object
     :param session: Instance of a requests.Session object
+    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Element UID, something like devolo.Dimmer:hdm:ZWave:CBC56091/24#2
     :key value: Value the multi level switch has at time of creating this instance
     :type value: float
@@ -26,14 +28,14 @@ class MultiLevelSwitchProperty(Property):
     :type min: float
     """
 
-    def __init__(self, gateway: Gateway, session: Session, element_uid: str, **kwargs: Any):
+    def __init__(self, gateway: Gateway, session: Session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.Blinds:",
                                        "devolo.Dimmer:",
                                        "devolo.MultiLevelSwitch:",
                                        "devolo.SirenMultiLevelSwitch:")):
             raise WrongElementError(f"{element_uid} is not a multi level switch.")
 
-        super().__init__(gateway=gateway, session=session, element_uid=element_uid)
+        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid)
 
         self._value = kwargs.get("value", 0.0)
         self.switch_type = kwargs.get("switch_type", "")
