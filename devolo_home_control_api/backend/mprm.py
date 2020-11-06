@@ -24,8 +24,6 @@ class Mprm(MprmWebsocket):
     def __init__(self, zeroconf_instance: Optional[Zeroconf]):
         super().__init__()
 
-        self._token_url = {}
-
         self.detect_gateway_in_lan(zeroconf_instance)
         self.create_connection()
 
@@ -74,9 +72,9 @@ class Mprm(MprmWebsocket):
         self._session.url = "http://" + self._local_ip
         self._logger.debug(f"Session URL set to '{self._session.url}'")
         try:
-            self._token_url = self._session.get(self._session.url + "/dhlp/portal/full",
-                                                auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
-            self._logger.debug(f"Got a token URL: {self._token_url}")
+            token_url = self._session.get(self._session.url + "/dhlp/portal/full",
+                                          auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
+            self._logger.debug(f"Got a token URL: {token_url}")
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
@@ -85,7 +83,7 @@ class Mprm(MprmWebsocket):
             self._logger.error("Timeout during connecting to the gateway.")
             self._logger.debug(sys.exc_info())
             raise
-        self._session.get(self._token_url.get('link'))
+        self._session.get(token_url['link'])
 
     def get_remote_session(self):
         """
