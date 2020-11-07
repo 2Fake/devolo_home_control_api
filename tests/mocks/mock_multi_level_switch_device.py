@@ -26,23 +26,24 @@ def multi_level_switch_device(device_uid: str) -> Zwave:
     device = Zwave(mydevolo_instance=mydevolo, **test_data.get("devices").get("multi_level_switch"))
     gateway = MockGateway(test_data.get("gateway").get("id"), mydevolo=mydevolo)
     session = requests.Session()
+    connection = {
+        "gateway": gateway,
+        "mydevolo": mydevolo,
+        "session": session
+    }
 
     device.multi_level_switch_property = {}
     device.settings_property = {}
 
     device.multi_level_switch_property[f'devolo.MultiLevelSwitch:{device_uid}'] = \
-        MultiLevelSwitchProperty(gateway=gateway,
-                                 session=session,
-                                 mydevolo=mydevolo,
+        MultiLevelSwitchProperty(connection=connection,
                                  element_uid=f"devolo.MultiLevelSwitch:{device_uid}",
                                  value=test_data.get("devices").get("multi_level_switch").get("value"),
                                  max=test_data.get("devices").get("multi_level_switch").get("max"),
                                  min=test_data.get("devices").get("multi_level_switch").get("min"))
 
     device.settings_property["general_device_settings"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'gds.{device_uid}',
                          icon=test_data.get("devices").get("multi_level_switch").get("icon"),
                          name=test_data.get("devices").get("multi_level_switch").get("itemName"),

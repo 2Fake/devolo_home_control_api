@@ -26,21 +26,22 @@ def dummy_device(key: str) -> Zwave:
     device = Zwave(mydevolo_instance=mydevolo, **test_data['devices'][key])
     gateway = MockGateway(test_data['gateway']['id'], mydevolo=mydevolo)
     session = requests.Session()
+    connection = {
+        "gateway": gateway,
+        "mydevolo": mydevolo,
+        "session": session
+    }
 
     device.binary_switch_property = {}
     device.binary_switch_property[f"devolo.BinarySwitch:{test_data['devices'][key]['uid']}"] = \
-        BinarySwitchProperty(gateway=gateway,
-                             session=session,
-                             mydevolo=mydevolo,
+        BinarySwitchProperty(connection=connection,
                              element_uid=f"devolo.BinarySwitch:{test_data['devices'][key]['uid']}",
                              state=test_data['devices'][key]['state'],
                              enabled=test_data['devices'][key]['guiEnabled'])
 
     device.settings_property = {}
     device.settings_property["general_device_settings"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f"gds.{test_data['devices'][key]['uid']}",
                          icon=test_data['devices'][key]['icon'],
                          name=test_data['devices'][key]['itemName'],

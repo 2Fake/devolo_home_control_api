@@ -6,11 +6,9 @@ from devolo_home_control_api.properties.binary_sensor_property import BinarySens
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestBinarySensorProperty:
-    def test_binary_sensor_property_invalid(self, gateway_instance, mprm_session, mydevolo):
+    def test_binary_sensor_property_invalid(self, connection):
         with pytest.raises(WrongElementError):
-            BinarySensorProperty(gateway=gateway_instance,
-                                 session=mprm_session,
-                                 mydevolo=mydevolo,
+            BinarySensorProperty(connection=connection,
                                  element_uid="invalid",
                                  state=True)
 

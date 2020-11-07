@@ -6,9 +6,9 @@ from devolo_home_control_api.properties.remote_control_property import RemoteCon
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestRemoteControlProperty:
-    def test_remote_control_property_invalid(self, gateway_instance, mprm_session, mydevolo):
+    def test_remote_control_property_invalid(self, connection):
         with pytest.raises(WrongElementError):
-            RemoteControlProperty(gateway=gateway_instance, session=mprm_session, mydevolo=mydevolo, element_uid="invalid")
+            RemoteControlProperty(connection=connection, element_uid="invalid")
 
     def test_set_invalid(self):
         with pytest.raises(ValueError):

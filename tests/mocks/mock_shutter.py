@@ -26,53 +26,46 @@ def shutter(device_uid: str) -> Zwave:
     device = Zwave(mydevolo_instance=mydevolo, **test_data['devices']['blinds'])
     gateway = MockGateway(test_data['gateway']['id'], mydevolo=mydevolo)
     session = requests.Session()
+    connection = {
+        "gateway": gateway,
+        "mydevolo": mydevolo,
+        "session": session
+    }
 
     device.multi_level_switch_property = {}
     device.settings_property = {}
 
     device.multi_level_switch_property[f'devolo.Blinds:{device_uid}'] = \
-        MultiLevelSwitchProperty(gateway=gateway,
-                                 session=session,
-                                 mydevolo=mydevolo,
+        MultiLevelSwitchProperty(connection=connection,
                                  element_uid=f"devolo.Blinds:{device_uid}",
                                  value=test_data['devices']['blinds']['value'],
                                  max=test_data['devices']['blinds']['max'],
                                  min=test_data['devices']['blinds']['min'])
 
     device.settings_property['i2'] = \
-        SettingsProperty(session=session,
-                         gateway=gateway,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f"bas.{device_uid}",
                          value=test_data['devices']['blinds']['i2'])
 
     device.settings_property["general_device_settings"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'gds.{device_uid}',
                          icon=test_data['devices']['blinds']['icon'],
                          name=test_data['devices']['blinds']['itemName'],
                          zone_id=test_data['devices']['blinds']['zoneId'])
 
     device.settings_property["automatic_calibration"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'acs.{device_uid}',
                          calibration_status=test_data['devices']['blinds']['calibrationStatus'] == 2)
 
     device.settings_property["movement_direction"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'bss.{device_uid}',
                          direction=not bool(test_data['devices']['blinds']['movement_direction']))
 
     device.settings_property["shutter_duration"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'mss.{device_uid}',
                          shutter_duration=test_data['devices']['blinds']['shutter_duration'])
 

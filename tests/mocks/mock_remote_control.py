@@ -26,22 +26,23 @@ def remote_control(device_uid: str) -> Zwave:
     device = Zwave(mydevolo_instance=mydevolo, **test_data['devices']['remote'])
     gateway = MockGateway(test_data['gateway']['id'], mydevolo=mydevolo)
     session = requests.Session()
+    connection = {
+        "gateway": gateway,
+        "mydevolo": mydevolo,
+        "session": session
+    }
 
     device.remote_control_property = {}
     device.settings_property = {}
 
     device.remote_control_property[f'devolo.RemoteControl:{device_uid}'] = \
-        RemoteControlProperty(gateway=gateway,
-                              session=session,
-                              mydevolo=mydevolo,
+        RemoteControlProperty(connection=connection,
                               element_uid=f'devolo.RemoteControl:{device_uid}',
                               key_count=test_data['devices']['remote']['key_count'],
                               key_pressed=0)
 
     device.settings_property["general_device_settings"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'gds.{device_uid}',
                          icon=test_data['devices']['remote']['icon'],
                          name=test_data['devices']['remote']['itemName'],
@@ -49,9 +50,7 @@ def remote_control(device_uid: str) -> Zwave:
 
 
     device.settings_property["switch_type"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'sts.{device_uid}',
                          value=test_data['devices']['remote']['key_count'])
 

@@ -12,17 +12,15 @@ class TestZwave:
     @pytest.mark.usefixtures("home_control_instance")
     @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
     @pytest.mark.usefixtures("mock_get_zwave_products")
-    def test_get_property(self, mydevolo):
-        device = Zwave(mydevolo_instance=mydevolo, **self.devices['mains']['properties'])
-        gateway = MockGateway(self.gateway['id'], mydevolo=mydevolo)
+    def test_get_property(self, connection):
+        device = Zwave(mydevolo_instance=connection['mydevolo'], **self.devices['mains']['properties'])
+        gateway = MockGateway(self.gateway['id'], mydevolo=connection['mydevolo'])
         session = requests.Session()
 
         device.binary_switch_property = {}
         element_uid = f"devolo.BinarySwitch:{self.devices['mains']['uid']}"
         device.binary_switch_property[element_uid] = \
-            BinarySwitchProperty(gateway=gateway,
-                                 session=session,
-                                 mydevolo=mydevolo,
+            BinarySwitchProperty(connection=connection,
                                  element_uid=element_uid,
                                  state=self.devices['mains']['properties']['state'],
                                  enabled=self.devices['mains']['properties']['guiEnabled'])

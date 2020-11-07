@@ -38,7 +38,7 @@ class Gateway:
         self.zones: Dict = {}
         self.home_id = ""
 
-        self._update_state(status=details.get("status"), state=details.get("state"))
+        self._update_state(status=details.get("status", ""), state=details.get("state", ""))
 
 
     def update_state(self, online: bool = None):
@@ -49,7 +49,7 @@ class Gateway:
         """
         if online is None:
             details = self._mydevolo.get_gateway(self.id)
-            self._update_state(status=details.get("status"), state=details.get("state"))
+            self._update_state(status=details.get("status", ""), state=details.get("state", ""))
         else:
             self.online = online
             self.sync = online

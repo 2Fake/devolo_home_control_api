@@ -28,6 +28,11 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
     device = Zwave(mydevolo_instance=mydevolo, **test_data.get("devices").get("humidity"))
     gateway = MockGateway(test_data.get("gateway").get("id"), mydevolo=mydevolo)
     session = requests.Session()
+    connection = {
+        "gateway": gateway,
+        "mydevolo": mydevolo,
+        "session": session
+    }
 
     device.binary_sensor_property = {}
     device.humidity_bar_property = {}
@@ -36,33 +41,25 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
 
     element_uid = f'devolo.DewpointSensor:{device_uid}'
     device.multi_level_sensor_property[element_uid] = \
-        MultiLevelSensorProperty(gateway=gateway,
-                                 session=session,
-                                 mydevolo=mydevolo,
+        MultiLevelSensorProperty(connection=connection,
                                  element_uid=element_uid,
                                  value=test_data.get("devices").get("humidity").get("dewpoint"))
 
     element_uid = f'devolo.MildewSensor:{device_uid}'
     device.binary_sensor_property[element_uid] = \
-        BinarySensorProperty(gateway=gateway,
-                             session=session,
-                             mydevolo=mydevolo,
+        BinarySensorProperty(connection=connection,
                              element_uid=element_uid,
                              state=test_data.get("devices").get("humidity").get("mildew"))
 
     element_uid = f'devolo.HumidityBar:{device_uid}'
     device.humidity_bar_property[element_uid] = \
-        HumidityBarProperty(gateway=gateway,
-                            session=session,
-                            mydevolo=mydevolo,
+        HumidityBarProperty(connection=connection,
                             element_uid=element_uid,
                             zone=test_data.get("devices").get("humidity").get("zone"),
                             value=test_data.get("devices").get("humidity").get("value"))
 
     device.settings_property["general_device_settings"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f'gds.{test_data.get("devices").get("humidity").get("uid")}',
                          icon=test_data.get("devices").get("humidity").get("icon"),
                          name=test_data.get("devices").get("humidity").get("itemName"),

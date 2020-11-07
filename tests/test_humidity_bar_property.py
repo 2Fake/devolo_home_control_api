@@ -6,9 +6,7 @@ from devolo_home_control_api.properties.humidity_bar_property import HumidityBar
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestHumidityBar:
-    def test_humidity_bar_property_invalid(self, gateway_instance, mprm_session, mydevolo):
+    def test_humidity_bar_property_invalid(self, connection):
         with pytest.raises(WrongElementError):
-            HumidityBarProperty(gateway=gateway_instance,
-                                session=mprm_session,
-                                mydevolo=mydevolo,
+            HumidityBarProperty(connection=connection,
                                 element_uid="invalid")

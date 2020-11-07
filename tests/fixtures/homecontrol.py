@@ -7,6 +7,16 @@ from ..mocks.mock_mprm_rest import mock_get_data_from_uid_list
 
 
 @pytest.fixture()
+def connection(gateway_instance, mprm_session, mydevolo):
+    """ Create a mocked connection dict. """
+    return {
+        "gateway": gateway_instance,
+        "session": mprm_session,
+        "mydevolo": mydevolo
+    }
+
+
+@pytest.fixture()
 def home_control_instance(request, mydevolo, mock_gateway, mock_mprmwebsocket_websocket_connection,
                           mock_inspect_devices_metering_plug, mock_mprmrest_get_all_zones, mock_mprm__detect_gateway_in_lan,
                           mock_mprmwebsocket_get_remote_session):

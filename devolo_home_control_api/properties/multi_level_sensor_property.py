@@ -1,11 +1,7 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict
 
-from requests import Session
-
-from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
-from ..mydevolo import Mydevolo
 from .sensor_property import SensorProperty
 
 
@@ -14,9 +10,7 @@ class MultiLevelSensorProperty(SensorProperty):
     Object for multi level sensors. It stores the multi level sensor state and additional information that help displaying the
     state in the right context.
 
-    :param gateway: Instance of a Gateway object
-    :param session: Instance of a requests.Session object
-    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
+    :param connection: Collection of instances needed to communicate with the central unit
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#MultilevelSensor(1)
     :key value: Multi level value
     :type value: float
@@ -24,14 +18,14 @@ class MultiLevelSensorProperty(SensorProperty):
     :type unit: int
     """
 
-    def __init__(self, gateway: Gateway, session: Session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
+    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.DewpointSensor:",
                                        "devolo.MultiLevelSensor:",
                                        "devolo.ValveTemperatureSensor",
                                        "devolo.VoltageMultiLevelSensor:")):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
 
-        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid, **kwargs)
+        super().__init__(connection=connection, element_uid=element_uid, **kwargs)
 
         self._value = kwargs.get("value", 0.0)
         self._unit = ""

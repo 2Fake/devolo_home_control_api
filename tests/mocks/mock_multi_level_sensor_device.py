@@ -27,6 +27,11 @@ def multi_level_sensor_device(device_uid: str) -> Zwave:
     device = Zwave(mydevolo_instance=mydevolo, **test_data.get("devices").get("sensor"))
     gateway = MockGateway(test_data.get("gateway").get("id"), mydevolo=mydevolo)
     session = requests.Session()
+    connection = {
+        "gateway": gateway,
+        "mydevolo": mydevolo,
+        "session": session
+    }
 
     device.binary_sensor_property = {}
     device.multi_level_sensor_property = {}
@@ -34,38 +39,28 @@ def multi_level_sensor_device(device_uid: str) -> Zwave:
 
     element_uid = f'devolo.BinarySensor:{device_uid}'
     device.binary_sensor_property[element_uid] = \
-        BinarySensorProperty(gateway=gateway,
-                             session=session,
-                             mydevolo=mydevolo,
+        BinarySensorProperty(connection=connection,
                              element_uid=element_uid,
                              state=test_data.get("devices").get("sensor").get("state"))
 
     element_uid = f'devolo.MultiLevelSensor:{device_uid}#MultilevelSensor(1)'
     device.multi_level_sensor_property[element_uid] = \
-        MultiLevelSensorProperty(gateway=gateway,
-                                 session=session,
-                                 mydevolo=mydevolo,
+        MultiLevelSensorProperty(connection=connection,
                                  element_uid=element_uid,
                                  value=test_data.get("devices").get("sensor").get("value"),
                                  unit=test_data.get("devices").get("sensor").get("unit"))
 
     device.settings_property['temperature_report'] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f"trs.{device_uid}",
                          temp_report=test_data.get("devices").get("sensor").get("temp_report"))
     device.settings_property['motion_sensitivity'] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
-                         mydevolo=mydevolo,
+        SettingsProperty(connection=connection,
                          element_uid=f"mss.{device_uid}",
                          motion_sensitivity=test_data.get("devices").get("sensor").get("motion_sensitivity"))
     device.settings_property["general_device_settings"] = \
-        SettingsProperty(gateway=gateway,
-                         session=session,
+        SettingsProperty(connection=connection,
                          element_uid=f'gds.{device_uid}',
-                         mydevolo=mydevolo,
                          icon=test_data.get("devices").get("sensor").get("icon"),
                          name=test_data.get("devices").get("sensor").get("itemName"),
                          zone_id=test_data.get("devices").get("sensor").get("zoneId"))
