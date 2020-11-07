@@ -261,6 +261,8 @@
       "pending_operations": false,
       "uid": "hdm:ZWave:F6BF9812/8",
       "properties": {
+        "max": 0,
+        "min": 9,
         "value": 8
       },
       "sensor_type": "siren",

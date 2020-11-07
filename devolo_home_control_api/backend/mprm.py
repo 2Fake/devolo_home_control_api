@@ -4,11 +4,13 @@ import time
 from json import JSONDecodeError
 from threading import Thread
 from typing import Optional
+from urllib.parse import urlsplit
 
 import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..exceptions.gateway import GatewayOfflineError
+from ..mydevolo import Mydevolo
 from .mprm_websocket import MprmWebsocket
 
 
@@ -17,13 +19,12 @@ class Mprm(MprmWebsocket):
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
 
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     :param zeroconf_instance: Zeroconf instance to be potentially reused
     """
 
-    def __init__(self, zeroconf_instance: Optional[Zeroconf]):
-        super().__init__()
-
-        self._token_url = {}
+    def __init__(self, mydevolo_instance: Mydevolo, zeroconf_instance: Optional[Zeroconf]):
+        super().__init__(mydevolo_instance)
 
         self.detect_gateway_in_lan(zeroconf_instance)
         self.create_connection()
@@ -43,7 +44,7 @@ class Mprm(MprmWebsocket):
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def detect_gateway_in_lan(self, zeroconf_instance):
+    def detect_gateway_in_lan(self, zeroconf_instance: Optional[Zeroconf]):
         """
         Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
         to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
@@ -55,7 +56,7 @@ class Mprm(MprmWebsocket):
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
-        while not time.time() > start_time + 3 and self._local_ip is None:
+        while not time.time() > start_time + 3 and self._local_ip == "":
             time.sleep(0.05)
 
         Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()
@@ -71,11 +72,11 @@ class Mprm(MprmWebsocket):
         """
         self._logger.info("Connecting to gateway locally.")
         self._session.url = "http://" + self._local_ip
-        self._logger.debug(f"Session URL set to 'http://{self._local_ip}'")
+        self._logger.debug(f"Session URL set to '{self._session.url}'")
         try:
-            self._token_url = self._session.get(self._session.url + "/dhlp/portal/full",
-                                                auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
-            self._logger.debug(f"Got a token URL: {self._token_url}")
+            token_url = self._session.get(self._session.url + "/dhlp/portal/full",
+                                          auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
+            self._logger.debug(f"Got a token URL: {token_url}")
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
@@ -84,7 +85,7 @@ class Mprm(MprmWebsocket):
             self._logger.error("Timeout during connecting to the gateway.")
             self._logger.debug(sys.exc_info())
             raise
-        self._session.get(self._token_url.get('link'))
+        self._session.get(token_url['link'])
 
     def get_remote_session(self):
         """
@@ -92,7 +93,9 @@ class Mprm(MprmWebsocket):
         """
         self._logger.info("Connecting to gateway via cloud.")
         try:
-            self._session.get(self.gateway.full_url, timeout=15)
+            url = urlsplit(self._session.get(self.gateway.full_url, timeout=15).url)
+            self._session.url = f"{url.scheme}://{url.netloc}"
+            self._logger.debug(f"Session URL set to '{self._session.url}'")
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())

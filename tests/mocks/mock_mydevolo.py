@@ -21,6 +21,7 @@ class MockMydevolo:
                                                             else {"items": [{"gatewayId": gateway_id}]},
             f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}': {
                 "gatewayId": gateway_id,
+                "localPasskey": "abcde",
                 "status": "devolo.hc_gateway.status.online",
                 "state": "devolo.hc_gateway.state.idle",
             },

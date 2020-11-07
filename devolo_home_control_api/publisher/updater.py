@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Callable, Optional
 
 from ..devices.gateway import Gateway
 from ..helper.string import camel_case_to_snake_case
@@ -23,7 +24,7 @@ class Updater:
         self._publisher = publisher
 
         self.devices = devices
-        self.on_device_change = None
+        self.on_device_change: Optional[Callable] = None
 
 
     def update(self, message: dict):
@@ -59,8 +60,6 @@ class Updater:
                         "devolo.MultiLevelSensor": self._multi_level_sensor,
                         "devolo.MultiLevelSwitch": self._multi_level_switch,
                         "devolo.RemoteControl": self._remote_control,
-                        "devolo.SirenBinarySensor": self._binary_sensor,
-                        "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                         "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                         "devolo.ShutterMovementFI": self._binary_sensor,
                         "devolo.ValveTemperatureSensor": self._multi_level_sensor,
@@ -68,15 +67,25 @@ class Updater:
                         "devolo.WarningBinaryFI:": self._binary_sensor,
                         "hdm": self._device_state}
 
-        if "property.name" in message["properties"] \
-                and message['properties']['property.name'] == "pendingOperations" \
-                and "smartGroup" not in message["properties"]["uid"]:
+        unwanted_properties = [".unregistering", "operationStatus"]
+
+        # Early return on unwanted messages
+        if "UNREGISTERED" in message['topic'] or \
+                message['properties']['property.name'] in unwanted_properties or \
+                "smartGroup" in message['properties']['uid']:
+            return
+
+        # Handle pending operations messages
+        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations":
             self._pending_operations(message)
-        elif "property.name" in message["properties"] \
-                and message['properties']['property.name'] == "operationStatus":
-            pass
-        else:
+            return
+
+        # Handle all other messages
+        try:
             message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
+        except (AttributeError, KeyError):
+            # Sometime we receive already messages although the device is not setup yet.
+            pass
 
 
     def _automatic_calibration(self, message: dict):
@@ -128,8 +137,7 @@ class Updater:
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
         if message['properties']['property.name'] == "targetState" and \
-                message['properties']['property.value.new'] is not None and \
-                "smartGroup" not in message["properties"]["uid"]:
+                message['properties']['property.value.new'] is not None:
             element_uid = message['properties']['uid']
             value = bool(message['properties']['property.value.new'])
             device_uid = get_device_uid_from_element_uid(element_uid)
@@ -142,7 +150,7 @@ class Updater:
         element_uid = message['properties']['uid']
 
         # Early return on useless messages
-        if element_uid == "devolo.PairDevice":
+        if element_uid in ["devolo.PairDevice", "devolo.RemoveDevice"]:
             return
 
         pending_operations = bool(message['properties'].get('property.value.new'))
@@ -166,19 +174,29 @@ class Updater:
         if not callable(self.on_device_change):
             self._logger.error("on_device_change is not set.")
             return
+
         if type(message['properties']['property.value.new']) == list \
            and message['properties']['uid'] == "devolo.DevicesPage":
-            self.on_device_change(uids=message['properties']['property.value.new'])
+            device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
+            if mode == "add":
+                self._logger.info(f"{device_uid} added.")
+                self._publisher.add_event(event=device_uid)
+                self._publisher.dispatch(device_uid, (device_uid, mode))
+            else:
+                self._publisher.dispatch(device_uid, (device_uid, mode))
+                self._publisher.delete_event(event=device_uid)
+
 
     def _device_state(self, message: dict):
         """ Update the device state. """
         propery_name = {"batteryLevel": "battery_level",
                         "batteryLow": "battery_low",
                         "status": "status"}
-        
-        name = message['properties']['property.name']
+
         device_uid = message['properties']['uid']
+        name = message['properties']['property.name']
         value = message['properties']['property.value.new']
+
         try:
             self._logger.debug(f"Updating {propery_name[name]} of {device_uid} to {value}")
             setattr(self.devices[device_uid], propery_name[name], value)
@@ -262,8 +280,7 @@ class Updater:
 
     def _multi_level_switch(self, message: dict):
         """ Update a multi level switch. """
-        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))) \
-                or "smartGroup" not in message['properties']['uid']:
+        if not isinstance(message['properties']['property.value.new'], (list, dict, type(None))):
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_element_uid(element_uid)
@@ -371,9 +388,11 @@ class Updater:
         ignore = ("devolo.DeviceEvents",
                   "devolo.LastActivity",
                   "devolo.PairDevice",
+                  "devolo.SirenBinarySensor",
+                  "devolo.SirenMultiLevelSensor",
                   "devolo.mprm.gw.GatewayManager",
                   "devolo.mprm.gw.PortalManager",
-                  "devolo.smartGroup",
+                  "hdm",
                   "ss",
                   "mcs")
         if not message["properties"]["uid"].startswith(ignore):

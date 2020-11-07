@@ -78,18 +78,6 @@ class TestMydevolo:
         mydevolo.password = self.user.get("password")
         assert mydevolo.password == self.user.get("password")
 
-    def test_singleton_mydevolo(self):
-        with pytest.raises(SyntaxError):
-            Mydevolo.get_instance()
-
-        first = Mydevolo()
-        with pytest.raises(SyntaxError):
-            Mydevolo()
-
-        second = Mydevolo.get_instance()
-        assert first is second
-        Mydevolo.del_instance()
-
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_uuid(self, mydevolo):
         mydevolo._uuid = None
@@ -100,14 +88,12 @@ class TestMydevolo:
         mydevolo = Mydevolo()
         with pytest.raises(WrongCredentialsError):
             mydevolo._call("test")
-        Mydevolo.del_instance()
 
     @pytest.mark.usefixtures("mock_response_wrong_url_error")
     def test_call_WrongUrlError(self):
         mydevolo = Mydevolo()
         with pytest.raises(WrongUrlError):
             mydevolo._call("test")
-        Mydevolo.del_instance()
 
     @pytest.mark.usefixtures("mock_response_gateway_offline")
     def test_call_GatewayOfflineError(self, mydevolo):

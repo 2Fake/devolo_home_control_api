@@ -13,13 +13,15 @@ class MprmRest:
     The abstract MprmRest object handles calls to the so called mPRM. It does not cover all API calls, just those requested
     up to now. All calls are done in a gateway context, so you have to create a derived class, that provides a Gateway object
     and a Session object.
+
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self):
+    def __init__(self, mydevolo_instance: Mydevolo):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._mydevolo = Mydevolo.get_instance()
+        self._mydevolo = mydevolo_instance
         self._data_id = 0
-        self._local_ip = None
+        self._local_ip = ""
 
     def get_all_devices(self) -> list:
         """

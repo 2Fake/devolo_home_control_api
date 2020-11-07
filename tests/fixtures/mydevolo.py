@@ -11,7 +11,6 @@ def mydevolo(request):
     mydevolo = Mydevolo()
     mydevolo._uuid = request.cls.user.get("uuid")
     yield mydevolo
-    Mydevolo.del_instance()
 
 
 @pytest.fixture()

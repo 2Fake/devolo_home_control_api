@@ -1,5 +1,5 @@
 import threading
-from typing import Optional
+from typing import Dict, Optional
 
 import requests
 from zeroconf import Zeroconf
@@ -11,7 +11,9 @@ from .devices.zwave import Zwave
 from .helper.string import camel_case_to_snake_case
 from .helper.uid import (get_device_type_from_element_uid,
                          get_device_uid_from_element_uid,
-                         get_device_uid_from_setting_uid)
+                         get_device_uid_from_setting_uid,
+                         get_home_id_from_device_uid)
+from .mydevolo import Mydevolo
 from .properties.binary_sensor_property import BinarySensorProperty
 from .properties.binary_switch_property import BinarySwitchProperty
 from .properties.consumption_property import ConsumptionProperty
@@ -30,29 +32,31 @@ class HomeControl(Mprm):
     Unit, your devices and their properties.
 
     :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     :param zeroconf_instance: Zeroconf instance to be potentially reused
     :param url: URL of the mPRM (typically leave it at default)
     """
 
-    def __init__(self, gateway_id: str, zeroconf_instance: Optional[Zeroconf] = None,
-                 url: str = "https://homecontrol.mydevolo.com"):
+    def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo, zeroconf_instance: Optional[Zeroconf] = None):
+        self._mydevolo = mydevolo_instance
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
-        self._session.url = url.rstrip("/")
 
-        self.gateway = Gateway(gateway_id)
-        super().__init__(zeroconf_instance)
+        self.gateway = Gateway(gateway_id, mydevolo_instance)
+        super().__init__(mydevolo_instance, zeroconf_instance)
 
         self.gateway.zones = self.get_all_zones()
 
         # Create the initial device dict
-        self.devices = {}
+        self.devices: Dict = {}
         self._inspect_devices(self.get_all_devices())
 
         self.device_names = dict(zip([(self.devices[device].settings_property['general_device_settings'].name + "/"
                                        + self.devices[device].settings_property['general_device_settings'].zone)
                                       for device in self.devices],
                                      [self.devices[device].uid for device in self.devices]))
+
+        self.gateway.home_id = get_home_id_from_device_uid(next(iter(self.device_names.values())))
 
         self.publisher = Publisher([device for device in self.devices])
 
@@ -106,15 +110,17 @@ class HomeControl(Mprm):
         :param device_uids: List of UIDs known by the backend
         """
         if len(device_uids) > len(self.devices):
-            new_device = [device for device in device_uids if device not in self.devices]
-            self._logger.debug(f"New device found {new_device}")
-            self._inspect_devices([new_device[0]])
-            self.publisher = Publisher([device for device in self.devices])
+            devices = [device for device in device_uids if device not in self.devices]
+            mode = "add"
+            self._inspect_devices([devices[0]])
+            self._logger.debug(f"Device {devices[0]} added.")
         else:
             devices = [device for device in self.devices if device not in device_uids]
-            self._logger.debug(f"Device {devices} removed")
-            del self.devices[devices[0]]
+            mode = "del"
+            self.devices.pop(devices[0])
+            self._logger.debug(f"Device {devices[0]} removed.")
         self.updater.devices = self.devices
+        return (devices[0], mode)
 
     def on_update(self, message):
         """
@@ -133,6 +139,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].binary_sensor_property[uid_info['UID']] = \
             BinarySensorProperty(session=self._session,
                                  gateway=self.gateway,
+                                 mydevolo=self._mydevolo,
                                  element_uid=uid_info['UID'],
                                  state=bool(uid_info['properties']['state']),
                                  sensor_type=uid_info['properties']['sensorType'],
@@ -147,6 +154,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].binary_switch_property[uid_info['UID']] = \
             BinarySwitchProperty(session=self._session,
                                  gateway=self.gateway,
+                                 mydevolo=self._mydevolo,
                                  element_uid=uid_info['UID'],
                                  state=bool(uid_info['properties']['state']),
                                  enabled=uid_info['properties']['guiEnabled'])
@@ -159,6 +167,7 @@ class HomeControl(Mprm):
             settings_property['general_device_settings'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              events_enabled=uid_info['properties']['settings']['eventsEnabled'],
                              name=uid_info['properties']['settings']['name'],
@@ -180,6 +189,7 @@ class HomeControl(Mprm):
             self.devices[device_uid].humidity_bar_property[fake_element_uid] = \
                 HumidityBarProperty(session=self._session,
                                     gateway=self.gateway,
+                                    mydevolo=self._mydevolo,
                                     element_uid=fake_element_uid,
                                     sensorType="humidityBar")
         if uid_info['properties']['sensorType'] == "humidityBarZone":
@@ -194,7 +204,7 @@ class HomeControl(Mprm):
         devices_properties = self.get_data_from_uid_list(devices)
         for device_properties in devices_properties:
             properties = device_properties['properties']
-            self.devices[device_properties['UID']] = Zwave(**properties)
+            self.devices[device_properties['UID']] = Zwave(mydevolo_instance=self._mydevolo, **properties)
             self.devices[device_properties['UID']].settings_property = {}
             threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info,
                              name=f"{__class__.__name__}.{self.devices[device_properties['UID']].uid}").start()
@@ -212,8 +222,6 @@ class HomeControl(Mprm):
                     "devolo.MultiLevelSensor": self._multi_level_sensor,
                     "devolo.MultiLevelSwitch": self._multi_level_switch,
                     "devolo.RemoteControl": self._remote_control,
-                    "devolo.SirenBinarySensor": self._binary_sensor,
-                    "devolo.SirenMultiLevelSensor": self._multi_level_sensor,
                     "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
                     "devolo.ShutterMovementFI": self._binary_sensor,
                     "devolo.ValveTemperatureSensor": self._multi_level_sensor,
@@ -263,6 +271,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['automatic_calibration'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              calibration_status=bool(uid_info['properties']['calibrationStatus']))
 
@@ -276,6 +285,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['movement_direction'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              inverted=uid_info['properties']['value'])
 
@@ -285,6 +295,7 @@ class HomeControl(Mprm):
         self._logger.debug(f"Adding binary async settings to {device_uid}.")
         settings_property = SettingsProperty(session=self._session,
                                              gateway=self.gateway,
+                                             mydevolo=self._mydevolo,
                                              element_uid=uid_info['UID'],
                                              value=uid_info['properties']['value'])
 
@@ -306,9 +317,9 @@ class HomeControl(Mprm):
         try:
             self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
                 uid_info['properties']['lastActivityTime']
-        except KeyError:
-            parent_element_uid = uid_info['UID'].replace("LastActivity", "SirenBinarySensor")
-            self.devices[device_uid].binary_sensor_property[parent_element_uid].last_activity = \
+        except AttributeError:
+            parent_element_uid = uid_info['UID'].replace("LastActivity", "SirenMultiLevelSwitch")
+            self.devices[device_uid].multi_level_switch_property[parent_element_uid].last_activity = \
                 uid_info['properties']['lastActivityTime']
 
     def _led(self, uid_info: dict):
@@ -322,6 +333,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['led'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              led_setting=led_setting)
 
@@ -334,6 +346,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].consumption_property[uid_info['UID']] = \
             ConsumptionProperty(session=self._session,
                                 gateway=self.gateway,
+                                mydevolo=self._mydevolo,
                                 element_uid=uid_info['UID'],
                                 current=uid_info['properties']['currentValue'],
                                 total=uid_info['properties']['totalValue'],
@@ -355,6 +368,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property[name] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              value=uid_info['properties']['value'])
 
@@ -368,6 +382,7 @@ class HomeControl(Mprm):
             self.devices[device_uid].settings_property['tone'] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
+                                 mydevolo=self._mydevolo,
                                  element_uid=uid_info['UID'],
                                  tone=uid_info['properties']['value'])
 
@@ -377,6 +392,7 @@ class HomeControl(Mprm):
             self.devices[device_uid].settings_property['shutter_duration'] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
+                                 mydevolo=self._mydevolo,
                                  element_uid=uid_info['UID'],
                                  shutter_duration=uid_info['properties']['value'])
 
@@ -386,6 +402,7 @@ class HomeControl(Mprm):
             self.devices[device_uid].settings_property['motion_sensitivity'] = \
                 SettingsProperty(session=self._session,
                                  gateway=self.gateway,
+                                 mydevolo=self._mydevolo,
                                  element_uid=uid_info['UID'],
                                  motion_sensitivity=uid_info['properties']['value'])
 
@@ -398,6 +415,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].multi_level_sensor_property[uid_info['UID']] = \
             MultiLevelSensorProperty(session=self._session,
                                      gateway=self.gateway,
+                                     mydevolo=self._mydevolo,
                                      element_uid=uid_info['UID'],
                                      value=uid_info['properties']['value'],
                                      unit=uid_info['properties']['unit'],
@@ -412,6 +430,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].multi_level_switch_property[uid_info['UID']] = \
             MultiLevelSwitchProperty(session=self._session,
                                      gateway=self.gateway,
+                                     mydevolo=self._mydevolo,
                                      element_uid=uid_info['UID'],
                                      value=uid_info['properties']['value'],
                                      switch_type=uid_info['properties']['switchType'],
@@ -425,6 +444,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['param_changed'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              param_changed=uid_info['properties']['paramChanged'])
 
@@ -435,6 +455,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['protection'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              local_switching=uid_info['properties']['localSwitch'],
                              remote_switching=uid_info['properties']['remoteSwitch'])
@@ -448,6 +469,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].remote_control_property[uid_info['UID']] = \
             RemoteControlProperty(session=self._session,
                                   gateway=self.gateway,
+                                  mydevolo=self._mydevolo,
                                   element_uid=uid_info['UID'],
                                   key_count=uid_info['properties']['keyCount'],
                                   key_pressed=uid_info['properties']['keyPressed'],
@@ -463,6 +485,7 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['switch_type'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              value=uid_info['properties']['switchType'] * 2)
 
@@ -473,12 +496,13 @@ class HomeControl(Mprm):
         self.devices[device_uid].settings_property['temperature_report'] = \
             SettingsProperty(session=self._session,
                              gateway=self.gateway,
+                             mydevolo=self._mydevolo,
                              element_uid=uid_info['UID'],
                              temp_report=uid_info['properties']['tempReport'],
                              target_temp_report=uid_info['properties']['targetTempReport'])
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """
-        ignore = ("ss", "mcs")
+        ignore = ("devolo.SirenBinarySensor", "devolo.SirenMultiLevelSensor", "ss", "mcs")
         if not uid_info['UID'].startswith(ignore):
             self._logger.debug(f"Found an unexpected element uid: {uid_info.get('UID')}")

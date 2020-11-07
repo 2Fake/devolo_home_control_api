@@ -9,27 +9,11 @@ from .exceptions.general import WrongCredentialsError, WrongUrlError
 
 class Mydevolo:
     """
-    The Mydevolo object handles calls to the my devolo API v1 as singleton. It does not cover all API calls, just
-    those requested up to now. All calls are done in a user context, so you need to provide credentials of that user.
+    The Mydevolo object handles calls to the my devolo API v1. It does not cover all API calls, just those requested up to now.
+    All calls are done in a user context, so you need to provide credentials of that user.
     """
 
-    __instance = None
-
-    @classmethod
-    def get_instance(cls):
-        if cls.__instance is None:
-            raise SyntaxError(f"Please init {cls.__name__}() once to establish a connection to my devolo.")
-        return cls.__instance
-
-    @classmethod
-    def del_instance(cls):
-        cls.__instance = None
-
-
     def __init__(self):
-        if self.__class__.__instance is not None:
-            raise SyntaxError(f"Please use {self.__class__.__name__}.get_instance() and reuse the connection to my devolo.")
-
         self._logger = logging.getLogger(self.__class__.__name__)
         self._user = None
         self._password = None

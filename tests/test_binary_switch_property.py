@@ -6,10 +6,11 @@ from devolo_home_control_api.properties.binary_switch_property import BinarySwit
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestBinarySwitchProperty:
-    def test_binary_switch_property_invalid(self, gateway_instance, mprm_session):
+    def test_binary_switch_property_invalid(self, gateway_instance, mprm_session, mydevolo):
         with pytest.raises(WrongElementError):
             BinarySwitchProperty(gateway=gateway_instance,
                                  session=mprm_session,
+                                 mydevolo=mydevolo,
                                  element_uid="invalid",
                                  state=True,
                                  enabled=True)

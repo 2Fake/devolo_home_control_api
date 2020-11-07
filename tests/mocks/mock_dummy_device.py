@@ -3,6 +3,7 @@ import pathlib
 
 import requests
 
+from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 from devolo_home_control_api.properties.settings_property import SettingsProperty
@@ -21,14 +22,16 @@ def dummy_device(key: str) -> Zwave:
     with file.open("r") as fh:
         test_data = json.load(fh)
 
-    device = Zwave(**test_data['devices'][key])
-    gateway = MockGateway(test_data['gateway']['id'])
+    mydevolo = Mydevolo()
+    device = Zwave(mydevolo_instance=mydevolo, **test_data['devices'][key])
+    gateway = MockGateway(test_data['gateway']['id'], mydevolo=mydevolo)
     session = requests.Session()
 
     device.binary_switch_property = {}
     device.binary_switch_property[f"devolo.BinarySwitch:{test_data['devices'][key]['uid']}"] = \
         BinarySwitchProperty(gateway=gateway,
                              session=session,
+                             mydevolo=mydevolo,
                              element_uid=f"devolo.BinarySwitch:{test_data['devices'][key]['uid']}",
                              state=test_data['devices'][key]['state'],
                              enabled=test_data['devices'][key]['guiEnabled'])
@@ -37,6 +40,7 @@ def dummy_device(key: str) -> Zwave:
     device.settings_property["general_device_settings"] = \
         SettingsProperty(gateway=gateway,
                          session=session,
+                         mydevolo=mydevolo,
                          element_uid=f"gds.{test_data['devices'][key]['uid']}",
                          icon=test_data['devices'][key]['icon'],
                          name=test_data['devices'][key]['itemName'],

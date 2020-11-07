@@ -3,6 +3,7 @@ import pathlib
 
 import requests
 
+from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
 from devolo_home_control_api.properties.settings_property import SettingsProperty
@@ -21,8 +22,9 @@ def multi_level_switch_device(device_uid: str) -> Zwave:
     with file.open("r") as fh:
         test_data = json.load(fh)
 
-    device = Zwave(**test_data.get("devices").get("multi_level_switch"))
-    gateway = MockGateway(test_data.get("gateway").get("id"))
+    mydevolo = Mydevolo()
+    device = Zwave(mydevolo_instance=mydevolo, **test_data.get("devices").get("multi_level_switch"))
+    gateway = MockGateway(test_data.get("gateway").get("id"), mydevolo=mydevolo)
     session = requests.Session()
 
     device.multi_level_switch_property = {}
@@ -31,6 +33,7 @@ def multi_level_switch_device(device_uid: str) -> Zwave:
     device.multi_level_switch_property[f'devolo.MultiLevelSwitch:{device_uid}'] = \
         MultiLevelSwitchProperty(gateway=gateway,
                                  session=session,
+                                 mydevolo=mydevolo,
                                  element_uid=f"devolo.MultiLevelSwitch:{device_uid}",
                                  value=test_data.get("devices").get("multi_level_switch").get("value"),
                                  max=test_data.get("devices").get("multi_level_switch").get("max"),
@@ -39,6 +42,7 @@ def multi_level_switch_device(device_uid: str) -> Zwave:
     device.settings_property["general_device_settings"] = \
         SettingsProperty(gateway=gateway,
                          session=session,
+                         mydevolo=mydevolo,
                          element_uid=f'gds.{device_uid}',
                          icon=test_data.get("devices").get("multi_level_switch").get("icon"),
                          name=test_data.get("devices").get("multi_level_switch").get("itemName"),

@@ -128,13 +128,14 @@ class TestHomeControl:
     def test__last_activity_siren(self):
         device = self.devices['siren']['uid']
         element_uids = self.devices['siren']['elementUIDs']
-        self.homecontrol._binary_sensor({"UID": element_uids[1],
-                                         "properties": {"state": self.devices['siren']['state'],
-                                                        "sensorType": self.devices['siren']['sensor_type'],
-                                                        "subType": ""}})
+        self.homecontrol._multi_level_switch({"UID": element_uids[0],
+                                              "properties": {"value": self.devices['siren']['properties']['value'],
+                                                             "switchType": self.devices['siren']['switch_type'],
+                                                             "max": self.devices['siren']['properties']['max'],
+                                                             "min": self.devices['siren']['properties']['min']}})
         self.homecontrol._last_activity({"UID": element_uids[3],
                                          "properties": {"lastActivityTime": self.devices['siren']['last_activity']}})
-        assert self.homecontrol.devices[device].binary_sensor_property.get(element_uids[1]).last_activity == \
+        assert self.homecontrol.devices[device].multi_level_switch_property[element_uids[0]].last_activity == \
             datetime.utcfromtimestamp(self.devices['siren']['last_activity'] / 1000)
 
     def test__led(self):

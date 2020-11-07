@@ -34,7 +34,8 @@ def mock_mprm_service_browser(mocker):
 def mock_mprm__detect_gateway_in_lan(mocker, request):
     """ Mock detecting a gateway in the local area network to speed up tests. """
     if request.node.name not in ["test_detect_gateway_in_lan_valid", "test_detect_gateway_in_lan"]:
-        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan", return_value=request.cls.gateway['local_ip'])
+        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.detect_gateway_in_lan",
+                     return_value=request.cls.gateway['local_ip'])
 
 
 @pytest.fixture()
@@ -231,14 +232,14 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
                   mock_mprm__detect_gateway_in_lan):
     """ Create a mocked mPRM instance with static test data. """
     if "TestMprmRest" in request.node.nodeid:
-        request.cls.mprm = MprmRest()
+        request.cls.mprm = MprmRest(mydevolo_instance=mydevolo)
     elif "TestMprmWebsocket" in request.node.nodeid:
-        request.cls.mprm = MprmWebsocket()
+        request.cls.mprm = MprmWebsocket(mydevolo_instance=mydevolo)
     else:
         mocker.patch("devolo_home_control_api.backend.mprm.Mprm.__init__", MockMprm.__init__)
         mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
-        request.cls.mprm = Mprm()
-        request.cls.mprm.gateway = MockGateway(request.cls.gateway.get("id"))
+        request.cls.mprm = Mprm(mydevolo_instance=mydevolo)
+        request.cls.mprm.gateway = MockGateway(request.cls.gateway.get("id"), mydevolo=mydevolo)
 
 
 @pytest.fixture()

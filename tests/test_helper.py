@@ -1,7 +1,8 @@
 from devolo_home_control_api.helper.string import camel_case_to_snake_case
 from devolo_home_control_api.helper.uid import (
     get_device_type_from_element_uid, get_device_uid_from_element_uid,
-    get_device_uid_from_setting_uid, get_sub_device_uid_from_element_uid)
+    get_device_uid_from_setting_uid, get_home_id_from_device_uid,
+    get_sub_device_uid_from_element_uid)
 
 
 class TestHelper:
@@ -27,3 +28,6 @@ class TestHelper:
     def test_get_sub_device_uid_from_element_uid(self):
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2") is None
+
+    def test_get_home_id_from_device_uid(self):
+        assert get_home_id_from_device_uid("hdm:ZWave:F6BF9812/2") == "F6BF9812"

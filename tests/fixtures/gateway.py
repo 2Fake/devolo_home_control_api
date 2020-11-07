@@ -4,9 +4,9 @@ from ..mocks.mock_gateway import MockGateway
 
 
 @pytest.fixture()
-def gateway_instance(request):
+def gateway_instance(request, mydevolo):
     """ Create a completly mocked gateway instance. """
-    return MockGateway(request.cls.gateway.get("id"))
+    return MockGateway(request.cls.gateway.get("id"), mydevolo=mydevolo)
 
 
 @pytest.fixture()

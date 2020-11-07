@@ -46,3 +46,12 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
     :return: Device type, something like devolo.MultiLevelSensor
     """
     return element_uid.split(":")[0]
+
+
+def get_home_id_from_device_uid(device_uid: str) -> str:
+    """
+    Return the home id of the given device UID
+    :param device_uid: Device UID, something like hdm:ZWave:EB5A9F6C/4
+    :return: Home ID, something like EB5A9F6C
+    """
+    return re.search(r":.*?(:)(.*)(/)", device_uid).group(2)

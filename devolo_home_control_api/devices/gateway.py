@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 
 from ..mydevolo import Mydevolo
 
@@ -9,20 +10,21 @@ class Gateway:
     world, we call it that way. Nearly all attributes are delivered by my devolo.
 
     :param gateway_id: Gateway ID (aka serial number), typically found on the label of the device
+    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self, gateway_id: str):
+    def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._mydevolo = Mydevolo.get_instance()
+        self._mydevolo = mydevolo_instance
 
         details = self._mydevolo.get_gateway(gateway_id)
 
-        self.id = details.get("gatewayId")
+        self.id = details['gatewayId']
         self.name = details.get("name")
         self.role = details.get("role")
         self.full_url = self._mydevolo.get_full_url(self.id)
         self.local_user = self._mydevolo.uuid()
-        self.local_passkey = details.get("localPasskey")
+        self.local_passkey = details['localPasskey']
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
@@ -33,7 +35,8 @@ class Gateway:
         self.online = False
         self.sync = False
 
-        self.zones = {}
+        self.zones: Dict = {}
+        self.home_id = ""
 
         self._update_state(status=details.get("status"), state=details.get("state"))
 
@@ -54,5 +57,5 @@ class Gateway:
 
     def _update_state(self, status: str, state: str):
         """ Helper to update the state. """
-        self.online = True if status == "devolo.hc_gateway.status.online" else False
-        self.sync = True if state == "devolo.hc_gateway.state.idle" else False
+        self.online = status == "devolo.hc_gateway.status.online"
+        self.sync = state == "devolo.hc_gateway.state.idle"
