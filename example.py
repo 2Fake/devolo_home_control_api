@@ -22,7 +22,7 @@ mydevolo.user = user
 mydevolo.password = password
 
 gateway_id = mydevolo.get_gateway_ids()[0]
-homecontrol = HomeControl(gateway_id=gateway_id)
+homecontrol = HomeControl(gateway_id=gateway_id, mydevolo_instance=mydevolo)
 
 for device in homecontrol.devices:
     homecontrol.devices[device].subscriber = Subscriber(device)
