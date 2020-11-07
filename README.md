@@ -90,7 +90,7 @@ There are two ways of getting data:
 When using websocket events, messages will keep the object up to date. Nevertheless, no further action is triggered. So you have to ask yourself. The following example will list the current state of all binary switches. If the state changes, you will not notice unless you ask again.
 
 ```python
-homecontrol = HomeControl(gateway_id=gateway_id)
+homecontrol = HomeControl(gateway_id=gateway_id, mydevolo_instance=mydevolo)
 for binary_switch in mprm.binary_switch_devices:
     for state in binary_switch.binary_switch_property:
         print (f"State of {binary_switch.name} ({binary_switch.binary_switch_property[state].element_uid}): {binary_switch.binary_switch_property[state].state}")
