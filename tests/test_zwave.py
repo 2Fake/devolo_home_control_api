@@ -1,11 +1,7 @@
 import pytest
 
-import requests
-
 from devolo_home_control_api.devices.zwave import Zwave
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
-
-from .mocks.mock_gateway import MockGateway
 
 
 class TestZwave:
@@ -14,8 +10,6 @@ class TestZwave:
     @pytest.mark.usefixtures("mock_get_zwave_products")
     def test_get_property(self, connection):
         device = Zwave(mydevolo_instance=connection['mydevolo'], **self.devices['mains']['properties'])
-        gateway = MockGateway(self.gateway['id'], mydevolo=connection['mydevolo'])
-        session = requests.Session()
 
         device.binary_switch_property = {}
         element_uid = f"devolo.BinarySwitch:{self.devices['mains']['uid']}"

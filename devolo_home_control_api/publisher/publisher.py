@@ -43,6 +43,6 @@ class Publisher:
         self._logger.debug(f"Subscriber deleted for event {event}")
 
 
-    def _get_subscribers_for_specific_event(self, event: str):
+    def _get_subscribers_for_specific_event(self, event: str) -> Dict:
         """ All subscribers listening to an event. """
         return self._events.get(event, {})
