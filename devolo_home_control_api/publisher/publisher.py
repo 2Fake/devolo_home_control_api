@@ -45,4 +45,4 @@ class Publisher:
 
     def _get_subscribers_for_specific_event(self, event: str):
         """ All subscribers listening to an event. """
-        return self._events.get(event) or {}
+        return self._events.get(event, {})
