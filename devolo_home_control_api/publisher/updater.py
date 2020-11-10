@@ -189,7 +189,7 @@ class Updater:
 
     def _device_state(self, message: dict):
         """ Update the device state. """
-        propery_name = {"batteryLevel": "battery_level",
+        property_name = {"batteryLevel": "battery_level",
                         "batteryLow": "battery_low",
                         "status": "status"}
 
@@ -198,9 +198,9 @@ class Updater:
         value = message['properties']['property.value.new']
 
         try:
-            self._logger.debug(f"Updating {propery_name[name]} of {device_uid} to {value}")
-            setattr(self.devices[device_uid], propery_name[name], value)
-            self._publisher.dispatch(device_uid, (device_uid, value, propery_name[name]))
+            self._logger.debug(f"Updating {property_name[name]} of {device_uid} to {value}")
+            setattr(self.devices[device_uid], property_name[name], value)
+            self._publisher.dispatch(device_uid, (device_uid, value, property_name[name]))
         except KeyError:
             self._unknown(message)
 
