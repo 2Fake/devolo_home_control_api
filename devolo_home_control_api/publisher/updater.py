@@ -189,8 +189,8 @@ class Updater:
     def _device_state(self, message: dict):
         """ Update the device state. """
         property_name = {"batteryLevel": "battery_level",
-                        "batteryLow": "battery_low",
-                        "status": "status"}
+                         "batteryLow": "battery_low",
+                         "status": "status"}
 
         device_uid = message['properties']['uid']
         name = message['properties']['property.name']
