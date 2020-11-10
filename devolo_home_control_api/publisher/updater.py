@@ -186,7 +186,6 @@ class Updater:
                 self._publisher.dispatch(device_uid, (device_uid, mode))
                 self._publisher.delete_event(event=device_uid)
 
-
     def _device_state(self, message: dict):
         """ Update the device state. """
         property_name = {"batteryLevel": "battery_level",
