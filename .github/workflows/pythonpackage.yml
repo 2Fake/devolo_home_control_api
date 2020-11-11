@@ -3,8 +3,9 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
 
+  build:
+    name: Build with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,6 +31,21 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov=devolo_home_control_api
+    - name: Preserve coverage
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: .coverage
+
+  coverage:
+    name: Upload coverage
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Download coverage
+      uses: actions/download-artifact@v2
+      with:
+        name: coverage
     - name: Coveralls
       run: |
         pip install coveralls==1.10.0
