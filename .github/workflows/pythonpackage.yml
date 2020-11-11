@@ -29,7 +29,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=E303,W503 --statistics
     - name: Test with pytest
       run: |
-        python setup.py test --addopts --cov=devolo_home_control_api
+        pip install -e .[test]
+        pytest --cov=devolo_home_control_api
     - name: Coveralls
       run: |
         pip install coveralls==1.10.0

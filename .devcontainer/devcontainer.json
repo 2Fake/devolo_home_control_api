@@ -35,5 +35,5 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "python setup.py install"
+	"postCreateCommand": "python -m pip install --upgrade pip; python setup.py install && pip install -e .[test]"
 }
