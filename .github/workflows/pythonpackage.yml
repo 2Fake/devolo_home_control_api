@@ -47,7 +47,11 @@ jobs:
       with:
         name: coverage
     - name: Coveralls
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
       run: |
-        pip install coveralls==1.10.0
+        python -m pip install --upgrade pip
+        pip install wheel coveralls==1.10.0
         export COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }}      
         coveralls
