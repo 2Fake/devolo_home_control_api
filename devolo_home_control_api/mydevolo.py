@@ -1,3 +1,4 @@
+""" my devolo """
 import logging
 
 import requests
@@ -21,8 +22,6 @@ class Mydevolo:
         self._gateway_ids = []
 
         self.url = "https://www.mydevolo.com"
-
-        self.__class__.__instance = self
 
 
     @property
@@ -70,7 +69,7 @@ class Mydevolo:
             items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")['items']
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
-                self._logger.debug(f'Adding {gateway.get("gatewayId")} to list of gateways.')
+                self._logger.debug("Adding %s to list of gateways.", gateway.get("gatewayId"))
             if len(self._gateway_ids) == 0:
                 self._logger.error("Could not get gateway list. No gateway attached to account?")
                 raise IndexError("No gateways found.")
@@ -83,7 +82,7 @@ class Mydevolo:
         :param gateway_id: Gateway ID
         :return: Gateway details
         """
-        self._logger.debug(f"Getting details for gateway {gateway_id}")
+        self._logger.debug("Getting details for gateway %s", gateway_id)
         try:
             details = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}")
         except WrongUrlError:
@@ -110,7 +109,7 @@ class Mydevolo:
         :param product: The product ID in hex.
         :return: All known product information.
         """
-        self._logger.debug(f"Getting information for {manufacturer}/{product_type}/{product}")
+        self._logger.debug("Getting information for %s/%s/%s", manufacturer, product_type, product)
         try:
             device_info = self._call(f"{self.url}/v1/zwave/products/{manufacturer}/{product_type}/{product}")
         except WrongUrlError:
@@ -139,9 +138,8 @@ class Mydevolo:
         state = self._call(f"{self.url}/v1/hc/maintenance")['state']
         if state == "on":
             return False
-        else:
-            self._logger.warning("devolo Home Control is in maintenance mode.")
-            return True
+        self._logger.warning("devolo Home Control is in maintenance mode.")
+        return True
 
     def uuid(self) -> str:
         """
@@ -162,12 +160,12 @@ class Mydevolo:
                                 headers=headers,
                                 timeout=60)
 
-        if responds.status_code == requests.codes.forbidden:
+        if responds.status_code == requests.codes.forbidden:  # pylint: disable=no-member
             self._logger.error("Could not get full URL. Wrong username or password?")
             raise WrongCredentialsError("Wrong username or password.")
-        if responds.status_code == requests.codes.not_found:
+        if responds.status_code == requests.codes.not_found:  # pylint: disable=no-member
             raise WrongUrlError(f"Wrong URL: {url}")
-        if responds.status_code == requests.codes.service_unavailable:
+        if responds.status_code == requests.codes.service_unavailable:  # pylint: disable=no-member
             # mydevolo sends a 503, if the gateway is offline
             self._logger.error("The requested gateway seems to be offline.")
             raise GatewayOfflineError("Gateway offline.")
