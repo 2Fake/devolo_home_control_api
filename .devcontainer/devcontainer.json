@@ -1,5 +1,5 @@
 {
-	"name": "Python 3",
+	"name": "devolo Home Control API",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": "..",
@@ -13,8 +13,6 @@
 	"settings": { 
 		"terminal.integrated.shell.linux": "/bin/bash",
 		"python.pythonPath": "/usr/local/bin/python",
-		"python.linting.enabled": true,
-		"python.linting.pylintEnabled": true,
 		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
 		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
 		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
@@ -23,17 +21,25 @@
 		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
 		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
 		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
-		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint"
+		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": false,
+		"python.linting.flake8Enabled": true,
+		"python.linting.flake8Args": ["--max-cognitive-complexity=5", "--max-line-length=127", "--ignore=E303,W503"],
+		"python.testing.unittestEnabled": false,
+    	"python.testing.nosetestsEnabled": false,
+    	"python.testing.pytestEnabled": true,
 	},
 	
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"ms-python.python"
+		"ms-python.vscode-pylance",
+		"visualstudioexptteam.vscodeintellicode",
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "python -m pip install --upgrade pip; python setup.py install && pip install -e .[test]"
+	"postCreateCommand": "python -m pip install --upgrade pip; pip install -e .[test]"
 }
