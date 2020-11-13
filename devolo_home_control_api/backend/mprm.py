@@ -115,6 +115,6 @@ class Mprm(MprmWebsocket):
             ip = socket.inet_ntoa(address)
             if requests.get("http://" + ip + "/dhlp/port/full",
                             auth=(self.gateway.local_user, self.gateway.local_passkey),
-                            timeout=0.5).status_code == requests.codes.ok:
+                            timeout=0.5).status_code == requests.codes.ok:  # pylint: disable=no-member
                 self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
                 self._local_ip = ip

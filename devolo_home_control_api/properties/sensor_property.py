@@ -1,11 +1,12 @@
-from typing import Any, Dict
+from typing import Any
+from abc import ABC
 
 from .property import Property
 
 
-class SensorProperty(Property):
+class SensorProperty(Property, ABC):
     """
-    Object for sensors. It stores the sensor and sub type.
+    Abstract object for sensors. It stores the sensor and sub type.
 
     :param connection: Collection of instances needed to communicate with the central unit
     :param element_uid: Element UID
@@ -15,8 +16,8 @@ class SensorProperty(Property):
     :type sub_type: str
     """
 
-    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
-        super().__init__(connection=connection, element_uid=element_uid)
+    def __init__(self, element_uid: str, **kwargs: Any):
+        super().__init__(element_uid=element_uid)
 
-        self.sensor_type = kwargs.get("sensor_type", "")
-        self.sub_type = kwargs.get("sub_type", "")
+        self.sensor_type = kwargs.pop("sensor_type", "")
+        self.sub_type = kwargs.pop("sub_type", "")

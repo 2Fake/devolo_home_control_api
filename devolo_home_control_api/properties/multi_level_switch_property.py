@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Optional
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -10,7 +10,6 @@ class MultiLevelSwitchProperty(Property):
     Object for multi level switches. It stores the multi level state and additional information that help displaying the state
     in the right context.
 
-    :param connection: Collection of instances needed to communicate with the central unit
     :param element_uid: Element UID, something like devolo.Dimmer:hdm:ZWave:CBC56091/24#2
     :key value: Value the multi level switch has at time of creating this instance
     :type value: float
@@ -22,19 +21,20 @@ class MultiLevelSwitchProperty(Property):
     :type min: float
     """
 
-    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
         if not element_uid.startswith(("devolo.Blinds:",
                                        "devolo.Dimmer:",
                                        "devolo.MultiLevelSwitch:",
                                        "devolo.SirenMultiLevelSwitch:")):
             raise WrongElementError(f"{element_uid} is not a multi level switch.")
 
-        super().__init__(connection=connection, element_uid=element_uid)
+        super().__init__(element_uid=element_uid)
+        self._setter = setter
 
-        self._value = kwargs.get("value", 0.0)
-        self.switch_type = kwargs.get("switch_type", "")
-        self.max = kwargs.get("max", 100.0)
-        self.min = kwargs.get("min", 0.0)
+        self._value = kwargs.pop("value", 0.0)
+        self.switch_type = kwargs.pop("switch_type", "")
+        self.max = kwargs.pop("max", 100.0)
+        self.min = kwargs.pop("min", 0.0)
 
 
     @property
@@ -47,7 +47,7 @@ class MultiLevelSwitchProperty(Property):
         """ The gateway persists the last activity of some multi level switchs. They can be initialized with that value. """
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
-            self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
+            self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
     def unit(self) -> Optional[str]:
@@ -66,6 +66,7 @@ class MultiLevelSwitchProperty(Property):
         """ Update value of the multilevel value and set point in time of the last_activity. """
         self._value = value
         self._last_activity = datetime.now()
+        self._logger.debug("value of element_uid %s set to %s.", self.element_uid, value)
 
 
     def set(self, value: float):
@@ -77,11 +78,7 @@ class MultiLevelSwitchProperty(Property):
         if value > self.max or value < self.min:
             raise ValueError(f"Set value {value} is too {'low' if value < self.min else 'high'}. The min value is {self.min}. \
                              The max value is {self.max}")
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "sendValue", [value]]}
-        response = self.post(data)
-        if response["result"].get("status") == 1:
+
+        if self._setter(self.element_uid, value):
             self.value = value
-            self._logger.debug(f"Multi level switch property {self.element_uid} set to {value}")
-        else:
-            self._logger.debug(f"Something went wrong. Response to set command:\n{response}")
+            self._logger.debug("Multi level switch property %s set to %s", self.element_uid, value)

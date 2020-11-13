@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Callable
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -10,22 +10,24 @@ class SettingsProperty(Property):
     the gateway. This is to be as flexible to gateway firmware changes as possible. So if new attributes appear or old ones
     are removed, they should be handled at least in reading them. Nevertheless, a few unwanted attributes are filtered.
 
-    :param connection: Collection of instances needed to communicate with the central unit
-    :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
+    :param element_uid: Element UID, something like acs.hdm:ZWave:CBC56091/24
+    :param setter: Method to call on setting the state
     :param **kwargs: Any setting, that shall be available in this object
     """
 
-    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
         if not element_uid.startswith(("acs", "bas", "bss", "cps", "gds", "lis", "mas",
                                        "mss", "ps", "sts", "stmss", "trs", "vfs")):
             raise WrongElementError()
 
-        super().__init__(connection=connection, element_uid=element_uid)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+        super().__init__(element_uid=element_uid)
+        self._setter = setter
 
         if element_uid.startswith("gds"):
-            self.zone = self._gateway.zones[self.zone_id]
+            self.zone = kwargs.pop("zones")[kwargs["zone_id"]]
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
         setter_method = {"bas": self._set_bas,
                          "gds": self._set_gds,
@@ -53,10 +55,9 @@ class SettingsProperty(Property):
 
         :param value: New state
         """
-        self.value = value
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [value]]}
-        self.post(data)
+        if self._setter(self.element_uid, [value]):
+            self.value = value
+            self._logger.debug("Binary async setting property %s set to %s", self.element_uid, value)
 
     def _set_gds(self, **kwargs: Any):
         """
@@ -71,15 +72,22 @@ class SettingsProperty(Property):
         :key zone_id: New zone_id (ATTENTION: This is NOT the name of the location)
         :type events_enabled: string
         """
-        allowed = ["events_enabled", "icon", "name", "zone_id"]
-        for item in allowed:
-            setattr(self, item, kwargs.get(item, getattr(self, item)))
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [{"events_enabled": self.events_enabled,
-                                                       "icon": self.icon,
-                                                       "name": self.name,
-                                                       "zone_id": self.zone_id}]]}
-        self.post(data)
+        # pylint: disable=access-member-before-definition
+        events_enabled = kwargs.pop("events_enabled", self.events_enabled)
+        # pylint: disable=access-member-before-definition
+        icon = kwargs.pop("icon", self.icon)
+        # pylint: disable=access-member-before-definition
+        name = kwargs.pop("name", self.name)
+        # pylint: disable=access-member-before-definition
+        zone_id = kwargs.pop("zone_id", self.zone_id)
+
+        settings = {"events_enabled": events_enabled, "icon": icon, "name": name, "zone_id": zone_id}
+        if self._setter(self.element_uid, [settings]):
+            self.events_enabled = events_enabled
+            self.icon = icon
+            self.name = name
+            self.zone_id = zone_id
+            self._logger.debug("General device setting %s changed.", self.element_uid)
 
     def _set_lis(self, led_setting: bool):
         """
@@ -87,10 +95,9 @@ class SettingsProperty(Property):
 
         :param led_setting: LED indication setting
         """
-        self.led_setting = led_setting
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [self.led_setting]]}
-        self.post(data)
+        if self._setter(self.element_uid, [led_setting]):
+            self.led_setting = led_setting
+            self._logger.debug("LED indication setting property %s set to %s", self.element_uid, led_setting)
 
     def _set_mss(self, motion_sensitivity: int):
         """
@@ -100,10 +107,9 @@ class SettingsProperty(Property):
         """
         if not 0 <= motion_sensitivity <= 100:
             raise ValueError("Value must be between 0 and 100")
-        self.motion_sensitivity = motion_sensitivity
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [self.motion_sensitivity]]}
-        self.post(data)
+        if self._setter(self.element_uid, [motion_sensitivity]):
+            self.led_setting = motion_sensitivity
+            self._logger.debug("Motion sensitivity setting property %s set to %s", self.element_uid, motion_sensitivity)
 
     def _set_ps(self, **kwargs):
         """
@@ -114,12 +120,16 @@ class SettingsProperty(Property):
         :key remote_switching: Allow local switching
         :type remote_switching: bool
         """
-        allowed = ["local_switching", "remote_switching"]
-        [setattr(self, item, kwargs.get(item, getattr(self, item))) for item in allowed]
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [{"localSwitch": self.local_switching,
-                                                       "remoteSwitch": self.remote_switching}]]}
-        self.post(data)
+        # pylint: disable=access-member-before-definition
+        local_switching = kwargs.pop("local_switching", self.local_switching)
+        # pylint: disable=access-member-before-definition
+        remote_switching = kwargs.pop("remote_switching", self.remote_switching)
+
+        if self._setter(self.element_uid, [{"localSwitch": local_switching, "remoteSwitch": remote_switching}]):
+            self.local_switching = local_switching
+            self.remote_switching = remote_switching
+            self._logger.debug("Protection setting property %s set to %s (local) and %s (remote).",
+                               self.element_uid, local_switching, remote_switching)
 
     def _set_trs(self, temp_report: bool):
         """
@@ -127,7 +137,6 @@ class SettingsProperty(Property):
 
         :param temp_report: Boolean of the target value
         """
-        self.temp_report = temp_report
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "save", [self.temp_report]]}
-        self.post(data)
+        if self._setter(self.element_uid, [temp_report]):
+            self.temp_report = temp_report
+            self._logger.debug("Temperature report setting property %s set to %s", self.element_uid, temp_report)
