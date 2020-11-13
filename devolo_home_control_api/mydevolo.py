@@ -1,4 +1,3 @@
-""" my devolo """
 import logging
 
 import requests

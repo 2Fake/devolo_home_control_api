@@ -175,7 +175,7 @@ class Updater:
             self._logger.error("on_device_change is not set.")
             return
 
-        if type(message['properties']['property.value.new']) == list \
+        if isinstance(message['properties']['property.value.new'], list) \
            and message['properties']['uid'] == "devolo.DevicesPage":
             device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
             if mode == "add":

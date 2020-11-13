@@ -33,14 +33,14 @@ class Publisher:
         :raises AttributeError: The supposed callback is not callable.
         """
         if callback is None:
-            callback = getattr(who, 'update')
+            callback = getattr(who, "update")
         self._get_subscribers_for_specific_event(event)[who] = callback
-        self._logger.debug(f"Subscriber registered for event {event}")
+        self._logger.debug("Subscriber registered for event %s", event)
 
     def unregister(self, event: str, who: object):
         """ Remove a subscriber for a specific event. """
         del self._get_subscribers_for_specific_event(event)[who]
-        self._logger.debug(f"Subscriber deleted for event {event}")
+        self._logger.debug("Subscriber deleted for event %s", event)
 
 
     def _get_subscribers_for_specific_event(self, event: str) -> Dict:
