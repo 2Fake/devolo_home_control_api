@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, Union
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -59,18 +59,18 @@ class SettingsProperty(Property):
             self.value = value
             self._logger.debug("Binary async setting property %s set to %s", self.element_uid, value)
 
-    def _set_gds(self, **kwargs: Any):
+    def _set_gds(self, **kwargs: Union[bool, str]):
         """
         Set one or more general device setting.
 
         :key events_enabled: Show events in diary
         :type events_enabled: bool
         :key icon: New icon name
-        :type icon: string
+        :type icon: str
         :key name: New device name
-        :type name: string
+        :type name: str
         :key zone_id: New zone_id (ATTENTION: This is NOT the name of the location)
-        :type events_enabled: string
+        :type zone_id: str
         """
         # pylint: disable=access-member-before-definition
         events_enabled = kwargs.pop("events_enabled", self.events_enabled)
@@ -108,10 +108,10 @@ class SettingsProperty(Property):
         if not 0 <= motion_sensitivity <= 100:
             raise ValueError("Value must be between 0 and 100")
         if self._setter(self.element_uid, [motion_sensitivity]):
-            self.led_setting = motion_sensitivity
+            self.motion_sensitivity = motion_sensitivity
             self._logger.debug("Motion sensitivity setting property %s set to %s", self.element_uid, motion_sensitivity)
 
-    def _set_ps(self, **kwargs):
+    def _set_ps(self, **kwargs: bool):
         """
         Set one or both protection settings.
 
