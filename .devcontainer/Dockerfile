@@ -5,6 +5,7 @@ ARG VARIANT="3.8"
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
+RUN python -m pip install --upgrade pip && pip install flake8-cognitive-complexity; 
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
