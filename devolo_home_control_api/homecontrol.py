@@ -41,7 +41,6 @@ class HomeControl(Mprm):
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
         self.gateway = Gateway(gateway_id, mydevolo_instance)
-        self._connection = {"session": self._session, "gateway": self.gateway, "mydevolo": self._mydevolo}
 
         super().__init__(mydevolo_instance, zeroconf_instance)
         self.gateway.zones = self.get_all_zones()
