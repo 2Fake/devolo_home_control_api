@@ -32,7 +32,7 @@ class TestMprmRest:
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
         with pytest.raises(GatewayOfflineError):
-            self.mprm.post({"data": "test"})
+            self.mprm._post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
     def test_post_gateway_offline(self, mprm_session, gateway_instance):
@@ -42,20 +42,20 @@ class TestMprmRest:
         self.mprm.gateway.sync = False
         self.mprm.gateway.local_connection = False
         with pytest.raises(GatewayOfflineError):
-            self.mprm.post({"data": "test"})
+            self.mprm._post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_invalid_id")
     def test_post_invalid_id(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._data_id = 0
         with pytest.raises(ValueError):
-            self.mprm.post({"data": "test"})
+            self.mprm._post({"data": "test"})
 
     @pytest.mark.usefixtures("mock_response_requests_valid")
     def test_post_valid(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._data_id = 1
-        assert self.mprm.post({"data": "test"}).get("id") == 2
+        assert self.mprm._post({"data": "test"}).get("id") == 2
 
     def test_get_data_from_uid_list(self, mock_mprmrest__post):
         properties = self.mprm.get_data_from_uid_list(["test"])

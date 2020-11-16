@@ -164,7 +164,7 @@ def mock_mprmrest__post(mocker, request):
         }
     }
 
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=properties.get(request.node.name))
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._post", return_value=properties.get(request.node.name))
 
 
 @pytest.fixture()
@@ -176,7 +176,7 @@ def mock_mprmrest__post_set(mocker, request):
         "test_set_binary_switch_same": {"result": {"status": 3}},
     }
 
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest.post", return_value=status.get(request.node.name))
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._post", return_value=status.get(request.node.name))
 
 
 @pytest.fixture()

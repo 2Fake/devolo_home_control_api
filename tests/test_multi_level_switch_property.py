@@ -6,14 +6,14 @@ from devolo_home_control_api.properties.multi_level_switch_property import Multi
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestMultiLevelSwitchProperty:
-    def test_multi_level_switch_property_invalid(self, connection):
+    def test_multi_level_switch_property_invalid(self):
         with pytest.raises(WrongElementError):
-            MultiLevelSwitchProperty(connection=connection, element_uid="invalid")
+            MultiLevelSwitchProperty(element_uid="invalid", setter=lambda uid, state: None,)
 
     def test_unit(self, connection):
         element_uid = self.devices.get("siren").get("elementUIDs")[0]
         switch_type = self.devices.get("siren").get("switch_type")
-        mlsp = MultiLevelSwitchProperty(connection=connection, element_uid=element_uid, switch_type=switch_type)
+        mlsp = MultiLevelSwitchProperty(element_uid=element_uid, setter=lambda uid, state: None, switch_type=switch_type)
         assert mlsp.unit is None
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
