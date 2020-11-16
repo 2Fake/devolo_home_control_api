@@ -14,23 +14,11 @@ def mydevolo(request):
 
 
 @pytest.fixture()
-def mock_mydevolo_full_url(mocker):
-    """ Mock getting a gateway's full URL. """
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_full_url", side_effect=MockMydevolo.get_full_url)
-
-
-@pytest.fixture()
 def mock_mydevolo__call(mocker, request):
     """ Mock calls to the mydevolo API. """
     mock_mydevolo = MockMydevolo(request)
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=mock_mydevolo._call)
     del mock_mydevolo
-
-
-@pytest.fixture()
-def mock_mydevolo__call_raise_GatewayOfflineError(mocker):
-    """ Respond with GatewayOfflineError on calls to the mydevolo API. """
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=GatewayOfflineError)
 
 
 @pytest.fixture()

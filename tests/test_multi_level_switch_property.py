@@ -10,7 +10,7 @@ class TestMultiLevelSwitchProperty:
         with pytest.raises(WrongElementError):
             MultiLevelSwitchProperty(element_uid="invalid", setter=lambda uid, state: None,)
 
-    def test_unit(self, connection):
+    def test_unit(self):
         element_uid = self.devices.get("siren").get("elementUIDs")[0]
         switch_type = self.devices.get("siren").get("switch_type")
         mlsp = MultiLevelSwitchProperty(element_uid=element_uid, setter=lambda uid, state: None, switch_type=switch_type)
