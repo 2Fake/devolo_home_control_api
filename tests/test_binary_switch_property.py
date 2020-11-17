@@ -13,16 +13,17 @@ class TestBinarySwitchProperty:
                                  state=True,
                                  enabled=True)
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    def test_set_valid(self):
+    def test_set(self):
         uid = self.devices['mains']['uid']
         element_uid = self.devices['mains']['elementUIDs'][1]
+        self.homecontrol.devices[uid].binary_switch_property[element_uid]._setter = lambda uid, state: True
         self.homecontrol.devices[uid].binary_switch_property[element_uid].set(True)
         assert self.homecontrol.devices[uid].binary_switch_property[element_uid].state
 
     def test_set_protected(self):
         uid = self.devices['mains']['uid']
         element_uid = self.devices['mains']['elementUIDs'][1]
+        self.homecontrol.devices[uid].binary_switch_property[element_uid]._setter = lambda uid, state: True
         self.homecontrol.devices[uid].binary_switch_property[element_uid].enabled = False
         with pytest.raises(SwitchingProtected):
             self.homecontrol.devices[uid].binary_switch_property[element_uid].set(True)

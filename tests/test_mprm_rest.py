@@ -57,6 +57,24 @@ class TestMprmRest:
         self.mprm._data_id = 1
         assert self.mprm._post({"data": "test"}).get("id") == 2
 
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    @pytest.mark.parametrize("setter",
+                             [("set_binary_switch"), ("set_multi_level_switch"), ("set_remote_control"), ("set_setting")])
+    def test_set_success(self, setter):
+        test_data = {"set_binary_switch": bool(self.devices['mains']['properties']['state']),
+                     "set_multi_level_switch": self.devices['multi_level_switch']['value'],
+                     "set_remote_control": 1,
+                     "set_setting": self.devices['mains']['properties']['local_switch']}
+        assert getattr(self.mprm, setter)(self.devices['mains']['properties']['elementUIDs'][1],
+                                          test_data[setter])
+
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    @pytest.mark.parametrize("setter",
+                             [("set_binary_switch"), ("set_multi_level_switch"), ("set_remote_control"), ("set_setting")])
+    def test_set_failed(self, setter):
+        assert not getattr(self.mprm, setter)(self.devices['mains']['properties']['elementUIDs'][1],
+                                              bool(self.devices['mains']['properties']['state']))
+
     def test_get_data_from_uid_list(self, mock_mprmrest__post):
         properties = self.mprm.get_data_from_uid_list(["test"])
         assert properties[0].get("properties").get("itemName") == "test_name"
