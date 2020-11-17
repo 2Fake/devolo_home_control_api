@@ -61,5 +61,9 @@ def metering_plug(device_uid: str) -> Zwave:
                          setter=lambda uid, state: True,
                          local_switching=test_data['devices']['mains']['properties']['local_switch'],
                          remote_switching=test_data['devices']['mains']['properties']['remote_switch'])
+    device.settings_property['flash_mode'] = \
+        SettingsProperty(connection=connection,
+                         element_uid=f"mas.{device_uid}",
+                         valus=0)
 
     return device
