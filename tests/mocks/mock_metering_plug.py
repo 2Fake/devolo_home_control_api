@@ -64,6 +64,6 @@ def metering_plug(device_uid: str) -> Zwave:
     device.settings_property['flash_mode'] = \
         SettingsProperty(connection=connection,
                          element_uid=f"mas.{device_uid}",
-                         valus=0)
+                         valus=test_data['devices']['mains']['flashMode'])
 
     return device

@@ -223,10 +223,11 @@ class TestUpdater:
     def test___multilevel_async(self):
         uid = self.devices['mains']['UID']
         element_uid = self.devices['mains']['properties']['settingUIDs'][4]
+        value = self.devices['mains']['flashMode'] +1
         self.homecontrol.updater._multilevel_async(message={"properties":
                                                             {"uid": element_uid,
-                                                             "property.value.new": 1}})
-        assert self.homecontrol.devices[uid].settings_property['flash_mode'].value == 1
+                                                             "property.value.new": value}})
+        assert self.homecontrol.devices[uid].settings_property['flash_mode'].value == value
 
     def test__multi_level_sensor(self):
         uid = self.devices['sensor']['uid']
