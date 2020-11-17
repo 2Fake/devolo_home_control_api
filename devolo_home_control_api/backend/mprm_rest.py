@@ -95,10 +95,14 @@ class MprmRest:
         data = {"method": "FIM/invokeOperation",
                 "params": [uid, "turnOn" if state else "turnOff", []]}
         response = self._post(data)
-        if response["result"].get("status") != 1:
-            self._logger.debug("Something went wrong. Response to set command:\n%s", response)
-            return False
-        return True
+        if response['result']['status'] == 1:
+            return True
+        elif response['result']['status'] == 2:
+            self._logger.debug("State of %s is already %s.", uid, state)
+        else:
+            self._logger.error("Something went wrong setting the binary switch %s.", uid)
+            self._logger.debug("Response to set command:\n%s", response)
+        return False
 
     def set_multi_level_switch(self, uid: str, value: float) -> bool:
         """
@@ -111,10 +115,14 @@ class MprmRest:
         data = {"method": "FIM/invokeOperation",
                 "params": [uid, "sendValue", [value]]}
         response = self._post(data)
-        if response["result"].get("status") != 1:
-            self._logger.debug("Something went wrong. Response to set command:\n%s", response)
-            return False
-        return True
+        if response["result"].get("status") == 1:
+            return True
+        elif response['result']['status'] == 2:
+            self._logger.debug("Value of %s is already %s.", uid, value)
+        else:
+            self._logger.error("Something went wrong setting the multi level switch %s.", uid)
+            self._logger.debug("Response to set command:\n%s", response)
+        return False
 
     def set_remote_control(self, uid: str, key_pressed: int) -> bool:
         """
@@ -128,7 +136,8 @@ class MprmRest:
                 "params": [uid, "pressKey", [key_pressed]]}
         response = self._post(data)
         if response["result"].get("status") != 1:
-            self._logger.debug("Something went wrong. Response to set command:\n%s", response)
+            self._logger.error("Something went wrong setting the remote control %s.", uid)
+            self._logger.debug("Response to set command:\n%s", response)
             return False
         return True
 
@@ -144,7 +153,8 @@ class MprmRest:
                 "params": [uid, "save", setting]}
         response = self._post(data)
         if response["result"].get("status") != 1:
-            self._logger.debug("Something went wrong. Response to set command:\n%s", response)
+            self._logger.error("Something went wrong setting the setting %s.", uid)
+            self._logger.debug("Response to set command:\n%s", response)
             return False
         return True
 

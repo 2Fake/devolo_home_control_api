@@ -38,7 +38,7 @@ class BinarySwitchProperty(Property):
         """ Update state of the binary sensor and set point in time of the last_activity. """
         self._state = state
         self._last_activity = datetime.now()
-        self._logger.debug("state of element_uid %s set to %s.", self.element_uid, state)
+        self._logger.debug("State of %s set to %s.", self.element_uid, state)
 
 
     def set(self, state: bool):
@@ -52,4 +52,3 @@ class BinarySwitchProperty(Property):
 
         if self._setter(self.element_uid, state):
             self.state = state
-            self._logger.debug("Binary switch property %s set to %s", self.element_uid, state)

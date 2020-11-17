@@ -66,7 +66,7 @@ class MultiLevelSwitchProperty(Property):
         """ Update value of the multilevel value and set point in time of the last_activity. """
         self._value = value
         self._last_activity = datetime.now()
-        self._logger.debug("value of element_uid %s set to %s.", self.element_uid, value)
+        self._logger.debug("Value of %s set to %s.", self.element_uid, value)
 
 
     def set(self, value: float):
@@ -81,4 +81,3 @@ class MultiLevelSwitchProperty(Property):
 
         if self._setter(self.element_uid, value):
             self.value = value
-            self._logger.debug("Multi level switch property %s set to %s", self.element_uid, value)

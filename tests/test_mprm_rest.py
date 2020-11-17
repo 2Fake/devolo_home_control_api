@@ -70,6 +70,13 @@ class TestMprmRest:
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     @pytest.mark.parametrize("setter",
+                             [("set_binary_switch"), ("set_multi_level_switch")])
+    def test_set_doubled(self, setter):
+        assert not getattr(self.mprm, setter)(self.devices['mains']['properties']['elementUIDs'][1],
+                                              bool(self.devices['mains']['properties']['state']))
+
+    @pytest.mark.usefixtures("mock_mprmrest__post_set")
+    @pytest.mark.parametrize("setter",
                              [("set_binary_switch"), ("set_multi_level_switch"), ("set_remote_control"), ("set_setting")])
     def test_set_failed(self, setter):
         assert not getattr(self.mprm, setter)(self.devices['mains']['properties']['elementUIDs'][1],
