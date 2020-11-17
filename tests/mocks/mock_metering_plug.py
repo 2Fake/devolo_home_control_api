@@ -22,7 +22,7 @@ def metering_plug(device_uid: str) -> Zwave:
 
     mydevolo = Mydevolo()
     device = Zwave(mydevolo_instance=mydevolo, **test_data['devices']['mains']['properties'])
- 
+
     device.binary_switch_property = {}
     device.consumption_property = {}
     device.multi_level_sensor_property = {}
