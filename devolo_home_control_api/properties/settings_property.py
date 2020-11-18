@@ -23,7 +23,7 @@ class SettingsProperty(Property):
         super().__init__(element_uid=element_uid)
         self._setter = setter
 
-        if element_uid.startswith("gds"):
+        if element_uid.startswith("gds") and "zones" in kwargs and "zone_id" in kwargs:
             self.zone = kwargs.pop("zones")[kwargs["zone_id"]]
 
         for key, value in kwargs.items():

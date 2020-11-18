@@ -220,7 +220,8 @@ class Updater:
                                              events_enabled=message['properties']['property.value.new']['eventsEnabled'],
                                              icon=message['properties']['property.value.new']['icon'],
                                              name=message['properties']['property.value.new']['name'],
-                                             zone_id=message['properties']['property.value.new']['zoneID'])
+                                             zone_id=message['properties']['property.value.new']['zoneID'],
+                                             zones=self._gateway.zones)
 
     def _grouping(self, message: dict):
         """ Update zone (also called room) of a device. """
