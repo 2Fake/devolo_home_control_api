@@ -5,7 +5,7 @@ import requests
 from zeroconf import Zeroconf
 
 from . import __version__
-from .backend import message_types
+from .backend import MESSAGE_TYPES
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
@@ -213,7 +213,7 @@ class HomeControl(Mprm):
         device_properties_list = self.get_data_from_uid_list(uid_list)
 
         for uid_info in device_properties_list:
-            message_type = message_types.get(get_device_type_from_element_uid(uid_info['UID']), "_unknown")
+            message_type = MESSAGE_TYPES.get(get_device_type_from_element_uid(uid_info['UID']), "_unknown")
             getattr(self, message_type)(uid_info)
             try:
                 uid = self.devices[get_device_uid_from_element_uid(uid_info['UID'])]

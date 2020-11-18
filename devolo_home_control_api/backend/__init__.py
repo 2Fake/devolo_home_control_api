@@ -1,4 +1,4 @@
-message_types = {
+MESSAGE_TYPES = {
     "devolo.BinarySensor": "_binary_sensor",
     "devolo.BinarySwitch": "_binary_switch",
     "devolo.Blinds": "_multi_level_switch",

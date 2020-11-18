@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Callable, Optional
 
-from ..backend import message_types
+from ..backend import MESSAGE_TYPES
 from ..devices.gateway import Gateway
 from ..helper.string import camel_case_to_snake_case
 from ..helper.uid import (get_device_type_from_element_uid,
@@ -50,7 +50,7 @@ class Updater:
             return
 
         # Handle all other messages
-        message_type = message_types.get(get_device_type_from_element_uid(message['properties']['uid']), "_unknown")
+        message_type = MESSAGE_TYPES.get(get_device_type_from_element_uid(message['properties']['uid']), "_unknown")
         try:
             getattr(self, message_type)(message)
         except (AttributeError, KeyError):
