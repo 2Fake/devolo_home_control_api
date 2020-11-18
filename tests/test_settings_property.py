@@ -6,23 +6,23 @@ from devolo_home_control_api.properties.settings_property import SettingsPropert
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestSettingsProperty:
-    def test_settings_property_valid(self, connection):
-        setting_property = SettingsProperty(connection=connection,
-                                            element_uid=f"lis.{self.devices.get('mains').get('uid')}",
+    def test_settings_property_valid(self):
+        setting_property = SettingsProperty(element_uid=f"lis.{self.devices.get('mains').get('uid')}",
+                                            setter=lambda uid, state: None,
                                             led_setting=True,
                                             events_enabled=False,
                                             param_changed=True,
                                             local_switching=False,
-                                            remote_switching=True,)
+                                            remote_switching=True)
         assert setting_property.led_setting
         assert not setting_property.events_enabled
         assert setting_property.param_changed
         assert not setting_property.local_switching
         assert setting_property.remote_switching
 
-    def test_settings_property_invalid(self, connection):
+    def test_settings_property_invalid(self):
         with pytest.raises(WrongElementError):
-            SettingsProperty(connection=connection, element_uid="invalid")
+            SettingsProperty(element_uid="invalid", setter=lambda uid, state: None)
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test__set_bas_valid(self):

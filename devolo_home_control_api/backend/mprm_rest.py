@@ -32,7 +32,7 @@ class MprmRest:
         self._logger.info("Inspecting devices")
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
-        response = self.post(data)
+        response = self._post(data)
         self._logger.debug(f"Response of 'get_all_devices':\n{response}")
         return response["result"]["items"][0]["properties"]["deviceUIDs"]
 
@@ -45,7 +45,7 @@ class MprmRest:
         self._logger.debug("Inspecting zones")
         data = {"method": "FIM/getFunctionalItems",
                 "params": [["devolo.Grouping"], 0]}
-        response = self.post(data)['result']['items'][0]['properties']['zones']
+        response = self._post(data)['result']['items'][0]['properties']['zones']
         self._logger.debug(f"Response of 'get_all_zones':\n{response}")
         return dict(zip([key["id"] for key in response], [key["name"] for key in response]))
 
@@ -59,7 +59,7 @@ class MprmRest:
         """
         data = {"method": "FIM/getFunctionalItems",
                 "params": [uids, 0]}
-        response = self.post(data)
+        response = self._post(data)
         self._logger.debug(f"Response of 'get_data_from_uid_list':\n{response}")
         return response["result"]["items"]
 
@@ -71,11 +71,84 @@ class MprmRest:
         """
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
-        response = self.post(data)
+        response = self._post(data)
         self._logger.debug(f"Response of 'get_name_and_element_uids':\n{response}")
         return response["result"]["items"][0]["properties"]
 
-    def post(self, data: dict) -> dict:
+    def refresh_session(self):
+        """
+        Refresh currently running session. Without this call from time to time especially websockets will terminate.
+        """
+        self._logger.debug("Refreshing session.")
+        data = {"method": "FIM/invokeOperation",
+                "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
+        self._post(data)
+
+    def set_binary_switch(self, uid: str, state: bool) -> bool:
+        """
+        Set a binary switch state of a device.
+
+        :param uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24
+        :param state: True if switching on, False if switching off
+        :return: True if successfully switched, false otherwise
+        """
+        data = {"method": "FIM/invokeOperation",
+                "params": [uid, "turnOn" if state else "turnOff", []]}
+        response = self._post(data)
+        return self._evaluate_response(uid=uid, value=state, response=response)
+
+    def set_multi_level_switch(self, uid: str, value: float) -> bool:
+        """
+        Set a multi level switch value of a device.
+
+        :param uid: Element UID, something like devolo.Dimmer:hdm:ZWave:CBC56091/24
+        :param value: Value the multi level switch shall have
+        :return: True if successfully switched, false otherwise
+        """
+        data = {"method": "FIM/invokeOperation",
+                "params": [uid, "sendValue", [value]]}
+        response = self._post(data)
+        return self._evaluate_response(uid=uid, value=value, response=response)
+
+    def set_remote_control(self, uid: str, key_pressed: int) -> bool:
+        """
+        Press the button of a remote control virtually.
+
+        :param uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24
+        :param key_pressed: Number of the button pressed
+        :return: True if successfully switched, false otherwise
+        """
+        data = {"method": "FIM/invokeOperation",
+                "params": [uid, "pressKey", [key_pressed]]}
+        response = self._post(data)
+        return self._evaluate_response(uid=uid, value=key_pressed, response=response)
+
+    def set_setting(self, uid: str, setting: list) -> bool:
+        """
+        Set a setting of a device.
+
+        :param uid: Element UID, something like acs.hdm:ZWave:CBC56091/24
+        :param setting: Settings to set
+        :return: True if successfully switched, false otherwise
+        """
+        data = {"method": "FIM/invokeOperation",
+                "params": [uid, "save", setting]}
+        response = self._post(data)
+        return self._evaluate_response(uid=uid, value=setting, response=response)
+
+
+    def _evaluate_response(self, uid, value, response):
+        """ Evaluate the response of setting a device to a value. """
+        if response["result"].get("status") == 1:
+            return True
+        elif response['result']['status'] == 2:
+            self._logger.debug("Value of %s is already %s.", uid, value)
+        else:
+            self._logger.error("Something went wrong setting %s.", uid)
+            self._logger.debug("Response to set command:\n%s", response)
+        return False
+
+    def _post(self, data: dict) -> dict:
         """
         Communicate with the RPC interface. If the call times out, it is assumed that the gateway is offline and the state is
         changed accordingly.
@@ -101,12 +174,3 @@ class MprmRest:
             self._logger.debug(f"Message had ID {data['id']}, response had ID {response['id']}.")
             raise ValueError("Got an unexpected response after posting data.")
         return response
-
-    def refresh_session(self):
-        """
-        Refresh currently running session. Without this call from time to time especially websockets will terminate.
-        """
-        self._logger.debug("Refreshing session.")
-        data = {"method": "FIM/invokeOperation",
-                "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
-        self.post(data)

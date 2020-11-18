@@ -175,16 +175,18 @@ class Updater:
             self._logger.error("on_device_change is not set.")
             return
 
-        if isinstance(message['properties']['property.value.new'], list) \
-           and message['properties']['uid'] == "devolo.DevicesPage":
-            device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
-            if mode == "add":
-                self._logger.info(f"{device_uid} added.")
-                self._publisher.add_event(event=device_uid)
-                self._publisher.dispatch(device_uid, (device_uid, mode))
-            else:
-                self._publisher.dispatch(device_uid, (device_uid, mode))
-                self._publisher.delete_event(event=device_uid)
+        if not isinstance(message['properties']['property.value.new'], list) or \
+           not message['properties']['uid'] == "devolo.DevicesPage":
+            return
+
+        device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
+        if mode == "add":
+            self._logger.info(f"{device_uid} added.")
+            self._publisher.add_event(event=device_uid)
+            self._publisher.dispatch(device_uid, (device_uid, mode))
+        else:
+            self._publisher.dispatch(device_uid, (device_uid, mode))
+            self._publisher.delete_event(event=device_uid)
 
     def _device_state(self, message: dict):
         """ Update the device state. """
@@ -218,7 +220,8 @@ class Updater:
                                              events_enabled=message['properties']['property.value.new']['eventsEnabled'],
                                              icon=message['properties']['property.value.new']['icon'],
                                              name=message['properties']['property.value.new']['name'],
-                                             zone_id=message['properties']['property.value.new']['zoneID'])
+                                             zone_id=message['properties']['property.value.new']['zoneID'],
+                                             zones=self._gateway.zones)
 
     def _grouping(self, message: dict):
         """ Update zone (also called room) of a device. """

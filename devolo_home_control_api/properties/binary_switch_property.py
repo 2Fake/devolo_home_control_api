@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Callable
 
 from ..exceptions.device import SwitchingProtected, WrongElementError
 from .property import Property
@@ -9,20 +9,23 @@ class BinarySwitchProperty(Property):
     """
     Object for binary switches. It stores the binary switch state.
 
-    :param connection: Collection of instances needed to communicate with the central unit
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
+    :param setter: Method to call on setting the state
     :key enabled: State of the remote protection setting
+    :type enabled: bool
     :key state: State the switch has at time of creating this instance
+    :type state: bool
     """
 
-    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
-        super().__init__(connection=connection, element_uid=element_uid)
+        super().__init__(element_uid=element_uid)
+        self._setter = setter
 
-        self._state = kwargs.get("state", False)
-        self.enabled = kwargs.get("enabled", False)
+        self._state = kwargs.pop("state", False)
+        self.enabled = kwargs.pop("enabled", False)
 
 
     @property
@@ -35,6 +38,7 @@ class BinarySwitchProperty(Property):
         """ Update state of the binary sensor and set point in time of the last_activity. """
         self._state = state
         self._last_activity = datetime.now()
+        self._logger.debug("State of %s set to %s.", self.element_uid, state)
 
 
     def set(self, state: bool):
@@ -46,11 +50,5 @@ class BinarySwitchProperty(Property):
         if not self.enabled:
             raise SwitchingProtected("This device is protected against remote switching.")
 
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "turnOn" if state else "turnOff", []]}
-        response = self.post(data)
-        if response["result"].get("status") == 1:
+        if self._setter(self.element_uid, state):
             self.state = state
-            self._logger.debug(f"Binary switch property {self.element_uid} set to {state}")
-        else:
-            self._logger.debug(f"Something went wrong. Response to set command:\n{response}")
