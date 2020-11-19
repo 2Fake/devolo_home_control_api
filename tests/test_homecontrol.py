@@ -9,8 +9,8 @@ from devolo_home_control_api.backend import MESSAGE_TYPES
 @pytest.mark.usefixtures("mock_mydevolo__call")
 class TestHomeControl:
     def test_hasattr(self):
-        for message_tpye in MESSAGE_TYPES.values():
-            assert hasattr(self.homecontrol, message_tpye)
+        for message_type in MESSAGE_TYPES.values():
+            assert hasattr(self.homecontrol, message_type)
 
     def test_binary_sensor_devices(self):
         assert hasattr(self.homecontrol.binary_sensor_devices[0], "binary_sensor_property")
