@@ -1,27 +1,31 @@
 import json
 import logging
 import sys
+from abc import ABC
 
+from requests import Session
 from requests.exceptions import ReadTimeout
 
+from ..devices.gateway import Gateway
 from ..exceptions.gateway import GatewayOfflineError
 from ..mydevolo import Mydevolo
 
 
-class MprmRest:
+class MprmRest(ABC):
     """
     The abstract MprmRest object handles calls to the so called mPRM. It does not cover all API calls, just those requested
     up to now. All calls are done in a gateway context, so you have to create a derived class, that provides a Gateway object
     and a Session object.
-
-    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self, mydevolo_instance: Mydevolo):
+    def __init__(self):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._mydevolo = mydevolo_instance
         self._data_id = 0
         self._local_ip = ""
+
+        self._mydevolo: Mydevolo
+        self._session: Session
+        self.gateway: Gateway
 
     def get_all_devices(self) -> list:
         """
@@ -33,8 +37,8 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [['devolo.DevicesPage'], 0]}
         response = self._post(data)
-        self._logger.debug(f"Response of 'get_all_devices':\n{response}")
-        return response["result"]["items"][0]["properties"]["deviceUIDs"]
+        self._logger.debug("Response of 'get_all_devices':\n%s", response)
+        return response['result']['items'][0]['properties']['deviceUIDs']
 
     def get_all_zones(self) -> dict:
         """
@@ -46,8 +50,8 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [["devolo.Grouping"], 0]}
         response = self._post(data)['result']['items'][0]['properties']['zones']
-        self._logger.debug(f"Response of 'get_all_zones':\n{response}")
-        return {key["id"]: key["name"] for key in response}
+        self._logger.debug("Response of 'get_all_zones':\n%s", response)
+        return {key['id']: key['name'] for key in response}
 
     def get_data_from_uid_list(self, uids: list) -> list:
         """
@@ -60,8 +64,8 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [uids, 0]}
         response = self._post(data)
-        self._logger.debug(f"Response of 'get_data_from_uid_list':\n{response}")
-        return response["result"]["items"]
+        self._logger.debug("Response of 'get_data_from_uid_list':\n%s", response)
+        return response['result']['items']
 
     def get_name_and_element_uids(self, uid: str):
         """
@@ -72,8 +76,8 @@ class MprmRest:
         data = {"method": "FIM/getFunctionalItems",
                 "params": [[uid], 0]}
         response = self._post(data)
-        self._logger.debug(f"Response of 'get_name_and_element_uids':\n{response}")
-        return response["result"]["items"][0]["properties"]
+        self._logger.debug("Response of 'get_name_and_element_uids':\n%s", response)
+        return response['result']['items'][0]['properties']
 
     def refresh_session(self):
         """
@@ -139,9 +143,9 @@ class MprmRest:
 
     def _evaluate_response(self, uid, value, response):
         """ Evaluate the response of setting a device to a value. """
-        if response["result"].get("status") == 1:
+        if response['result'].get("status") == 1:
             return True
-        elif response['result']['status'] == 2:
+        elif response['result'].get("status") == 2:
             self._logger.debug("Value of %s is already %s.", uid, value)
         else:
             self._logger.error("Something went wrong setting %s.", uid)
@@ -171,6 +175,6 @@ class MprmRest:
             raise GatewayOfflineError("Gateway is offline.") from None
         if response['id'] != data['id']:
             self._logger.error("Got an unexpected response after posting data.")
-            self._logger.debug(f"Message had ID {data['id']}, response had ID {response['id']}.")
+            self._logger.debug("Message had ID %s, response had ID %s.", data['id'], response['id'])
             raise ValueError("Got an unexpected response after posting data.")
         return response

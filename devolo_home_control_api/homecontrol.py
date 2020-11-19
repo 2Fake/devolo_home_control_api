@@ -43,7 +43,7 @@ class HomeControl(Mprm):
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
         self.gateway = Gateway(gateway_id, mydevolo_instance)
 
-        super().__init__(mydevolo_instance, zeroconf_instance)
+        super().__init__(zeroconf_instance)
         self._grouping()
 
         # Create the initial device dict

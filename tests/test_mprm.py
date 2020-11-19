@@ -16,9 +16,9 @@ class TestMprm:
     @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
     @pytest.mark.usefixtures("mock_session_get")
     def test_create_connection_remote(self, mprm_session, mydevolo):
+        self.mprm._mydevolo = mydevolo
         self.mprm._session = mprm_session
         self.mprm.gateway.external_access = True
-        self._mydevolo = mydevolo
         self.mprm.create_connection()
 
     def test_create_connection_invalid(self):

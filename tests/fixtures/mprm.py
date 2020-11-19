@@ -1,11 +1,11 @@
 import json
 
 import pytest
-
-import requests
 from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
+
+import requests
 
 from ..mocks.mock_gateway import MockGateway
 from ..mocks.mock_mprm import MockMprm
@@ -233,13 +233,13 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
                   mock_mprm__detect_gateway_in_lan):
     """ Create a mocked mPRM instance with static test data. """
     if "TestMprmRest" in request.node.nodeid:
-        request.cls.mprm = MprmRest(mydevolo_instance=mydevolo)
+        request.cls.mprm = MprmRest()
     elif "TestMprmWebsocket" in request.node.nodeid:
-        request.cls.mprm = MprmWebsocket(mydevolo_instance=mydevolo)
+        request.cls.mprm = MprmWebsocket()
     else:
         mocker.patch("devolo_home_control_api.backend.mprm.Mprm.__init__", MockMprm.__init__)
         mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
-        request.cls.mprm = Mprm(mydevolo_instance=mydevolo)
+        request.cls.mprm = Mprm()
         request.cls.mprm.gateway = MockGateway(request.cls.gateway.get("id"), mydevolo=mydevolo)
 
 
