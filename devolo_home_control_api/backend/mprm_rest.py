@@ -47,7 +47,7 @@ class MprmRest:
                 "params": [["devolo.Grouping"], 0]}
         response = self._post(data)['result']['items'][0]['properties']['zones']
         self._logger.debug(f"Response of 'get_all_zones':\n{response}")
-        return {key["id"]:key["name"] for key in response}
+        return {key["id"]: key["name"] for key in response}
 
     def get_data_from_uid_list(self, uids: list) -> list:
         """
