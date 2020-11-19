@@ -229,7 +229,7 @@ class TestUpdater:
     def test___multilevel_async(self):
         uid = self.devices['mains']['UID']
         element_uid = self.devices['mains']['properties']['settingUIDs'][4]
-        value = self.devices['mains']['flashMode'] +1
+        value = self.devices['mains']['flashMode'] + 1
         self.homecontrol.updater._multilevel_async(message={"properties":
                                                             {"uid": element_uid,
                                                              "property.value.new": value}})
@@ -408,8 +408,8 @@ class TestUpdater:
         uid = device['uid']
         self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report = device['temp_report']
         self.homecontrol.updater._temperature_report(message={"properties":
-                                                       {"uid": f"trs.{uid}",
-                                                        "property.value.new": not device['temp_report']}})
+                                                              {"uid": f"trs.{uid}",
+                                                               "property.value.new": not device['temp_report']}})
         assert self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report is not device['temp_report']
 
     def test__voltage_multi_level_sensor(self):
