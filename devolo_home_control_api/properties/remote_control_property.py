@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Callable
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -10,22 +10,23 @@ class RemoteControlProperty(Property):
     Object for remote controls. It stores the button state and additional information that help displaying the state in the
     right context.
 
-    :param connection: Collection of instances needed to communicate with the central unit
     :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
+    :param setter: Method to call on setting the state
     :key key_count: Number of buttons this remote control has
     :type key_count: int
     :key key_pressed: Number of the button pressed
     :type key_pressed: int
     """
 
-    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(f"{element_uid} is not a remote control.")
 
-        super().__init__(connection=connection, element_uid=element_uid)
+        super().__init__(element_uid=element_uid)
+        self._setter = setter
 
-        self._key_pressed = kwargs.get("key_pressed", 0)
-        self.key_count = kwargs.get("key_count", 0)
+        self._key_pressed = kwargs.pop("key_pressed", 0)
+        self.key_count = kwargs.pop("key_count", 0)
 
 
     @property
@@ -38,6 +39,7 @@ class RemoteControlProperty(Property):
         """ Update value of the multilevel value and set point in time of the last_activity. """
         self._key_pressed = key_pressed
         self._last_activity = datetime.now()
+        self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
 
     def set(self, key_pressed: int):
@@ -49,8 +51,6 @@ class RemoteControlProperty(Property):
         if key_pressed > self.key_count or key_pressed <= 0:
             raise ValueError(f"Set value {key_pressed} is invalid.")
 
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "pressKey", [key_pressed]]}
-        self.post(data)
-        self.key_pressed = key_pressed
-        self._logger.debug(f"Remote Control property {self.element_uid} set to {key_pressed}")
+        if self._setter(self.element_uid, key_pressed):
+            self.key_pressed = key_pressed
+            self._logger.debug("Remote Control property %s set to %s", self.element_uid, key_pressed)

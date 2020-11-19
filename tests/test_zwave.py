@@ -8,14 +8,14 @@ class TestZwave:
     @pytest.mark.usefixtures("home_control_instance")
     @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
     @pytest.mark.usefixtures("mock_get_zwave_products")
-    def test_get_property(self, connection):
-        device = Zwave(mydevolo_instance=connection['mydevolo'], **self.devices['mains']['properties'])
+    def test_get_property(self, mydevolo):
+        device = Zwave(mydevolo_instance=mydevolo, **self.devices['mains']['properties'])
 
         device.binary_switch_property = {}
         element_uid = f"devolo.BinarySwitch:{self.devices['mains']['uid']}"
         device.binary_switch_property[element_uid] = \
-            BinarySwitchProperty(connection=connection,
-                                 element_uid=element_uid,
+            BinarySwitchProperty(element_uid=element_uid,
+                                 setter=lambda uid, state: None,
                                  state=self.devices['mains']['properties']['state'],
                                  enabled=self.devices['mains']['properties']['guiEnabled'])
 

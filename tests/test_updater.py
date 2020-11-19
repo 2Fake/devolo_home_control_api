@@ -220,6 +220,15 @@ class TestUpdater:
         assert self.homecontrol.devices.get(uid).consumption_property \
             .get(f"devolo.Meter:{uid}").current == current_new
 
+    def test___multilevel_async(self):
+        uid = self.devices['mains']['UID']
+        element_uid = self.devices['mains']['properties']['settingUIDs'][4]
+        value = self.devices['mains']['flashMode'] +1
+        self.homecontrol.updater._multilevel_async(message={"properties":
+                                                            {"uid": element_uid,
+                                                             "property.value.new": value}})
+        assert self.homecontrol.devices[uid].settings_property['flash_mode'].value == value
+
     def test__multi_level_sensor(self):
         uid = self.devices['sensor']['uid']
         element_uid = f"devolo.MultiLevelSensor:{uid}#MultilevelSensor(1)"
@@ -388,11 +397,11 @@ class TestUpdater:
                                                         "property.value.new": device['key_count'] / 4}})
         assert self.homecontrol.devices[uid].settings_property['switch_type'].value == device['key_count'] / 2
 
-    def test__temperature(self):
+    def test__temperature_report(self):
         device = self.devices['sensor']
         uid = device['uid']
         self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report = device['temp_report']
-        self.homecontrol.updater._temperature(message={"properties":
+        self.homecontrol.updater._temperature_report(message={"properties":
                                                        {"uid": f"trs.{uid}",
                                                         "property.value.new": not device['temp_report']}})
         assert self.homecontrol.devices[uid].settings_property['temperature_report'].temp_report is not device['temp_report']

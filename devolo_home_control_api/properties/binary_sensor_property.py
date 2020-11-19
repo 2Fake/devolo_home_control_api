@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from ..exceptions.device import WrongElementError
 from .sensor_property import SensorProperty
@@ -9,23 +9,21 @@ class BinarySensorProperty(SensorProperty):
     """
     Object for binary sensors. It stores the binary sensor state.
 
-    :param connection: Collection of instances needed to communicate with the central unit
     :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
     :key state: State of the binary sensor
     :type state: bool
     """
 
-    def __init__(self, connection: Dict, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, **kwargs: Any):
         if not element_uid.startswith(("devolo.BinarySensor:",
                                        "devolo.MildewSensor:",
                                        "devolo.ShutterMovementFI:",
                                        "devolo.WarningBinaryFI:",)):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
-        self._state = False
-        self.state = kwargs.get("state", False)
+        super().__init__(element_uid=element_uid, **kwargs)
 
-        super().__init__(connection=connection, element_uid=element_uid, **kwargs)
+        self._state = kwargs.pop("state", False)
 
 
     @property
@@ -38,7 +36,7 @@ class BinarySensorProperty(SensorProperty):
         """ The gateway persists the last activity of some binary sensors. They can be initialized with that value. """
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
-            self._logger.debug(f"self.last_activity of element_uid {self.element_uid} set to {self._last_activity}.")
+            self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
     def state(self) -> bool:
@@ -50,3 +48,4 @@ class BinarySensorProperty(SensorProperty):
         """ Update state of the binary sensor and set point in time of the last_activity. """
         self._state = state
         self._last_activity = datetime.now()
+        self._logger.debug("state of element_uid %s set to %s.", self.element_uid, state)

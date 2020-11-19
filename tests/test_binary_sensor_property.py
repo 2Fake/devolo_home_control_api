@@ -6,10 +6,9 @@ from devolo_home_control_api.properties.binary_sensor_property import BinarySens
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestBinarySensorProperty:
-    def test_binary_sensor_property_invalid(self, connection):
+    def test_binary_sensor_property_invalid(self):
         with pytest.raises(WrongElementError):
-            BinarySensorProperty(connection=connection,
-                                 element_uid="invalid",
+            BinarySensorProperty(element_uid="invalid",
                                  state=True)
 
     @pytest.mark.usefixtures("mock_mprmrest__post_set")

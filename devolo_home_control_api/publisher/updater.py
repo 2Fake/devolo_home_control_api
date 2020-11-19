@@ -2,9 +2,12 @@ import json
 import logging
 from typing import Callable, Optional
 
+from ..backend import MESSAGE_TYPES
 from ..devices.gateway import Gateway
 from ..helper.string import camel_case_to_snake_case
-from ..helper.uid import get_device_type_from_element_uid, get_device_uid_from_element_uid, get_device_uid_from_setting_uid
+from ..helper.uid import (get_device_type_from_element_uid,
+                          get_device_uid_from_element_uid,
+                          get_device_uid_from_setting_uid)
 from .publisher import Publisher
 
 
@@ -33,40 +36,6 @@ class Updater:
 
         :param message: Message to process
         """
-        message_type = {"acs.hdm": self._automatic_calibration,
-                        "bas.hdm": self._binary_async,
-                        "bss.hdm": self._binary_sync,
-                        "cps.hdm": self._parameter,
-                        "gds.hdm": self._general_device,
-                        "lis.hdm": self._led,
-                        "ps.hdm": self._protection,
-                        "stmss.hdm": self._multilevel_sync,
-                        "sts.hdm": self._switch_type,
-                        "trs.hdm": self._temperature,
-                        "vfs.hdm": self._led,
-                        "mss.hdm": self._multilevel_sync,
-                        "devolo.BinarySensor": self._binary_sensor,
-                        "devolo.BinarySwitch": self._binary_switch,
-                        "devolo.Blinds": self._multi_level_switch,
-                        "devolo.DevicesPage": self._device_change,
-                        "devolo.Dimmer": self._multi_level_switch,
-                        "devolo.DewpointSensor": self._multi_level_sensor,
-                        "devolo.Grouping": self._grouping,
-                        "devolo.HumidityBarValue": self._humidity_bar,
-                        "devolo.HumidityBarZone": self._humidity_bar,
-                        "devolo.mprm.gw.GatewayAccessibilityFI": self._gateway_accessible,
-                        "devolo.Meter": self._meter,
-                        "devolo.MildewSensor": self._binary_sensor,
-                        "devolo.MultiLevelSensor": self._multi_level_sensor,
-                        "devolo.MultiLevelSwitch": self._multi_level_switch,
-                        "devolo.RemoteControl": self._remote_control,
-                        "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
-                        "devolo.ShutterMovementFI": self._binary_sensor,
-                        "devolo.ValveTemperatureSensor": self._multi_level_sensor,
-                        "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
-                        "devolo.WarningBinaryFI:": self._binary_sensor,
-                        "hdm": self._device_state}
-
         unwanted_properties = [".unregistering", "operationStatus"]
 
         # Early return on unwanted messages
@@ -81,8 +50,9 @@ class Updater:
             return
 
         # Handle all other messages
+        message_type = MESSAGE_TYPES.get(get_device_type_from_element_uid(message['properties']['uid']), "_unknown")
         try:
-            message_type.get(get_device_type_from_element_uid(message['properties']['uid']), self._unknown)(message)
+            getattr(self, message_type)(message)
         except (AttributeError, KeyError):
             # Sometime we receive already messages although the device is not setup yet.
             pass
@@ -150,7 +120,7 @@ class Updater:
         element_uid = message['properties']['uid']
 
         # Early return on useless messages
-        if element_uid in ["devolo.PairDevice", "devolo.RemoveDevice"]:
+        if element_uid in ["devolo.PairDevice", "devolo.RemoveDevice", "devolo.mprm.gw.GatewayManager"]:
             return
 
         pending_operations = bool(message['properties'].get('property.value.new'))
@@ -175,16 +145,18 @@ class Updater:
             self._logger.error("on_device_change is not set.")
             return
 
-        if type(message['properties']['property.value.new']) == list \
-           and message['properties']['uid'] == "devolo.DevicesPage":
-            device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
-            if mode == "add":
-                self._logger.info(f"{device_uid} added.")
-                self._publisher.add_event(event=device_uid)
-                self._publisher.dispatch(device_uid, (device_uid, mode))
-            else:
-                self._publisher.dispatch(device_uid, (device_uid, mode))
-                self._publisher.delete_event(event=device_uid)
+        if not isinstance(message['properties']['property.value.new'], list) or \
+           not message['properties']['uid'] == "devolo.DevicesPage":
+            return
+
+        device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
+        if mode == "add":
+            self._logger.info(f"{device_uid} added.")
+            self._publisher.add_event(event=device_uid)
+            self._publisher.dispatch(device_uid, (device_uid, mode))
+        else:
+            self._publisher.dispatch(device_uid, (device_uid, mode))
+            self._publisher.delete_event(event=device_uid)
 
     def _device_state(self, message: dict):
         """ Update the device state. """
@@ -218,7 +190,8 @@ class Updater:
                                              events_enabled=message['properties']['property.value.new']['eventsEnabled'],
                                              icon=message['properties']['property.value.new']['icon'],
                                              name=message['properties']['property.value.new']['name'],
-                                             zone_id=message['properties']['property.value.new']['zoneID'])
+                                             zone_id=message['properties']['property.value.new']['zoneID'],
+                                             zones=self._gateway.zones)
 
     def _grouping(self, message: dict):
         """ Update zone (also called room) of a device. """
@@ -267,6 +240,19 @@ class Updater:
                          "guiEnabled": self._gui_enabled}
 
         property_name[message['properties']['property.name']](message['properties'])
+
+    def _multilevel_async(self, message: dict):
+        """ Update multilevel async setting (mas) properties. """
+        device_uid = get_device_uid_from_setting_uid(message['properties']['uid'])
+        try:
+            name = camel_case_to_snake_case(message['properties']['itemId'])
+        # The Metering Plug has an multilevel async setting without an ID
+        except KeyError:
+            if self.devices[device_uid].device_model_uid == "devolo.model.Wall:Plug:Switch:and:Meter":
+                name = "flash_mode"
+            else:
+                raise
+        self.devices[device_uid].settings_property[name].value = message['properties']['property.value.new']
 
     def _multi_level_sensor(self, message: dict):
         """ Update a multi level sensor. """
@@ -366,7 +352,7 @@ class Updater:
         self._logger.debug(f"Updating switch type of {device_uid} to {value}")
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _temperature(self, message: dict):
+    def _temperature_report(self, message: dict):
         """ Update temperature report settings. """
         if type(message['properties'].get("property.value.new")) not in [dict, list]:
             element_uid = message['properties']['uid']
@@ -385,13 +371,11 @@ class Updater:
     def _unknown(self, message: dict):
         """ Ignore unknown messages. """
         ignore = ("devolo.DeviceEvents",
-                  "devolo.LastActivity",
                   "devolo.PairDevice",
                   "devolo.SirenBinarySensor",
                   "devolo.SirenMultiLevelSensor",
                   "devolo.mprm.gw.GatewayManager",
                   "devolo.mprm.gw.PortalManager",
-                  "hdm",
                   "ss",
                   "mcs")
         if not message["properties"]["uid"].startswith(ignore):

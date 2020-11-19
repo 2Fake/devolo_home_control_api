@@ -12,16 +12,38 @@ class Zwave:
     reading them. Nevertheless, a few unwanted attributes are filtered.
 
     :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
+    :key batteryLevel: Battery Level of the device in percent, -1 if mains powered
+    :type batteryLevel: int
+    :key elementUIDs: All element UIDs the device has
+    :type elementUIDs: list
+    :key manID: Manufacturer ID as registered at the Z-Wave alliance
+    :type manID: str
+    :key prodID: Product ID as registered at the Z-Wave alliance
+    :type prodID: str
+    :key prodTypeID: Product type ID as registered at the Z-Wave alliance
+    :type prodTypeID: str
+    :key status: Online status of the device
+    :type status: int
     """
 
     def __init__(self, mydevolo_instance: Mydevolo, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 
+        # Get important values
+        self.battery_level = kwargs.pop("batteryLevel", -1)
+        self.element_uids = kwargs.pop("elementUIDs")
+        self.man_id = kwargs.pop("manID")
+        self.prod_id = kwargs.pop("prodID")
+        self.prod_type_id = kwargs.pop("prodTypeID")
+        self.status = kwargs.pop("status", 1)
+
+        # Remove unwanted values
         unwanted_value = ["icon", "itemName", "operationStatus", "zone", "zoneId"]
         for value in unwanted_value:
             del kwargs[value]
 
+        # Add all other values
         for key, value in kwargs.items():
             setattr(self, camel_case_to_snake_case(key), value)
         self.uid = get_device_uid_from_element_uid(self.element_uids[0])
@@ -53,7 +75,7 @@ class Zwave:
         Get publicly available information like manufacturer or model from my devolo. For a complete list, please look at
         Zwave.__init__.
         """
-        self._logger.debug(f"Getting Z-Wave information for {self.uid}")
+        self._logger.debug("Getting Z-Wave information for %s", self.uid)
         zwave_product = self._mydevolo.get_zwave_products(manufacturer=self.man_id,
                                                           product_type=self.prod_type_id,
                                                           product=self.prod_id)
