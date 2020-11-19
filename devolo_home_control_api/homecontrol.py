@@ -156,12 +156,6 @@ class HomeControl(Mprm):
                                  state=bool(uid_info['properties']['state']),
                                  enabled=uid_info['properties']['guiEnabled'])
 
-    def _gateway_accessible(self):
-        """ This functionality is hanbled by the updater only. """
-
-    def _device_state(self):
-        """ This functionality is hanbled by the updater only. """
-
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
