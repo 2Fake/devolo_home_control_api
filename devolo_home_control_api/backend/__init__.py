@@ -2,7 +2,7 @@ MESSAGE_TYPES = {
     "devolo.BinarySensor": "_binary_sensor",
     "devolo.BinarySwitch": "_binary_switch",
     "devolo.Blinds": "_multi_level_switch",
-    "devolo.DevicesPage": "_device_change",
+    "devolo.DevicesPage": "_inspect_devices",
     "devolo.DewpointSensor": "_multi_level_sensor",
     "devolo.Dimmer": "_multi_level_switch",
     "devolo.Grouping": "_grouping",
