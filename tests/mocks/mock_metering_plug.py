@@ -35,6 +35,7 @@ def metering_plug(device_uid: str) -> Zwave:
                              enabled=test_data['devices']['mains']['properties']['guiEnabled'])
     device.consumption_property[f'devolo.Meter:{device_uid}'] = \
         ConsumptionProperty(element_uid=f"devolo.Meter:{device_uid}",
+                            setter=lambda uid, state: None,
                             current=test_data['devices']['mains']['properties']['current_consumption'],
                             total=test_data['devices']['mains']['properties']['total_consumption'],
                             total_since=test_data['devices']['mains']['properties']['sinceTime'])
@@ -61,5 +62,9 @@ def metering_plug(device_uid: str) -> Zwave:
                          setter=lambda uid, state: True,
                          local_switching=test_data['devices']['mains']['properties']['local_switch'],
                          remote_switching=test_data['devices']['mains']['properties']['remote_switch'])
+    device.settings_property['flash_mode'] = \
+        SettingsProperty(element_uid=f"mas.{device_uid}",
+                         setter=lambda uid, state: None,
+                         valus=test_data['devices']['mains']['flashMode'])
 
     return device

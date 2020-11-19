@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Added devices are now added to the Publisher.
+- Multilevel Async Settings are now updated via websocket
 
 ## [v0.16.0] - 2020/11/07
 

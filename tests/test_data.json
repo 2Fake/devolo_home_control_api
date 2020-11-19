@@ -131,7 +131,8 @@
           "gds.hdm:ZWave:F6BF9812/2",
           "cps.hdm:ZWave:F6BF9812/2",
           "lis.hdm:ZWave:F6BF9812/2",
-          "ps.hdm:ZWave:F6BF9812/2"
+          "ps.hdm:ZWave:F6BF9812/2",
+          "mas.hdm:ZWave:F6BF9812/2"
         ],
         "state": 1,
         "status": 2,

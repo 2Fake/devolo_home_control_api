@@ -5,6 +5,7 @@ import requests
 from zeroconf import Zeroconf
 
 from . import __version__
+from .backend import MESSAGE_TYPES
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
@@ -201,39 +202,6 @@ class HomeControl(Mprm):
             threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info,
                              name=f"{__class__.__name__}.{self.devices[device_properties['UID']].uid}").start()
 
-        elements = {"devolo.BinarySensor": self._binary_sensor,
-                    "devolo.BinarySwitch": self._binary_switch,
-                    "devolo.Blinds": self._multi_level_switch,
-                    "devolo.DewpointSensor": self._multi_level_sensor,
-                    "devolo.Dimmer": self._multi_level_switch,
-                    "devolo.HumidityBarValue": self._humidity_bar,
-                    "devolo.HumidityBarZone": self._humidity_bar,
-                    "devolo.LastActivity": self._last_activity,
-                    "devolo.Meter": self._meter,
-                    "devolo.MildewSensor": self._binary_sensor,
-                    "devolo.MultiLevelSensor": self._multi_level_sensor,
-                    "devolo.MultiLevelSwitch": self._multi_level_switch,
-                    "devolo.RemoteControl": self._remote_control,
-                    "devolo.SirenMultiLevelSwitch": self._multi_level_switch,
-                    "devolo.ShutterMovementFI": self._binary_sensor,
-                    "devolo.ValveTemperatureSensor": self._multi_level_sensor,
-                    "devolo.VoltageMultiLevelSensor": self._multi_level_sensor,
-                    "devolo.WarningBinaryFI": self._binary_sensor,
-                    "acs.hdm": self._automatic_calibration,
-                    "bas.hdm": self._binary_async,
-                    "bss.hdm": self._binary_sync,
-                    "lis.hdm": self._led,
-                    "gds.hdm": self._general_device,
-                    "cps.hdm": self._parameter,
-                    "mas.hdm": self._multilevel_async,
-                    "mss.hdm": self._multilevel_sync,
-                    "ps.hdm": self._protection,
-                    "sts.hdm": self._switch_type,
-                    "stmss.hdm": self._multilevel_sync,
-                    "trs.hdm": self._temperature_report,
-                    "vfs.hdm": self._led
-                    }
-
         # List comprehension gets the list of uids from every device
         nested_uids_lists = [(uid['properties'].get("settingUIDs")
                               + uid['properties']['elementUIDs'])
@@ -245,7 +213,8 @@ class HomeControl(Mprm):
         device_properties_list = self.get_data_from_uid_list(uid_list)
 
         for uid_info in device_properties_list:
-            elements.get(get_device_type_from_element_uid(uid_info['UID']), self._unknown)(uid_info)
+            message_type = MESSAGE_TYPES.get(get_device_type_from_element_uid(uid_info['UID']), "_unknown")
+            getattr(self, message_type)(uid_info)
             try:
                 uid = self.devices[get_device_uid_from_element_uid(uid_info['UID'])]
             except KeyError:
