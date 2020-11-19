@@ -145,7 +145,7 @@ class MprmRest(ABC):
         """ Evaluate the response of setting a device to a value. """
         if response['result'].get("status") == 1:
             return True
-        elif response['result'].get("status") == 2:
+        if response['result'].get("status") == 2:
             self._logger.debug("Value of %s is already %s.", uid, value)
         else:
             self._logger.error("Something went wrong setting %s.", uid)

@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+from abc import ABC, abstractmethod
 
 import requests
 import websocket
@@ -10,7 +11,7 @@ from ..exceptions.gateway import GatewayOfflineError
 from .mprm_rest import MprmRest
 
 
-class MprmWebsocket(MprmRest):
+class MprmWebsocket(MprmRest, ABC):
     """
     The abstract MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
     requested up to now. All calls are done in a gateway context, so you have to create a derived class, that provides a
@@ -35,14 +36,18 @@ class MprmWebsocket(MprmRest):
         self.websocket_disconnect()
 
 
+    @abstractmethod
     def get_local_session(self):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
+        pass
 
+    @abstractmethod
     def get_remote_session(self):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect remotely to a gateway.")
+        pass
 
+    @abstractmethod
     def on_update(self, message):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a method to process messages from the websocket.")
+        pass
+
 
     def wait_for_websocket_establishment(self):
         """

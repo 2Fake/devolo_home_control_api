@@ -1,6 +1,7 @@
 import socket
 import sys
 import time
+from abc import ABC
 from json import JSONDecodeError
 from threading import Thread
 from typing import Optional
@@ -13,7 +14,7 @@ from ..exceptions.gateway import GatewayOfflineError
 from .mprm_websocket import MprmWebsocket
 
 
-class Mprm(MprmWebsocket):
+class Mprm(MprmWebsocket, ABC):
     """
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
