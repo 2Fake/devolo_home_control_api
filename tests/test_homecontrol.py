@@ -13,7 +13,6 @@ class TestHomeControl:
                                  if callable(getattr(self.homecontrol, func)) and not func.startswith("__")]
         assert set(MESSAGE_TYPES.values()) - set(homecontrol_functions) == {"_gateway_accessible", "_device_state"}
 
-
     def test_binary_sensor_devices(self):
         assert hasattr(self.homecontrol.binary_sensor_devices[0], "binary_sensor_property")
 
