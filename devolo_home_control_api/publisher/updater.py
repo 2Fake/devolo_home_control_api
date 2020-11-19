@@ -82,7 +82,7 @@ class Updater:
             except KeyError:
                 # Siren setting is not initialized like others.
                 self.devices[device_uid].settings_property['muted'].value = value
-            self._logger.debug(f"Updating value of {element_uid} to {value}")
+            self._logger.debug("Updating state of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _binary_sync(self, message: dict):
@@ -91,7 +91,7 @@ class Updater:
         value = bool(message['properties']['property.value.new'])
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self.devices[device_uid].settings_property["movement_direction"].direction = value
-        self._logger.debug(f"Updating value of {element_uid} to {value}")
+        self._logger.debug("Updating state of %s to %s", element_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _binary_sensor(self, message: dict):
@@ -101,7 +101,7 @@ class Updater:
             value = bool(message['properties']['property.value.new'])
             device_uid = get_device_uid_from_element_uid(element_uid)
             self.devices[device_uid].binary_sensor_property[element_uid].state = value
-            self._logger.debug(f"Updating state of {element_uid} to {value}")
+            self._logger.debug("Updating state of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _binary_switch(self, message: dict):
@@ -112,7 +112,7 @@ class Updater:
             value = bool(message['properties']['property.value.new'])
             device_uid = get_device_uid_from_element_uid(element_uid)
             self.devices[device_uid].binary_switch_property[element_uid].state = value
-            self._logger.debug(f"Updating state of {element_uid} to {value}")
+            self._logger.debug("Updating state of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _pending_operations(self, message: dict):
@@ -130,7 +130,7 @@ class Updater:
         except KeyError:
             device_uid = get_device_uid_from_setting_uid(element_uid)
             self.devices[device_uid].pending_operations = pending_operations
-        self._logger.debug(f"Updating pending operations of device {device_uid} to {pending_operations}")
+        self._logger.debug("Updating pending operations of device %s to %s", device_uid, pending_operations)
         self._publisher.dispatch(device_uid, ("pending_operations", pending_operations))
 
     def _current_consumption(self, message: dict):
@@ -150,7 +150,7 @@ class Updater:
         value = message['properties']['property.value.new']
 
         try:
-            self._logger.debug(f"Updating {property_name[name]} of {device_uid} to {value}")
+            self._logger.debug("Updating %s of %s to %s", property_name[name], device_uid, value)
             setattr(self.devices[device_uid], property_name[name], value)
             self._publisher.dispatch(device_uid, (device_uid, value, property_name[name]))
         except KeyError:
@@ -161,7 +161,7 @@ class Updater:
         if message['properties']['property.name'] == "gatewayAccessible":
             accessible = message['properties']['property.value.new']['accessible']
             online_sync = message['properties']['property.value.new']['onlineSync']
-            self._logger.debug(f"Updating status and state of gateway to status: {accessible} and state: {online_sync}")
+            self._logger.debug("Updating status and state of gateway to status: %s and state: %s", accessible, online_sync)
             self._gateway.online = accessible
             self._gateway.sync = online_sync
 
@@ -185,7 +185,7 @@ class Updater:
         enabled = message['property.value.new']
         for element_uid in self.devices[device_uid].binary_switch_property:
             self.devices[device_uid].binary_switch_property[element_uid].enabled = enabled
-            self._logger.debug(f"Updating enabled state of {element_uid} to {enabled}")
+            self._logger.debug("Updating enabled state of %s to %s", element_uid, enabled)
             self._publisher.dispatch(device_uid, (element_uid, enabled, "gui_enabled"))
 
     def _humidity_bar(self, message: dict):
@@ -195,10 +195,10 @@ class Updater:
         device_uid = get_device_uid_from_element_uid(fake_element_uid)
         if message['properties']['uid'].startswith("devolo.HumidityBarZone"):
             self.devices[device_uid].humidity_bar_property[fake_element_uid].zone = value
-            self._logger.debug(f"Updating humidity bar zone of {fake_element_uid} to {value}")
+            self._logger.debug("Updating humidity bar zone of %s to %s", fake_element_uid, value)
         elif message['properties']['uid'].startswith("devolo.HumidityBarValue"):
             self.devices[device_uid].humidity_bar_property[fake_element_uid].value = value
-            self._logger.debug(f"Updating humidity bar value of {fake_element_uid} to {value}")
+            self._logger.debug("Updating humidity bar value of %s to %s", fake_element_uid, value)
         self._publisher.dispatch(device_uid, (fake_element_uid,
                                               self.devices[device_uid].humidity_bar_property[fake_element_uid].zone,
                                               self.devices[device_uid].humidity_bar_property[fake_element_uid].value))
@@ -215,7 +215,7 @@ class Updater:
 
         device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
         if mode == "add":
-            self._logger.info(f"{device_uid} added.")
+            self._logger.info("%s added.", device_uid)
             self._publisher.add_event(event=device_uid)
             self._publisher.dispatch(device_uid, (device_uid, mode))
         else:
@@ -228,7 +228,7 @@ class Updater:
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_setting_uid(element_uid)
-            self._logger.debug(f"Updating {element_uid} to {value}.")
+            self._logger.debug("Updating %s to %s.", element_uid, value)
             self.devices[device_uid].settings_property['led'].led_setting = value
             self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -259,7 +259,7 @@ class Updater:
         element_uid = message['properties']['uid']
         value = message['properties']['property.value.new']
         device_uid = get_device_uid_from_element_uid(element_uid)
-        self._logger.debug(f"Updating {element_uid} to {value}")
+        self._logger.debug("Updating %s to %s.", element_uid, value)
         self.devices[device_uid].multi_level_sensor_property[element_uid].value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -269,7 +269,7 @@ class Updater:
             element_uid = message['properties']['uid']
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_element_uid(element_uid)
-            self._logger.debug(f"Updating {element_uid} to {value}")
+            self._logger.debug("Updating %s to %s.", element_uid, value)
             self.devices[device_uid].multi_level_switch_property[element_uid].value = value
             self._publisher.dispatch(device_uid, (element_uid, value))
 
@@ -280,7 +280,7 @@ class Updater:
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_setting_uid(element_uid)
             device_model = self.devices[device_uid].device_model_uid
-            self._logger.debug(f"Updating {element_uid} to {value}")
+            self._logger.debug("Updating %s to %s.", element_uid, value)
             sync_type = {"devolo.model.Siren": "tone",
                          "devolo.model.OldShutter": "shutter_duration",
                          "devolo.model.Shutter": "shutter_duration"}
@@ -300,7 +300,7 @@ class Updater:
             param_changed = message['properties']['property.value.new']
             device_uid = get_device_uid_from_setting_uid(element_uid)
             self.devices[device_uid].settings_property['param_changed'].param_changed = param_changed
-            self._logger.debug(f"Updating param_changed of {element_uid} to {param_changed}")
+            self._logger.debug("Updating %s to %s.", element_uid, param_changed)
             self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
     def _protection(self, message: dict):
@@ -316,7 +316,7 @@ class Updater:
                               "remoteSwitch": "remote_switching"}
 
             setattr(self.devices[device_uid].settings_property['protection'], switching_type[name], value)
-            self._logger.debug(f"Updating {switching_type[name]} protection of {element_uid} to {value}")
+            self._logger.debug("Updating %s protection of %s to %s", switching_type[name], element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value, switching_type[name]))
 
     def _remote_control(self, message: dict):
@@ -329,6 +329,7 @@ class Updater:
             device_uid = get_device_uid_from_element_uid(element_uid)
             old_key_pressed = self.devices[device_uid].remote_control_property[element_uid].key_pressed
             self.devices[device_uid].remote_control_property[element_uid].key_pressed = key_pressed
+            # pylint: disable=logging-fstring-interpolation
             self._logger.debug(f"Updating remote control of {element_uid}.\
                                Key {f'pressed: {key_pressed}' if key_pressed != 0 else f'released: {old_key_pressed}'}")
             self._publisher.dispatch(device_uid, (element_uid, key_pressed))
@@ -339,7 +340,7 @@ class Updater:
         total_since = message['property.value.new']
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices[device_uid].consumption_property[element_uid].total_since = total_since
-        self._logger.debug(f"Updating total since of {element_uid} to {total_since}")
+        self._logger.debug("Updating total since of %s to %s", element_uid, total_since)
         self._publisher.dispatch(device_uid, (element_uid, total_since, "total_since"))
 
     def _switch_type(self, message: dict):
@@ -349,7 +350,7 @@ class Updater:
         device_uid = get_device_uid_from_setting_uid(element_uid)
         self.devices[device_uid].settings_property['switch_type'].value = value
         self.devices[device_uid].remote_control_property[f'devolo.RemoteControl:{device_uid}'].key_count = value
-        self._logger.debug(f"Updating switch type of {device_uid} to {value}")
+        self._logger.debug("Updating switch type of %s to %s", device_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _temperature_report(self, message: dict):
@@ -359,7 +360,7 @@ class Updater:
             value = message['properties']['property.value.new']
             device_uid = get_device_uid_from_setting_uid(element_uid)
             self.devices[device_uid].settings_property['temperature_report'].temp_report = value
-            self._logger.debug(f"Updating temperature report of {element_uid} to {value}")
+            self._logger.debug("Updating temperature report of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
     def _total_consumption(self, message: dict):
@@ -384,15 +385,15 @@ class Updater:
     def _update_automatic_calibration(self, element_uid: str, calibration_status: bool):
         """ Update automatic calibration setting of a device. """
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property["automatic_calibration"].calibration_status = calibration_status
-        self._logger.debug(f"Updating value of {element_uid} to {calibration_status}")
+        self.devices[device_uid].settings_property['automatic_calibration'].calibration_status = calibration_status
+        self._logger.debug("Updating value of %s to %s", element_uid, calibration_status)
         self._publisher.dispatch(device_uid, (element_uid, calibration_status))
 
     def _update_consumption(self, element_uid: str, consumption: str, value: float):
         """ Update the consumption of a device. """
         device_uid = get_device_uid_from_element_uid(element_uid)
         setattr(self.devices[device_uid].consumption_property[element_uid], consumption, value)
-        self._logger.debug(f"Updating {consumption} consumption of {element_uid} to {value}")
+        self._logger.debug("Updating %s consumption of %s to %s", consumption, element_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value, consumption))
 
     def _update_general_device_settings(self, element_uid, **kwargs: str):
@@ -400,7 +401,7 @@ class Updater:
         device_uid = get_device_uid_from_setting_uid(element_uid)
         for key, value in kwargs.items():
             setattr(self.devices[device_uid].settings_property['general_device_settings'], key, value)
-            self._logger.debug(f"Updating attribute: {key} of {element_uid} to {value}")
+            self._logger.debug("Updating attribute: %s of %s to %s", key, element_uid, value)
             self._publisher.dispatch(device_uid, (key, value))
 
     def _voltage_multi_level_sensor(self, message: dict):
@@ -409,5 +410,5 @@ class Updater:
         value = message['properties']['property.value.new']
         device_uid = get_device_uid_from_element_uid(element_uid)
         self.devices[device_uid].multi_level_sensor_property[element_uid].value = value
-        self._logger.debug(f"Updating voltage of {element_uid} to {value}")
+        self._logger.debug("Updating voltage of %s to %s", element_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value))

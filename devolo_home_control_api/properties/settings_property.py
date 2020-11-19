@@ -56,7 +56,7 @@ class SettingsProperty(Property):
         :param value: New state
         """
         if self._setter(self.element_uid, [value]):
-            self.value = value
+            self.value = value  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("Binary async setting property %s set to %s", self.element_uid, value)
 
     def _set_gds(self, **kwargs: Union[bool, str]):
@@ -73,7 +73,7 @@ class SettingsProperty(Property):
         :type zone_id: str
         """
         # pylint: disable=access-member-before-definition
-        events_enabled = kwargs.pop("events_enabled", self.events_enabled)
+        events_enabled: bool = kwargs.pop("events_enabled", self.events_enabled)
         # pylint: disable=access-member-before-definition
         icon = kwargs.pop("icon", self.icon)
         # pylint: disable=access-member-before-definition
@@ -83,10 +83,10 @@ class SettingsProperty(Property):
 
         settings = {"events_enabled": events_enabled, "icon": icon, "name": name, "zone_id": zone_id}
         if self._setter(self.element_uid, [settings]):
-            self.events_enabled = events_enabled
-            self.icon = icon
-            self.name = name
-            self.zone_id = zone_id
+            self.events_enabled = events_enabled  # pylint: disable=attribute-defined-outside-init
+            self.icon = icon  # pylint: disable=attribute-defined-outside-init
+            self.name = name  # pylint: disable=attribute-defined-outside-init
+            self.zone_id = zone_id  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("General device setting %s changed.", self.element_uid)
 
     def _set_lis(self, led_setting: bool):
@@ -96,7 +96,7 @@ class SettingsProperty(Property):
         :param led_setting: LED indication setting
         """
         if self._setter(self.element_uid, [led_setting]):
-            self.led_setting = led_setting
+            self.led_setting = led_setting  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("LED indication setting property %s set to %s", self.element_uid, led_setting)
 
     def _set_mss(self, motion_sensitivity: int):
@@ -108,7 +108,7 @@ class SettingsProperty(Property):
         if not 0 <= motion_sensitivity <= 100:
             raise ValueError("Value must be between 0 and 100")
         if self._setter(self.element_uid, [motion_sensitivity]):
-            self.motion_sensitivity = motion_sensitivity
+            self.motion_sensitivity = motion_sensitivity  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("Motion sensitivity setting property %s set to %s", self.element_uid, motion_sensitivity)
 
     def _set_ps(self, **kwargs: bool):
@@ -126,8 +126,8 @@ class SettingsProperty(Property):
         remote_switching = kwargs.pop("remote_switching", self.remote_switching)
 
         if self._setter(self.element_uid, [{"localSwitch": local_switching, "remoteSwitch": remote_switching}]):
-            self.local_switching = local_switching
-            self.remote_switching = remote_switching
+            self.local_switching = local_switching  # pylint: disable=attribute-defined-outside-init
+            self.remote_switching = remote_switching  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("Protection setting property %s set to %s (local) and %s (remote).",
                                self.element_uid, local_switching, remote_switching)
 
@@ -138,5 +138,5 @@ class SettingsProperty(Property):
         :param temp_report: Boolean of the target value
         """
         if self._setter(self.element_uid, [temp_report]):
-            self.temp_report = temp_report
+            self.temp_report = temp_report  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("Temperature report setting property %s set to %s", self.element_uid, temp_report)

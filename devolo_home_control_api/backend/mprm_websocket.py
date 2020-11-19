@@ -2,8 +2,8 @@ import json
 import threading
 import time
 
+import requests
 import websocket
-from requests import ConnectionError
 from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
@@ -131,7 +131,7 @@ class MprmWebsocket(MprmRest):
         threading.Thread(target=run, name=f"{__class__.__name__}.websocket_run").start()
         self._connected = True
 
-    def _on_pong(self, *args):
+    def _on_pong(self, *args):  # pylint: disable=unused-argument
         """ Callback method to keep the session valid. """
         self.refresh_session()
 
@@ -142,6 +142,6 @@ class MprmWebsocket(MprmRest):
             # TODO: Check if local_ip is still correct after lost connection
             self.get_local_session() if self._local_ip else self.get_remote_session()
             self._reachable = True
-        except (json.JSONDecodeError, ConnectTimeoutError, ConnectionError, GatewayOfflineError):
+        except (json.JSONDecodeError, ConnectTimeoutError, requests.ConnectionError, GatewayOfflineError):
             self._logger.info(f"Sleeping for {sleep_interval} seconds.")
             time.sleep(sleep_interval)
