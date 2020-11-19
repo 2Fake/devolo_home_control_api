@@ -44,13 +44,16 @@ class HomeControl(Mprm):
         self.gateway = Gateway(gateway_id, mydevolo_instance)
 
         super().__init__(mydevolo_instance, zeroconf_instance)
-        self.gateway.zones = self.get_all_zones()
+        self._grouping()
 
         # Create the initial device dict
         self.devices: Dict = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = {f"{self.devices[device].settings_property['general_device_settings'].name}/{self.devices[device].settings_property['general_device_settings'].zone}": self.devices[device].uid for device in self.devices}
+        self.device_names = {
+            f"{self.devices[device].settings_property['general_device_settings'].name}/ \
+              {self.devices[device].settings_property['general_device_settings'].zone}":
+            self.devices[device].uid for device in self.devices}
 
         self.gateway.home_id = get_home_id_from_device_uid(next(iter(self.device_names.values())))
 
@@ -153,6 +156,12 @@ class HomeControl(Mprm):
                                  state=bool(uid_info['properties']['state']),
                                  enabled=uid_info['properties']['guiEnabled'])
 
+    def _gateway_accessible(self):
+        """ This functionality is hanbled by the updater only. """
+
+    def _device_state(self):
+        """ This functionality is hanbled by the updater only. """
+
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
@@ -166,6 +175,10 @@ class HomeControl(Mprm):
                              zone_id=uid_info['properties']['settings']['zoneID'],
                              icon=uid_info['properties']['settings']['icon'],
                              zones=self.gateway.zones)
+
+    def _grouping(self):
+        """ Get all zones (also called rooms). """
+        self.gateway.zones = self.get_all_zones()
 
     def _humidity_bar(self, uid_info: dict):
         """

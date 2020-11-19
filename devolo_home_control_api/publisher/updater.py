@@ -139,25 +139,6 @@ class Updater:
                                  consumption="current",
                                  value=message['property.value.new'])
 
-    def _device_change(self, message: dict):
-        """ Call method if a new device appears or an old one disappears. """
-        if not callable(self.on_device_change):
-            self._logger.error("on_device_change is not set.")
-            return
-
-        if not isinstance(message['properties']['property.value.new'], list) or \
-           not message['properties']['uid'] == "devolo.DevicesPage":
-            return
-
-        device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
-        if mode == "add":
-            self._logger.info(f"{device_uid} added.")
-            self._publisher.add_event(event=device_uid)
-            self._publisher.dispatch(device_uid, (device_uid, mode))
-        else:
-            self._publisher.dispatch(device_uid, (device_uid, mode))
-            self._publisher.delete_event(event=device_uid)
-
     def _device_state(self, message: dict):
         """ Update the device state. """
         property_name = {"batteryLevel": "battery_level",
@@ -221,6 +202,25 @@ class Updater:
         self._publisher.dispatch(device_uid, (fake_element_uid,
                                               self.devices[device_uid].humidity_bar_property[fake_element_uid].zone,
                                               self.devices[device_uid].humidity_bar_property[fake_element_uid].value))
+
+    def _inspect_devices(self, message: dict):
+        """ Call method if a new device appears or an old one disappears. """
+        if not callable(self.on_device_change):
+            self._logger.error("on_device_change is not set.")
+            return
+
+        if not isinstance(message['properties']['property.value.new'], list) or \
+           not message['properties']['uid'] == "devolo.DevicesPage":
+            return
+
+        device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
+        if mode == "add":
+            self._logger.info(f"{device_uid} added.")
+            self._publisher.add_event(event=device_uid)
+            self._publisher.dispatch(device_uid, (device_uid, mode))
+        else:
+            self._publisher.dispatch(device_uid, (device_uid, mode))
+            self._publisher.delete_event(event=device_uid)
 
     def _led(self, message: dict):
         """ Update LED settings. """

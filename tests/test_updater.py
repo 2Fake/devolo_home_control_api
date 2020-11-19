@@ -1,10 +1,15 @@
-import pytest
 from datetime import datetime, timezone
+
+import pytest
+from devolo_home_control_api.backend import MESSAGE_TYPES
 
 
 @pytest.mark.usefixtures("home_control_instance")
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
+    def test_hasattr(self):
+        for message_tpye in MESSAGE_TYPES.values():
+            assert hasattr(self.homecontrol.updater, message_tpye)
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
@@ -110,12 +115,6 @@ class TestUpdater:
             .get(f"devolo.BinarySwitch:{uid}").state
         assert state != state_new
 
-    def test__device_change_error(self, mocker):
-        self.homecontrol.updater.on_device_change = None
-        spy = mocker.spy(self.homecontrol.updater._logger, "error")
-        self.homecontrol.updater._device_change({})
-        spy.assert_called_once_with("on_device_change is not set.")
-
     def test__device_state(self):
         uid = self.devices.get("mains").get("uid")
         online_state = self.homecontrol.devices.get(uid).status
@@ -188,6 +187,12 @@ class TestUpdater:
         assert current_zone_new == 0
         assert current_value != current_value_new
         assert current_zone != current_zone_new
+
+    def test__inspect_devices_error(self, mocker):
+        self.homecontrol.updater.on_device_change = None
+        spy = mocker.spy(self.homecontrol.updater._logger, "error")
+        self.homecontrol.updater._inspect_devices({})
+        spy.assert_called_once_with("on_device_change is not set.")
 
     def test__meter(self):
         uid = self.devices.get("mains").get("uid")
