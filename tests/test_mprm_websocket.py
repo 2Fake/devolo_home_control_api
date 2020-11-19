@@ -6,7 +6,6 @@ from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from websocket import WebSocketApp
 
 from .mocks.mock_websocket import MockWebsocketError
-from .stubs.mprm_websocket import StubMprmWebsocket
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -47,8 +46,8 @@ class TestMprmWebsocket:
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     def test__on_error(self, mocker):
         close_spy = mocker.spy(WebSocketApp, "close")
-        reconnect_spy = mocker.spy(StubMprmWebsocket, "_try_reconnect")
-        connect_spy = mocker.spy(StubMprmWebsocket, "websocket_connect")
+        reconnect_spy = mocker.spy(MprmWebsocket, "_try_reconnect")
+        connect_spy = mocker.spy(MprmWebsocket, "websocket_connect")
         self.mprm._ws = WebSocketApp()
         self.mprm._on_error("error")
         assert close_spy.call_count == 1
