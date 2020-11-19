@@ -9,9 +9,9 @@ from devolo_home_control_api.backend import MESSAGE_TYPES
 @pytest.mark.usefixtures("mock_mydevolo__call")
 class TestHomeControl:
     def test_hasattr(self):
-        homecontrol_functions = [func for func in dir(self.homecontrol)
-                                 if callable(getattr(self.homecontrol, func)) and not func.startswith("__")]
-        assert set(MESSAGE_TYPES.values()).difference(set(homecontrol_functions)) == {"_gateway_accessible", "_device_state"}
+        homecontrol_functions = (func for func in dir(self.homecontrol)
+                                 if callable(getattr(self.homecontrol, func)) and not func.startswith("__"))
+        assert set(MESSAGE_TYPES.values()).difference(homecontrol_functions) == {"_gateway_accessible", "_device_state"}
 
     def test_binary_sensor_devices(self):
         assert hasattr(self.homecontrol.binary_sensor_devices[0], "binary_sensor_property")

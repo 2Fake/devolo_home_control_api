@@ -8,8 +8,9 @@ from devolo_home_control_api.backend import MESSAGE_TYPES
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
     def test_hasattr(self):
-        for message_type in MESSAGE_TYPES.values():
-            assert hasattr(self.homecontrol.updater, message_type)
+        update_functions = (func for func in dir(self.homecontrol.updater)
+                            if callable(getattr(self.homecontrol.updater, func)) and not func.startswith("__"))
+        assert set(MESSAGE_TYPES.values()).difference(update_functions) == set()
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
