@@ -50,10 +50,7 @@ class HomeControl(Mprm):
         self.devices: Dict = {}
         self._inspect_devices(self.get_all_devices())
 
-        self.device_names = dict(zip([(self.devices[device].settings_property['general_device_settings'].name + "/"
-                                       + self.devices[device].settings_property['general_device_settings'].zone)
-                                      for device in self.devices],
-                                     [self.devices[device].uid for device in self.devices]))
+        self.device_names = {f"{self.devices[device].settings_property['general_device_settings'].name}/{self.devices[device].settings_property['general_device_settings'].zone}": self.devices[device].uid for device in self.devices}
 
         self.gateway.home_id = get_home_id_from_device_uid(next(iter(self.device_names.values())))
 
