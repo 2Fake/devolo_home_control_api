@@ -8,8 +8,8 @@ from devolo_home_control_api.backend import MESSAGE_TYPES
 @pytest.mark.usefixtures("mock_publisher_dispatch")
 class TestUpdater:
     def test_hasattr(self):
-        for message_tpye in MESSAGE_TYPES.values():
-            assert hasattr(self.homecontrol.updater, message_tpye)
+        for message_type in MESSAGE_TYPES.values():
+            assert hasattr(self.homecontrol.updater, message_type)
 
     @pytest.mark.usefixtures("mock_updater_binary_switch")
     def test_update_device(self, mocker):
