@@ -45,7 +45,7 @@ class Updater:
             return
 
         # Handle pending operations messages
-        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations":
+        if "property.name" in message['properties'] and message['properties']['property.name'] == "pendingOperations":
             self._pending_operations(message)
             return
 
@@ -61,15 +61,15 @@ class Updater:
     def _automatic_calibration(self, message: dict):
         """ Update a automatic calibration message. """
         try:
-            calibration_status = message["properties"]["property.value.new"]["status"]
+            calibration_status = message['properties']['property.value.new']['status']
             self._update_automatic_calibration(
-                element_uid=message["properties"]["uid"],
+                element_uid=message['properties']['uid'],
                 calibration_status=calibration_status != 2,
             )
         except (KeyError, TypeError):
-            if type(message["properties"]["property.value.new"]) not in [dict, list]:
-                self._update_automatic_calibration(element_uid=message["properties"]["uid"],
-                                                   calibration_status=bool(message["properties"]["property.value.new"]))
+            if type(message['properties']['property.value.new']) not in [dict, list]:
+                self._update_automatic_calibration(element_uid=message['properties']['uid'],
+                                                   calibration_status=bool(message['properties']['property.value.new']))
 
     def _binary_async(self, message: dict):
         """ Update a binary async setting. """
@@ -176,7 +176,7 @@ class Updater:
 
     def _grouping(self, message: dict):
         """ Update zone (also called room) of a device. """
-        self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
+        self._gateway.zones = {key['id']: key['name'] for key in message['properties']['property.value.new']}
         self._logger.debug("Updating gateway zones.")
 
     def _gui_enabled(self, message: dict):
