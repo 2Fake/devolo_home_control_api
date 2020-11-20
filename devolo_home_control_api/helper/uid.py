@@ -15,7 +15,10 @@ def get_device_uid_from_element_uid(element_uid: str) -> str:
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Device UID, something like hdm:ZWave:CBC56091/24
     """
-    return re.search(r".*?:(.*/\d{1,3})", element_uid).group(1)
+    parts = re.search(r".*?:(.*/\d{1,3})", element_uid)
+    if parts:
+        return parts.group(1)
+    raise ValueError("Element UID has a wrong format.")
 
 
 def get_device_uid_from_setting_uid(setting_uid: str) -> str:
@@ -25,7 +28,10 @@ def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     :param setting_uid: Setting UID, something like lis.hdm:ZWave:EB5A9F6C/2
     :return: Device UID, something like hdm:ZWave:EB5A9F6C/2
     """
-    return re.search(r".*\.(.*/\d{1,3})", setting_uid).group(1)
+    parts = re.search(r".*\.(.*/\d{1,3})", setting_uid)
+    if parts:
+        return parts.group(1)
+    raise ValueError("Settings UID has a wrong format.")
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
@@ -54,4 +60,7 @@ def get_home_id_from_device_uid(device_uid: str) -> str:
     :param device_uid: Device UID, something like hdm:ZWave:EB5A9F6C/4
     :return: Home ID, something like EB5A9F6C
     """
-    return re.search(r":.*?(:)(.*)(/)", device_uid).group(2)
+    parts = re.search(r":.*?(:)(.*)(/)", device_uid)
+    if parts:
+        return parts.group(2)
+    raise ValueError("Device UID has a wrong format.")

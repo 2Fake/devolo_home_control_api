@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Union
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -18,7 +18,7 @@ class ConsumptionProperty(Property):
     :type total_since: int
     """
 
-    def __init__(self, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, **kwargs: Union[int, float]):
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 

@@ -22,6 +22,7 @@ class MprmRest(ABC):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._data_id = 0
         self._local_ip = ""
+        self._url = ""
 
         self._mydevolo: Mydevolo
         self._session: Session
@@ -145,7 +146,7 @@ class MprmRest(ABC):
         """ Evaluate the response of setting a device to a value. """
         if response['result'].get("status") == 1:
             return True
-        elif response['result'].get("status") == 2:
+        if response['result'].get("status") == 2:
             self._logger.debug("Value of %s is already %s.", uid, value)
         else:
             self._logger.error("Something went wrong setting %s.", uid)
@@ -164,7 +165,7 @@ class MprmRest(ABC):
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
         try:
-            response = self._session.post(self._session.url + "/remote/json-rpc",
+            response = self._session.post(self._url + "/remote/json-rpc",
                                           data=json.dumps(data),
                                           headers={"content-type": "application/json"},
                                           timeout=30).json()

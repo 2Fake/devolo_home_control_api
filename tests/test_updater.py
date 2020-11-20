@@ -189,11 +189,28 @@ class TestUpdater:
         assert current_value != current_value_new
         assert current_zone != current_zone_new
 
+    @pytest.mark.usefixtures("mock_publisher_add_event")
+    @pytest.mark.usefixtures("mock_publisher_delete_event")
+    @pytest.mark.parametrize("event", ["add", "delete"])
+    def test__inspect_devices_valid(self, mocker, event):
+        self.homecontrol.updater.on_device_change = lambda device_uids: (device_uids, event)
+        spy = mocker.spy(self.homecontrol.updater._publisher, f"{event}_event")
+        self.homecontrol.updater._inspect_devices(message={"properties":
+                                                           {"uid": "devolo.DevicesPage",
+                                                            "property.value.new": []}})
+        spy.assert_called_once()
+
     def test__inspect_devices_error(self, mocker):
         self.homecontrol.updater.on_device_change = None
         spy = mocker.spy(self.homecontrol.updater._logger, "error")
         self.homecontrol.updater._inspect_devices({})
         spy.assert_called_once_with("on_device_change is not set.")
+        self.homecontrol.updater.on_device_change = lambda: None
+        spy = mocker.spy(self.homecontrol.updater, "on_device_change")
+        self.homecontrol.updater._inspect_devices(message={"properties":
+                                                           {"uid": "",
+                                                            "property.value.new": []}})
+        spy.assert_not_called()
 
     def test__meter(self):
         uid = self.devices.get("mains").get("uid")

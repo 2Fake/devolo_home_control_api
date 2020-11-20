@@ -1,6 +1,7 @@
 import socket
 import sys
 import time
+from abc import ABC
 from json import JSONDecodeError
 from threading import Thread
 from typing import Optional
@@ -13,7 +14,7 @@ from ..exceptions.gateway import GatewayOfflineError
 from .mprm_websocket import MprmWebsocket
 
 
-class Mprm(MprmWebsocket):
+class Mprm(MprmWebsocket, ABC):
     """
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
@@ -42,13 +43,14 @@ class Mprm(MprmWebsocket):
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def detect_gateway_in_lan(self, zeroconf_instance: Optional[Zeroconf]):
+    def detect_gateway_in_lan(self, zeroconf_instance: Optional[Zeroconf]) -> str:
         """
         Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
         to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
         remote connection is needed.
 
         :param zeroconf_instance: Zeroconf instance to be potentially reused
+        :return: Local IP of the gateway, if found
         """
         zeroconf = zeroconf_instance or Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
@@ -57,24 +59,24 @@ class Mprm(MprmWebsocket):
         while not time.time() > start_time + 3 and self._local_ip == "":
             time.sleep(0.05)
 
-        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()
+        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()  # type: ignore[name-defined]
         if not zeroconf_instance:
-            Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()
+            Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()  # type: ignore[name-defined]
 
         return self._local_ip
 
-    def get_local_session(self):
+    def get_local_session(self) -> bool:
         """
         Connect to the gateway locally. Calling a special portal URL on the gateway returns a second URL with a token. Calling
         that URL establishes the connection.
         """
         self._logger.info("Connecting to gateway locally.")
-        self._session.url = "http://" + self._local_ip
-        self._logger.debug(f"Session URL set to '{self._session.url}'")
+        self._url = "http://" + self._local_ip
+        self._logger.debug("Session URL set to '%s'", self._url)
         try:
-            token_url = self._session.get(self._session.url + "/dhlp/portal/full",
+            token_url = self._session.get(self._url + "/dhlp/portal/full",
                                           auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
-            self._logger.debug(f"Got a token URL: {token_url}")
+            self._logger.debug("Got a token URL: %s", token_url)
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
@@ -84,27 +86,28 @@ class Mprm(MprmWebsocket):
             self._logger.debug(sys.exc_info())
             raise
         self._session.get(token_url['link'])
+        return True
 
-    def get_remote_session(self):
+    def get_remote_session(self) -> bool:
         """
         Connect to the gateway remotely. Calling the known portal URL is enough in this case.
         """
         self._logger.info("Connecting to gateway via cloud.")
         try:
             url = urlsplit(self._session.get(self.gateway.full_url, timeout=15).url)
-            self._session.url = f"{url.scheme}://{url.netloc}"
-            self._logger.debug(f"Session URL set to '{self._session.url}'")
+            self._url = f"{url.scheme}://{url.netloc}"
+            self._logger.debug("Session URL set to '%s'", self._url)
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-
+        return True
 
     def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
         """ Service handler for Zeroconf state changes. """
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
-            if service_info.server.startswith("devolo-homecontrol"):
+            if service_info and service_info.server.startswith("devolo-homecontrol"):
                 self._try_local_connection(service_info.addresses)
 
     def _try_local_connection(self, addresses: list):
@@ -114,5 +117,5 @@ class Mprm(MprmWebsocket):
             if requests.get("http://" + ip + "/dhlp/port/full",
                             auth=(self.gateway.local_user, self.gateway.local_passkey),
                             timeout=0.5).status_code == requests.codes.ok:  # pylint: disable=no-member
-                self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                self._logger.debug("Got successful answer from ip %s. Setting this as local gateway", ip)
                 self._local_ip = ip

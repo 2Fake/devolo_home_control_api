@@ -20,6 +20,16 @@ jobs:
         pip install flake8
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=E303,W503 --statistics
+    - name: Lint with pylint
+      run: |
+        pip install pylint
+        pip install -e .
+        pylint --errors-only --score=n devolo_home_control_api
+        pylint --exit-zero --score=n --disable=C,E,R --enable=useless-suppression devolo_home_control_api
+    - name: Lint with mypy
+      run: |
+        pip install mypy
+        mypy --ignore-missing-imports devolo_home_control_api
 
   test:
     name: Test with Python ${{ matrix.python-version }}
@@ -68,3 +78,7 @@ jobs:
         pip install wheel coveralls==1.10.0
         export COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }}      
         coveralls
+    - name: Clean up coverage
+      uses: geekyeggo/delete-artifact@v1
+      with:
+        name: coverage

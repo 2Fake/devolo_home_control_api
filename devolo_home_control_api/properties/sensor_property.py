@@ -1,4 +1,3 @@
-from typing import Any
 from abc import ABC
 
 from .property import Property
@@ -16,7 +15,7 @@ class SensorProperty(Property, ABC):
     :type sub_type: str
     """
 
-    def __init__(self, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, **kwargs: str):
         super().__init__(element_uid=element_uid)
 
         self.sensor_type = kwargs.pop("sensor_type", "")

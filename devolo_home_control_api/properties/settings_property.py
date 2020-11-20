@@ -1,4 +1,4 @@
-from typing import Any, Callable, Union
+from typing import Callable
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -15,7 +15,7 @@ class SettingsProperty(Property):
     :param **kwargs: Any setting, that shall be available in this object
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs):
         if not element_uid.startswith(("acs", "bas", "bss", "cps", "gds", "lis", "mas",
                                        "mss", "ps", "sts", "stmss", "trs", "vfs")):
             raise WrongElementError()
@@ -24,7 +24,11 @@ class SettingsProperty(Property):
         self._setter = setter
 
         if element_uid.startswith("gds") and {"zones", "zone_id"} <= kwargs.keys():
-            self.zone = kwargs.pop("zones")[kwargs["zone_id"]]
+            self.events_enabled: bool
+            self.icon: str
+            self.name: str
+            self.zone_id: str
+            self.zone = kwargs.pop("zones")[kwargs['zone_id']]
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -59,7 +63,7 @@ class SettingsProperty(Property):
             self.value = value  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("Binary async setting property %s set to %s", self.element_uid, value)
 
-    def _set_gds(self, **kwargs: Union[bool, str]):
+    def _set_gds(self, **kwargs):
         """
         Set one or more general device setting.
 
@@ -72,21 +76,17 @@ class SettingsProperty(Property):
         :key zone_id: New zone_id (ATTENTION: This is NOT the name of the location)
         :type zone_id: str
         """
-        # pylint: disable=access-member-before-definition
-        events_enabled: bool = kwargs.pop("events_enabled", self.events_enabled)
-        # pylint: disable=access-member-before-definition
+        events_enabled = kwargs.pop("events_enabled", self.events_enabled)
         icon = kwargs.pop("icon", self.icon)
-        # pylint: disable=access-member-before-definition
         name = kwargs.pop("name", self.name)
-        # pylint: disable=access-member-before-definition
         zone_id = kwargs.pop("zone_id", self.zone_id)
 
         settings = {"events_enabled": events_enabled, "icon": icon, "name": name, "zone_id": zone_id}
         if self._setter(self.element_uid, [settings]):
-            self.events_enabled = events_enabled  # pylint: disable=attribute-defined-outside-init
-            self.icon = icon  # pylint: disable=attribute-defined-outside-init
-            self.name = name  # pylint: disable=attribute-defined-outside-init
-            self.zone_id = zone_id  # pylint: disable=attribute-defined-outside-init
+            self.events_enabled = events_enabled
+            self.icon = icon
+            self.name = name
+            self.zone_id = zone_id
             self._logger.debug("General device setting %s changed.", self.element_uid)
 
     def _set_lis(self, led_setting: bool):
@@ -126,8 +126,8 @@ class SettingsProperty(Property):
         remote_switching = kwargs.pop("remote_switching", self.remote_switching)
 
         if self._setter(self.element_uid, [{"localSwitch": local_switching, "remoteSwitch": remote_switching}]):
-            self.local_switching = local_switching  # pylint: disable=attribute-defined-outside-init
-            self.remote_switching = remote_switching  # pylint: disable=attribute-defined-outside-init
+            self.local_switching: bool = local_switching  # pylint: disable=attribute-defined-outside-init
+            self.remote_switching: bool = remote_switching  # pylint: disable=attribute-defined-outside-init
             self._logger.debug("Protection setting property %s set to %s (local) and %s (remote).",
                                self.element_uid, local_switching, remote_switching)
 

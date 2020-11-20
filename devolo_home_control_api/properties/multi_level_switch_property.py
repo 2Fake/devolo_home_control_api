@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -14,14 +14,14 @@ class MultiLevelSwitchProperty(Property):
     :key value: Value the multi level switch has at time of creating this instance
     :type value: float
     :key switch_type: Type this switch is of, e.g. temperature
-    :type switch_type: string
+    :type switch_type: str
     :key max: Highest possible value, that can be set
     :type max: float
     :key min: Lowest possible value, that can be set
     :type min: float
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs):
         if not element_uid.startswith(("devolo.Blinds:",
                                        "devolo.Dimmer:",
                                        "devolo.MultiLevelSwitch:",

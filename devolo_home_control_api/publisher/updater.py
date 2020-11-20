@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from ..backend import MESSAGE_TYPES
 from ..devices.gateway import Gateway
@@ -45,7 +45,7 @@ class Updater:
             return
 
         # Handle pending operations messages
-        if "property.name" in message["properties"] and message['properties']['property.name'] == "pendingOperations":
+        if "property.name" in message['properties'] and message['properties']['property.name'] == "pendingOperations":
             self._pending_operations(message)
             return
 
@@ -61,15 +61,15 @@ class Updater:
     def _automatic_calibration(self, message: dict):
         """ Update a automatic calibration message. """
         try:
-            calibration_status = message["properties"]["property.value.new"]["status"]
+            calibration_status = message['properties']['property.value.new']['status']
             self._update_automatic_calibration(
-                element_uid=message["properties"]["uid"],
+                element_uid=message['properties']['uid'],
                 calibration_status=calibration_status != 2,
             )
         except (KeyError, TypeError):
-            if type(message["properties"]["property.value.new"]) not in [dict, list]:
-                self._update_automatic_calibration(element_uid=message["properties"]["uid"],
-                                                   calibration_status=bool(message["properties"]["property.value.new"]))
+            if type(message['properties']['property.value.new']) not in [dict, list]:
+                self._update_automatic_calibration(element_uid=message['properties']['uid'],
+                                                   calibration_status=bool(message['properties']['property.value.new']))
 
     def _binary_async(self, message: dict):
         """ Update a binary async setting. """
@@ -176,7 +176,7 @@ class Updater:
 
     def _grouping(self, message: dict):
         """ Update zone (also called room) of a device. """
-        self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
+        self._gateway.zones = {key['id']: key['name'] for key in message['properties']['property.value.new']}
         self._logger.debug("Updating gateway zones.")
 
     def _gui_enabled(self, message: dict):
@@ -209,8 +209,8 @@ class Updater:
             self._logger.error("on_device_change is not set.")
             return
 
-        if not isinstance(message['properties']['property.value.new'], list) or \
-           not message['properties']['uid'] == "devolo.DevicesPage":
+        if not isinstance(message['properties']['property.value.new'], list) \
+                or message['properties']['uid'] != "devolo.DevicesPage":
             return
 
         device_uid, mode = self.on_device_change(device_uids=message['properties']['property.value.new'])
@@ -396,7 +396,7 @@ class Updater:
         self._logger.debug("Updating %s consumption of %s to %s", consumption, element_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value, consumption))
 
-    def _update_general_device_settings(self, element_uid, **kwargs: str):
+    def _update_general_device_settings(self, element_uid: str, **kwargs: Any):
         """ Update general device settings. """
         device_uid = get_device_uid_from_setting_uid(element_uid)
         for key, value in kwargs.items():

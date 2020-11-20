@@ -1,19 +1,18 @@
 import json
 
 import pytest
-from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.backend.mprm_rest import MprmRest
-from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 import requests
 
 from ..mocks.mock_gateway import MockGateway
-from ..mocks.mock_mprm import MockMprm
 from ..mocks.mock_mprm_rest import try_local_connection
 from ..mocks.mock_service_browser import ServiceBrowser
 from ..mocks.mock_websocket import try_reconnect
 from ..mocks.mock_websocketapp import MockWebsocketapp
 from ..mocks.mock_zeroconf import Zeroconf
+from ..stubs.mprm import StubMprm
+from ..stubs.mprm_websocket import StubMprmWebsocket
 
 
 @pytest.fixture()
@@ -210,6 +209,7 @@ def mock_mprmwebsocket_try_reconnect(mocker):
 def mock_mprmwebsocket_websocketapp(mocker):
     """ Mock a websocket connection init. """
     mocker.patch("websocket.WebSocketApp.__init__", MockWebsocketapp.__init__)
+    mocker.patch("websocket.WebSocketApp.close", MockWebsocketapp.close)
     mocker.patch("websocket.WebSocketApp.run_forever", MockWebsocketapp.run_forever)
 
 
@@ -235,11 +235,10 @@ def mprm_instance(request, mocker, mydevolo, mock_gateway, mock_inspect_devices_
     if "TestMprmRest" in request.node.nodeid:
         request.cls.mprm = MprmRest()
     elif "TestMprmWebsocket" in request.node.nodeid:
-        request.cls.mprm = MprmWebsocket()
+        request.cls.mprm = StubMprmWebsocket()
     else:
-        mocker.patch("devolo_home_control_api.backend.mprm.Mprm.__init__", MockMprm.__init__)
         mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect", return_value=None)
-        request.cls.mprm = Mprm()
+        request.cls.mprm = StubMprm()
         request.cls.mprm.gateway = MockGateway(request.cls.gateway.get("id"), mydevolo=mydevolo)
 
 

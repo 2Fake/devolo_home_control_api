@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Callable
+from typing import Callable
 
 from ..exceptions.device import SwitchingProtected, WrongElementError
 from .property import Property
@@ -17,7 +17,7 @@ class BinarySwitchProperty(Property):
     :type state: bool
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: bool):
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
