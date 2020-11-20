@@ -23,6 +23,7 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
+        pip install -e .[test]
         pylint --errors-only --score=n devolo_home_control_api
         pylint --exit-zero --score=n --disable=C,E,R --enable=useless-suppression devolo_home_control_api
 
