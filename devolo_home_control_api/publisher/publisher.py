@@ -1,5 +1,5 @@
-from typing import Callable, Dict, KeysView
 import logging
+from typing import Callable, Dict, KeysView, Union
 
 
 class Publisher:
@@ -7,7 +7,7 @@ class Publisher:
     The Publisher send messages to attached subscribers.
     """
 
-    def __init__(self, events: KeysView):
+    def __init__(self, events: Union[list, KeysView]):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._events: Dict = {event: dict() for event in events}
 

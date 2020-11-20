@@ -22,6 +22,7 @@ class MprmRest(ABC):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._data_id = 0
         self._local_ip = ""
+        self._url = ""
 
         self._mydevolo: Mydevolo
         self._session: Session
@@ -164,7 +165,7 @@ class MprmRest(ABC):
         data['jsonrpc'] = "2.0"
         data['id'] = self._data_id
         try:
-            response = self._session.post(self._session.url + "/remote/json-rpc",
+            response = self._session.post(self._url + "/remote/json-rpc",
                                           data=json.dumps(data),
                                           headers={"content-type": "application/json"},
                                           timeout=30).json()

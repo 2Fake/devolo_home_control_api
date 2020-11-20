@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Callable
+from typing import Callable
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -18,7 +18,7 @@ class RemoteControlProperty(Property):
     :type key_pressed: int
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: int):
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(f"{element_uid} is not a remote control.")
 
@@ -35,7 +35,7 @@ class RemoteControlProperty(Property):
         return self._key_pressed
 
     @key_pressed.setter
-    def key_pressed(self, key_pressed: float):
+    def key_pressed(self, key_pressed: int):
         """ Update value of the multilevel value and set point in time of the last_activity. """
         self._key_pressed = key_pressed
         self._last_activity = datetime.now()

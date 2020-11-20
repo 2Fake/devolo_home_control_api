@@ -23,12 +23,15 @@
 		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
 		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 		"python.linting.enabled": true,
-		"python.linting.pylintEnabled": false,
 		"python.linting.flake8Enabled": true,
 		"python.linting.flake8Args": ["--max-cognitive-complexity=5", "--max-line-length=127", "--ignore=E303,W503"],
-		"python.testing.unittestEnabled": false,
+		"python.linting.mypyEnabled": true,
+		"python.linting.mypyArgs": ["--ignore-missing-imports"],
+		"python.linting.pylintEnabled": true,
+		"python.linting.pylintArgs": ["--disable=C,R", "--enable=useless-suppression"],
     	"python.testing.nosetestsEnabled": false,
-    	"python.testing.pytestEnabled": true,
+		"python.testing.pytestEnabled": true,
+		"python.testing.unittestEnabled": false,
 	},
 	
 	// Add the IDs of extensions you want installed when the container is created.

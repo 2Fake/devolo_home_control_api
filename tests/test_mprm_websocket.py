@@ -62,6 +62,7 @@ class TestMprmWebsocket:
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
         self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._url = "https://homecontrol.mydevolo.com"
         self.mprm._on_pong()
         assert spy.call_count == 1
 

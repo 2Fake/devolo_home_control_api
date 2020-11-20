@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Any
 
 from ..exceptions.device import WrongElementError
 from .sensor_property import SensorProperty
@@ -17,7 +16,7 @@ class MultiLevelSensorProperty(SensorProperty):
     :type unit: int
     """
 
-    def __init__(self, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, **kwargs):
         if not element_uid.startswith(("devolo.DewpointSensor:",
                                        "devolo.MultiLevelSensor:",
                                        "devolo.ValveTemperatureSensor",

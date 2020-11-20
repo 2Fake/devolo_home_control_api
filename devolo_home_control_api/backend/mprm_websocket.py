@@ -67,7 +67,7 @@ class MprmWebsocket(MprmRest, ABC):
         used or not. After establishing the websocket, a ping is sent every 30 seconds to keep the connection alive. If there
         is no response within 5 seconds, the connection is terminated with error state.
         """
-        ws_url = self._session.url.replace("https://", "wss://").replace("http://", "ws://")
+        ws_url = self._url.replace("https://", "wss://").replace("http://", "ws://")
         cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \

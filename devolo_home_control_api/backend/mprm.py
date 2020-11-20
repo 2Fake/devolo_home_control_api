@@ -59,9 +59,9 @@ class Mprm(MprmWebsocket, ABC):
         while not time.time() > start_time + 3 and self._local_ip == "":
             time.sleep(0.05)
 
-        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()
+        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()  # type: ignore[name-defined]
         if not zeroconf_instance:
-            Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()
+            Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()  # type: ignore[name-defined]
 
         return self._local_ip
 
@@ -71,10 +71,10 @@ class Mprm(MprmWebsocket, ABC):
         that URL establishes the connection.
         """
         self._logger.info("Connecting to gateway locally.")
-        self._session.url = "http://" + self._local_ip
-        self._logger.debug("Session URL set to '%s'", self._session.url)
+        self._url = "http://" + self._local_ip
+        self._logger.debug("Session URL set to '%s'", self._url)
         try:
-            token_url = self._session.get(self._session.url + "/dhlp/portal/full",
+            token_url = self._session.get(self._url + "/dhlp/portal/full",
                                           auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
             self._logger.debug("Got a token URL: %s", token_url)
         except JSONDecodeError:
@@ -95,8 +95,8 @@ class Mprm(MprmWebsocket, ABC):
         self._logger.info("Connecting to gateway via cloud.")
         try:
             url = urlsplit(self._session.get(self.gateway.full_url, timeout=15).url)
-            self._session.url = f"{url.scheme}://{url.netloc}"
-            self._logger.debug("Session URL set to '%s'", self._session.url)
+            self._url = f"{url.scheme}://{url.netloc}"
+            self._logger.debug("Session URL set to '%s'", self._url)
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())
@@ -107,7 +107,7 @@ class Mprm(MprmWebsocket, ABC):
         """ Service handler for Zeroconf state changes. """
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
-            if service_info.server.startswith("devolo-homecontrol"):
+            if service_info and service_info.server.startswith("devolo-homecontrol"):
                 self._try_local_connection(service_info.addresses)
 
     def _try_local_connection(self, addresses: list):
