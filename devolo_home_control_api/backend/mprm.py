@@ -43,13 +43,14 @@ class Mprm(MprmWebsocket, ABC):
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def detect_gateway_in_lan(self, zeroconf_instance: Optional[Zeroconf]):
+    def detect_gateway_in_lan(self, zeroconf_instance: Optional[Zeroconf]) -> str:
         """
         Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
         to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
         remote connection is needed.
 
         :param zeroconf_instance: Zeroconf instance to be potentially reused
+        :return: Local IP of the gateway, if found
         """
         zeroconf = zeroconf_instance or Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
@@ -64,18 +65,18 @@ class Mprm(MprmWebsocket, ABC):
 
         return self._local_ip
 
-    def get_local_session(self):
+    def get_local_session(self) -> bool:
         """
         Connect to the gateway locally. Calling a special portal URL on the gateway returns a second URL with a token. Calling
         that URL establishes the connection.
         """
         self._logger.info("Connecting to gateway locally.")
         self._session.url = "http://" + self._local_ip
-        self._logger.debug(f"Session URL set to '{self._session.url}'")
+        self._logger.debug("Session URL set to '%s'", self._session.url)
         try:
             token_url = self._session.get(self._session.url + "/dhlp/portal/full",
                                           auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
-            self._logger.debug(f"Got a token URL: {token_url}")
+            self._logger.debug("Got a token URL: %s", token_url)
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
@@ -85,8 +86,9 @@ class Mprm(MprmWebsocket, ABC):
             self._logger.debug(sys.exc_info())
             raise
         self._session.get(token_url['link'])
+        return True
 
-    def get_remote_session(self):
+    def get_remote_session(self) -> bool:
         """
         Connect to the gateway remotely. Calling the known portal URL is enough in this case.
         """
@@ -94,12 +96,12 @@ class Mprm(MprmWebsocket, ABC):
         try:
             url = urlsplit(self._session.get(self.gateway.full_url, timeout=15).url)
             self._session.url = f"{url.scheme}://{url.netloc}"
-            self._logger.debug(f"Session URL set to '{self._session.url}'")
+            self._logger.debug("Session URL set to '%s'", self._session.url)
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-
+        return True
 
     def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
         """ Service handler for Zeroconf state changes. """
@@ -115,5 +117,5 @@ class Mprm(MprmWebsocket, ABC):
             if requests.get("http://" + ip + "/dhlp/port/full",
                             auth=(self.gateway.local_user, self.gateway.local_passkey),
                             timeout=0.5).status_code == requests.codes.ok:  # pylint: disable=no-member
-                self._logger.debug(f"Got successful answer from ip {ip}. Setting this as local gateway")
+                self._logger.debug("Got successful answer from ip %s. Setting this as local gateway", ip)
                 self._local_ip = ip

@@ -72,7 +72,7 @@ class MprmWebsocket(MprmRest, ABC):
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
                  f"&filter=(|(GW_ID={self.gateway.id})(!(GW_ID=*)))"
-        self._logger.debug(f"Connecting to {ws_url}")
+        self._logger.debug("Connecting to %s", ws_url)
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
                                           on_open=self._on_open,
@@ -89,7 +89,7 @@ class MprmWebsocket(MprmRest, ABC):
         """
         self._logger.info("Closing web socket connection.")
         if event:
-            self._logger.info(f"Reason: {event}")
+            self._logger.info("Reason: %s", event)
         self._ws.close()
 
 
@@ -115,15 +115,15 @@ class MprmWebsocket(MprmRest, ABC):
     def _on_message(self, message: str):
         """ Callback method to react on a message. """
         msg = json.loads(message)
-        self._logger.debug(f"Got message from websocket:\n{msg}")
+        self._logger.debug("Got message from websocket:\n%s", msg)
         event_sequence = msg["properties"]["com.prosyst.mbs.services.remote.event.sequence.number"]
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:
-            self._logger.warning(f"We missed a websocket message. Internal event_sequence is at {self._event_sequence}. "
-                                 f"Event sequence by websocket is at {event_sequence}")
+            self._logger.warning("We missed a websocket message. Internal event_sequence is at %s. "
+                                 "Event sequence by websocket is at %s", self._event_sequence, event_sequence)
             self._event_sequence = event_sequence + 1
-            self._logger.debug(f"self._event_sequence is set to {self._event_sequence}")
+            self._logger.debug("self._event_sequence is set to %s", self._event_sequence)
 
         self.on_update(msg)
 
@@ -145,8 +145,7 @@ class MprmWebsocket(MprmRest, ABC):
         try:
             self._logger.info("Trying to reconnect to the websocket.")
             # TODO: Check if local_ip is still correct after lost connection
-            self.get_local_session() if self._local_ip else self.get_remote_session()
-            self._reachable = True
-        except (json.JSONDecodeError, ConnectTimeoutError, requests.ConnectionError, GatewayOfflineError):
-            self._logger.info(f"Sleeping for {sleep_interval} seconds.")
+            self._reachable = self.get_local_session() if self._local_ip else self.get_remote_session()
+        except (json.JSONDecodeError, ConnectTimeoutError, requests.exceptions.ConnectTimeout, GatewayOfflineError):
+            self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
