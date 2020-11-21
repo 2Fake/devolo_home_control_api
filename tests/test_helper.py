@@ -1,3 +1,4 @@
+import pytest
 from devolo_home_control_api.helper.string import camel_case_to_snake_case
 from devolo_home_control_api.helper.uid import (
     get_device_type_from_element_uid, get_device_uid_from_element_uid,
@@ -13,17 +14,14 @@ class TestHelper:
     def test_get_device_type_from_element_uid(self):
         assert get_device_type_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "devolo.Meter"
 
-    def test_get_device_uid_from_element_uid(self):
-        assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == "hdm:ZWave:F6BF9812/2"
+    @pytest.mark.parametrize("element_uid",
+                             ["devolo.Meter:hdm:ZWave:F6BF9812/2#2", "devolo.Meter:hdm:ZWave:F6BF9812/2:secure#2"])
+    def test_get_device_uid_from_element_uid(self, element_uid):
+        assert get_device_uid_from_element_uid(element_uid) == "hdm:ZWave:F6BF9812/2"
 
-    def test_get_device_uid_from_element_uid_secure(self):
-        assert get_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2:secure#2") == "hdm:ZWave:F6BF9812/2"
-
-    def test_get_device_uid_from_setting_uid(self):
-        assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2") == "hdm:ZWave:EB5A9F6C/2"
-
-    def test_get_device_uid_from_setting_uid_secure(self):
-        assert get_device_uid_from_setting_uid("lis.hdm:ZWave:EB5A9F6C/2:secure") == "hdm:ZWave:EB5A9F6C/2"
+    @pytest.mark.parametrize("setting_uid", ["lis.hdm:ZWave:EB5A9F6C/2", "lis.hdm:ZWave:EB5A9F6C/2:secure"])
+    def test_get_device_uid_from_setting_uid(self, setting_uid):
+        assert get_device_uid_from_setting_uid(setting_uid) == "hdm:ZWave:EB5A9F6C/2"
 
     def test_get_sub_device_uid_from_element_uid(self):
         assert get_sub_device_uid_from_element_uid("devolo.Meter:hdm:ZWave:F6BF9812/2#2") == 2

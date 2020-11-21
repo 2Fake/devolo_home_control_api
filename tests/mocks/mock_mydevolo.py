@@ -22,7 +22,7 @@ class MockMydevolo:
                 "state": "devolo.hc_gateway.state.idle",
             },
             'https://www.mydevolo.com/v1/hc/maintenance':
-                {"state": "off"} if self._request.node.name == "test_maintenance_off" else {"state": "on"},
+                {"state": "off"} if self._request.node.name == "test_maintenance[True]" else {"state": "on"},
             'https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000': {
                 "brand": "Everspring",
                 "deviceType": "Door Lock Keypad",

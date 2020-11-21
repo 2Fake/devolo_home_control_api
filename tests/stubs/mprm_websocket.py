@@ -9,6 +9,7 @@ class StubMprmWebsocket(MprmWebsocket):
         self._connected = True
         self._reachable = True
         self._event_sequence = 0
+        self._url = "https://test.test"
 
     def close(self):
         pass
@@ -20,4 +21,7 @@ class StubMprmWebsocket(MprmWebsocket):
         pass
 
     def on_update(self, message):
+        pass
+
+    def _post(self, data):
         pass

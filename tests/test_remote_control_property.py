@@ -15,7 +15,6 @@ class TestRemoteControlProperty:
             self.homecontrol.devices.get(self.devices.get("remote").get("uid"))\
                 .remote_control_property.get(self.devices.get("remote").get("elementUIDs")[0]).set(5)
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_valid(self):
         self.homecontrol.devices.get(self.devices.get("remote").get("uid"))\
             .remote_control_property.get(self.devices.get("remote").get("elementUIDs")[0]).set(1)

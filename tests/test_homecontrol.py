@@ -263,9 +263,9 @@ class TestHomeControl:
     def test_device_change_add(self, mocker):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
         uids.append("test_uid")
-        spy = mocker.spy(self.homecontrol, '_inspect_devices')
+        spy = mocker.spy(self.homecontrol, "_inspect_devices")
         self.homecontrol.device_change(uids)
-        spy.assert_called_once_with(["test_uid"])
+        spy.assert_called_once_with(['test_uid'])
 
     def test_device_change_remove(self):
         uids = [self.devices.get(device).get("uid") for device in self.devices]
@@ -280,7 +280,7 @@ class TestHomeControl:
         del self.homecontrol.devices[uid]
         self.homecontrol._inspect_devices(self.homecontrol.get_all_devices())
         try:
-            self.homecontrol.devices[uid]  # pylint: disable=W0104
+            self.homecontrol.devices[uid]
             assert True
         except KeyError:
             assert False

@@ -38,7 +38,7 @@ def mock_mprm__detect_gateway_in_lan(mocker, request):
 
 
 @pytest.fixture()
-def mock_mprm__try_local_connection(mocker, request):
+def mock_mprm__try_local_connection(mocker):
     """ Mock finding gateway's IP. """
     mocker.patch("devolo_home_control_api.backend.mprm.Mprm._try_local_connection", try_local_connection)
 
@@ -120,6 +120,7 @@ def mock_mprmrest__extract_data_from_element_uid(mocker, request):
 @pytest.fixture()
 def mock_mprmrest__post(mocker, request):
     """ Mock getting properties from the mPRM. """
+    test_case = request.node.name.split('[')[0]
     properties = {
         "test_get_name_and_element_uids": {
             "result": {
@@ -161,22 +162,18 @@ def mock_mprmrest__post(mocker, request):
                 ]
             }
         },
+        "test_set_success": {
+            "result": {"status": 1}
+        },
+        "test_set_failed": {
+            "result": {"status": 0}
+        },
+        "test_set_doubled": {
+            "result": {"status": 2}
+        }
     }
 
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._post", return_value=properties.get(request.node.name))
-
-
-@pytest.fixture()
-def mock_mprmrest__post_set(mocker, request):
-    """ Mock setting values. """
-    test_case = request.node.name.split('[')[0]
-    status = {
-        "test_set_success": {"result": {"status": 1}},
-        "test_set_failed": {"result": {"status": 0}},
-        "test_set_doubled": {"result": {"status": 2}}
-    }
-
-    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._post", return_value=status.get(test_case))
+    mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._post", return_value=properties[test_case])
 
 
 @pytest.fixture()
