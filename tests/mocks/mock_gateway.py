@@ -5,6 +5,7 @@ from devolo_home_control_api.mydevolo import Mydevolo
 
 
 class MockGateway:
+
     def __init__(self, gateway_id: str, mydevolo: Mydevolo):
         file = pathlib.Path(__file__).parent / ".." / "test_data.json"
         with file.open("r") as fh:
@@ -22,7 +23,6 @@ class MockGateway:
         self.firmware_version = test_data.get("gateway").get("firmware_version")
         self.online = True
         self.zones = test_data.get("gateway").get("zones")
-
 
     def update_state(self, online: bool):
         self.online = online

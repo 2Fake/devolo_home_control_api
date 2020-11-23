@@ -3,6 +3,7 @@ from urllib3.connection import ConnectTimeoutError
 
 
 class StubMprmWebsocket(MprmWebsocket):
+
     def __init__(self):
         super().__init__()
         self._ws = None

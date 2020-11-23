@@ -22,7 +22,6 @@ class Mydevolo:
 
         self.url = "https://www.mydevolo.com"
 
-
     @property
     def user(self) -> str:
         """ The user (also known as my devolo ID) is used for basic authentication. """
@@ -46,7 +45,6 @@ class Mydevolo:
         self._password = password
         self._uuid = None
         self._gateway_ids = []
-
 
     def credentials_valid(self) -> bool:
         """
@@ -126,7 +124,7 @@ class Mydevolo:
                 "productId": product,
                 "productTypeId": product_type,
                 "specificDeviceClass": "Unknown",
-                "zwaveVersion": "Unknown"
+                "zwaveVersion": "Unknown",
             }
         return device_info
 
@@ -149,15 +147,13 @@ class Mydevolo:
             self._uuid = self._call(f"{self.url.rstrip('/')}/v1/users/uuid")['uuid']
         return self._uuid
 
-
     def _call(self, url: str) -> dict:
         """ Make a call to any entry point with the user's context. """
-        headers = {"content-type": "application/json",
-                   "User-Agent": f"devolo_home_control_api/{__version__}"}
-        responds = requests.get(url,
-                                auth=(self._user, self._password),
-                                headers=headers,
-                                timeout=60)
+        headers = {
+            "content-type": "application/json",
+            "User-Agent": f"devolo_home_control_api/{__version__}"
+        }
+        responds = requests.get(url, auth=(self._user, self._password), headers=headers, timeout=60)
 
         if responds.status_code == requests.codes.forbidden:  # pylint: disable=no-member
             self._logger.error("Could not get full URL. Wrong username or password?")

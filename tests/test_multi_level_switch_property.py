@@ -6,9 +6,10 @@ from devolo_home_control_api.properties.multi_level_switch_property import Multi
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestMultiLevelSwitchProperty:
+
     def test_multi_level_switch_property_invalid(self):
         with pytest.raises(WrongElementError):
-            MultiLevelSwitchProperty(element_uid="invalid", setter=lambda uid, state: None,)
+            MultiLevelSwitchProperty(element_uid="invalid", setter=lambda uid, state: None)
 
     def test_unit(self):
         element_uid = self.devices['siren']['elementUIDs'][0]

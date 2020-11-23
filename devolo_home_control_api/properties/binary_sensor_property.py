@@ -17,13 +17,12 @@ class BinarySensorProperty(SensorProperty):
         if not element_uid.startswith(("devolo.BinarySensor:",
                                        "devolo.MildewSensor:",
                                        "devolo.ShutterMovementFI:",
-                                       "devolo.WarningBinaryFI:",)):
+                                       "devolo.WarningBinaryFI:")):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
         super().__init__(element_uid=element_uid, **kwargs)
 
         self._state = kwargs.pop("state", False)
-
 
     @property
     def last_activity(self) -> datetime:

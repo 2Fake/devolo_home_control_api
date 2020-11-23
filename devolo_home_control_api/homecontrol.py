@@ -51,9 +51,10 @@ class HomeControl(Mprm):
         self._inspect_devices(self.get_all_devices())
 
         self.device_names = {
-            f"{self.devices[device].settings_property['general_device_settings'].name}/ \
-              {self.devices[device].settings_property['general_device_settings'].zone}":
-            self.devices[device].uid for device in self.devices}
+            f"{self.devices[device].settings_property['general_device_settings'].name}/\
+              {self.devices[device].settings_property['general_device_settings'].zone}": self.devices[device].uid
+            for device in self.devices
+        }
 
         self.gateway.home_id = get_home_id_from_device_uid(next(iter(self.device_names.values())))
 
@@ -65,7 +66,6 @@ class HomeControl(Mprm):
         threading.Thread(target=self.websocket_connect,
                          name=f"{__class__.__name__}.websocket_connect").start()  # type: ignore[name-defined]
         self.wait_for_websocket_establishment()
-
 
     @property
     def binary_sensor_devices(self) -> list:
@@ -82,9 +82,11 @@ class HomeControl(Mprm):
         """ Get all blinds devices. """
         blinds_devices = []
         for device in self.multi_level_switch_devices:
-            blinds_devices.extend([self.devices[device.uid] for multi_level_switch_property
-                                   in device.multi_level_switch_property
-                                   if multi_level_switch_property.startswith("devolo.Blinds")])
+            blinds_devices.extend([
+                self.devices[device.uid]
+                for multi_level_switch_property in device.multi_level_switch_property
+                if multi_level_switch_property.startswith("devolo.Blinds")
+            ])
         return blinds_devices
 
     @property
@@ -101,7 +103,6 @@ class HomeControl(Mprm):
     def remote_control_devices(self) -> list:
         """ Get all remote control devices. """
         return [self.devices[uid] for uid in self.devices if hasattr(self.devices[uid], "remote_control_property")]
-
 
     def device_change(self, device_uids: list):
         """
@@ -132,18 +133,17 @@ class HomeControl(Mprm):
         """
         self.updater.update(message)
 
-
     def _binary_sensor(self, uid_info: dict):
         """ Process BinarySensor properties"""
         device_uid = get_device_uid_from_element_uid(uid_info['UID'])
         if not hasattr(self.devices[device_uid], "binary_sensor_property"):
             self.devices[device_uid].binary_sensor_property = {}
         self._logger.debug("Adding binary sensor property to %s.", device_uid)
-        self.devices[device_uid].binary_sensor_property[uid_info['UID']] = \
-            BinarySensorProperty(element_uid=uid_info['UID'],
-                                 state=bool(uid_info['properties']['state']),
-                                 sensor_type=uid_info['properties']['sensorType'],
-                                 sub_type=uid_info['properties']['subType'])
+        self.devices[device_uid].binary_sensor_property[uid_info['UID']] = BinarySensorProperty(
+            element_uid=uid_info['UID'],
+            state=bool(uid_info['properties']['state']),
+            sensor_type=uid_info['properties']['sensorType'],
+            sub_type=uid_info['properties']['subType'])
 
     def _binary_switch(self, uid_info: dict):
         """ Process BinarySwitch properties. """
@@ -151,25 +151,24 @@ class HomeControl(Mprm):
         if not hasattr(self.devices[device_uid], "binary_switch_property"):
             self.devices[device_uid].binary_switch_property = {}
         self._logger.debug("Adding binary switch property to %s.", device_uid)
-        self.devices[device_uid].binary_switch_property[uid_info['UID']] = \
-            BinarySwitchProperty(element_uid=uid_info['UID'],
-                                 setter=self.set_binary_switch,
-                                 state=bool(uid_info['properties']['state']),
-                                 enabled=uid_info['properties']['guiEnabled'])
+        self.devices[device_uid].binary_switch_property[uid_info['UID']] = BinarySwitchProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_binary_switch,
+            state=bool(uid_info['properties']['state']),
+            enabled=uid_info['properties']['guiEnabled'])
 
     def _general_device(self, uid_info: dict):
         """ Process general device setting (gds) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding general device settings to %s.", device_uid)
-        self.devices[device_uid]. \
-            settings_property['general_device_settings'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             events_enabled=uid_info['properties']['settings']['eventsEnabled'],
-                             name=uid_info['properties']['settings']['name'],
-                             zone_id=uid_info['properties']['settings']['zoneID'],
-                             icon=uid_info['properties']['settings']['icon'],
-                             zones=self.gateway.zones)
+        self.devices[device_uid].settings_property['general_device_settings'] = SettingsProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_setting,
+            events_enabled=uid_info['properties']['settings']['eventsEnabled'],
+            name=uid_info['properties']['settings']['name'],
+            zone_id=uid_info['properties']['settings']['zoneID'],
+            icon=uid_info['properties']['settings']['icon'],
+            zones=self.gateway.zones)
 
     def _grouping(self):
         """ Get all zones (also called rooms). """
@@ -187,9 +186,9 @@ class HomeControl(Mprm):
         if not hasattr(self.devices[device_uid], "humidity_bar_property"):
             self.devices[device_uid].humidity_bar_property = {}
         if self.devices[device_uid].humidity_bar_property.get(fake_element_uid) is None:
-            self.devices[device_uid].humidity_bar_property[fake_element_uid] = \
-                HumidityBarProperty(element_uid=fake_element_uid,
-                                    sensorType="humidityBar")
+            self.devices[device_uid].humidity_bar_property[fake_element_uid] = HumidityBarProperty(
+                element_uid=fake_element_uid,
+                sensorType="humidityBar")
         if uid_info['properties']['sensorType'] == "humidityBarZone":
             self._logger.debug("Adding humidity bar zone property to %s.", device_uid)
             self.devices[device_uid].humidity_bar_property[fake_element_uid].zone = uid_info['properties']['value']
@@ -208,8 +207,7 @@ class HomeControl(Mprm):
                              name=f"{__class__.__name__}.{self.devices[device_properties['UID']].uid}").start()  # type: ignore
 
         # List comprehension gets the list of uids from every device
-        nested_uids_lists = [(uid['properties'].get("settingUIDs")
-                              + uid['properties']['elementUIDs'])
+        nested_uids_lists = [(uid['properties'].get("settingUIDs") + uid['properties']['elementUIDs'])
                              for uid in devices_properties]
 
         # List comprehension gets all uids into one list to make one big call against the mPRM
@@ -227,17 +225,20 @@ class HomeControl(Mprm):
             uid.pending_operations = uid.pending_operations or bool(uid_info['properties'].get("pendingOperations"))
 
         # Last activity messages sometimes arrive before a device was initialized and therefore need to be handled afterwards.
-        [self._last_activity(uid_info) for uid_info in device_properties_list  # pylint: disable=expression-not-assigned
-         if uid_info['UID'].startswith("devolo.LastActivity")]
+        [  # pylint: disable=expression-not-assigned
+            self._last_activity(uid_info)
+            for uid_info in device_properties_list
+            if uid_info['UID'].startswith("devolo.LastActivity")
+        ]
 
     def _automatic_calibration(self, uid_info: dict):
         """ Process automatic calibration (acs) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding automatic calibration setting to %s.", device_uid)
-        self.devices[device_uid].settings_property['automatic_calibration'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             calibration_status=bool(uid_info['properties']['calibrationStatus']))
+        self.devices[device_uid].settings_property['automatic_calibration'] = SettingsProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_setting,
+            calibration_status=bool(uid_info['properties']['calibrationStatus']))
 
     def _binary_sync(self, uid_info: dict):
         """
@@ -246,10 +247,10 @@ class HomeControl(Mprm):
         """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding binary sync setting to %s.", device_uid)
-        self.devices[device_uid].settings_property['movement_direction'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             inverted=uid_info['properties']['value'])
+        self.devices[device_uid].settings_property['movement_direction'] = SettingsProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_setting,
+            inverted=uid_info['properties']['value'])
 
     def _binary_async(self, uid_info: dict):
         """ Process binary async setting (bas) properties. """
@@ -290,10 +291,9 @@ class HomeControl(Mprm):
             led_setting = uid_info['properties']['led']
         except KeyError:
             led_setting = uid_info['properties']['feedback']
-        self.devices[device_uid].settings_property['led'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             led_setting=led_setting)
+        self.devices[device_uid].settings_property['led'] = SettingsProperty(element_uid=uid_info['UID'],
+                                                                             setter=self.set_setting,
+                                                                             led_setting=led_setting)
 
     def _meter(self, uid_info: dict):
         """ Process meter properties. """
@@ -301,11 +301,11 @@ class HomeControl(Mprm):
         if not hasattr(self.devices[device_uid], "consumption_property"):
             self.devices[device_uid].consumption_property = {}
         self._logger.debug("Adding consumption property to %s.", device_uid)
-        self.devices[device_uid].consumption_property[uid_info['UID']] = \
-            ConsumptionProperty(element_uid=uid_info['UID'],
-                                current=uid_info['properties']['currentValue'],
-                                total=uid_info['properties']['totalValue'],
-                                total_since=uid_info['properties']['sinceTime'])
+        self.devices[device_uid].consumption_property[uid_info['UID']] = ConsumptionProperty(
+            element_uid=uid_info['UID'],
+            current=uid_info['properties']['currentValue'],
+            total=uid_info['properties']['totalValue'],
+            total_since=uid_info['properties']['sinceTime'])
 
     def _multilevel_async(self, uid_info: dict):
         """ Process multilevel async setting (mas) properties. """
@@ -320,10 +320,9 @@ class HomeControl(Mprm):
                 raise
 
         self._logger.debug("Adding %s setting to %s.", name, device_uid)
-        self.devices[device_uid].settings_property[name] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             value=uid_info['properties']['value'])
+        self.devices[device_uid].settings_property[name] = SettingsProperty(element_uid=uid_info['UID'],
+                                                                            setter=self.set_setting,
+                                                                            value=uid_info['properties']['value'])
 
     def _multilevel_sync(self, uid_info: dict):
         """ Process multilevel sync setting (mss) properties. """
@@ -332,26 +331,25 @@ class HomeControl(Mprm):
         # The siren needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
             self._logger.debug("Adding tone settings to %s.", device_uid)
-            self.devices[device_uid].settings_property['tone'] = \
-                SettingsProperty(element_uid=uid_info['UID'],
-                                 setter=self.set_setting,
-                                 tone=uid_info['properties']['value'])
+            self.devices[device_uid].settings_property['tone'] = SettingsProperty(element_uid=uid_info['UID'],
+                                                                                  setter=self.set_setting,
+                                                                                  tone=uid_info['properties']['value'])
 
         # The shutter needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
             self._logger.debug("Adding shutter duration settings to %s.", device_uid)
-            self.devices[device_uid].settings_property['shutter_duration'] = \
-                SettingsProperty(element_uid=uid_info['UID'],
-                                 setter=self.set_setting,
-                                 shutter_duration=uid_info['properties']['value'])
+            self.devices[device_uid].settings_property['shutter_duration'] = SettingsProperty(
+                element_uid=uid_info['UID'],
+                setter=self.set_setting,
+                shutter_duration=uid_info['properties']['value'])
 
         # Other devices are up to now always motion sensors.
         else:
             self._logger.debug("Adding motion sensitivity settings to %s.", device_uid)
-            self.devices[device_uid].settings_property['motion_sensitivity'] = \
-                SettingsProperty(element_uid=uid_info['UID'],
-                                 setter=self.set_setting,
-                                 motion_sensitivity=uid_info['properties']['value'])
+            self.devices[device_uid].settings_property['motion_sensitivity'] = SettingsProperty(
+                element_uid=uid_info['UID'],
+                setter=self.set_setting,
+                motion_sensitivity=uid_info['properties']['value'])
 
     def _multi_level_sensor(self, uid_info: dict):
         """ Process multi level sensor properties. """
@@ -359,11 +357,11 @@ class HomeControl(Mprm):
         if not hasattr(self.devices[device_uid], "multi_level_sensor_property"):
             self.devices[device_uid].multi_level_sensor_property = {}
         self._logger.debug("Adding multi level sensor property %s to %s.", uid_info['UID'], device_uid)
-        self.devices[device_uid].multi_level_sensor_property[uid_info['UID']] = \
-            MultiLevelSensorProperty(element_uid=uid_info['UID'],
-                                     value=uid_info['properties']['value'],
-                                     unit=uid_info['properties']['unit'],
-                                     sensor_type=uid_info['properties']['sensorType'])
+        self.devices[device_uid].multi_level_sensor_property[uid_info['UID']] = MultiLevelSensorProperty(
+            element_uid=uid_info['UID'],
+            value=uid_info['properties']['value'],
+            unit=uid_info['properties']['unit'],
+            sensor_type=uid_info['properties']['sensorType'])
 
     def _multi_level_switch(self, uid_info: dict):
         """ Process multi level switch properties. """
@@ -371,32 +369,32 @@ class HomeControl(Mprm):
         if not hasattr(self.devices[device_uid], "multi_level_switch_property"):
             self.devices[device_uid].multi_level_switch_property = {}
         self._logger.debug("Adding multi level switch property %s to %s.", uid_info['UID'], device_uid)
-        self.devices[device_uid].multi_level_switch_property[uid_info['UID']] = \
-            MultiLevelSwitchProperty(element_uid=uid_info['UID'],
-                                     setter=self.set_multi_level_switch,
-                                     value=uid_info['properties']['value'],
-                                     switch_type=uid_info['properties']['switchType'],
-                                     max=uid_info['properties']['max'],
-                                     min=uid_info['properties']['min'])
+        self.devices[device_uid].multi_level_switch_property[uid_info['UID']] = MultiLevelSwitchProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_multi_level_switch,
+            value=uid_info['properties']['value'],
+            switch_type=uid_info['properties']['switchType'],
+            max=uid_info['properties']['max'],
+            min=uid_info['properties']['min'])
 
     def _parameter(self, uid_info: dict):
         """ Process custom parameter setting (cps) properties."""
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding parameter settings to %s.", device_uid)
-        self.devices[device_uid].settings_property['param_changed'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             param_changed=uid_info['properties']['paramChanged'])
+        self.devices[device_uid].settings_property['param_changed'] = SettingsProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_setting,
+            param_changed=uid_info['properties']['paramChanged'])
 
     def _protection(self, uid_info: dict):
         """ Process protection setting (ps) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding protection settings to %s.", device_uid)
-        self.devices[device_uid].settings_property['protection'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             local_switching=uid_info['properties']['localSwitch'],
-                             remote_switching=uid_info['properties']['remoteSwitch'])
+        self.devices[device_uid].settings_property['protection'] = SettingsProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_setting,
+            local_switching=uid_info['properties']['localSwitch'],
+            remote_switching=uid_info['properties']['remoteSwitch'])
 
     def _remote_control(self, uid_info: dict):
         """ Process remote control properties. """
@@ -404,12 +402,12 @@ class HomeControl(Mprm):
         self._logger.debug("Adding remote control to %s.", device_uid)
         if not hasattr(self.devices[device_uid], "remote_control_property"):
             self.devices[device_uid].remote_control_property = {}
-        self.devices[device_uid].remote_control_property[uid_info['UID']] = \
-            RemoteControlProperty(element_uid=uid_info['UID'],
-                                  setter=self.set_remote_control,
-                                  key_count=uid_info['properties']['keyCount'],
-                                  key_pressed=uid_info['properties']['keyPressed'],
-                                  type=uid_info['properties']['type'])
+        self.devices[device_uid].remote_control_property[uid_info['UID']] = RemoteControlProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_remote_control,
+            key_count=uid_info['properties']['keyCount'],
+            key_pressed=uid_info['properties']['keyPressed'],
+            type=uid_info['properties']['type'])
 
     def _switch_type(self, uid_info: dict):
         """
@@ -418,20 +416,20 @@ class HomeControl(Mprm):
         """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding switch type setting to %s.", device_uid)
-        self.devices[device_uid].settings_property['switch_type'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             value=uid_info['properties']['switchType'] * 2)
+        self.devices[device_uid].settings_property['switch_type'] = SettingsProperty(element_uid=uid_info['UID'],
+                                                                                     setter=self.set_setting,
+                                                                                     value=uid_info['properties']['switchType']
+                                                                                     * 2)
 
     def _temperature_report(self, uid_info: dict):
         """ Process temperature report setting (trs) properties. """
         device_uid = get_device_uid_from_setting_uid(uid_info['UID'])
         self._logger.debug("Adding temperature report settings to %s.", device_uid)
-        self.devices[device_uid].settings_property['temperature_report'] = \
-            SettingsProperty(element_uid=uid_info['UID'],
-                             setter=self.set_setting,
-                             temp_report=uid_info['properties']['tempReport'],
-                             target_temp_report=uid_info['properties']['targetTempReport'])
+        self.devices[device_uid].settings_property['temperature_report'] = SettingsProperty(
+            element_uid=uid_info['UID'],
+            setter=self.set_setting,
+            temp_report=uid_info['properties']['tempReport'],
+            target_temp_report=uid_info['properties']['targetTempReport'])
 
     def _unknown(self, uid_info: dict):
         """ Ignore unknown properties. """

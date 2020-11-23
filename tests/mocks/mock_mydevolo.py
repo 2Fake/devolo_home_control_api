@@ -1,4 +1,5 @@
 class MockMydevolo:
+
     def __init__(self, request):
         self._request = request
 
@@ -8,22 +9,31 @@ class MockMydevolo:
         full_url = self._request.cls.gateway.get("full_url")
 
         response = {
-            f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL': {
+            f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}/fullURL": {
                 "url": full_url
             },
-            'https://www.mydevolo.com/v1/users/uuid': {"uuid": uuid},
-            f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status':
-                {"items": []} if self._request.node.name == "test_gateway_ids_empty"
-                                                            else {"items": [{"gatewayId": gateway_id}]},
-            f'https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}': {
+            "https://www.mydevolo.com/v1/users/uuid": {
+                "uuid": uuid
+            },
+            f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/status": {
+                "items": []
+            } if self._request.node.name == "test_gateway_ids_empty" else {
+                "items": [{
+                    "gatewayId": gateway_id
+                }]
+            },
+            f"https://www.mydevolo.com/v1/users/{uuid}/hc/gateways/{gateway_id}": {
                 "gatewayId": gateway_id,
                 "localPasskey": "abcde",
                 "status": "devolo.hc_gateway.status.online",
                 "state": "devolo.hc_gateway.state.idle",
             },
-            'https://www.mydevolo.com/v1/hc/maintenance':
-                {"state": "off"} if self._request.node.name == "test_maintenance[True]" else {"state": "on"},
-            'https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000': {
+            "https://www.mydevolo.com/v1/hc/maintenance": {
+                "state": "off"
+            } if self._request.node.name == "test_maintenance[True]" else {
+                "state": "on"
+            },
+            "https://www.mydevolo.com/v1/zwave/products/0x0060/0x0001/0x000": {
                 "brand": "Everspring",
                 "deviceType": "Door Lock Keypad",
                 "genericDeviceClass": "Entry Control",
@@ -35,7 +45,7 @@ class MockMydevolo:
                 "productTypeId": "0x0001",
                 "zwaveVersion": "6.51.07",
             },
-            'https://www.mydevolo.com/v1/zwave/products/0x0175/0x0001/0x0011': {
+            "https://www.mydevolo.com/v1/zwave/products/0x0175/0x0001/0x0011": {
                 "manufacturerId": "0x0175",
                 "productTypeId": "0x0001",
                 "productId": "0x0011",

@@ -3,20 +3,20 @@ import pathlib
 
 import pytest
 
-
 file = pathlib.Path(__file__).parent / "test_data.json"
 with file.open("r") as fh:
     test_data = json.load(fh)
 
-
-pytest_plugins = ['tests.fixtures.gateway',
-                  'tests.fixtures.homecontrol',
-                  'tests.fixtures.mprm',
-                  'tests.fixtures.mydevolo',
-                  'tests.fixtures.publisher',
-                  'tests.fixtures.requests',
-                  'tests.fixtures.socket',
-                  'tests.fixtures.updater']
+pytest_plugins = [
+    'tests.fixtures.gateway',
+    'tests.fixtures.homecontrol',
+    'tests.fixtures.mprm',
+    'tests.fixtures.mydevolo',
+    'tests.fixtures.publisher',
+    'tests.fixtures.requests',
+    'tests.fixtures.socket',
+    'tests.fixtures.updater',
+]
 
 
 @pytest.fixture(autouse=True)

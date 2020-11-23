@@ -35,4 +35,5 @@ def mock_mydevolo_uuid_raise_WrongCredentialsError(mocker):
 @pytest.fixture()
 def mock_get_zwave_products(mocker):
     """ Mock Z-Wave product information call to speed up tests. """
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value={})
+    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products",
+                 return_value={})

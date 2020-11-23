@@ -5,6 +5,7 @@ from devolo_home_control_api.properties.binary_switch_property import BinarySwit
 
 
 class TestZwave:
+
     @pytest.mark.usefixtures("home_control_instance")
     @pytest.mark.usefixtures("mock_mprmrest__extract_data_from_element_uid")
     @pytest.mark.usefixtures("mock_get_zwave_products")
@@ -13,11 +14,12 @@ class TestZwave:
 
         device.binary_switch_property = {}
         element_uid = f"devolo.BinarySwitch:{self.devices['mains']['uid']}"
-        device.binary_switch_property[element_uid] = \
-            BinarySwitchProperty(element_uid=element_uid,
-                                 setter=lambda uid, state: None,
-                                 state=self.devices['mains']['properties']['state'],
-                                 enabled=self.devices['mains']['properties']['guiEnabled'])
+        device.binary_switch_property[element_uid] = BinarySwitchProperty(
+            element_uid=element_uid,
+            setter=lambda uid,
+            state: None,
+            state=self.devices['mains']['properties']['state'],
+            enabled=self.devices['mains']['properties']['guiEnabled'])
 
         assert isinstance(device.get_property("binary_switch")[0], BinarySwitchProperty)
 

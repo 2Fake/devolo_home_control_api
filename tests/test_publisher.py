@@ -10,7 +10,9 @@ class TestPublisher:
         assert "Test" in self.homecontrol.publisher._events
 
     def test_delete_event(self):
-        self.homecontrol.publisher._events = {"Test": {}}
+        self.homecontrol.publisher._events = {
+            "Test": {}
+        }
         self.homecontrol.publisher.delete_event("Test")
         assert "Test" not in self.homecontrol.publisher._events
 
@@ -31,8 +33,8 @@ class TestPublisher:
             self.homecontrol.publisher.dispatch(event="hdm:ZWave:F6BF9812/4", message=())
 
 
-
 class Subscriber:
+
     def __init__(self, name):
         self.name = name
 

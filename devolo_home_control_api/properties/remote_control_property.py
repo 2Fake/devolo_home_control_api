@@ -28,7 +28,6 @@ class RemoteControlProperty(Property):
         self._key_pressed = kwargs.pop("key_pressed", 0)
         self.key_count = kwargs.pop("key_count", 0)
 
-
     @property
     def key_pressed(self) -> int:
         """ Multi level value. """
@@ -40,7 +39,6 @@ class RemoteControlProperty(Property):
         self._key_pressed = key_pressed
         self._last_activity = datetime.now()
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
-
 
     def set(self, key_pressed: int):
         """

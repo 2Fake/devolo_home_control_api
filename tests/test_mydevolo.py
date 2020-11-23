@@ -4,6 +4,7 @@ from devolo_home_control_api.mydevolo import Mydevolo, GatewayOfflineError, Wron
 
 
 class TestMydevolo:
+
     def test_credentials_valid(self, mydevolo):
         assert mydevolo.credentials_valid()
 

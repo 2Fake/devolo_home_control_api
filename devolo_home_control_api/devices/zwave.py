@@ -39,7 +39,13 @@ class Zwave:
         self.status = kwargs.pop("status", 1)
 
         # Remove unwanted values
-        unwanted_value = ["icon", "itemName", "operationStatus", "zone", "zoneId"]
+        unwanted_value = [
+            "icon",
+            "itemName",
+            "operationStatus",
+            "zone",
+            "zoneId",
+        ]
         for value in unwanted_value:
             del kwargs[value]
 
@@ -49,8 +55,20 @@ class Zwave:
         self.uid = get_device_uid_from_element_uid(self.element_uids[0])
 
         # Initialize additional Z-Wave information. Will be filled by Zwave.get_zwave_info, if available.
-        z_wave_info_list = ["href", "manufacturer_id", "product_type_id", "product_id", "name", "brand", "identifier",
-                            "is_zwave_plus", "device_type", "zwave_version", "specific_device_class", "generic_device_class"]
+        z_wave_info_list = [
+            "href",
+            "manufacturer_id",
+            "product_type_id",
+            "product_id",
+            "name",
+            "brand",
+            "identifier",
+            "is_zwave_plus",
+            "device_type",
+            "zwave_version",
+            "specific_device_class",
+            "generic_device_class",
+        ]
         for key in z_wave_info_list:
             setattr(self, key, None)
 
@@ -58,7 +76,6 @@ class Zwave:
         if self.battery_level == -1:
             delattr(self, "battery_level")
             delattr(self, "battery_low")
-
 
     def get_property(self, name: str) -> list:
         """
@@ -83,7 +100,13 @@ class Zwave:
             setattr(self, camel_case_to_snake_case(key), value)
 
         # Clean up attributes which are now unwanted.
-        clean_up_list = ["man_id", "prod_id", "prod_type_id", "statistics_uid", "wrong_device_paired"]
+        clean_up_list = [
+            "man_id",
+            "prod_id",
+            "prod_type_id",
+            "statistics_uid",
+            "wrong_device_paired",
+        ]
         for attribute in clean_up_list:
             if hasattr(self, attribute):
                 delattr(self, attribute)

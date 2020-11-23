@@ -28,7 +28,6 @@ class Mprm(MprmWebsocket, ABC):
         self.detect_gateway_in_lan(zeroconf_instance)
         self.create_connection()
 
-
     def create_connection(self):
         """
         Create session, either locally or remotely via cloud. The remote case has two conditions, that both need to be
@@ -75,7 +74,9 @@ class Mprm(MprmWebsocket, ABC):
         self._logger.debug("Session URL set to '%s'", self._url)
         try:
             token_url = self._session.get(self._url + "/dhlp/portal/full",
-                                          auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5).json()
+                                          auth=(self.gateway.local_user,
+                                                self.gateway.local_passkey),
+                                          timeout=5).json()
             self._logger.debug("Got a token URL: %s", token_url)
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway locally.")
@@ -115,7 +116,8 @@ class Mprm(MprmWebsocket, ABC):
         for address in addresses:
             ip = socket.inet_ntoa(address)
             if requests.get("http://" + ip + "/dhlp/port/full",
-                            auth=(self.gateway.local_user, self.gateway.local_passkey),
+                            auth=(self.gateway.local_user,
+                                  self.gateway.local_passkey),
                             timeout=0.5).status_code == requests.codes.ok:  # pylint: disable=no-member
                 self._logger.debug("Got successful answer from ip %s. Setting this as local gateway", ip)
                 self._local_ip = ip

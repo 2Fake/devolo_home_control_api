@@ -7,8 +7,13 @@ from ..mocks.mock_mprm_rest import mock_get_data_from_uid_list
 
 
 @pytest.fixture()
-def home_control_instance(request, mydevolo, mock_gateway, mock_mprmwebsocket_websocket_connection,
-                          mock_inspect_devices_metering_plug, mock_mprmrest_get_all_zones, mock_mprm__detect_gateway_in_lan,
+def home_control_instance(request,
+                          mydevolo,
+                          mock_gateway,
+                          mock_mprmwebsocket_websocket_connection,
+                          mock_inspect_devices_metering_plug,
+                          mock_mprmrest_get_all_zones,
+                          mock_mprm__detect_gateway_in_lan,
                           mock_mprmwebsocket_get_remote_session):
     """ Create a mocked Home Control instance with static test data. """
     request.cls.homecontrol = HomeControl(request.cls.gateway.get("id"), mydevolo_instance=mydevolo)

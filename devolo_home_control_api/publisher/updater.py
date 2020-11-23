@@ -5,9 +5,7 @@ from typing import Any, Callable, Optional
 from ..backend import MESSAGE_TYPES
 from ..devices.gateway import Gateway
 from ..helper.string import camel_case_to_snake_case
-from ..helper.uid import (get_device_type_from_element_uid,
-                          get_device_uid_from_element_uid,
-                          get_device_uid_from_setting_uid)
+from ..helper.uid import (get_device_type_from_element_uid, get_device_uid_from_element_uid, get_device_uid_from_setting_uid)
 from .publisher import Publisher
 
 
@@ -29,19 +27,21 @@ class Updater:
         self.devices = devices
         self.on_device_change: Optional[Callable] = None
 
-
     def update(self, message: dict):
         """
         Update states and values depending on the message type.
 
         :param message: Message to process
         """
-        unwanted_properties = [".unregistering", "operationStatus"]
+        unwanted_properties = [
+            ".unregistering",
+            "operationStatus",
+        ]
 
         # Early return on unwanted messages
-        if "UNREGISTERED" in message['topic'] or \
-                message['properties']['property.name'] in unwanted_properties or \
-                "smartGroup" in message['properties']['uid']:
+        if "UNREGISTERED" in message['topic'] \
+                or message['properties']['property.name'] in unwanted_properties \
+                or "smartGroup" in message['properties']['uid']:
             return
 
         # Handle pending operations messages
@@ -57,15 +57,12 @@ class Updater:
             # Sometime we receive already messages although the device is not setup yet.
             pass
 
-
     def _automatic_calibration(self, message: dict):
         """ Update a automatic calibration message. """
         try:
             calibration_status = message['properties']['property.value.new']['status']
-            self._update_automatic_calibration(
-                element_uid=message['properties']['uid'],
-                calibration_status=calibration_status != 2,
-            )
+            self._update_automatic_calibration(element_uid=message['properties']['uid'],
+                                               calibration_status=calibration_status != 2)
         except (KeyError, TypeError):
             if type(message['properties']['property.value.new']) not in [dict, list]:
                 self._update_automatic_calibration(element_uid=message['properties']['uid'],
@@ -106,8 +103,8 @@ class Updater:
 
     def _binary_switch(self, message: dict):
         """ Update a binary switch's state. """
-        if message['properties']['property.name'] == "targetState" and \
-                message['properties']['property.value.new'] is not None:
+        if message['properties']['property.name'] == "targetState" \
+                and message['properties']['property.value.new'] is not None:
             element_uid = message['properties']['uid']
             value = bool(message['properties']['property.value.new'])
             device_uid = get_device_uid_from_element_uid(element_uid)
@@ -120,7 +117,11 @@ class Updater:
         element_uid = message['properties']['uid']
 
         # Early return on useless messages
-        if element_uid in ["devolo.PairDevice", "devolo.RemoveDevice", "devolo.mprm.gw.GatewayManager"]:
+        if element_uid in [
+                "devolo.PairDevice",
+                "devolo.RemoveDevice",
+                "devolo.mprm.gw.GatewayManager",
+        ]:
             return
 
         pending_operations = bool(message['properties'].get('property.value.new'))
@@ -135,15 +136,15 @@ class Updater:
 
     def _current_consumption(self, message: dict):
         """ Update current consumption. """
-        self._update_consumption(element_uid=message['uid'],
-                                 consumption="current",
-                                 value=message['property.value.new'])
+        self._update_consumption(element_uid=message['uid'], consumption="current", value=message['property.value.new'])
 
     def _device_state(self, message: dict):
         """ Update the device state. """
-        property_name = {"batteryLevel": "battery_level",
-                         "batteryLow": "battery_low",
-                         "status": "status"}
+        property_name = {
+            "batteryLevel": "battery_level",
+            "batteryLow": "battery_low",
+            "status": "status",
+        }
 
         device_uid = message['properties']['uid']
         name = message['properties']['property.name']
@@ -176,7 +177,8 @@ class Updater:
 
     def _grouping(self, message: dict):
         """ Update zone (also called room) of a device. """
-        self._gateway.zones = {key['id']: key['name'] for key in message['properties']['property.value.new']}
+        self._gateway.zones = {key['id']: key['name']
+                               for key in message['properties']['property.value.new']}
         self._logger.debug("Updating gateway zones.")
 
     def _gui_enabled(self, message: dict):
@@ -199,9 +201,10 @@ class Updater:
         elif message['properties']['uid'].startswith("devolo.HumidityBarValue"):
             self.devices[device_uid].humidity_bar_property[fake_element_uid].value = value
             self._logger.debug("Updating humidity bar value of %s to %s", fake_element_uid, value)
-        self._publisher.dispatch(device_uid, (fake_element_uid,
-                                              self.devices[device_uid].humidity_bar_property[fake_element_uid].zone,
-                                              self.devices[device_uid].humidity_bar_property[fake_element_uid].value))
+        self._publisher.dispatch(device_uid,
+                                 (fake_element_uid,
+                                  self.devices[device_uid].humidity_bar_property[fake_element_uid].zone,
+                                  self.devices[device_uid].humidity_bar_property[fake_element_uid].value))
 
     def _inspect_devices(self, message: dict):
         """ Call method if a new device appears or an old one disappears. """
@@ -234,10 +237,12 @@ class Updater:
 
     def _meter(self, message: dict):
         """ Update a meter value. """
-        property_name = {"currentValue": self._current_consumption,
-                         "totalValue": self._total_consumption,
-                         "sinceTime": self._since_time,
-                         "guiEnabled": self._gui_enabled}
+        property_name = {
+            "currentValue": self._current_consumption,
+            "totalValue": self._total_consumption,
+            "sinceTime": self._since_time,
+            "guiEnabled": self._gui_enabled,
+        }
 
         property_name[message['properties']['property.name']](message['properties'])
 
@@ -281,9 +286,11 @@ class Updater:
             device_uid = get_device_uid_from_setting_uid(element_uid)
             device_model = self.devices[device_uid].device_model_uid
             self._logger.debug("Updating %s to %s.", element_uid, value)
-            sync_type = {"devolo.model.Siren": "tone",
-                         "devolo.model.OldShutter": "shutter_duration",
-                         "devolo.model.Shutter": "shutter_duration"}
+            sync_type = {
+                "devolo.model.Siren": "tone",
+                "devolo.model.OldShutter": "shutter_duration",
+                "devolo.model.Shutter": "shutter_duration",
+            }
 
             try:
                 setattr(self.devices[device_uid].settings_property[sync_type[device_model]], sync_type[device_model], value)
@@ -310,10 +317,12 @@ class Updater:
             value = message['properties']['property.value.new']
             name = message['properties']['property.name']
             device_uid = get_device_uid_from_setting_uid(element_uid)
-            switching_type = {"targetLocalSwitch": "local_switching",
-                              "localSwitch": "local_switching",
-                              "targetRemoteSwitch": "remote_switching",
-                              "remoteSwitch": "remote_switching"}
+            switching_type = {
+                "targetLocalSwitch": "local_switching",
+                "localSwitch": "local_switching",
+                "targetRemoteSwitch": "remote_switching",
+                "remoteSwitch": "remote_switching",
+            }
 
             setattr(self.devices[device_uid].settings_property['protection'], switching_type[name], value)
             self._logger.debug("Updating %s protection of %s to %s", switching_type[name], element_uid, value)
@@ -329,9 +338,9 @@ class Updater:
             device_uid = get_device_uid_from_element_uid(element_uid)
             old_key_pressed = self.devices[device_uid].remote_control_property[element_uid].key_pressed
             self.devices[device_uid].remote_control_property[element_uid].key_pressed = key_pressed
-            # pylint: disable=logging-fstring-interpolation
-            self._logger.debug(f"Updating remote control of {element_uid}.\
-                               Key {f'pressed: {key_pressed}' if key_pressed != 0 else f'released: {old_key_pressed}'}")
+            self._logger.debug("Updating remote control of %s. Key %s",
+                               element_uid,
+                               f"pressed: {key_pressed}" if key_pressed != 0 else f"released: {old_key_pressed}")
             self._publisher.dispatch(device_uid, (element_uid, key_pressed))
 
     def _since_time(self, message: dict):
@@ -365,20 +374,20 @@ class Updater:
 
     def _total_consumption(self, message: dict):
         """ Update total consumption. """
-        self._update_consumption(element_uid=message['uid'],
-                                 consumption="total",
-                                 value=message['property.value.new'])
+        self._update_consumption(element_uid=message['uid'], consumption="total", value=message['property.value.new'])
 
     def _unknown(self, message: dict):
         """ Ignore unknown messages. """
-        ignore = ("devolo.DeviceEvents",
-                  "devolo.PairDevice",
-                  "devolo.SirenBinarySensor",
-                  "devolo.SirenMultiLevelSensor",
-                  "devolo.mprm.gw.GatewayManager",
-                  "devolo.mprm.gw.PortalManager",
-                  "ss",
-                  "mcs")
+        ignore = (
+            "devolo.DeviceEvents",
+            "devolo.PairDevice",
+            "devolo.SirenBinarySensor",
+            "devolo.SirenMultiLevelSensor",
+            "devolo.mprm.gw.GatewayManager",
+            "devolo.mprm.gw.PortalManager",
+            "ss",
+            "mcs",
+        )
         if not message["properties"]["uid"].startswith(ignore):
             self._logger.debug(json.dumps(message, indent=4))
 

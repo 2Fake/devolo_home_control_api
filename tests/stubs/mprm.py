@@ -9,6 +9,7 @@ from ..mocks.mock_gateway import MockGateway
 
 
 class StubMprm(Mprm):
+
     def __init__(self):
         file = pathlib.Path(__file__).parent / ".." / "test_data.json"
         with file.open("r") as fh:
