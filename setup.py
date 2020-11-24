@@ -1,9 +1,24 @@
 import setuptools
 
 from devolo_home_control_api import __version__
+from setuptools.command.develop import develop
+from subprocess import check_call
+import shlex
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
+
+
+# Create post develop command class for hooking into the python setup process
+# This command will run after dependencies are installed
+class PostDevelopCommand(develop):
+    def run(self):
+        try:
+            check_call(shlex.split("python .\\pre-commit-2.9.0.pyz install"))
+        except Exception as e:
+            print("Unable to run 'pre-commit install'")
+        develop.run(self)
+
 
 setuptools.setup(
     name="devolo_home_control_api",
@@ -31,6 +46,8 @@ setuptools.setup(
             "pytest-cov",
             "pytest-mock",
         ],
+        "dev": ["pre-commit"]
     },
+    cmdclass={"develop": PostDevelopCommand},
     python_requires=">=3.6",
 )
