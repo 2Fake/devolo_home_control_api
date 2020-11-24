@@ -1,9 +1,10 @@
-import setuptools
+import shlex
+from subprocess import check_call
+
+from setuptools import find_packages, setup
+from setuptools.command.develop import develop
 
 from devolo_home_control_api import __version__
-from setuptools.command.develop import develop
-from subprocess import check_call
-import shlex
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -21,7 +22,7 @@ class PostDevelopCommand(develop):
         develop.run(self)
 
 
-setuptools.setup(
+setup(
     name="devolo_home_control_api",
     version=__version__,
     author="Markus Bong, Guido Schmitz",
@@ -30,7 +31,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/2Fake/devolo_home_control_api",
-    packages=setuptools.find_packages(exclude=("tests*")),
+    packages=find_packages(exclude=("tests*")),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -42,12 +43,14 @@ setuptools.setup(
         "zeroconf",
     ],
     extras_require={
+        "dev": [
+            "pre-commit",
+        ],
         "test": [
             "pytest",
             "pytest-cov",
             "pytest-mock",
         ],
-        "dev": ["pre-commit"]
     },
     cmdclass={"develop": PostDevelopCommand},
     python_requires=">=3.6",
