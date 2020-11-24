@@ -30,7 +30,6 @@ class ConsumptionProperty(Property):
         self.total_unit = "kWh"
         self._total_since = datetime.utcfromtimestamp(kwargs.pop("total_since", 0) / 1000)
 
-
     @property
     def current(self) -> float:
         """ Consumption value. """

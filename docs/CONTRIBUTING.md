@@ -22,16 +22,14 @@ If you are using a device we do not support, we want to know about it. Please [c
 
 ## Code style guide
 
-We basically follow [PEP8](https://www.python.org/dev/peps/pep-0008/), but deviate in some points for - as we think - good reasons. If you have good reasons to stick strictly to PEP8 or even have good reasons to deviate from our deviation, feel free to convince us.
+We set up [yapf](https://github.com/google/yapf) to format the code. We basically follow [PEP8](https://www.python.org/dev/peps/pep-0008/), but deviate in some points for - as we think - good reasons. If you have good reasons to stick strictly to PEP8 or even have good reasons to deviate from our deviation, feel free to convince us.
 
 We limit out lines to 127 characters, as that is maximum length still allowing code reviews on GitHub without horizontal scrolling.
 
-As PEP8 allows to use extra blank lines sparingly to separate groups of related functions, we use an extra line between static methods and constructor, constructor and properties, properties and public methods, and public methods and internal methods.
+We set up [flake8](https://flake8.pycqa.org/en/latest/), [mypy](http://mypy-lang.org/) and [pylint](https://www.pylint.org/) to lint the code. But again we accept good reasons not to follow the findings and even disable complete tests (e.g. E303 and W503).
 
-We use double string quotes, except when the string contains double string quotes itself or when used as key of a dictionary.
-
-If you find code where we violated our own rules, feel free to [tell us](https://github.com/2Fake/devolo_home_control_api/issues).
+A pre-commit hook should automatically help you following our guide. Additionally, a GitHub action will assist you.
 
 ## Testing
 
-We cover our code with unit tests written in pytest, but we do not push them to hard. We want public methods covered, but we skip internal, nested and trivial methods. Often we also skip constructors. If you want to contribute, please make sure to keep the unit tests green and to deliver new ones, if you extend the functionality.
+We cover our code with unit tests written in pytest, but we do not push them to hard. We want public methods covered, but we skip nested and trivial methods. Often we also skip constructors. If you want to contribute, please make sure to keep the unit tests green and to deliver new ones, if you extend the functionality.

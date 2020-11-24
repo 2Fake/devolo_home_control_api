@@ -28,17 +28,34 @@ class MultiLevelSensorProperty(SensorProperty):
         self._value = kwargs.pop("value", 0.0)
         self._unit = kwargs.pop("unit", 0)
 
-
     @property
     def unit(self) -> str:
         """ Human readable unit of the property. """
-        units = {"dewpoint": {0: "°C", 1: "°F"},
-                 "humidity": {0: "%", 1: "g/m³"},
-                 "light": {0: "%", 1: "lx"},
-                 "temperature": {0: "°C", 1: "°F"},
-                 "Seismic Intensity": {0: ""},
-                 "voltage": {0: "V", 1: "mV"}
-                 }
+        units = {
+            "dewpoint": {
+                0: "°C",
+                1: "°F"
+            },
+            "humidity": {
+                0: "%",
+                1: "g/m³"
+            },
+            "light": {
+                0: "%",
+                1: "lx"
+            },
+            "temperature": {
+                0: "°C",
+                1: "°F"
+            },
+            "Seismic Intensity": {
+                0: ""
+            },
+            "voltage": {
+                0: "V",
+                1: "mV"
+            },
+        }
         try:
             return units[self.sensor_type].get(self._unit, str(self._unit))
         except KeyError:

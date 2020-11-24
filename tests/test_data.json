@@ -157,7 +157,7 @@
       "batteryLevel": 76,
       "batteryLow": false,
       "elementUIDs": [
-		    "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
+        "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
       ],
       "guiEnabled": true,
       "icon": "icon-1",
@@ -169,7 +169,7 @@
       "pending_operations": false,
       "prodID": "0x0011",
       "prodTypeID": "0x0001",
-      "uid": "hdm:ZWave:F6BF9812/9",    
+      "uid": "hdm:ZWave:F6BF9812/9",
       "switch_type": "temperature",
       "value": 20,
       "zoneId": "hz_2",
@@ -179,7 +179,9 @@
       "UID": "hdm:ZWave:F6BF9812/5",
       "batteryLevel": -1,
       "batteryLow": null,
-      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
+      "elementUIDs": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/5"
+      ],
       "guiEnabled": false,
       "icon": "icon-1",
       "itemName": "Offline Device",
@@ -199,7 +201,7 @@
       "batteryLevel": 90,
       "batteryLow": false,
       "elementUIDs": [
-		    "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
+        "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
       ],
       "guiEnabled": true,
       "itemName": "Remote Control",
@@ -263,9 +265,9 @@
       "batteryLow": null,
       "deviceModelUID": "devolo.model.Siren",
       "elementUIDs": [
-		    "devolo.SirenMultiLevelSwitch:hdm:ZWave:F6BF9812/8",
-		    "devolo.SirenBinarySensor:hdm:ZWave:F6BF9812/8",
-		    "devolo.SirenMultiLevelSensor:hdm:ZWave:F6BF9812/8",
+        "devolo.SirenMultiLevelSwitch:hdm:ZWave:F6BF9812/8",
+        "devolo.SirenBinarySensor:hdm:ZWave:F6BF9812/8",
+        "devolo.SirenMultiLevelSensor:hdm:ZWave:F6BF9812/8",
         "devolo.LastActivity:hdm:ZWave:F6BF9812/8"
       ],
       "icon": "icon-1",
@@ -307,7 +309,8 @@
     "sync": true,
     "zones": {
       "hz_2": "Living Room",
-      "hz_3": "Kitchen"}
+      "hz_3": "Kitchen"
+    }
   },
   "user": {
     "password": "7fee3cdb598b45a459ffe2aa720c8532",

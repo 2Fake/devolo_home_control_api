@@ -25,8 +25,8 @@ class MprmWebsocket(MprmRest, ABC):
     def __init__(self):
         super().__init__()
         self._ws: websocket.WebSocketApp = None
-        self._connected = False     # This attribute saves, if the websocket is fully established
-        self._reachable = True      # This attribute saves, if the a new session can be established
+        self._connected = False  # This attribute saves, if the websocket is fully established
+        self._reachable = True  # This attribute saves, if the a new session can be established
         self._event_sequence = 0
 
     def __enter__(self):
@@ -34,7 +34,6 @@ class MprmWebsocket(MprmRest, ABC):
 
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
-
 
     @abstractmethod
     def get_local_session(self):
@@ -47,7 +46,6 @@ class MprmWebsocket(MprmRest, ABC):
     @abstractmethod
     def on_update(self, message):
         pass
-
 
     def wait_for_websocket_establishment(self):
         """
@@ -92,7 +90,6 @@ class MprmWebsocket(MprmRest, ABC):
             self._logger.info("Reason: %s", event)
         self._ws.close()
 
-
     def _on_close(self):
         """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
@@ -120,8 +117,11 @@ class MprmWebsocket(MprmRest, ABC):
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:
-            self._logger.warning("We missed a websocket message. Internal event_sequence is at %s. "
-                                 "Event sequence by websocket is at %s", self._event_sequence, event_sequence)
+            self._logger.warning(
+                "We missed a websocket message. Internal event_sequence is at %s. "
+                "Event sequence by websocket is at %s",
+                self._event_sequence,
+                event_sequence)
             self._event_sequence = event_sequence + 1
             self._logger.debug("self._event_sequence is set to %s", self._event_sequence)
 
@@ -129,10 +129,12 @@ class MprmWebsocket(MprmRest, ABC):
 
     def _on_open(self):
         """ Callback method to keep the websocket open. """
+
         def run():
             self._logger.info("Starting web socket connection.")
             while self._ws.sock is not None and self._ws.sock.connected:
                 time.sleep(1)
+
         threading.Thread(target=run, name=f"{__class__.__name__}.websocket_run").start()
         self._connected = True
 

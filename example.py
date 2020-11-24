@@ -10,6 +10,7 @@ password = "password"
 
 
 class Subscriber:
+
     def __init__(self, name):
         self.name = name
 

@@ -27,7 +27,6 @@ class BinarySwitchProperty(Property):
         self._state = kwargs.pop("state", False)
         self.enabled = kwargs.pop("enabled", False)
 
-
     @property
     def state(self) -> bool:
         """ State of the binary sensor. """
@@ -39,7 +38,6 @@ class BinarySwitchProperty(Property):
         self._state = state
         self._last_activity = datetime.now()
         self._logger.debug("State of %s set to %s.", self.element_uid, state)
-
 
     def set(self, state: bool):
         """

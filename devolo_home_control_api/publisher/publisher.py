@@ -9,8 +9,8 @@ class Publisher:
 
     def __init__(self, events: Union[list, KeysView]):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._events: Dict = {event: dict() for event in events}
-
+        self._events: Dict = {event: {}
+                              for event in events}
 
     def add_event(self, event: str):
         """ Add a new event to listen to. """
@@ -42,7 +42,7 @@ class Publisher:
         del self._get_subscribers_for_specific_event(event)[who]
         self._logger.debug("Subscriber deleted for event %s", event)
 
-
     def _get_subscribers_for_specific_event(self, event: str) -> Dict:
         """ All subscribers listening to an event. """
-        return self._events.get(event, {})
+        return self._events.get(event,
+                                {})

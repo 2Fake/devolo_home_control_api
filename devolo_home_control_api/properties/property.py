@@ -19,7 +19,6 @@ class Property(ABC):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._last_activity = datetime.fromtimestamp(0)  # Set last activity to 1.1.1970. Will be corrected on update.
 
-
     @property
     def last_activity(self) -> datetime:
         """ Date and time the property was last updated. """

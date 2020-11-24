@@ -1,14 +1,15 @@
 import pytest
-
 from devolo_home_control_api.exceptions.device import WrongElementError
 from devolo_home_control_api.properties.settings_property import SettingsProperty
 
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestSettingsProperty:
+
     def test_settings_property_valid(self):
         setting_property = SettingsProperty(element_uid=f"lis.{self.devices.get('mains').get('uid')}",
-                                            setter=lambda uid, state: None,
+                                            setter=lambda uid,
+                                            state: None,
                                             led_setting=True,
                                             events_enabled=False,
                                             param_changed=True,
@@ -26,42 +27,39 @@ class TestSettingsProperty:
 
     def test__set_bas_valid(self):
         muted = self.devices.get("siren").get("muted")
-        self.homecontrol.devices.get(self.devices.get("siren").get("uid"))\
-            .settings_property.get("muted").set(value=not muted)
-        assert self.homecontrol.devices.get(self.devices.get("siren").get("uid"))\
-            .settings_property.get("muted").value is not muted
+        self.homecontrol.devices.get(self.devices.get("siren").get("uid")).settings_property.get("muted").set(value=not muted)
+        assert self.homecontrol.devices.get(
+            self.devices.get("siren").get("uid")).settings_property.get("muted").value is not muted
 
     def test__set_gds_valid(self):
-        self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .settings_property.get("general_device_settings").set(events_enabled=False)
-        assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .settings_property.get("general_device_settings").events_enabled
+        self.homecontrol.devices.get(
+            self.devices.get("mains").get("uid")).settings_property.get("general_device_settings").set(events_enabled=False)
+        assert not self.homecontrol.devices.get(
+            self.devices.get("mains").get("uid")).settings_property.get("general_device_settings").events_enabled
 
     def test__set_lis_valid(self):
-        self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .settings_property.get("led").set(led_setting=False)
-        assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .settings_property.get("led").led_setting
+        self.homecontrol.devices.get(self.devices.get("mains").get("uid")).settings_property.get("led").set(led_setting=False)
+        assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid")).settings_property.get("led").led_setting
 
     def test__set_mss_invalid(self):
         with pytest.raises(ValueError):
-            self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
-                .settings_property.get("motion_sensitivity").set(motion_sensitivity=110)
+            self.homecontrol.devices.get(
+                self.devices.get("sensor").get("uid")).settings_property.get("motion_sensitivity").set(motion_sensitivity=110)
 
     def test__set_mss_valid(self):
-        self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
-            .settings_property.get("motion_sensitivity").set(motion_sensitivity=90)
-        assert self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
-            .settings_property.get("motion_sensitivity").motion_sensitivity == 90
+        self.homecontrol.devices.get(
+            self.devices.get("sensor").get("uid")).settings_property.get("motion_sensitivity").set(motion_sensitivity=90)
+        assert self.homecontrol.devices.get(
+            self.devices.get("sensor").get("uid")).settings_property.get("motion_sensitivity").motion_sensitivity == 90
 
     def test__set_ps_valid(self):
-        self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .settings_property.get("protection").set(local_switching=False)
-        assert not self.homecontrol.devices.get(self.devices.get("mains").get("uid"))\
-            .settings_property.get("protection").local_switching
+        self.homecontrol.devices.get(
+            self.devices.get("mains").get("uid")).settings_property.get("protection").set(local_switching=False)
+        assert not self.homecontrol.devices.get(
+            self.devices.get("mains").get("uid")).settings_property.get("protection").local_switching
 
     def test__set_trs_valid(self):
-        self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
-            .settings_property.get("temperature_report").set(temp_report=False)
-        assert not self.homecontrol.devices.get(self.devices.get("sensor").get("uid"))\
-            .settings_property.get("temperature_report").temp_report
+        self.homecontrol.devices.get(
+            self.devices.get("sensor").get("uid")).settings_property.get("temperature_report").set(temp_report=False)
+        assert not self.homecontrol.devices.get(
+            self.devices.get("sensor").get("uid")).settings_property.get("temperature_report").temp_report

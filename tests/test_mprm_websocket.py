@@ -1,15 +1,17 @@
 import time
 
 import pytest
+from websocket import WebSocketApp
+
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
-from websocket import WebSocketApp
 
 from .mocks.mock_websocket import MockWebsocketError
 
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprmWebsocket:
+
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     def test_websocket_connect(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session

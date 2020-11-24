@@ -36,7 +36,6 @@ class MultiLevelSwitchProperty(Property):
         self.max = kwargs.pop("max", 100.0)
         self.min = kwargs.pop("min", 0.0)
 
-
     @property
     def last_activity(self) -> datetime:
         """ Date and time the state of the multi level switch was last updated. """
@@ -52,8 +51,10 @@ class MultiLevelSwitchProperty(Property):
     @property
     def unit(self) -> Optional[str]:
         """ Human readable unit of the property. Defaults to percent. """
-        units = {"temperature": "°C",
-                 "tone": None}
+        units = {
+            "temperature": "°C",
+            "tone": None,
+        }
         return units.get(self.switch_type, "%")
 
     @property
@@ -68,7 +69,6 @@ class MultiLevelSwitchProperty(Property):
         self._last_activity = datetime.now()
         self._logger.debug("Value of %s set to %s.", self.element_uid, value)
 
-
     def set(self, value: float):
         """
         Set the multilevel switch of the given element_uid to the given value.
@@ -76,8 +76,8 @@ class MultiLevelSwitchProperty(Property):
         :param value: Value to set
         """
         if value > self.max or value < self.min:
-            raise ValueError(f"Set value {value} is too {'low' if value < self.min else 'high'}. The min value is {self.min}. \
-                             The max value is {self.max}")
+            raise ValueError((f"Set value {value} is too {'low' if value < self.min else 'high'}. "
+                              f"The min value is {self.min}. The max value is {self.max}"))
 
         if self._setter(self.element_uid, value):
             self.value = value

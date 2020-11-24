@@ -35,8 +35,11 @@ class MprmRest(ABC):
         :return: All devices and their properties.
         """
         self._logger.info("Inspecting devices")
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [['devolo.DevicesPage'], 0]}
+        data = {
+            "method": "FIM/getFunctionalItems",
+            "params": [['devolo.DevicesPage'],
+                       0]
+        }
         response = self._post(data)
         self._logger.debug("Response of 'get_all_devices':\n%s", response)
         return response['result']['items'][0]['properties']['deviceUIDs']
@@ -48,11 +51,15 @@ class MprmRest(ABC):
         :return: All zone IDs and their name.
         """
         self._logger.debug("Inspecting zones")
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [["devolo.Grouping"], 0]}
+        data = {
+            "method": "FIM/getFunctionalItems",
+            "params": [["devolo.Grouping"],
+                       0]
+        }
         response = self._post(data)['result']['items'][0]['properties']['zones']
         self._logger.debug("Response of 'get_all_zones':\n%s", response)
-        return {key['id']: key['name'] for key in response}
+        return {key['id']: key['name']
+                for key in response}
 
     def get_data_from_uid_list(self, uids: list) -> list:
         """
@@ -62,8 +69,11 @@ class MprmRest(ABC):
                      devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#1]
         :return: Data connected to the element UIDs, payload so to say
         """
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [uids, 0]}
+        data = {
+            "method": "FIM/getFunctionalItems",
+            "params": [uids,
+                       0]
+        }
         response = self._post(data)
         self._logger.debug("Response of 'get_data_from_uid_list':\n%s", response)
         return response['result']['items']
@@ -74,8 +84,11 @@ class MprmRest(ABC):
 
         :param uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
         """
-        data = {"method": "FIM/getFunctionalItems",
-                "params": [[uid], 0]}
+        data = {
+            "method": "FIM/getFunctionalItems",
+            "params": [[uid],
+                       0]
+        }
         response = self._post(data)
         self._logger.debug("Response of 'get_name_and_element_uids':\n%s", response)
         return response['result']['items'][0]['properties']
@@ -85,8 +98,12 @@ class MprmRest(ABC):
         Refresh currently running session. Without this call from time to time especially websockets will terminate.
         """
         self._logger.debug("Refreshing session.")
-        data = {"method": "FIM/invokeOperation",
-                "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}", "resetSessionTimeout", []]}
+        data = {
+            "method": "FIM/invokeOperation",
+            "params": [f"devolo.UserPrefs.{self._mydevolo.uuid()}",
+                       "resetSessionTimeout",
+                       []]
+        }
         self._post(data)
 
     def set_binary_switch(self, uid: str, state: bool) -> bool:
@@ -97,8 +114,12 @@ class MprmRest(ABC):
         :param state: True if switching on, False if switching off
         :return: True if successfully switched, false otherwise
         """
-        data = {"method": "FIM/invokeOperation",
-                "params": [uid, "turnOn" if state else "turnOff", []]}
+        data = {
+            "method": "FIM/invokeOperation",
+            "params": [uid,
+                       "turnOn" if state else "turnOff",
+                       []]
+        }
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=state, response=response)
 
@@ -110,8 +131,12 @@ class MprmRest(ABC):
         :param value: Value the multi level switch shall have
         :return: True if successfully switched, false otherwise
         """
-        data = {"method": "FIM/invokeOperation",
-                "params": [uid, "sendValue", [value]]}
+        data = {
+            "method": "FIM/invokeOperation",
+            "params": [uid,
+                       "sendValue",
+                       [value]]
+        }
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=value, response=response)
 
@@ -123,8 +148,12 @@ class MprmRest(ABC):
         :param key_pressed: Number of the button pressed
         :return: True if successfully switched, false otherwise
         """
-        data = {"method": "FIM/invokeOperation",
-                "params": [uid, "pressKey", [key_pressed]]}
+        data = {
+            "method": "FIM/invokeOperation",
+            "params": [uid,
+                       "pressKey",
+                       [key_pressed]]
+        }
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=key_pressed, response=response)
 
@@ -136,11 +165,14 @@ class MprmRest(ABC):
         :param setting: Settings to set
         :return: True if successfully switched, false otherwise
         """
-        data = {"method": "FIM/invokeOperation",
-                "params": [uid, "save", setting]}
+        data = {
+            "method": "FIM/invokeOperation",
+            "params": [uid,
+                       "save",
+                       setting]
+        }
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=setting, response=response)
-
 
     def _evaluate_response(self, uid, value, response):
         """ Evaluate the response of setting a device to a value. """
@@ -167,7 +199,9 @@ class MprmRest(ABC):
         try:
             response = self._session.post(self._url + "/remote/json-rpc",
                                           data=json.dumps(data),
-                                          headers={"content-type": "application/json"},
+                                          headers={
+                                              "content-type": "application/json"
+                                          },
                                           timeout=30).json()
         except ReadTimeout:
             self._logger.error("Gateway is offline.")

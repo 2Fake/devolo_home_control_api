@@ -40,7 +40,6 @@ class Gateway:
 
         self._update_state(status=details.get("status", ""), state=details.get("state", ""))
 
-
     def update_state(self, online: bool = None):
         """
         Update the state of the gateway. If called without parameter, we will check my devolo.
@@ -53,7 +52,6 @@ class Gateway:
         else:
             self.online = online
             self.sync = online
-
 
     def _update_state(self, status: str, state: str):
         """ Helper to update the state. """

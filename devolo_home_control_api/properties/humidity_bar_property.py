@@ -24,7 +24,6 @@ class HumidityBarProperty(SensorProperty):
         self._value = kwargs.pop("value", 0)
         self.zone = kwargs.pop("zone", 0)
 
-
     @property
     def value(self) -> int:
         """ Position inside a zone. """

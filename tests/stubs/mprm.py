@@ -1,14 +1,16 @@
 import json
 import pathlib
 
+from requests import Session
+
 from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.mydevolo import Mydevolo
-from requests import Session
 
 from ..mocks.mock_gateway import MockGateway
 
 
 class StubMprm(Mprm):
+
     def __init__(self):
         file = pathlib.Path(__file__).parent / ".." / "test_data.json"
         with file.open("r") as fh:
