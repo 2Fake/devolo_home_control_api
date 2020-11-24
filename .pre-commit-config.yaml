@@ -3,3 +3,7 @@ repos:
     rev: ''  # Use the sha / tag you want to point at
     hooks:
     -   id: yapf
+-   repo: https://github.com/pycqa/isort
+    rev: ''
+    hooks:
+        - id: isort
