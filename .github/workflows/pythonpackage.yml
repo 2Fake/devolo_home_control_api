@@ -4,6 +4,22 @@ on: [push]
 
 jobs:
 
+  format:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    - name: Checkout sources
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Check formatting with yapf
+      run: |
+        python -m pip install --upgrade pip
+        pip install yapf
+        yapf --diff --recursive devolo_home_control_api
+        yapf --diff --recursive tests
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
