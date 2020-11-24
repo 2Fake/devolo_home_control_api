@@ -1,10 +1,10 @@
 import pytest
+
 from devolo_home_control_api.helper.string import camel_case_to_snake_case
-from devolo_home_control_api.helper.uid import (get_device_type_from_element_uid,
-                                                get_device_uid_from_element_uid,
-                                                get_device_uid_from_setting_uid,
-                                                get_home_id_from_device_uid,
-                                                get_sub_device_uid_from_element_uid)
+from devolo_home_control_api.helper.uid import (
+    get_device_type_from_element_uid, get_device_uid_from_element_uid,
+    get_device_uid_from_setting_uid, get_home_id_from_device_uid,
+    get_sub_device_uid_from_element_uid)
 
 
 class TestHelper:

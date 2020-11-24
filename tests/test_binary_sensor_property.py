@@ -1,7 +1,8 @@
 import pytest
 
 from devolo_home_control_api.exceptions.device import WrongElementError
-from devolo_home_control_api.properties.binary_sensor_property import BinarySensorProperty
+from devolo_home_control_api.properties.binary_sensor_property import \
+    BinarySensorProperty
 
 
 @pytest.mark.usefixtures("home_control_instance")

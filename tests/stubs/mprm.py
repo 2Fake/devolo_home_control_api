@@ -1,9 +1,10 @@
 import json
 import pathlib
 
+from requests import Session
+
 from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.mydevolo import Mydevolo
-from requests import Session
 
 from ..mocks.mock_gateway import MockGateway
 

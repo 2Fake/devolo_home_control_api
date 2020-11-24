@@ -1,7 +1,9 @@
 import pytest
 
-from devolo_home_control_api.exceptions.device import SwitchingProtected, WrongElementError
-from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
+from devolo_home_control_api.exceptions.device import (SwitchingProtected,
+                                                       WrongElementError)
+from devolo_home_control_api.properties.binary_switch_property import \
+    BinarySwitchProperty
 
 
 @pytest.mark.usefixtures("home_control_instance")

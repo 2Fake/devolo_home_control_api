@@ -1,9 +1,10 @@
 import time
 
 import pytest
+from websocket import WebSocketApp
+
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
-from websocket import WebSocketApp
 
 from .mocks.mock_websocket import MockWebsocketError
 

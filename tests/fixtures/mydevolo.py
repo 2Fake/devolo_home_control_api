@@ -1,6 +1,7 @@
 import pytest
 
-from devolo_home_control_api.mydevolo import Mydevolo, WrongCredentialsError, WrongUrlError
+from devolo_home_control_api.mydevolo import (Mydevolo, WrongCredentialsError,
+                                              WrongUrlError)
 
 from ..mocks.mock_mydevolo import MockMydevolo
 

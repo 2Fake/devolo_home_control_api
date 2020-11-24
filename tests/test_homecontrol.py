@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+
 from devolo_home_control_api.backend import MESSAGE_TYPES
 
 

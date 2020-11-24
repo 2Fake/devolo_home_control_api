@@ -1,11 +1,14 @@
 import json
 import pathlib
 
-from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.devices.zwave import Zwave
-from devolo_home_control_api.properties.binary_sensor_property import BinarySensorProperty
-from devolo_home_control_api.properties.multi_level_sensor_property import MultiLevelSensorProperty
-from devolo_home_control_api.properties.settings_property import SettingsProperty
+from devolo_home_control_api.mydevolo import Mydevolo
+from devolo_home_control_api.properties.binary_sensor_property import \
+    BinarySensorProperty
+from devolo_home_control_api.properties.multi_level_sensor_property import \
+    MultiLevelSensorProperty
+from devolo_home_control_api.properties.settings_property import \
+    SettingsProperty
 
 
 def multi_level_sensor_device(device_uid: str) -> Zwave:

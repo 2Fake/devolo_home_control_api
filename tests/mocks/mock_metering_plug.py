@@ -1,12 +1,16 @@
 import json
 import pathlib
 
-from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.devices.zwave import Zwave
-from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
-from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
-from devolo_home_control_api.properties.multi_level_sensor_property import MultiLevelSensorProperty
-from devolo_home_control_api.properties.settings_property import SettingsProperty
+from devolo_home_control_api.mydevolo import Mydevolo
+from devolo_home_control_api.properties.binary_switch_property import \
+    BinarySwitchProperty
+from devolo_home_control_api.properties.consumption_property import \
+    ConsumptionProperty
+from devolo_home_control_api.properties.multi_level_sensor_property import \
+    MultiLevelSensorProperty
+from devolo_home_control_api.properties.settings_property import \
+    SettingsProperty
 
 
 def metering_plug(device_uid: str) -> Zwave:
