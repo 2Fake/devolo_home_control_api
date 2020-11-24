@@ -12,9 +12,10 @@ with open("README.md", "r") as fh:
 # Create post develop command class for hooking into the python setup process
 # This command will run after dependencies are installed
 class PostDevelopCommand(develop):
+
     def run(self):
         try:
-            check_call(shlex.split("python .\\pre-commit-2.9.0.pyz install"))
+            check_call(shlex.split("pre-commit install"))
         except Exception as e:
             print("Unable to run 'pre-commit install'")
         develop.run(self)
