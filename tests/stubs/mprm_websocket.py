@@ -1,5 +1,3 @@
-from urllib3.connection import ConnectTimeoutError
-
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 
@@ -13,11 +11,12 @@ class StubMprmWebsocket(MprmWebsocket):
         self._event_sequence = 0
         self._url = "https://test.test"
 
-    def close(self):
+    def detect_gateway_in_lan(self):
         pass
 
     def get_local_session(self):
-        raise ConnectTimeoutError
+        # We are abusing this to raise the expected exception
+        raise self._ws()
 
     def get_remote_session(self):
         pass

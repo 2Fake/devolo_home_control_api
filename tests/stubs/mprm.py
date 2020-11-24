@@ -18,8 +18,9 @@ class StubMprm(Mprm):
 
         self._mydevolo = Mydevolo()
         self._session = Session()
+        self._zeroconf = None
         self.gateway = MockGateway(test_data['gateway']['id'], self._mydevolo)
-        super().__init__(None)
+        super().__init__()
 
     def on_update(self, message):
         pass

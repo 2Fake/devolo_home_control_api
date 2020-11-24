@@ -11,7 +11,7 @@ class TestMprm:
     @pytest.mark.usefixtures("mock_mprm_get_local_session")
     def test_create_connection_local(self, mprm_session):
         self.mprm._session = mprm_session
-        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway["local_ip"]
         self.mprm.create_connection()
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
@@ -29,27 +29,27 @@ class TestMprm:
 
     @pytest.mark.usefixtures("mock_mprm_service_browser")
     def test_detect_gateway_in_lan(self):
-        self.mprm._local_ip = self.gateway.get("local_ip")
-        assert self.mprm.detect_gateway_in_lan("zeroconf") == self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway["local_ip"]
+        assert self.mprm.detect_gateway_in_lan() == self.gateway["local_ip"]
 
     @pytest.mark.usefixtures("mock_session_get")
     @pytest.mark.usefixtures("mock_response_json")
     def test_get_local_session_valid(self, mprm_session):
         self.mprm._session = mprm_session
-        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway["local_ip"]
         self.mprm.get_local_session()
 
     @pytest.mark.usefixtures("mock_response_requests_ConnectTimeout")
     def test_get_local_session_ConnectTimeout(self, mprm_session):
         self.mprm._session = mprm_session
-        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway["local_ip"]
         with pytest.raises(ConnectTimeout):
             self.mprm.get_local_session()
 
     @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
     def test_get_local_session_JSONDecodeError(self, mprm_session):
         self.mprm._session = mprm_session
-        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway["local_ip"]
         with pytest.raises(GatewayOfflineError):
             self.mprm.get_local_session()
 
@@ -65,11 +65,11 @@ class TestMprm:
         zc = zeroconf.Zeroconf()
         service_type = "_http._tcp.local."
         self.mprm._on_service_state_change(zc, service_type, service_type, zeroconf.ServiceStateChange.Added)
-        assert self.mprm._local_ip == self.gateway.get("local_ip")
+        assert self.mprm._local_ip == self.gateway["local_ip"]
 
     @pytest.mark.usefixtures("mock_socket_inet_ntoa")
     @pytest.mark.usefixtures("mock_response_valid")
     def test__try_local_connection_success(self, mprm_session):
         self.mprm._session = mprm_session
-        self.mprm._try_local_connection([self.gateway.get("local_ip")])
-        assert self.mprm._local_ip == self.gateway.get("local_ip")
+        self.mprm._try_local_connection([self.gateway["local_ip"]])
+        assert self.mprm._local_ip == self.gateway["local_ip"]

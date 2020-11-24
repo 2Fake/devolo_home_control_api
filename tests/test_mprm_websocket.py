@@ -1,12 +1,15 @@
 import time
 
 import pytest
+from requests.exceptions import ConnectionError
+from urllib3.connection import ConnectTimeoutError
 from websocket import WebSocketApp
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 from .mocks.mock_websocket import MockWebsocketError
+from .stubs.mprm_websocket import StubMprmWebsocket
 
 
 @pytest.mark.usefixtures("mprm_instance")
@@ -63,15 +66,24 @@ class TestMprmWebsocket:
         self.mprm._mydevolo = mydevolo
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
-        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._local_ip = self.gateway["local_ip"]
         self.mprm._on_pong()
         assert spy.call_count == 1
 
-    @pytest.mark.usefixtures("mock_mprmwebsocket_get_local_session_json_decode_error")
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     def test__try_reconnect(self, mocker):
         spy = mocker.spy(time, "sleep")
-        self.mprm._ws = WebSocketApp()
-        self.mprm._local_ip = self.gateway.get("local_ip")
+        self.mprm._ws = ConnectTimeoutError
+        self.mprm._local_ip = self.gateway["local_ip"]
         self.mprm._try_reconnect(0.1)
         spy.assert_called_once_with(0.1)
+
+    @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
+    def test__try_reconnect_with_detect(self, mocker):
+        spy_sleep = mocker.spy(time, "sleep")
+        spy_detect_gateway = mocker.spy(StubMprmWebsocket, "detect_gateway_in_lan")
+        self.mprm._ws = ConnectionError
+        self.mprm._local_ip = self.gateway["local_ip"]
+        self.mprm._try_reconnect(4)
+        spy_sleep.assert_called_once_with(1)
+        spy_detect_gateway.assert_called_once()
