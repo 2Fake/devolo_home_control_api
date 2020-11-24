@@ -1,5 +1,3 @@
-import json
-
 import pytest
 import requests
 
@@ -190,15 +188,6 @@ def mock_mprmrest__post(mocker, request):
     }
 
     mocker.patch("devolo_home_control_api.backend.mprm_rest.MprmRest._post", return_value=properties[test_case])
-
-
-@pytest.fixture()
-def mock_mprmwebsocket_get_local_session_json_decode_error(mocker):
-    """ Create an JSONDecodeError on getting a local session. """
-    mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.get_local_session",
-                 side_effect=json.JSONDecodeError("",
-                                                  "",
-                                                  1))
 
 
 @pytest.fixture()

@@ -18,14 +18,14 @@ class Mprm(MprmWebsocket, ABC):
     """
     The abstract Mprm object handles the connection to the devolo Cloud (remote) or the gateway in your LAN (local). Either
     way is chosen, depending on detecting the gateway via mDNS.
-
-    :param zeroconf_instance: Zeroconf instance to be potentially reused
     """
 
-    def __init__(self, zeroconf_instance: Optional[Zeroconf]):
+    def __init__(self):
+        self._zeroconf: Optional[Zeroconf]
+
         super().__init__()
 
-        self.detect_gateway_in_lan(zeroconf_instance)
+        self.detect_gateway_in_lan()
         self.create_connection()
 
     def create_connection(self):
@@ -42,16 +42,15 @@ class Mprm(MprmWebsocket, ABC):
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
             raise ConnectionError("Cannot connect to gateway.")
 
-    def detect_gateway_in_lan(self, zeroconf_instance: Optional[Zeroconf]) -> str:
+    def detect_gateway_in_lan(self) -> str:
         """
         Detect a gateway in local network via mDNS and check if it is the desired one. Unfortunately, the only way to tell is
         to try a connection with the known credentials. If the gateway is not found within 3 seconds, it is assumed that a
         remote connection is needed.
 
-        :param zeroconf_instance: Zeroconf instance to be potentially reused
         :return: Local IP of the gateway, if found
         """
-        zeroconf = zeroconf_instance or Zeroconf()
+        zeroconf = self._zeroconf or Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
@@ -59,7 +58,7 @@ class Mprm(MprmWebsocket, ABC):
             time.sleep(0.05)
 
         Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()  # type: ignore[name-defined]
-        if not zeroconf_instance:
+        if not self._zeroconf:
             Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()  # type: ignore[name-defined]
 
         return self._local_ip
@@ -82,7 +81,7 @@ class Mprm(MprmWebsocket, ABC):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-        except requests.exceptions.ConnectTimeout:
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
             self._logger.error("Timeout during connecting to the gateway.")
             self._logger.debug(sys.exc_info())
             raise

@@ -157,7 +157,7 @@ class Mydevolo:
 
         if responds.status_code == requests.codes.forbidden:  # pylint: disable=no-member
             self._logger.error("Could not get full URL. Wrong username or password?")
-            raise WrongCredentialsError("Wrong username or password.")  # pylint: disable=no-member
+            raise WrongCredentialsError("Wrong username or password.")
         if responds.status_code == requests.codes.not_found:  # pylint: disable=no-member
             raise WrongUrlError(f"Wrong URL: {url}")
         if responds.status_code == requests.codes.service_unavailable:  # pylint: disable=no-member

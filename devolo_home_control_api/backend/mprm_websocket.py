@@ -36,6 +36,10 @@ class MprmWebsocket(MprmRest, ABC):
         self.websocket_disconnect()
 
     @abstractmethod
+    def detect_gateway_in_lan(self):
+        pass
+
+    @abstractmethod
     def get_local_session(self):
         pass
 
@@ -146,8 +150,11 @@ class MprmWebsocket(MprmRest, ABC):
         """ Try to reconnect to the websocket. """
         try:
             self._logger.info("Trying to reconnect to the websocket.")
-            # TODO: Check if local_ip is still correct after lost connection
             self._reachable = self.get_local_session() if self._local_ip else self.get_remote_session()
-        except (json.JSONDecodeError, ConnectTimeoutError, requests.exceptions.ConnectTimeout, GatewayOfflineError):
+        except (ConnectTimeoutError, GatewayOfflineError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+            self._logger.info("Sleeping for %s seconds.", sleep_interval)
+            time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
+            self.detect_gateway_in_lan()
