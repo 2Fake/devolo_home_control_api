@@ -76,7 +76,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - **BREAKING**: MildewProperty was reimplemented as BinarySensorProperty and DewpointProperty was reimplemented as MultiLevelSensorProperty.
-- **BREAKING**: Devices attributes manID and manufacturerId, prodID and productId as well as prodTypeID and productTypeId were merged 
+- **BREAKING**: Devices attributes manID and manufacturerId, prodID and productId as well as prodTypeID and productTypeId were merged
 to manufacturer_id, product_id and product_type_id respectively.
 
 ### Fixed
