@@ -3,19 +3,19 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": "..",
-		"args": { 
+		"args": {
 			// Update 'VARIANT' to pick a Python version: 3, 3.6, 3.7, 3.8, 3.9
 			"VARIANT": "3.8"
 		}
 	},
-
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
+	"settings": {
 		"terminal.integrated.shell.linux": "/bin/bash",
 		"python.pythonPath": "/usr/local/bin/python",
 		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
 		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
 		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+		"python.formatting.provider": "yapf",
 		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
 		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
 		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
@@ -24,25 +24,33 @@
 		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 		"python.linting.enabled": true,
 		"python.linting.flake8Enabled": true,
-		"python.linting.flake8Args": ["--max-cognitive-complexity=5", "--max-line-length=127", "--ignore=E303,W503"],
+		"python.linting.flake8Args": [
+			"--max-cognitive-complexity=5",
+			"--max-line-length=127",
+			"--ignore=E303,W503"
+		],
 		"python.linting.mypyEnabled": true,
-		"python.linting.mypyArgs": ["--ignore-missing-imports"],
+		"python.linting.mypyArgs": [
+			"--ignore-missing-imports"
+		],
 		"python.linting.pylintEnabled": true,
-		"python.linting.pylintArgs": ["--disable=C,R", "--enable=useless-suppression"],
-    	"python.testing.nosetestsEnabled": false,
+		"python.linting.pylintArgs": [
+			"--disable=C,R",
+			"--enable=useless-suppression"
+		],
+		"python.testing.nosetestsEnabled": false,
 		"python.testing.pytestEnabled": true,
 		"python.testing.unittestEnabled": false,
+		"editor.formatOnSave": true,
 	},
-	
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.vscode-pylance",
+		"sourcery.sourcery",
 		"visualstudioexptteam.vscodeintellicode",
 	],
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip install -e .[test]"
 }
