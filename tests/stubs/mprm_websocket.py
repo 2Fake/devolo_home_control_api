@@ -1,5 +1,6 @@
-from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 from urllib3.connection import ConnectTimeoutError
+
+from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 
 class StubMprmWebsocket(MprmWebsocket):

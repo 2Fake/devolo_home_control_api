@@ -1,9 +1,9 @@
 import json
 
 import pytest
-from devolo_home_control_api.backend.mprm_rest import MprmRest
-
 import requests
+
+from devolo_home_control_api.backend.mprm_rest import MprmRest
 
 from ..mocks.mock_gateway import MockGateway
 from ..mocks.mock_mprm_rest import try_local_connection

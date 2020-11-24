@@ -24,24 +24,23 @@
 		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 		"python.linting.enabled": true,
 		"python.linting.flake8Enabled": true,
-		"python.linting.flake8Args": [
-			"--max-cognitive-complexity=5",
-			"--max-line-length=127",
-			"--ignore=E303,W503"
-		],
 		"python.linting.mypyEnabled": true,
-		"python.linting.mypyArgs": [
-			"--ignore-missing-imports"
-		],
 		"python.linting.pylintEnabled": true,
 		"python.linting.pylintArgs": [
 			"--disable=C,R",
-			"--enable=useless-suppression"
+			"--enable=useless-suppression",
+		],
+		"python.sortImports.path": "/usr/local/bin/isort",
+		"python.sortImports.args": [
+			"--settings-path=/workspaces/devolo_home_control_api/setup.cfg",
 		],
 		"python.testing.nosetestsEnabled": false,
 		"python.testing.pytestEnabled": true,
 		"python.testing.unittestEnabled": false,
 		"editor.formatOnSave": true,
+		"files.trimTrailingWhitespace": true,
+		"files.trimFinalNewlines": true,
+		"files.insertFinalNewline": true,
 	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
@@ -52,5 +51,5 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip install -e .[test]"
+	"postCreateCommand": "pip install -e .[test]",
 }

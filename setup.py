@@ -17,7 +17,7 @@ class PostDevelopCommand(develop):
     def run(self):
         try:
             check_call(shlex.split("pre-commit install"))
-        except Exception as e:
+        except Exception:
             print("Unable to run 'pre-commit install'")
         develop.run(self)
 
@@ -51,7 +51,6 @@ setup(
             "pytest-cov",
             "pytest-mock",
         ],
-        "dev": ["pre-commit"],
     },
     cmdclass={"develop": PostDevelopCommand},
     python_requires=">=3.6",

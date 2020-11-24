@@ -1,8 +1,8 @@
 import json
 import pathlib
 
-from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.devices.zwave import Zwave
+from devolo_home_control_api.mydevolo import Mydevolo
 from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
 from devolo_home_control_api.properties.settings_property import SettingsProperty
 

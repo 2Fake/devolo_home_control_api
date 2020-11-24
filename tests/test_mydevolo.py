@@ -1,6 +1,5 @@
 import pytest
-
-from devolo_home_control_api.mydevolo import Mydevolo, GatewayOfflineError, WrongUrlError, WrongCredentialsError
+from devolo_home_control_api.mydevolo import GatewayOfflineError, Mydevolo, WrongCredentialsError, WrongUrlError
 
 
 class TestMydevolo:
