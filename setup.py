@@ -47,7 +47,7 @@ setuptools.setup(
             "pytest-cov",
             "pytest-mock",
         ],
-        "dev": ["pre-commit"]
+        "dev": ["pre-commit"],
     },
     cmdclass={"develop": PostDevelopCommand},
     python_requires=">=3.6",
