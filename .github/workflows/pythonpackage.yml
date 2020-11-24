@@ -28,6 +28,7 @@ jobs:
   pre-commit-hooks:
     name: Check if pre-commit-hooks ran
     runs-on: ubuntu-latest
+    steps:
     - name: Checkout sources
       uses: actions/checkout@v2
     - name: Set up Python
