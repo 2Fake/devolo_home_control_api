@@ -6,7 +6,7 @@ with file.open("r") as fh:
     test_data = json.load(fh)
 
 
-def try_local_connection(self, mdns_name):
+def try_local_connection(self, mdns_name=None):
     self._local_ip = test_data["gateway"]["local_ip"]
 
 

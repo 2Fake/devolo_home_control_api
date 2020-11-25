@@ -36,6 +36,12 @@ def mock_mprm__detect_gateway_in_lan(mocker, request):
 
 
 @pytest.fixture()
+def mock_mprm__on_service_state_change(mocker):
+    """ Mock finding gateway's IP. """
+    mocker.patch("devolo_home_control_api.backend.mprm.Mprm._on_service_state_change", try_local_connection)
+
+
+@pytest.fixture()
 def mock_mprm__try_local_connection(mocker):
     """ Mock finding gateway's IP. """
     mocker.patch("devolo_home_control_api.backend.mprm.Mprm._try_local_connection", try_local_connection)

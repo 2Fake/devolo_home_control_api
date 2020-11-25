@@ -49,6 +49,7 @@ class Mprm(MprmWebsocket, ABC):
 
         :return: Local IP of the gateway, if found
         """
+        self._local_ip = ""
         zeroconf = self._zeroconf or Zeroconf()
         browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")

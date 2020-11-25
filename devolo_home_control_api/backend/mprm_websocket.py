@@ -149,11 +149,8 @@ class MprmWebsocket(MprmRest, ABC):
         """ Try to reconnect to the websocket. """
         try:
             self._logger.info("Trying to reconnect to the websocket.")
+            self.detect_gateway_in_lan()
             self._reachable = self.get_local_session() if self._local_ip else self.get_remote_session()
-        except (GatewayOfflineError):
-            self._logger.info("Sleeping for %s seconds.", sleep_interval)
-            time.sleep(sleep_interval)
-        except (httpx.ConnectTimeout, httpx.ConnectError):
+        except (GatewayOfflineError, httpx.ConnectTimeout, httpx.ConnectError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
-            self.detect_gateway_in_lan()

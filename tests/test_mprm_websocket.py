@@ -73,8 +73,8 @@ class TestMprmWebsocket:
         spy = mocker.spy(time, "sleep")
         self.mprm._test = request.node.name
         self.mprm._local_ip = self.gateway["local_ip"]
-        self.mprm._try_reconnect(0.1)
-        spy.assert_called_once_with(0.1)
+        self.mprm._try_reconnect(4)
+        spy.assert_called_once_with(1)
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     def test__try_reconnect_with_detect(self, request, mocker):
