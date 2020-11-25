@@ -1,3 +1,6 @@
+import httpx
+from urllib3.connection import ConnectTimeoutError
+
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 
@@ -5,6 +8,7 @@ class StubMprmWebsocket(MprmWebsocket):
 
     def __init__(self):
         super().__init__()
+        self._test = None
         self._ws = None
         self._connected = True
         self._reachable = True
@@ -15,8 +19,10 @@ class StubMprmWebsocket(MprmWebsocket):
         pass
 
     def get_local_session(self):
-        # We are abusing this to raise the expected exception
-        raise self._ws()
+        if self._test == "test__try_reconnect":
+            raise ConnectTimeoutError
+        if self._test == "test__try_reconnect_with_detect":
+            raise httpx.ConnectTimeout("", request=None)
 
     def get_remote_session(self):
         pass

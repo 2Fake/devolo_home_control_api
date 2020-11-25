@@ -1,6 +1,6 @@
 import pytest
 import zeroconf
-from requests.exceptions import ConnectTimeout
+from httpx import ConnectTimeout
 
 from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
@@ -39,7 +39,7 @@ class TestMprm:
         self.mprm._local_ip = self.gateway["local_ip"]
         self.mprm.get_local_session()
 
-    @pytest.mark.usefixtures("mock_response_requests_ConnectTimeout")
+    @pytest.mark.usefixtures("mock_response_ConnectTimeout")
     def test_get_local_session_ConnectTimeout(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._local_ip = self.gateway["local_ip"]
@@ -68,7 +68,7 @@ class TestMprm:
         assert self.mprm._local_ip == self.gateway["local_ip"]
 
     @pytest.mark.usefixtures("mock_socket_inet_ntoa")
-    @pytest.mark.usefixtures("mock_response_valid")
+    @pytest.mark.usefixtures("mock_response_get_valid")
     def test__try_local_connection_success(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._try_local_connection([self.gateway["local_ip"]])

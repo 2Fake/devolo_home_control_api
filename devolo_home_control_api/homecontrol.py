@@ -1,7 +1,7 @@
 import threading
 from typing import Dict, Optional
 
-import requests
+import httpx
 from zeroconf import Zeroconf
 
 from . import __version__
@@ -39,7 +39,7 @@ class HomeControl(Mprm):
 
     def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo, zeroconf_instance: Optional[Zeroconf] = None):
         self._mydevolo = mydevolo_instance
-        self._session = requests.Session()
+        self._session = httpx.Client()
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
         self._zeroconf = zeroconf_instance
         self.gateway = Gateway(gateway_id, mydevolo_instance)

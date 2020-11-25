@@ -31,21 +31,21 @@ class TestMprmRest:
             "hz_3": "Office",
         }
 
-    @pytest.mark.usefixtures("mock_response_requests_ReadTimeout")
+    @pytest.mark.usefixtures("mock_response_ReadTimeout")
     def test_post_ReadTimeOut(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
         with pytest.raises(GatewayOfflineError):
             self.mprm._post({"data": "test"})
 
-    @pytest.mark.usefixtures("mock_response_requests_invalid_id")
+    @pytest.mark.usefixtures("mock_response_invalid_id")
     def test_post_invalid_id(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._data_id = 0
         with pytest.raises(ValueError):
             self.mprm._post({"data": "test"})
 
-    @pytest.mark.usefixtures("mock_response_requests_valid")
+    @pytest.mark.usefixtures("mock_response_post_valid")
     def test_post_valid(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._data_id = 1

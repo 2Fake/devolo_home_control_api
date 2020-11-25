@@ -11,6 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added devices are now added to the Publisher.
 - Multilevel Async Settings are now updated via websocket
 
+### Changed
+
+- requests was replaced by httpx
+
+### Fixed
+
+- Reconnecting to a gateway will take IP change into account
+
 ## [v0.16.0] - 2020/11/07
 
 ### Added

@@ -1,7 +1,7 @@
 import json
 import pathlib
 
-from requests import Session
+from httpx import Client
 
 from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.mydevolo import Mydevolo
@@ -17,7 +17,7 @@ class StubMprm(Mprm):
             test_data = json.load(fh)
 
         self._mydevolo = Mydevolo()
-        self._session = Session()
+        self._session = Client()
         self._zeroconf = None
         self.gateway = MockGateway(test_data['gateway']['id'], self._mydevolo)
         super().__init__()

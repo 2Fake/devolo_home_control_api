@@ -1,6 +1,6 @@
 from json import JSONDecodeError
 
-from requests.exceptions import ConnectTimeout, ReadTimeout
+from httpx import URL, ConnectTimeout, ReadTimeout
 
 
 class MockResponse:
@@ -8,13 +8,13 @@ class MockResponse:
     def __init__(self, json_data, status_code):
         self.json_data = json_data
         self.status_code = status_code
-        self.url = "https://homecontrol.mydevolo.com"
+        self.url = URL("http://test.test")
 
 
 class MockResponseConnectTimeout(MockResponse):
 
     def get(self, url, auth=None, timeout=None):
-        raise ConnectTimeout
+        raise ConnectTimeout("", request=self)
 
 
 class MockResponseGet(MockResponse):
@@ -48,7 +48,7 @@ class MockResponsePost(MockResponse):
 class MockResponseReadTimeout(MockResponse):
 
     def post(self, url, auth=None, timeout=None, headers=None, data=None):
-        raise ReadTimeout
+        raise ReadTimeout("", request=self)
 
 
 class MockResponseServiceUnavailable(MockResponse):

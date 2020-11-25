@@ -10,10 +10,10 @@ with file.open("r") as fh:
 pytest_plugins = [
     'tests.fixtures.gateway',
     'tests.fixtures.homecontrol',
+    'tests.fixtures.httpx',
     'tests.fixtures.mprm',
     'tests.fixtures.mydevolo',
     'tests.fixtures.publisher',
-    'tests.fixtures.requests',
     'tests.fixtures.socket',
     'tests.fixtures.updater',
 ]

@@ -5,9 +5,8 @@ from abc import ABC
 from json import JSONDecodeError
 from threading import Thread
 from typing import Optional
-from urllib.parse import urlsplit
 
-import requests
+import httpx
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
 from ..exceptions.gateway import GatewayOfflineError
@@ -81,7 +80,7 @@ class Mprm(MprmWebsocket, ABC):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+        except (httpx.ConnectTimeout, httpx.ConnectError):
             self._logger.error("Timeout during connecting to the gateway.")
             self._logger.debug(sys.exc_info())
             raise
@@ -94,10 +93,12 @@ class Mprm(MprmWebsocket, ABC):
         """
         self._logger.info("Connecting to gateway via cloud.")
         try:
-            url = urlsplit(self._session.get(self.gateway.full_url, timeout=15).url)
+            url = self._session.get(self.gateway.full_url, timeout=15).url
+            if not url:
+                return False
             self._url = f"{url.scheme}://{url.netloc}"
             self._logger.debug("Session URL set to '%s'", self._url)
-        except JSONDecodeError:
+        except (JSONDecodeError):
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
@@ -114,9 +115,9 @@ class Mprm(MprmWebsocket, ABC):
         """ Try to connect to an mDNS hostname. If connection was successful, save local IP address. """
         for address in addresses:
             ip = socket.inet_ntoa(address)
-            if requests.get("http://" + ip + "/dhlp/port/full",
-                            auth=(self.gateway.local_user,
-                                  self.gateway.local_passkey),
-                            timeout=0.5).status_code == requests.codes.ok:  # pylint: disable=no-member
+            if httpx.get("http://" + ip + "/dhlp/port/full",
+                         auth=(self.gateway.local_user,
+                               self.gateway.local_passkey),
+                         timeout=0.5).status_code == httpx.codes.OK:
                 self._logger.debug("Got successful answer from ip %s. Setting this as local gateway", ip)
                 self._local_ip = ip

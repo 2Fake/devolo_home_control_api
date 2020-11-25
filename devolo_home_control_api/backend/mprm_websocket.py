@@ -3,7 +3,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 
-import requests
+import httpx
 import websocket
 from urllib3.connection import ConnectTimeoutError
 
@@ -154,7 +154,7 @@ class MprmWebsocket(MprmRest, ABC):
         except (ConnectTimeoutError, GatewayOfflineError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
-        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+        except (httpx.ConnectTimeout, httpx.ConnectError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
             self.detect_gateway_in_lan()

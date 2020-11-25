@@ -1,10 +1,8 @@
-import json
 import logging
 import sys
 from abc import ABC
 
-from requests import Session
-from requests.exceptions import ReadTimeout
+from httpx import Client, ReadTimeout
 
 from ..devices.gateway import Gateway
 from ..exceptions.gateway import GatewayOfflineError
@@ -25,7 +23,7 @@ class MprmRest(ABC):
         self._url = ""
 
         self._mydevolo: Mydevolo
-        self._session: Session
+        self._session: Client
         self.gateway: Gateway
 
     def get_all_devices(self) -> list:
@@ -198,7 +196,7 @@ class MprmRest(ABC):
         data['id'] = self._data_id
         try:
             response = self._session.post(self._url + "/remote/json-rpc",
-                                          data=json.dumps(data),
+                                          data=data,
                                           headers={
                                               "content-type": "application/json"
                                           },

@@ -38,7 +38,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "requests",
+        "httpx",
         "websocket_client",
         "zeroconf",
     ],

@@ -1,5 +1,5 @@
+import httpx
 import pytest
-import requests
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 
@@ -252,6 +252,6 @@ def mprm_instance(request,
 @pytest.fixture()
 def mprm_session():
     """ Mock a valid mPRM session. """
-    session = requests.Session()
+    session = httpx.Client()
     session.url = "https://homecontrol.mydevolo.com"
     return session

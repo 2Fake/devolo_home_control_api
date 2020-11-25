@@ -1,6 +1,6 @@
 import logging
 
-import requests
+import httpx
 
 from . import __version__
 from .exceptions.gateway import GatewayOfflineError
@@ -153,14 +153,14 @@ class Mydevolo:
             "content-type": "application/json",
             "User-Agent": f"devolo_home_control_api/{__version__}"
         }
-        responds = requests.get(url, auth=(self._user, self._password), headers=headers, timeout=60)
+        responds = httpx.get(url, auth=(self._user, self._password), headers=headers, timeout=60)
 
-        if responds.status_code == requests.codes.forbidden:  # pylint: disable=no-member
+        if responds.status_code == httpx.codes.FORBIDDEN:
             self._logger.error("Could not get full URL. Wrong username or password?")
             raise WrongCredentialsError("Wrong username or password.")
-        if responds.status_code == requests.codes.not_found:  # pylint: disable=no-member
+        if responds.status_code == httpx.codes.NOT_FOUND:
             raise WrongUrlError(f"Wrong URL: {url}")
-        if responds.status_code == requests.codes.service_unavailable:  # pylint: disable=no-member
+        if responds.status_code == httpx.codes.SERVICE_UNAVAILABLE:
             # mydevolo sends a 503, if the gateway is offline
             self._logger.error("The requested gateway seems to be offline.")
             raise GatewayOfflineError("Gateway offline.")

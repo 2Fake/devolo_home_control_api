@@ -94,6 +94,6 @@ class TestMydevolo:
         with pytest.raises(GatewayOfflineError):
             mydevolo._call("test")
 
-    @pytest.mark.usefixtures("mock_response_valid")
+    @pytest.mark.usefixtures("mock_response_get_valid")
     def test_call_valid(self, mydevolo):
         assert mydevolo._call("test").get("response") == "response"
