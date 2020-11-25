@@ -1,7 +1,7 @@
 import httpx
-from urllib3.connection import ConnectTimeoutError
 
 from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
 
 class StubMprmWebsocket(MprmWebsocket):
@@ -20,7 +20,7 @@ class StubMprmWebsocket(MprmWebsocket):
 
     def get_local_session(self):
         if self._test == "test__try_reconnect":
-            raise ConnectTimeoutError
+            raise GatewayOfflineError
         if self._test == "test__try_reconnect_with_detect":
             raise httpx.ConnectTimeout("", request=None)
 

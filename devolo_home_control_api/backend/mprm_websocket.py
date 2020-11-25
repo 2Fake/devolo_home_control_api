@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 
 import httpx
 import websocket
-from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
 from .mprm_rest import MprmRest
@@ -151,7 +150,7 @@ class MprmWebsocket(MprmRest, ABC):
         try:
             self._logger.info("Trying to reconnect to the websocket.")
             self._reachable = self.get_local_session() if self._local_ip else self.get_remote_session()
-        except (ConnectTimeoutError, GatewayOfflineError):
+        except (GatewayOfflineError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
         except (httpx.ConnectTimeout, httpx.ConnectError):
