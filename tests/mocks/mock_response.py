@@ -35,7 +35,7 @@ class MockResponseJsonError(MockResponse):
 
 class MockResponsePost(MockResponse):
 
-    def post(self, url, auth=None, timeout=None, headers=None, data=None):
+    def post(self, url, auth=None, timeout=None, headers=None, json=None):
         return MockResponsePost({"link": "test_link"},
                                 status_code=200)
 
@@ -47,7 +47,7 @@ class MockResponsePost(MockResponse):
 
 class MockResponseReadTimeout(MockResponse):
 
-    def post(self, url, auth=None, timeout=None, headers=None, data=None):
+    def post(self, url, auth=None, timeout=None, headers=None, json=None):
         raise ReadTimeout("", request=self)
 
 

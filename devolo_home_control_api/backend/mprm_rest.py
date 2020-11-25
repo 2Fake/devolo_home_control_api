@@ -196,7 +196,7 @@ class MprmRest(ABC):
         data['id'] = self._data_id
         try:
             response = self._session.post(self._url + "/remote/json-rpc",
-                                          data=data,
+                                          json=data,
                                           headers={
                                               "content-type": "application/json"
                                           },
