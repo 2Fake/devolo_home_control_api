@@ -99,7 +99,7 @@ class Mprm(MprmWebsocket, ABC):
                 return False
             self._url = f"{url.scheme}://{url.netloc}"
             self._logger.debug("Session URL set to '%s'", self._url)
-        except (JSONDecodeError):
+        except JSONDecodeError:
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
