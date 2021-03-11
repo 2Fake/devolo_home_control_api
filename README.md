@@ -15,7 +15,7 @@ Defining the system requirements with exact versions typically is difficult. But
 * Python 3.6.9
 * pip 18.1
 * requests 2.22.0
-* websocket_client 0.56.0
+* websocket_client 0.58.0
 * zeroconf 0.24.4
 
 Other versions and even other operating systems might work. Feel free to tell us about your experience. If you want to run our unit tests, you also need:
