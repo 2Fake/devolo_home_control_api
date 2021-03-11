@@ -139,7 +139,7 @@ class MprmWebsocket(MprmRest, ABC):
             while ws.sock is not None and ws.sock.connected:
                 time.sleep(1)
 
-        threading.Thread(target=run, name=f"{__class__.__name__}.websocket_run").start()
+        threading.Thread(target=run, name=f"{self.__class__.__name__}.websocket_run").start()
         self._connected = True
 
     def _on_pong(self, ws: websocket.WebSocketApp, *args):  # pylint: disable=unused-argument

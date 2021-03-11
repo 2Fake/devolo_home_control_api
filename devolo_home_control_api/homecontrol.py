@@ -64,8 +64,7 @@ class HomeControl(Mprm):
         self.updater = Updater(devices=self.devices, gateway=self.gateway, publisher=self.publisher)
         self.updater.on_device_change = self.device_change
 
-        threading.Thread(target=self.websocket_connect,
-                         name=f"{__class__.__name__}.websocket_connect").start()  # type: ignore[name-defined]
+        threading.Thread(target=self.websocket_connect, name=f"{self.__class__.__name__}.websocket_connect").start()
         self.wait_for_websocket_establishment()
 
     @property
@@ -205,7 +204,7 @@ class HomeControl(Mprm):
             self.devices[device_properties['UID']] = Zwave(mydevolo_instance=self._mydevolo, **properties)
             self.devices[device_properties['UID']].settings_property = {}
             threading.Thread(target=self.devices[device_properties['UID']].get_zwave_info,
-                             name=f"{__class__.__name__}.{self.devices[device_properties['UID']].uid}").start()  # type: ignore
+                             name=f"{self.__class__.__name__}.{self.devices[device_properties['UID']].uid}").start()
 
         # List comprehension gets the list of uids from every device
         nested_uids_lists = [(uid['properties'].get("settingUIDs") + uid['properties']['elementUIDs'])
