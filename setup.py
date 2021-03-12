@@ -36,6 +36,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
+        "importlib-metadata;python_version<'3.8'"
         "requests",
         "websocket_client>=0.58.0",
         "zeroconf",
