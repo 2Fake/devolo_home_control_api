@@ -1,8 +1,7 @@
 import logging
+from importlib.metadata import PackageNotFoundError, version
 
 import requests
-
-from importlib.metadata import version, PackageNotFoundError
 
 try:
     __version__ = version("package-name")
