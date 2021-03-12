@@ -1,5 +1,9 @@
 import threading
-from importlib.metadata import PackageNotFoundError, version
+try:
+    from importlib.metadata import PackageNotFoundError, version
+except ImportError:
+    from importlib_metadata import PackageNotFoundError, version
+
 from typing import Dict, Optional
 
 try:
