@@ -4,8 +4,6 @@ from subprocess import check_call
 from setuptools import find_packages, setup
 from setuptools.command.develop import develop
 
-from devolo_home_control_api import __version__
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -24,7 +22,7 @@ class PostDevelopCommand(develop):
 
 setup(
     name="devolo_home_control_api",
-    version=__version__,
+    use_scm_version=True,
     author="Markus Bong, Guido Schmitz",
     author_email="m.bong@famabo.de, guido.schmitz@fedaix.de",
     description="devolo Home Control API in Python",
@@ -42,6 +40,7 @@ setup(
         "websocket_client>=0.58.0",
         "zeroconf",
     ],
+    setup_requires=["setuptools_scm"],
     extras_require={
         "dev": [
             "pre-commit",
