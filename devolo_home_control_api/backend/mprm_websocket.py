@@ -70,7 +70,8 @@ class MprmWebsocket(MprmRest, ABC):
         is no response within 5 seconds, the connection is terminated with error state.
         """
         ws_url = self._url.replace("https://", "wss://").replace("http://", "ws://")
-        cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
+        cookie = "; ".join(str(name) + "=" + str(value) for name, value in self._session.cookies.items())
+
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
                  f"&filter=(|(GW_ID={self.gateway.id})(!(GW_ID=*)))"
@@ -81,8 +82,7 @@ class MprmWebsocket(MprmRest, ABC):
                                           on_message=self._on_message,
                                           on_error=self._on_error,
                                           on_close=self._on_close,
-                                          on_pong=self._on_pong,
-                                          header={"Connection": "Upgrade"})
+                                          on_pong=self._on_pong)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
@@ -94,16 +94,16 @@ class MprmWebsocket(MprmRest, ABC):
             self._logger.info("Reason: %s", event)
         self._ws.close()
 
-    def _on_close(self):
+    def _on_close(self, ws: websocket.WebSocketApp):
         """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
 
-    def _on_error(self, error: Exception):
+    def _on_error(self, ws: websocket.WebSocketApp, error: Exception):
         """ Callback method to react on errors. We will try reconnecting with prolonging intervals. """
         self._logger.exception(error)
         self._connected = False
         self._reachable = False
-        self._ws.close()
+        ws.close()
         self._event_sequence = 0
 
         sleep_interval = 16
@@ -113,7 +113,7 @@ class MprmWebsocket(MprmRest, ABC):
 
         self.websocket_connect()
 
-    def _on_message(self, message: str):
+    def _on_message(self, ws: websocket.WebSocketApp, message: str):
         """ Callback method to react on a message. """
         msg = json.loads(message)
         self._logger.debug("Got message from websocket:\n%s", msg)
@@ -131,18 +131,18 @@ class MprmWebsocket(MprmRest, ABC):
 
         self.on_update(msg)
 
-    def _on_open(self):
+    def _on_open(self, ws: websocket.WebSocketApp):
         """ Callback method to keep the websocket open. """
 
         def run():
             self._logger.info("Starting web socket connection.")
-            while self._ws.sock is not None and self._ws.sock.connected:
+            while ws.sock is not None and ws.sock.connected:
                 time.sleep(1)
 
-        threading.Thread(target=run, name=f"{__class__.__name__}.websocket_run").start()
+        threading.Thread(target=run, name=f"{self.__class__.__name__}.websocket_run").start()
         self._connected = True
 
-    def _on_pong(self, *args):  # pylint: disable=unused-argument
+    def _on_pong(self, ws: websocket.WebSocketApp, *args):  # pylint: disable=unused-argument
         """ Callback method to keep the session valid. """
         self.refresh_session()
 

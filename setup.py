@@ -39,7 +39,7 @@ setup(
     ],
     install_requires=[
         "requests",
-        "websocket_client",
+        "websocket_client>=0.58.0",
         "zeroconf",
     ],
     extras_require={

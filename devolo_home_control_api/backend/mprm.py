@@ -57,9 +57,9 @@ class Mprm(MprmWebsocket, ABC):
         while not time.time() > start_time + 3 and self._local_ip == "":
             time.sleep(0.05)
 
-        Thread(target=browser.cancel, name=f"{__class__.__name__}.browser_cancel").start()  # type: ignore[name-defined]
+        Thread(target=browser.cancel, name=f"{self.__class__.__name__}.browser_cancel").start()
         if not self._zeroconf:
-            Thread(target=zeroconf.close, name=f"{__class__.__name__}.zeroconf_close").start()  # type: ignore[name-defined]
+            Thread(target=zeroconf.close, name=f"{self.__class__.__name__}.zeroconf_close").start()
 
         return self._local_ip
 

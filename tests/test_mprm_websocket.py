@@ -38,11 +38,11 @@ class TestMprmWebsocket:
         event_sequence = self.mprm._event_sequence
         self.mprm._event_sequence = 5
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 5}}'
-        self.mprm._on_message(message)
+        self.mprm._on_message(None, message)
         assert event_sequence != self.mprm._event_sequence
         assert self.mprm._event_sequence == 6
         message = '{"properties": {"com.prosyst.mbs.services.remote.event.sequence.number": 7}}'
-        self.mprm._on_message(message)
+        self.mprm._on_message(None, message)
         assert self.mprm._event_sequence == 8
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_get_remote_session")
@@ -54,7 +54,7 @@ class TestMprmWebsocket:
         reconnect_spy = mocker.spy(MprmWebsocket, "_try_reconnect")
         connect_spy = mocker.spy(MprmWebsocket, "websocket_connect")
         self.mprm._ws = WebSocketApp()
-        self.mprm._on_error("error")
+        self.mprm._on_error(self.mprm._ws, "error")
         assert close_spy.call_count == 1
         assert reconnect_spy.call_count == 1
         assert connect_spy.call_count == 1
@@ -67,7 +67,7 @@ class TestMprmWebsocket:
         self.mprm._session = mprm_session
         self.mprm.gateway = gateway_instance
         self.mprm._local_ip = self.gateway["local_ip"]
-        self.mprm._on_pong()
+        self.mprm._on_pong(None)
         assert spy.call_count == 1
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
