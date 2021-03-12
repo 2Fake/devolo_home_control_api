@@ -2,7 +2,14 @@ import logging
 
 import requests
 
-from . import __version__
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("package-name")
+except PackageNotFoundError:
+    # package is not installed - e.g. pulled and run locally
+    __version__ = "0.0.0"
+
 from .exceptions.gateway import GatewayOfflineError
 from .exceptions.general import WrongCredentialsError, WrongUrlError
 
