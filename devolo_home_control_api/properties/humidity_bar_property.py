@@ -1,11 +1,6 @@
 from datetime import datetime
-from typing import Any
 
-from requests import Session
-
-from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
-from ..mydevolo import Mydevolo
 from .sensor_property import SensorProperty
 
 
@@ -13,9 +8,6 @@ class HumidityBarProperty(SensorProperty):
     """
     Object for humidity bars. It stores the zone and the position inside that zone.
 
-    :param gateway: Instance of a Gateway object
-    :param session: Instance of a requests.Session object
-    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Fake element UID, something like devolo.HumidityBar:hdm:ZWave:CBC56091/24
     :key value: Position inside a zone
     :type value: int
@@ -23,15 +15,14 @@ class HumidityBarProperty(SensorProperty):
     :type zone: int
     """
 
-    def __init__(self, gateway: Gateway, session: Session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, **kwargs):
         if not element_uid.startswith("devolo.HumidityBar:"):
             raise WrongElementError(f"{element_uid} is not a humidity bar.")
 
-        self._value = kwargs.get("value", 0)
-        self.zone = kwargs.get("zone", 0)
+        super().__init__(element_uid=element_uid, **kwargs)
 
-        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid, **kwargs)
-
+        self._value = kwargs.pop("value", 0)
+        self.zone = kwargs.pop("zone", 0)
 
     @property
     def value(self) -> int:
@@ -46,3 +37,4 @@ class HumidityBarProperty(SensorProperty):
         """
         self._value = value
         self._last_activity = datetime.now()
+        self._logger.debug("value of element_uid %s set to %s.", self.element_uid, value)

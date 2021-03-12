@@ -1,9 +1,7 @@
 from datetime import datetime
-from typing import Any
+from typing import Callable
 
-from ..devices.gateway import Gateway
 from ..exceptions.device import WrongElementError
-from ..mydevolo import Mydevolo
 from .property import Property
 
 
@@ -12,25 +10,23 @@ class RemoteControlProperty(Property):
     Object for remote controls. It stores the button state and additional information that help displaying the state in the
     right context.
 
-    :param gateway: Instance of a Gateway object
-    :param session: Instance of a requests.Session object
-    :param mydevolo: Mydevolo instance for talking to the devolo Cloud
     :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
+    :param setter: Method to call on setting the state
     :key key_count: Number of buttons this remote control has
     :type key_count: int
     :key key_pressed: Number of the button pressed
     :type key_pressed: int
     """
 
-    def __init__(self, gateway: Gateway, session, mydevolo: Mydevolo, element_uid: str, **kwargs: Any):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: int):
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(f"{element_uid} is not a remote control.")
 
-        super().__init__(gateway=gateway, session=session, mydevolo=mydevolo, element_uid=element_uid)
+        super().__init__(element_uid=element_uid)
+        self._setter = setter
 
-        self._key_pressed = kwargs.get("key_pressed", 0)
-        self.key_count = kwargs.get("key_count", 0)
-
+        self._key_pressed = kwargs.pop("key_pressed", 0)
+        self.key_count = kwargs.pop("key_count", 0)
 
     @property
     def key_pressed(self) -> int:
@@ -38,11 +34,11 @@ class RemoteControlProperty(Property):
         return self._key_pressed
 
     @key_pressed.setter
-    def key_pressed(self, key_pressed: float):
+    def key_pressed(self, key_pressed: int):
         """ Update value of the multilevel value and set point in time of the last_activity. """
         self._key_pressed = key_pressed
         self._last_activity = datetime.now()
-
+        self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
     def set(self, key_pressed: int):
         """
@@ -53,8 +49,6 @@ class RemoteControlProperty(Property):
         if key_pressed > self.key_count or key_pressed <= 0:
             raise ValueError(f"Set value {key_pressed} is invalid.")
 
-        data = {"method": "FIM/invokeOperation",
-                "params": [self.element_uid, "pressKey", [key_pressed]]}
-        self.post(data)
-        self.key_pressed = key_pressed
-        self._logger.debug(f"Remote Control property {self.element_uid} set to {key_pressed}")
+        if self._setter(self.element_uid, key_pressed):
+            self.key_pressed = key_pressed
+            self._logger.debug("Remote Control property %s set to %s", self.element_uid, key_pressed)

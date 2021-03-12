@@ -1,33 +1,33 @@
 import pytest
-
 from devolo_home_control_api.exceptions.device import WrongElementError
 from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
 
 
 @pytest.mark.usefixtures("home_control_instance")
 class TestMultiLevelSwitchProperty:
-    def test_multi_level_switch_property_invalid(self, gateway_instance, mprm_session, mydevolo):
-        with pytest.raises(WrongElementError):
-            MultiLevelSwitchProperty(gateway=gateway_instance, session=mprm_session, mydevolo=mydevolo, element_uid="invalid")
 
-    def test_unit(self, gateway_instance, mprm_session, mydevolo):
-        element_uid = self.devices.get("siren").get("elementUIDs")[0]
-        switch_type = self.devices.get("siren").get("switch_type")
-        mlsp = MultiLevelSwitchProperty(gateway=gateway_instance, session=mprm_session, mydevolo=mydevolo,
-                                        element_uid=element_uid, switch_type=switch_type)
+    def test_multi_level_switch_property_invalid(self):
+        with pytest.raises(WrongElementError):
+            MultiLevelSwitchProperty(element_uid="invalid", setter=lambda uid, state: None)
+
+    def test_unit(self):
+        element_uid = self.devices['siren']['elementUIDs'][0]
+        switch_type = self.devices['siren']['switch_type']
+        mlsp = MultiLevelSwitchProperty(element_uid=element_uid, setter=lambda uid, state: None, switch_type=switch_type)
         assert mlsp.unit is None
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
     def test_set_invalid(self):
-        value = self.devices.get("multi_level_switch").get("max") + 1
+        value = self.devices['multi_level_switch']['max'] + 1
+        element_uid = self.devices['multi_level_switch']['elementUIDs'][0]
+        device = self.homecontrol.devices.get(self.devices['multi_level_switch']['uid'])
+        device.multi_level_switch_property[element_uid]._setter = lambda uid, state: True
         with pytest.raises(ValueError):
-            self.homecontrol.devices.get(self.devices.get("multi_level_switch").get("uid"))\
-                .multi_level_switch_property.get(self.devices.get("multi_level_switch").get("elementUIDs")[0]).set(value=value)
+            device.multi_level_switch_property[element_uid].set(value=value)
 
-    @pytest.mark.usefixtures("mock_mprmrest__post_set")
-    def test_set_valid(self):
-        value = self.devices.get("multi_level_switch").get("value")
-        self.homecontrol.devices.get(self.devices.get("multi_level_switch").get("uid"))\
-            .multi_level_switch_property.get(self.devices.get("multi_level_switch").get("elementUIDs")[0]).set(value=value)
-        assert self.homecontrol.devices.get(self.devices.get("multi_level_switch").get("uid"))\
-            .multi_level_switch_property.get(self.devices.get("multi_level_switch").get("elementUIDs")[0]).value == value
+    def test_set(self):
+        value = self.devices['multi_level_switch']['value']
+        element_uid = self.devices['multi_level_switch']['elementUIDs'][0]
+        device = self.homecontrol.devices.get(self.devices['multi_level_switch']['uid'])
+        device.multi_level_switch_property[element_uid]._setter = lambda uid, state: True
+        device.multi_level_switch_property[element_uid].set(value=value)
+        assert device.multi_level_switch_property[element_uid].value == value

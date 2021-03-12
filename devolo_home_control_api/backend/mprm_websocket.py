@@ -1,17 +1,17 @@
 import json
 import threading
 import time
+from abc import ABC, abstractmethod
 
+import requests
 import websocket
-from requests import ConnectionError
 from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
-from ..mydevolo import Mydevolo
 from .mprm_rest import MprmRest
 
 
-class MprmWebsocket(MprmRest):
+class MprmWebsocket(MprmRest, ABC):
     """
     The abstract MprmWebsocket object handles calls to the mPRM via websockets. It does not cover all API calls, just those
     requested up to now. All calls are done in a gateway context, so you have to create a derived class, that provides a
@@ -20,15 +20,13 @@ class MprmWebsocket(MprmRest):
 
     The websocket connection itself runs in a thread, that might not terminate as expected. Using a with-statement is
     recommended.
-
-    :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self, mydevolo_instance: Mydevolo):
-        super().__init__(mydevolo_instance)
+    def __init__(self):
+        super().__init__()
         self._ws: websocket.WebSocketApp = None
-        self._connected = False     # This attribute saves, if the websocket is fully established
-        self._reachable = True      # This attribute saves, if the a new session can be established
+        self._connected = False  # This attribute saves, if the websocket is fully established
+        self._reachable = True  # This attribute saves, if the a new session can be established
         self._event_sequence = 0
 
     def __enter__(self):
@@ -37,15 +35,21 @@ class MprmWebsocket(MprmRest):
     def __exit__(self, exception_type, exception_value, traceback):
         self.websocket_disconnect()
 
+    @abstractmethod
+    def detect_gateway_in_lan(self):
+        pass
 
+    @abstractmethod
     def get_local_session(self):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect locally to a gateway.")
+        pass
 
+    @abstractmethod
     def get_remote_session(self):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a method to connect remotely to a gateway.")
+        pass
 
+    @abstractmethod
     def on_update(self, message):
-        raise NotImplementedError(f"{self.__class__.__name__} needs a method to process messages from the websocket.")
+        pass
 
     def wait_for_websocket_establishment(self):
         """
@@ -65,20 +69,20 @@ class MprmWebsocket(MprmRest):
         used or not. After establishing the websocket, a ping is sent every 30 seconds to keep the connection alive. If there
         is no response within 5 seconds, the connection is terminated with error state.
         """
-        ws_url = self._session.url.replace("https://", "wss://").replace("http://", "ws://")
-        cookie = "; ".join([str(name) + "=" + str(value) for name, value in self._session.cookies.items()])
+        ws_url = self._url.replace("https://", "wss://").replace("http://", "ws://")
+        cookie = "; ".join(str(name) + "=" + str(value) for name, value in self._session.cookies.items())
+
         ws_url = f"{ws_url}/remote/events/?topics=com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED," \
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
                  f"&filter=(|(GW_ID={self.gateway.id})(!(GW_ID=*)))"
-        self._logger.debug(f"Connecting to {ws_url}")
+        self._logger.debug("Connecting to %s", ws_url)
         self._ws = websocket.WebSocketApp(ws_url,
                                           cookie=cookie,
                                           on_open=self._on_open,
                                           on_message=self._on_message,
                                           on_error=self._on_error,
                                           on_close=self._on_close,
-                                          on_pong=self._on_pong,
-                                          header={"Connection": "Upgrade"})
+                                          on_pong=self._on_pong)
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
@@ -87,20 +91,19 @@ class MprmWebsocket(MprmRest):
         """
         self._logger.info("Closing web socket connection.")
         if event:
-            self._logger.info(f"Reason: {event}")
+            self._logger.info("Reason: %s", event)
         self._ws.close()
 
-
-    def _on_close(self):
+    def _on_close(self, ws: websocket.WebSocketApp):
         """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
 
-    def _on_error(self, error: Exception):
+    def _on_error(self, ws: websocket.WebSocketApp, error: Exception):
         """ Callback method to react on errors. We will try reconnecting with prolonging intervals. """
         self._logger.exception(error)
         self._connected = False
         self._reachable = False
-        self._ws.close()
+        ws.close()
         self._event_sequence = 0
 
         sleep_interval = 16
@@ -110,31 +113,36 @@ class MprmWebsocket(MprmRest):
 
         self.websocket_connect()
 
-    def _on_message(self, message: str):
+    def _on_message(self, ws: websocket.WebSocketApp, message: str):
         """ Callback method to react on a message. """
         msg = json.loads(message)
-        self._logger.debug(f"Got message from websocket:\n{msg}")
+        self._logger.debug("Got message from websocket:\n%s", msg)
         event_sequence = msg["properties"]["com.prosyst.mbs.services.remote.event.sequence.number"]
         if event_sequence == self._event_sequence:
             self._event_sequence += 1
         else:
-            self._logger.warning(f"We missed a websocket message. Internal event_sequence is at {self._event_sequence}. "
-                                 f"Event sequence by websocket is at {event_sequence}")
+            self._logger.warning(
+                "We missed a websocket message. Internal event_sequence is at %s. "
+                "Event sequence by websocket is at %s",
+                self._event_sequence,
+                event_sequence)
             self._event_sequence = event_sequence + 1
-            self._logger.debug(f"self._event_sequence is set to {self._event_sequence}")
+            self._logger.debug("self._event_sequence is set to %s", self._event_sequence)
 
         self.on_update(msg)
 
-    def _on_open(self):
+    def _on_open(self, ws: websocket.WebSocketApp):
         """ Callback method to keep the websocket open. """
+
         def run():
             self._logger.info("Starting web socket connection.")
-            while self._ws.sock is not None and self._ws.sock.connected:
+            while ws.sock is not None and ws.sock.connected:
                 time.sleep(1)
-        threading.Thread(target=run, name=f"{__class__.__name__}.websocket_run").start()
+
+        threading.Thread(target=run, name=f"{self.__class__.__name__}.websocket_run").start()
         self._connected = True
 
-    def _on_pong(self, *args):
+    def _on_pong(self, ws: websocket.WebSocketApp, *args):  # pylint: disable=unused-argument
         """ Callback method to keep the session valid. """
         self.refresh_session()
 
@@ -142,9 +150,11 @@ class MprmWebsocket(MprmRest):
         """ Try to reconnect to the websocket. """
         try:
             self._logger.info("Trying to reconnect to the websocket.")
-            # TODO: Check if local_ip is still correct after lost connection
-            self.get_local_session() if self._local_ip else self.get_remote_session()
-            self._reachable = True
-        except (json.JSONDecodeError, ConnectTimeoutError, ConnectionError, GatewayOfflineError):
-            self._logger.info(f"Sleeping for {sleep_interval} seconds.")
+            self._reachable = self.get_local_session() if self._local_ip else self.get_remote_session()
+        except (ConnectTimeoutError, GatewayOfflineError):
+            self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+            self._logger.info("Sleeping for %s seconds.", sleep_interval)
+            time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
+            self.detect_gateway_in_lan()

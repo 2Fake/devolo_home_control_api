@@ -2,7 +2,7 @@
 # Created by https://www.gitignore.io/api/linux,python,pycharm,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=linux,python,pycharm,visualstudiocode
 
-###testfile 
+###testfile
 test.py
 
 ### Linux ###
@@ -224,4 +224,3 @@ dmypy.json
 ### venv
 venv/
 # End of https://www.gitignore.io/api/linux,python,pycharm,visualstudiocode
-

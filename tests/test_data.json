@@ -55,12 +55,15 @@
       "icon": "icon_1",
       "inverted": false,
       "itemName": "Shutter",
+      "manID": "0x0175",
       "min": 0,
       "max": 100,
       "motorActivity": 30,
       "movement_direction": 1,
       "operationStatus": false,
       "pending_operations": false,
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
       "shutter_duration": 3000,
       "uid": "hdm:ZWave:F6BF9812/10",
       "value": 50,
@@ -79,9 +82,12 @@
       "guiEnabled": true,
       "icon": "icon_1",
       "itemName": "Humidity",
+      "manID": "0x0175",
       "mildew": false,
       "operationStatus": false,
       "pending_operations": false,
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
       "status": 2,
       "uid": "hdm:ZWave:F6BF9812/7",
       "value": 75,
@@ -125,7 +131,8 @@
           "gds.hdm:ZWave:F6BF9812/2",
           "cps.hdm:ZWave:F6BF9812/2",
           "lis.hdm:ZWave:F6BF9812/2",
-          "ps.hdm:ZWave:F6BF9812/2"
+          "ps.hdm:ZWave:F6BF9812/2",
+          "mas.hdm:ZWave:F6BF9812/2"
         ],
         "state": 1,
         "status": 2,
@@ -150,16 +157,19 @@
       "batteryLevel": 76,
       "batteryLow": false,
       "elementUIDs": [
-		    "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
+        "devolo.MultiLevelSwitch:hdm:ZWave:F6BF9812/9"
       ],
       "guiEnabled": true,
       "icon": "icon-1",
       "itemName": "Heating",
+      "manID": "0x0175",
       "min": 4,
       "max": 28,
       "operationStatus": false,
       "pending_operations": false,
-      "uid": "hdm:ZWave:F6BF9812/9",    
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
+      "uid": "hdm:ZWave:F6BF9812/9",
       "switch_type": "temperature",
       "value": 20,
       "zoneId": "hz_2",
@@ -169,12 +179,17 @@
       "UID": "hdm:ZWave:F6BF9812/5",
       "batteryLevel": -1,
       "batteryLow": null,
-      "elementUIDs": ["devolo.Meter:hdm:ZWave:F6BF9812/5"],
+      "elementUIDs": [
+        "devolo.Meter:hdm:ZWave:F6BF9812/5"
+      ],
       "guiEnabled": false,
       "icon": "icon-1",
       "itemName": "Offline Device",
+      "manID": "0x0175",
       "operationStatus": false,
       "pending_operations": false,
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
       "state": 1,
       "status": 1,
       "uid": "hdm:ZWave:F6BF9812/5",
@@ -186,13 +201,16 @@
       "batteryLevel": 90,
       "batteryLow": false,
       "elementUIDs": [
-		    "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
+        "devolo.RemoteControl:hdm:ZWave:F6BF9812/11"
       ],
       "guiEnabled": true,
       "itemName": "Remote Control",
       "icon": "icon-1",
+      "manID": "0x0175",
       "operationStatus": false,
       "pending_operations": false,
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
       "key_count": 4,
       "uid": "hdm:ZWave:F6BF9812/11",
       "zoneId": "hz_2",
@@ -247,18 +265,21 @@
       "batteryLow": null,
       "deviceModelUID": "devolo.model.Siren",
       "elementUIDs": [
-		    "devolo.SirenMultiLevelSwitch:hdm:ZWave:F6BF9812/8",
-		    "devolo.SirenBinarySensor:hdm:ZWave:F6BF9812/8",
-		    "devolo.SirenMultiLevelSensor:hdm:ZWave:F6BF9812/8",
+        "devolo.SirenMultiLevelSwitch:hdm:ZWave:F6BF9812/8",
+        "devolo.SirenBinarySensor:hdm:ZWave:F6BF9812/8",
+        "devolo.SirenMultiLevelSensor:hdm:ZWave:F6BF9812/8",
         "devolo.LastActivity:hdm:ZWave:F6BF9812/8"
       ],
       "icon": "icon-1",
       "itemName": "Siren",
       "guiEnabled": true,
       "last_activity": 1581419650436,
+      "manID": "0x0175",
       "muted": true,
       "operationStatus": false,
       "pending_operations": false,
+      "prodID": "0x0011",
+      "prodTypeID": "0x0001",
       "uid": "hdm:ZWave:F6BF9812/8",
       "properties": {
         "max": 0,
@@ -288,7 +309,8 @@
     "sync": true,
     "zones": {
       "hz_2": "Living Room",
-      "hz_3": "Kitchen"}
+      "hz_3": "Kitchen"
+    }
   },
   "user": {
     "password": "7fee3cdb598b45a459ffe2aa720c8532",
