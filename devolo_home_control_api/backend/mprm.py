@@ -109,7 +109,8 @@ class Mprm(MprmWebsocket, ABC):
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
             if service_info and service_info.server.startswith("devolo-homecontrol"):
-                with contextlib.suppress(requests.exceptions.ReadTimeout):
+                with contextlib.suppress(requests.exceptions.ReadTimeout), \
+                     contextlib.suppress(requests.exceptions.ConnectTimeout):
                     self._try_local_connection(service_info.addresses)
 
     def _try_local_connection(self, addresses: list):
