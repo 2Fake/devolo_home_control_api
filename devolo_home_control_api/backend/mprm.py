@@ -1,3 +1,4 @@
+import contextlib
 import socket
 import sys
 import time
@@ -108,7 +109,8 @@ class Mprm(MprmWebsocket, ABC):
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
             if service_info and service_info.server.startswith("devolo-homecontrol"):
-                self._try_local_connection(service_info.addresses)
+                with contextlib.suppress(requests.exceptions.ReadTimeout):
+                    self._try_local_connection(service_info.addresses)
 
     def _try_local_connection(self, addresses: list):
         """ Try to connect to an mDNS hostname. If connection was successful, save local IP address. """
