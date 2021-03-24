@@ -83,7 +83,10 @@ class MprmWebsocket(MprmRest, ABC):
                                           on_error=self._on_error,
                                           on_close=self._on_close,
                                           on_pong=self._on_pong)
-        self._ws.run_forever(ping_interval=30, ping_timeout=5)
+        try:
+            self._ws.run_forever(ping_interval=30, ping_timeout=5)
+        except websocket.WebSocketConnectionClosedException:
+            self._on_error(self._ws, websocket.WebSocketConnectionClosedException)
 
     def websocket_disconnect(self, event: str = ""):
         """
@@ -94,7 +97,7 @@ class MprmWebsocket(MprmRest, ABC):
             self._logger.info("Reason: %s", event)
         self._ws.close()
 
-    def _on_close(self, ws: websocket.WebSocketApp):
+    def _on_close(self, ws: websocket.WebSocketApp):  # pylint: disable=unused-argument
         """ Callback method to react on closing the websocket. """
         self._logger.info("Closed web socket connection.")
 
@@ -113,7 +116,7 @@ class MprmWebsocket(MprmRest, ABC):
 
         self.websocket_connect()
 
-    def _on_message(self, ws: websocket.WebSocketApp, message: str):
+    def _on_message(self, ws: websocket.WebSocketApp, message: str):  # pylint: disable=unused-argument
         """ Callback method to react on a message. """
         msg = json.loads(message)
         self._logger.debug("Got message from websocket:\n%s", msg)
@@ -154,7 +157,7 @@ class MprmWebsocket(MprmRest, ABC):
         except (ConnectTimeoutError, GatewayOfflineError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
-        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
             self.detect_gateway_in_lan()
