@@ -77,10 +77,7 @@ class Mprm(MprmWebsocket, ABC):
                                            auth=(self.gateway.local_user,
                                                  self.gateway.local_passkey),
                                            timeout=5)
-        except (JSONDecodeError,
-                requests.exceptions.ConnectTimeout,
-                requests.exceptions.ConnectionError,
-                requests.exceptions.ReadTimeout):
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
