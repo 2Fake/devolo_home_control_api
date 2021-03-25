@@ -4,7 +4,7 @@ import sys
 from abc import ABC
 
 from requests import Session
-from requests.exceptions import ReadTimeout
+from requests.exceptions import ConnectionError, ReadTimeout
 
 from ..devices.gateway import Gateway
 from ..exceptions.gateway import GatewayOfflineError
@@ -203,7 +203,7 @@ class MprmRest(ABC):
                                               "content-type": "application/json"
                                           },
                                           timeout=30).json()
-        except ReadTimeout:
+        except (ConnectionError, ReadTimeout):
             self._logger.error("Gateway is offline.")
             self._logger.debug(sys.exc_info())
             self.gateway.update_state(False)

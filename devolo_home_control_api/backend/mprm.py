@@ -1,3 +1,4 @@
+import contextlib
 import socket
 import sys
 import time
@@ -72,20 +73,25 @@ class Mprm(MprmWebsocket, ABC):
         self._url = "http://" + self._local_ip
         self._logger.debug("Session URL set to '%s'", self._url)
         try:
-            token_url = self._session.get(self._url + "/dhlp/portal/full",
-                                          auth=(self.gateway.local_user,
-                                                self.gateway.local_passkey),
-                                          timeout=5).json()
-            self._logger.debug("Got a token URL: %s", token_url)
-        except JSONDecodeError:
+            connection = self._session.get(self._url + "/dhlp/portal/full",
+                                           auth=(self.gateway.local_user,
+                                                 self.gateway.local_passkey),
+                                           timeout=5)
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
-            self._logger.error("Timeout during connecting to the gateway.")
-            self._logger.debug(sys.exc_info())
-            raise
-        self._session.get(token_url['link'])
+
+        # After a reboot we can connect to the gateway but it answers with a 503 if not fully started.
+        if not connection.ok:
+            self._logger.error("Could not connect to the gateway locally.")
+            self._logger.debug("Gateway start-up is not finished, yet.")
+            raise GatewayOfflineError("Gateway is offline.") from None
+
+        token_url = connection.json()['link']
+        self._logger.debug("Got a token URL: %s", token_url)
+
+        self._session.get(token_url)
         return True
 
     def get_remote_session(self) -> bool:
@@ -108,7 +114,9 @@ class Mprm(MprmWebsocket, ABC):
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
             if service_info and service_info.server.startswith("devolo-homecontrol"):
-                self._try_local_connection(service_info.addresses)
+                with contextlib.suppress(requests.exceptions.ReadTimeout), \
+                     contextlib.suppress(requests.exceptions.ConnectTimeout):
+                    self._try_local_connection(service_info.addresses)
 
     def _try_local_connection(self, addresses: list):
         """ Try to connect to an mDNS hostname. If connection was successful, save local IP address. """
