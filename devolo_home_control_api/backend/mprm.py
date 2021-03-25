@@ -78,14 +78,13 @@ class Mprm(MprmWebsocket, ABC):
                                                 self.gateway.local_passkey),
                                           timeout=5).json()
             self._logger.debug("Got a token URL: %s", token_url)
-        except JSONDecodeError:
+        except (JSONDecodeError,
+                requests.exceptions.ConnectTimeout,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
             raise GatewayOfflineError("Gateway is offline.") from None
-        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
-            self._logger.error("Timeout during connecting to the gateway.")
-            self._logger.debug(sys.exc_info())
-            raise
         self._session.get(token_url['link'])
         return True
 
