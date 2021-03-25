@@ -1,6 +1,4 @@
-import contextlib
 import json
-from json.decoder import JSONDecodeError
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -156,7 +154,7 @@ class MprmWebsocket(MprmRest, ABC):
         except (ConnectTimeoutError, GatewayOfflineError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval)
-        except (JSONDecodeError, requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
             time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
             self.detect_gateway_in_lan()
