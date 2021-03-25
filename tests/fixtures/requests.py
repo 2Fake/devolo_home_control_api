@@ -99,4 +99,11 @@ def mock_session_get(mocker, request):
             'link': 'test_link'
         },
     }
-    mocker.patch("requests.Session.get", return_value=properties.get(request.node.name))
+    mocker.patch("requests.Session", return_value=MockResponseGet(properties.get(request.node.name), status_code=200))
+
+
+@pytest.fixture()
+def mock_session_get_nok(mocker):
+    mocker.patch("requests.Session",
+                 return_value=MockResponseServiceUnavailable({},
+                                                             status_code=500))

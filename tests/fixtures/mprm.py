@@ -218,7 +218,7 @@ def mock_mprmwebsocket_websocketapp(mocker):
 
 
 @pytest.fixture()
-def mock_mprmwebsocket_websocket_connection(mocker, request):
+def mock_mprmwebsocket_websocket_connection(mocker):
     """ Mock a running websocket connection to speed up tests. """
     mocker.patch("devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.wait_for_websocket_establishment",
                  return_value=False)

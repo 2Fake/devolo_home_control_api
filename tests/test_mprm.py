@@ -37,19 +37,25 @@ class TestMprm:
     def test_get_local_session_valid(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._local_ip = self.gateway["local_ip"]
-        self.mprm.get_local_session()
+        assert self.mprm.get_local_session()
 
     @pytest.mark.usefixtures("mock_response_requests_ConnectTimeout")
     def test_get_local_session_ConnectTimeout(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._local_ip = self.gateway["local_ip"]
-        with pytest.raises(ConnectTimeout):
+        with pytest.raises(GatewayOfflineError):
             self.mprm.get_local_session()
 
     @pytest.mark.usefixtures("mock_response_json_JSONDecodeError")
     def test_get_local_session_JSONDecodeError(self, mprm_session):
         self.mprm._session = mprm_session
         self.mprm._local_ip = self.gateway["local_ip"]
+        with pytest.raises(GatewayOfflineError):
+            self.mprm.get_local_session()
+
+    @pytest.mark.usefixtures("mock_session_get_nok")
+    def test_get_local_session_connection_nok(self, mprm_session):
+        self.mprm._session = mprm_session
         with pytest.raises(GatewayOfflineError):
             self.mprm.get_local_session()
 
