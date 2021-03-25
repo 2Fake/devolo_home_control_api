@@ -1,3 +1,4 @@
+import contextlib
 import json
 import threading
 import time
@@ -83,10 +84,7 @@ class MprmWebsocket(MprmRest, ABC):
                                           on_error=self._on_error,
                                           on_close=self._on_close,
                                           on_pong=self._on_pong)
-        try:
-            self._ws.run_forever(ping_interval=30, ping_timeout=5)
-        except websocket.WebSocketConnectionClosedException:
-            self._on_error(self._ws, websocket.WebSocketConnectionClosedException)
+        self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
     def websocket_disconnect(self, event: str = ""):
         """
@@ -106,7 +104,8 @@ class MprmWebsocket(MprmRest, ABC):
         self._logger.exception(error)
         self._connected = False
         self._reachable = False
-        ws.close()
+        with contextlib.suppress(websocket.WebSocketConnectionClosedException):
+            ws.close()
         self._event_sequence = 0
 
         sleep_interval = 16
