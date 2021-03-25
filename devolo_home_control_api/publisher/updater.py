@@ -35,6 +35,7 @@ class Updater:
         """
         unwanted_properties = [
             ".unregistering",
+            "assistantsConnected",
             "operationStatus",
         ]
 
