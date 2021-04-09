@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 import requests
 import websocket
-from packaging import version
+from pkg_resources import parse_version
 from urllib3.connection import ConnectTimeoutError
 
 from ..exceptions.gateway import GatewayOfflineError
@@ -77,8 +77,9 @@ class MprmWebsocket(MprmRest, ABC):
                  f"com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED" \
                  f"&filter=(|(GW_ID={self.gateway.id})(!(GW_ID=*)))"
         self._logger.debug("Connecting to %s", ws_url)
-        if version.parse(websocket.__version__) < version.parse("0.58.0"):  # Just in case we hit an outdated version
-            self._logger.debug("Please consider updating your websocket-client version.")
+        if parse_version(websocket.__version__) < parse_version("0.58.0"):  # Just in case we hit an outdated version
+            self._logger.warning(
+                "Please consider updating your websocket-client version. Support for <0.58.0 will be removed soon.")
             self._ws = websocket.WebSocketApp(ws_url,
                                               cookie=cookie,
                                               on_open=self._on_open_old,
