@@ -129,12 +129,9 @@ class MprmWebsocket(MprmRest, ABC):
 
         self.websocket_connect()
 
-
     def _on_error_old(self, error: Exception):
         """ Deprecated callback method to react on errors. """
         self._on_error(ws=self._ws, error=error)
-
-
 
     def _on_message(self, ws: websocket.WebSocketApp, message: str):  # pylint: disable=unused-argument
         """ Callback method to react on a message. """
