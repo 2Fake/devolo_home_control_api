@@ -4,6 +4,7 @@ import sys
 from abc import ABC
 
 from requests import Session
+
 from requests.exceptions import ConnectionError, ReadTimeout  # pylint: disable=redefined-builtin
 
 from ..devices.gateway import Gateway
