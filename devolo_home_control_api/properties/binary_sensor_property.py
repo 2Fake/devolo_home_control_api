@@ -22,7 +22,7 @@ class BinarySensorProperty(SensorProperty):
 
         super().__init__(element_uid=element_uid, **kwargs)
 
-        self._state = kwargs.pop("state", False)
+        self._state: bool = kwargs.pop("state", False)
 
     @property
     def last_activity(self) -> datetime:

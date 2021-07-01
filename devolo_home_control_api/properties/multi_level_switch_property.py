@@ -31,10 +31,10 @@ class MultiLevelSwitchProperty(Property):
         super().__init__(element_uid=element_uid)
         self._setter = setter
 
-        self._value = kwargs.pop("value", 0.0)
-        self.switch_type = kwargs.pop("switch_type", "")
-        self.max = kwargs.pop("max", 100.0)
-        self.min = kwargs.pop("min", 0.0)
+        self._value: float = kwargs.pop("value", 0.0)
+        self.switch_type: str = kwargs.pop("switch_type", "")
+        self.max: float = kwargs.pop("max", 100.0)
+        self.min: float = kwargs.pop("min", 0.0)
 
     @property
     def last_activity(self) -> datetime:

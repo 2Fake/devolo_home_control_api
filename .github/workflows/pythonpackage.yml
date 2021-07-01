@@ -41,7 +41,7 @@ jobs:
         pylint --exit-zero --score=n --disable=C,E,R --enable=useless-suppression devolo_home_control_api
     - name: Lint with mypy
       run: |
-        pip install mypy
+        pip install mypy types-requests types-setuptools
         mypy --ignore-missing-imports devolo_home_control_api
 
   test:

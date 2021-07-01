@@ -88,10 +88,10 @@ class SettingsProperty(Property):
         :key zone_id: New zone_id (ATTENTION: This is NOT the name of the location)
         :type zone_id: str
         """
-        events_enabled = kwargs.pop("events_enabled", self.events_enabled)
-        icon = kwargs.pop("icon", self.icon)
-        name = kwargs.pop("name", self.name)
-        zone_id = kwargs.pop("zone_id", self.zone_id)
+        events_enabled: bool = kwargs.pop("events_enabled", self.events_enabled)
+        icon: str = kwargs.pop("icon", self.icon)
+        name: str = kwargs.pop("name", self.name)
+        zone_id: str = kwargs.pop("zone_id", self.zone_id)
 
         settings = {
             "events_enabled": events_enabled,

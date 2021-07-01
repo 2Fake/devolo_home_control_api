@@ -18,5 +18,5 @@ class SensorProperty(Property, ABC):
     def __init__(self, element_uid: str, **kwargs: str):
         super().__init__(element_uid=element_uid)
 
-        self.sensor_type = kwargs.pop("sensor_type", "")
-        self.sub_type = kwargs.pop("sub_type", "")
+        self.sensor_type: str = kwargs.pop("sensor_type", "")
+        self.sub_type: str = kwargs.pop("sub_type", "")

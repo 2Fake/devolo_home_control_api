@@ -21,8 +21,8 @@ class HumidityBarProperty(SensorProperty):
 
         super().__init__(element_uid=element_uid, **kwargs)
 
-        self._value = kwargs.pop("value", 0)
-        self.zone = kwargs.pop("zone", 0)
+        self._value: int = kwargs.pop("value", 0)
+        self.zone: int = kwargs.pop("zone", 0)
 
     @property
     def value(self) -> int:

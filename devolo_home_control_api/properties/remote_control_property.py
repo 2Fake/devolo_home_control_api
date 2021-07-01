@@ -25,8 +25,8 @@ class RemoteControlProperty(Property):
         super().__init__(element_uid=element_uid)
         self._setter = setter
 
-        self._key_pressed = kwargs.pop("key_pressed", 0)
-        self.key_count = kwargs.pop("key_count", 0)
+        self._key_pressed: int = kwargs.pop("key_pressed", 0)
+        self.key_count: int = kwargs.pop("key_count", 0)
 
     @property
     def key_pressed(self) -> int:

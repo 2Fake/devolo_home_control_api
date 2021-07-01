@@ -25,8 +25,8 @@ class MultiLevelSensorProperty(SensorProperty):
 
         super().__init__(element_uid=element_uid, **kwargs)
 
-        self._value = kwargs.pop("value", 0.0)
-        self._unit = kwargs.pop("unit", 0)
+        self._value: float = kwargs.pop("value", 0.0)
+        self._unit: int = kwargs.pop("unit", 0)
 
     @property
     def unit(self) -> str:
