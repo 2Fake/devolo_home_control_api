@@ -1,6 +1,5 @@
 import pytest
 import zeroconf
-from requests.exceptions import ConnectTimeout
 
 from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
