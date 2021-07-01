@@ -85,8 +85,8 @@ class MprmWebsocket(MprmRest, ABC):
                                               on_open=self._on_open_old,
                                               on_message=self._on_message_old,
                                               on_error=self._on_error_old,
-                                              on_close=self._on_close_old,
-                                              on_pong=self._on_pong_old)
+                                              on_close=self._on_close,
+                                              on_pong=self._on_pong)
         else:
             self._ws = websocket.WebSocketApp(ws_url,
                                               cookie=cookie,
@@ -106,13 +106,9 @@ class MprmWebsocket(MprmRest, ABC):
             self._logger.info("Reason: %s", event)
         self._ws.close()
 
-    def _on_close(self, ws: websocket.WebSocketApp):  # pylint: disable=unused-argument
+    def _on_close(self, *args):  # pylint: disable=unused-argument
         """ Callback method to react on closing the websocket. """
         self._logger.info("Closed websocket connection.")
-
-    def _on_close_old(self):
-        """ Deprecated callback method to react on closing the websocket. """
-        self._on_close(ws=self._ws)
 
     def _on_error(self, ws: websocket.WebSocketApp, error: Exception):
         """ Callback method to react on errors. We will try reconnecting with prolonging intervals. """
@@ -170,13 +166,9 @@ class MprmWebsocket(MprmRest, ABC):
         """ Deprecated callback method to keep the websocket open. """
         self._on_open(ws=self._ws)
 
-    def _on_pong(self, ws: websocket.WebSocketApp, *args):  # pylint: disable=unused-argument
+    def _on_pong(self, *args):  # pylint: disable=unused-argument
         """ Callback method to keep the session valid. """
         self.refresh_session()
-
-    def _on_pong_old(self, *args):
-        """ Deprecated callback method to keep the session valid. """
-        self._on_pong(ws=self._ws, *args)
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """

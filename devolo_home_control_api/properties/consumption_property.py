@@ -24,9 +24,9 @@ class ConsumptionProperty(Property):
 
         super().__init__(element_uid=element_uid)
 
-        self._current = kwargs.pop("current", 0.0)
+        self._current: float = kwargs.pop("current", 0.0)
         self.current_unit = "W"
-        self._total = kwargs.pop("total", 0.0)
+        self._total: float = kwargs.pop("total", 0.0)
         self.total_unit = "kWh"
         self._total_since = datetime.utcfromtimestamp(kwargs.pop("total_since", 0) / 1000)
 

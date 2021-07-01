@@ -24,8 +24,8 @@ class BinarySwitchProperty(Property):
         super().__init__(element_uid=element_uid)
         self._setter = setter
 
-        self._state = kwargs.pop("state", False)
-        self.enabled = kwargs.pop("enabled", False)
+        self._state: bool = kwargs.pop("state", False)
+        self.enabled: bool = kwargs.pop("enabled", False)
 
     @property
     def state(self) -> bool:
