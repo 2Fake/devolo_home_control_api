@@ -174,9 +174,9 @@ class MprmWebsocket(MprmRest, ABC):
         """ Callback method to keep the session valid. """
         self.refresh_session()
 
-    def _on_pong_old(self, *args):  # pylint: disable=unused-argument
+    def _on_pong_old(self, *args):
         """ Deprecated callback method to keep the session valid. """
-        self.refresh_session()
+        self._on_pong(ws=self._ws, *args)
 
     def _try_reconnect(self, sleep_interval: int):
         """ Try to reconnect to the websocket. """
