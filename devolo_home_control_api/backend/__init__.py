@@ -1,4 +1,4 @@
-"""Backends to communitace with."""
+"""Backends to communicate with."""
 
 MESSAGE_TYPES = {
     "devolo.BinarySensor": "_binary_sensor",
