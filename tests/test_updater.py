@@ -446,10 +446,11 @@ class TestUpdater:
 
     def test__pending_operations_useless(self, mocker):
         spy = mocker.spy(self.homecontrol.updater._publisher, 'dispatch')
-        self.homecontrol.updater._pending_operations(message={"properties": {
-            "uid": "devolo.PairDevice",
-        }})
-        spy.assert_not_called()
+        for uid in ["devolo.HttpRequest", "devolo.PairDevice", "devolo.RemoveDevice", "devolo.mprm.gw.GatewayManager"]:
+            self.homecontrol.updater._pending_operations(message={"properties": {
+                "uid": uid,
+            }})
+            spy.assert_not_called()
 
     def test__protection_local(self):
         device = self.devices['mains']

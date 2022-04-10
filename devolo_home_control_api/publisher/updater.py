@@ -118,10 +118,13 @@ class Updater:
         element_uid = message['properties']['uid']
 
         # Early return on useless messages
-        if element_uid in [
-                "devolo.PairDevice",
-                "devolo.RemoveDevice",
-                "devolo.mprm.gw.GatewayManager",
+        if [
+                uid
+                for uid in ["devolo.HttpRequest",
+                            "devolo.PairDevice",
+                            "devolo.RemoveDevice",
+                            "devolo.mprm.gw.GatewayManager"]
+                if (uid in element_uid)
         ]:
             return
 
