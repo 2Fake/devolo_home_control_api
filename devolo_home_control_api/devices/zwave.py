@@ -1,8 +1,20 @@
+"""A Z-Wave device"""
 import logging
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from ..helper.string import camel_case_to_snake_case
 from ..helper.uid import get_device_uid_from_element_uid
 from ..mydevolo import Mydevolo
+
+if TYPE_CHECKING:
+    from ..properties.binary_sensor_property import BinarySensorProperty
+    from ..properties.binary_switch_property import BinarySwitchProperty
+    from ..properties.consumption_property import ConsumptionProperty
+    from ..properties.humidity_bar_property import HumidityBarProperty
+    from ..properties.multi_level_sensor_property import MultiLevelSensorProperty
+    from ..properties.multi_level_switch_property import MultiLevelSwitchProperty
+    from ..properties.remote_control_property import RemoteControlProperty
+    from ..properties.settings_property import SettingsProperty
 
 
 class Zwave:
@@ -15,7 +27,7 @@ class Zwave:
     :key batteryLevel: Battery Level of the device in percent, -1 if mains powered
     :type batteryLevel: int
     :key elementUIDs: All element UIDs the device has
-    :type elementUIDs: list
+    :type elementUIDs: List[str]
     :key manID: Manufacturer ID as registered at the Z-Wave alliance
     :type manID: str
     :key prodID: Product ID as registered at the Z-Wave alliance
@@ -26,7 +38,19 @@ class Zwave:
     :type status: int
     """
 
-    def __init__(self, mydevolo_instance: Mydevolo, **kwargs):
+    binary_sensor_property: Dict[str, "BinarySensorProperty"]
+    binary_switch_property: Dict[str, "BinarySwitchProperty"]
+    consumption_property: Dict[str, "ConsumptionProperty"]
+    humidity_bar_property: Dict[str, "HumidityBarProperty"]
+    settings_property: Dict[str, "SettingsProperty"]
+    multi_level_sensor_property: Dict[str, "MultiLevelSensorProperty"]
+    multi_level_switch_property: Dict[str, "MultiLevelSwitchProperty"]
+    remote_control_property: Dict[str, "RemoteControlProperty"]
+
+    device_model_uid: str
+    pending_operations: bool
+
+    def __init__(self, mydevolo_instance: Mydevolo, **kwargs: Any):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 
@@ -77,7 +101,7 @@ class Zwave:
             delattr(self, "battery_level")
             delattr(self, "battery_low")
 
-    def get_property(self, name: str) -> list:
+    def get_property(self, name: str) -> List[str]:
         """
         Get element UIDs to a specified property.
 
@@ -93,9 +117,9 @@ class Zwave:
         Zwave.__init__.
         """
         self._logger.debug("Getting Z-Wave information for %s", self.uid)
-        zwave_product = self._mydevolo.get_zwave_products(manufacturer=self.man_id,
-                                                          product_type=self.prod_type_id,
-                                                          product=self.prod_id)
+        zwave_product = self._mydevolo.get_zwave_products(
+            manufacturer=self.man_id, product_type=self.prod_type_id, product=self.prod_id
+        )
         for key, value in zwave_product.items():
             setattr(self, camel_case_to_snake_case(key), value)
 

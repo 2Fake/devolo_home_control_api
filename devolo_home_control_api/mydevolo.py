@@ -1,4 +1,6 @@
+"""my devolo"""
 import logging
+from typing import Any, Dict
 
 import requests
 
@@ -24,24 +26,24 @@ class Mydevolo:
 
     @property
     def user(self) -> str:
-        """ The user (also known as my devolo ID) is used for basic authentication. """
+        """The user (also known as my devolo ID) is used for basic authentication."""
         return self._user
 
     @user.setter
     def user(self, user: str):
-        """ Invalidate uuid and gateway IDs on user name change. """
+        """Invalidate uuid and gateway IDs on user name change."""
         self._user = user
         self._uuid = None
         self._gateway_ids = []
 
     @property
     def password(self) -> str:
-        """ The password is used for basic authentication. """
+        """The password is used for basic authentication."""
         return self._password
 
     @password.setter
     def password(self, password: str):
-        """ Invalidate uuid and gateway IDs on password change. """
+        """Invalidate uuid and gateway IDs on password change."""
         self._password = password
         self._uuid = None
         self._gateway_ids = []
@@ -63,7 +65,7 @@ class Mydevolo:
         """
         if not self._gateway_ids:
             self._logger.debug("Getting list of gateways")
-            items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")['items']
+            items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")["items"]
             for gateway in items:
                 self._gateway_ids.append(gateway.get("gatewayId"))
                 self._logger.debug("Adding %s to list of gateways.", gateway.get("gatewayId"))
@@ -95,9 +97,9 @@ class Mydevolo:
         :return: URL to access the gateway's portal.
         """
         self._logger.debug("Getting full URL of gateway.")
-        return self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}/fullURL")['url']
+        return self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}/fullURL")["url"]
 
-    def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> dict:
+    def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> Dict[str, Any]:
         """
         Get information about a Z-Wave device.
 
@@ -132,7 +134,7 @@ class Mydevolo:
         """
         If devolo Home Control is in maintenance, there is not much we can do via cloud.
         """
-        state = self._call(f"{self.url}/v1/hc/maintenance")['state']
+        state = self._call(f"{self.url}/v1/hc/maintenance")["state"]
         if state == "on":
             return False
         self._logger.warning("devolo Home Control is in maintenance mode.")
@@ -144,15 +146,12 @@ class Mydevolo:
         """
         if self._uuid is None:
             self._logger.debug("Getting UUID")
-            self._uuid = self._call(f"{self.url.rstrip('/')}/v1/users/uuid")['uuid']
+            self._uuid = self._call(f"{self.url.rstrip('/')}/v1/users/uuid")["uuid"]
         return self._uuid
 
-    def _call(self, url: str) -> dict:
-        """ Make a call to any entry point with the user's context. """
-        headers = {
-            "content-type": "application/json",
-            "User-Agent": f"devolo_home_control_api/{__version__}"
-        }
+    def _call(self, url: str) -> Dict[str, Any]:
+        """Make a call to any entry point with the user's context."""
+        headers = {"content-type": "application/json", "User-Agent": f"devolo_home_control_api/{__version__}"}
         responds = requests.get(url, auth=(self._user, self._password), headers=headers, timeout=60)
 
         if responds.status_code == requests.codes.forbidden:  # pylint: disable=no-member

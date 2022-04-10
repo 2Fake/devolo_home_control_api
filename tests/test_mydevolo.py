@@ -3,7 +3,6 @@ from devolo_home_control_api.mydevolo import GatewayOfflineError, Mydevolo, Wron
 
 
 class TestMydevolo:
-
     def test_credentials_valid(self, mydevolo):
         assert mydevolo.credentials_valid()
 
@@ -13,7 +12,7 @@ class TestMydevolo:
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_gateway_ids(self, mydevolo):
-        assert mydevolo.get_gateway_ids() == [self.gateway['id']]
+        assert mydevolo.get_gateway_ids() == [self.gateway["id"]]
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_gateway_ids_empty(self, mydevolo):
@@ -22,18 +21,18 @@ class TestMydevolo:
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_full_url(self, mydevolo):
-        full_url = mydevolo.get_full_url(self.gateway['id'])
-        assert full_url == self.gateway['full_url']
+        full_url = mydevolo.get_full_url(self.gateway["id"])
+        assert full_url == self.gateway["full_url"]
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_gateway(self, mydevolo):
-        details = mydevolo.get_gateway(self.gateway['id'])
-        assert details.get("gatewayId") == self.gateway['id']
+        details = mydevolo.get_gateway(self.gateway["id"])
+        assert details.get("gatewayId") == self.gateway["id"]
 
     @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
     def test_get_gateway_invalid(self, mydevolo):
         with pytest.raises(WrongUrlError):
-            mydevolo.get_gateway(self.gateway['id'])
+            mydevolo.get_gateway(self.gateway["id"])
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_get_zwave_products(self, mydevolo):
@@ -51,31 +50,31 @@ class TestMydevolo:
         assert mydevolo.maintenance() == result
 
     def test_set_password(self, mydevolo):
-        mydevolo._gateway_ids = [self.gateway['id']]
-        mydevolo.password = self.user['password']
+        mydevolo._gateway_ids = [self.gateway["id"]]
+        mydevolo.password = self.user["password"]
 
         assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
 
     def test_set_user(self, mydevolo):
-        mydevolo._gateway_ids = [self.gateway['id']]
-        mydevolo.user = self.user['username']
+        mydevolo._gateway_ids = [self.gateway["id"]]
+        mydevolo.user = self.user["username"]
 
         assert mydevolo._uuid is None
         assert mydevolo._gateway_ids == []
 
     def test_get_user(self, mydevolo):
-        mydevolo.user = self.user['username']
-        assert mydevolo.user == self.user['username']
+        mydevolo.user = self.user["username"]
+        assert mydevolo.user == self.user["username"]
 
     def test_get_password(self, mydevolo):
-        mydevolo.password = self.user['password']
-        assert mydevolo.password == self.user['password']
+        mydevolo.password = self.user["password"]
+        assert mydevolo.password == self.user["password"]
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_uuid(self, mydevolo):
         mydevolo._uuid = None
-        assert mydevolo.uuid() == self.user['uuid']
+        assert mydevolo.uuid() == self.user["uuid"]
 
     @pytest.mark.usefixtures("mock_response_wrong_credentials_error")
     def test_call_WrongCredentialsError(self):

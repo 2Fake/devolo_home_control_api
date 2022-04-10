@@ -1,10 +1,11 @@
+"""The devolo Home Control Central Unit"""
 import logging
 from typing import Dict
 
 from ..mydevolo import Mydevolo
 
 
-class Gateway:
+class Gateway:  # pylint: disable=too-few-public-methods
     """
     Representing object for devolo Home Control Central Units. As it is a gateway from the IP world to the Z-Wave
     world, we call it that way. Nearly all attributes are delivered by my devolo.
@@ -19,12 +20,12 @@ class Gateway:
 
         details = self._mydevolo.get_gateway(gateway_id)
 
-        self.id = details['gatewayId']
+        self.id = details["gatewayId"]
         self.name = details.get("name")
         self.role = details.get("role")
         self.full_url = self._mydevolo.get_full_url(self.id)
         self.local_user = self._mydevolo.uuid()
-        self.local_passkey = details['localPasskey']
+        self.local_passkey = details["localPasskey"]
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
 
@@ -54,6 +55,6 @@ class Gateway:
             self.sync = online
 
     def _update_state(self, status: str, state: str):
-        """ Helper to update the state. """
+        """Helper to update the state."""
         self.online = status == "devolo.hc_gateway.status.online"
         self.sync = state == "devolo.hc_gateway.state.idle"

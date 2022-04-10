@@ -1,3 +1,4 @@
+"""Multi Level Switches"""
 from datetime import datetime
 from typing import Callable, Optional
 
@@ -22,10 +23,9 @@ class MultiLevelSwitchProperty(Property):
     """
 
     def __init__(self, element_uid: str, setter: Callable, **kwargs):
-        if not element_uid.startswith(("devolo.Blinds:",
-                                       "devolo.Dimmer:",
-                                       "devolo.MultiLevelSwitch:",
-                                       "devolo.SirenMultiLevelSwitch:")):
+        if not element_uid.startswith(
+            ("devolo.Blinds:", "devolo.Dimmer:", "devolo.MultiLevelSwitch:", "devolo.SirenMultiLevelSwitch:")
+        ):
             raise WrongElementError(f"{element_uid} is not a multi level switch.")
 
         super().__init__(element_uid=element_uid)
@@ -38,19 +38,19 @@ class MultiLevelSwitchProperty(Property):
 
     @property
     def last_activity(self) -> datetime:
-        """ Date and time the state of the multi level switch was last updated. """
+        """Date and time the state of the multi level switch was last updated."""
         return super().last_activity
 
     @last_activity.setter
     def last_activity(self, timestamp: int):
-        """ The gateway persists the last activity of some multi level switchs. They can be initialized with that value. """
+        """The gateway persists the last activity of some multi level switchs. They can be initialized with that value."""
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
     def unit(self) -> Optional[str]:
-        """ Human readable unit of the property. Defaults to percent. """
+        """Human readable unit of the property. Defaults to percent."""
         units = {
             "temperature": "°C",
             "tone": None,
@@ -59,12 +59,12 @@ class MultiLevelSwitchProperty(Property):
 
     @property
     def value(self) -> float:
-        """ Multi level value. """
+        """Multi level value."""
         return self._value
 
     @value.setter
     def value(self, value: float):
-        """ Update value of the multilevel value and set point in time of the last_activity. """
+        """Update value of the multilevel value and set point in time of the last_activity."""
         self._value = value
         self._last_activity = datetime.now()
         self._logger.debug("Value of %s set to %s.", self.element_uid, value)
@@ -76,8 +76,12 @@ class MultiLevelSwitchProperty(Property):
         :param value: Value to set
         """
         if value > self.max or value < self.min:
-            raise ValueError((f"Set value {value} is too {'low' if value < self.min else 'high'}. "
-                              f"The min value is {self.min}. The max value is {self.max}"))
+            raise ValueError(
+                (
+                    f"Set value {value} is too {'low' if value < self.min else 'high'}. "
+                    f"The min value is {self.min}. The max value is {self.max}"
+                )
+            )
 
         if self._setter(self.element_uid, value):
             self.value = value

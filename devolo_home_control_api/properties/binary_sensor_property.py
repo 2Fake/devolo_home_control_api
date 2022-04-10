@@ -1,3 +1,4 @@
+"""Binary Sensors"""
 from datetime import datetime
 
 from ..exceptions.device import WrongElementError
@@ -14,10 +15,9 @@ class BinarySensorProperty(SensorProperty):
     """
 
     def __init__(self, element_uid: str, **kwargs):
-        if not element_uid.startswith(("devolo.BinarySensor:",
-                                       "devolo.MildewSensor:",
-                                       "devolo.ShutterMovementFI:",
-                                       "devolo.WarningBinaryFI:")):
+        if not element_uid.startswith(
+            ("devolo.BinarySensor:", "devolo.MildewSensor:", "devolo.ShutterMovementFI:", "devolo.WarningBinaryFI:")
+        ):
             raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
 
         super().__init__(element_uid=element_uid, **kwargs)
@@ -26,24 +26,24 @@ class BinarySensorProperty(SensorProperty):
 
     @property
     def last_activity(self) -> datetime:
-        """ Date and time the state of the binary sensor was last updated. """
+        """Date and time the state of the binary sensor was last updated."""
         return super().last_activity
 
     @last_activity.setter
     def last_activity(self, timestamp: int):
-        """ The gateway persists the last activity of some binary sensors. They can be initialized with that value. """
+        """The gateway persists the last activity of some binary sensors. They can be initialized with that value."""
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
     def state(self) -> bool:
-        """ State of the binary sensor. """
+        """State of the binary sensor."""
         return self._state
 
     @state.setter
     def state(self, state: bool):
-        """ Update state of the binary sensor and set point in time of the last_activity. """
+        """Update state of the binary sensor and set point in time of the last_activity."""
         self._state = state
         self._last_activity = datetime.now()
         self._logger.debug("state of element_uid %s set to %s.", self.element_uid, state)

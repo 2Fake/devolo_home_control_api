@@ -1,10 +1,11 @@
+"""Settings"""
 from typing import Callable
 
 from ..exceptions.device import WrongElementError
 from .property import Property
 
 
-class SettingsProperty(Property):
+class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
     """
     Object for settings. Basically, everything can be stored in here as long as there is a corresponding functional item on
     the gateway. This is to be as flexible to gateway firmware changes as possible. So if new attributes appear or old ones
@@ -15,32 +16,25 @@ class SettingsProperty(Property):
     :param **kwargs: Any setting, that shall be available in this object
     """
 
+    calibration_status: bool
+    direction: bool
+    param_changed: bool
+
     def __init__(self, element_uid: str, setter: Callable, **kwargs):
-        if not element_uid.startswith(("acs",
-                                       "bas",
-                                       "bss",
-                                       "cps",
-                                       "gds",
-                                       "lis",
-                                       "mas",
-                                       "mss",
-                                       "ps",
-                                       "sts",
-                                       "stmss",
-                                       "trs",
-                                       "vfs")):
+        if not element_uid.startswith(
+            ("acs", "bas", "bss", "cps", "gds", "lis", "mas", "mss", "ps", "sts", "stmss", "trs", "vfs")
+        ):
             raise WrongElementError()
 
         super().__init__(element_uid=element_uid)
         self._setter = setter
 
-        if element_uid.startswith("gds") and {"zones",
-                                              "zone_id"} <= kwargs.keys():
+        if element_uid.startswith("gds") and {"zones", "zone_id"} <= kwargs.keys():
             self.events_enabled: bool
             self.icon: str
             self.name: str
             self.zone_id: str
-            self.zone = kwargs.pop("zones")[kwargs['zone_id']]
+            self.zone = kwargs.pop("zones")[kwargs["zone_id"]]
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -142,17 +136,23 @@ class SettingsProperty(Property):
         # pylint: disable=access-member-before-definition
         remote_switching = kwargs.pop("remote_switching", self.remote_switching)
 
-        if self._setter(self.element_uid,
-                        [{
-                            "localSwitch": local_switching,
-                            "remoteSwitch": remote_switching,
-                        }]):
+        if self._setter(
+            self.element_uid,
+            [
+                {
+                    "localSwitch": local_switching,
+                    "remoteSwitch": remote_switching,
+                }
+            ],
+        ):
             self.local_switching: bool = local_switching  # pylint: disable=attribute-defined-outside-init
             self.remote_switching: bool = remote_switching  # pylint: disable=attribute-defined-outside-init
-            self._logger.debug("Protection setting property %s set to %s (local) and %s (remote).",
-                               self.element_uid,
-                               local_switching,
-                               remote_switching)
+            self._logger.debug(
+                "Protection setting property %s set to %s (local) and %s (remote).",
+                self.element_uid,
+                local_switching,
+                remote_switching,
+            )
 
     def _set_trs(self, temp_report: bool):
         """

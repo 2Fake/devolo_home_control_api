@@ -14,7 +14,6 @@ from .stubs.mprm_websocket import StubMprmWebsocket
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprmWebsocket:
-
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     def test_websocket_connect(self, mprm_session, gateway_instance):
         self.mprm._session = mprm_session

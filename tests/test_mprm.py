@@ -6,7 +6,6 @@ from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
 
 @pytest.mark.usefixtures("mprm_instance")
 class TestMprm:
-
     @pytest.mark.usefixtures("mock_mprm_get_local_session")
     def test_create_connection_local(self, mprm_session):
         self.mprm._session = mprm_session

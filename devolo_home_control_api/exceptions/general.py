@@ -1,6 +1,9 @@
+"""General exceptions."""
+
+
 class WrongCredentialsError(Exception):
-    """ Wrong credentials were used. """
+    """Wrong credentials were used."""
 
 
 class WrongUrlError(Exception):
-    """ Wrong URL was used. """
+    """Wrong URL was used."""
