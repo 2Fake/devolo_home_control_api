@@ -32,13 +32,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --ignore=E303,W503 --statistics
+        flake8 . --count --exit-zero --statistics
     - name: Lint with pylint
       run: |
         pip install pylint
         pip install -e .
         pylint --errors-only --score=n devolo_home_control_api
-        pylint --exit-zero --score=n --disable=C,E,R --enable=useless-suppression devolo_home_control_api
+        pylint --exit-zero --score=n --disable=E --enable=useless-suppression devolo_home_control_api
     - name: Lint with mypy
       run: |
         pip install mypy types-requests types-setuptools

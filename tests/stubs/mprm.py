@@ -10,7 +10,6 @@ from ..mocks.mock_gateway import MockGateway
 
 
 class StubMprm(Mprm):
-
     def __init__(self):
         file = pathlib.Path(__file__).parent / ".." / "test_data.json"
         with file.open("r") as fh:
@@ -19,7 +18,7 @@ class StubMprm(Mprm):
         self._mydevolo = Mydevolo()
         self._session = Session()
         self._zeroconf = None
-        self.gateway = MockGateway(test_data['gateway']['id'], self._mydevolo)
+        self.gateway = MockGateway(test_data["gateway"]["id"], self._mydevolo)
         super().__init__()
 
     def on_update(self, message):

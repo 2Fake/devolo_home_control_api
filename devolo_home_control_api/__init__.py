@@ -1,3 +1,4 @@
+"""devolo_home_control_api"""
 try:
     from importlib.metadata import PackageNotFoundError, version
 except ImportError:

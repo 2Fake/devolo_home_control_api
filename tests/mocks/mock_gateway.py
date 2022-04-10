@@ -5,7 +5,6 @@ from devolo_home_control_api.mydevolo import Mydevolo
 
 
 class MockGateway:
-
     def __init__(self, gateway_id: str, mydevolo: Mydevolo):
         file = pathlib.Path(__file__).parent / ".." / "test_data.json"
         with file.open("r") as fh:

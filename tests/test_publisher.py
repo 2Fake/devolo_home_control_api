@@ -4,15 +4,12 @@ import pytest
 @pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
 @pytest.mark.usefixtures("home_control_instance")
 class TestPublisher:
-
     def test_add_event(self):
         self.homecontrol.publisher.add_event("Test")
         assert "Test" in self.homecontrol.publisher._events
 
     def test_delete_event(self):
-        self.homecontrol.publisher._events = {
-            "Test": {}
-        }
+        self.homecontrol.publisher._events = {"Test": {}}
         self.homecontrol.publisher.delete_event("Test")
         assert "Test" not in self.homecontrol.publisher._events
 
@@ -34,7 +31,6 @@ class TestPublisher:
 
 
 class Subscriber:
-
     def __init__(self, name):
         self.name = name
 

@@ -15,7 +15,7 @@
 		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
 		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
 		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
-		"python.formatting.provider": "yapf",
+		"python.formatting.provider": "black",
 		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
 		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
 		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
@@ -27,7 +27,6 @@
 		"python.linting.mypyEnabled": true,
 		"python.linting.pylintEnabled": true,
 		"python.linting.pylintArgs": [
-			"--disable=C,R",
 			"--enable=useless-suppression",
 		],
 		"python.sortImports.path": "/usr/local/bin/isort",

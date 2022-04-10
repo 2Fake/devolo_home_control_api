@@ -1,0 +1,29 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
+[tool.black]
+line-length = 127
+
+[tool.isort]
+filter_files = true
+ignore_whitespace = true
+line_length = 127
+multi_line_output = 1
+order_by_type = true
+profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.pylint.design]
+max-attributes = 15
+
+[tool.pylint.format]
+max-line-length = 127
+
+[tool.pylint.messages_control]
+disable = "C0330, C0326, R0801"
+good-names = "id,ip,ws"
+
+[tool.setuptools_scm]

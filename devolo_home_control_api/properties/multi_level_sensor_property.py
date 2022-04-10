@@ -1,3 +1,4 @@
+"""Multi Level Sensors"""
 from datetime import datetime
 
 from ..exceptions.device import WrongElementError
@@ -17,10 +18,14 @@ class MultiLevelSensorProperty(SensorProperty):
     """
 
     def __init__(self, element_uid: str, **kwargs):
-        if not element_uid.startswith(("devolo.DewpointSensor:",
-                                       "devolo.MultiLevelSensor:",
-                                       "devolo.ValveTemperatureSensor",
-                                       "devolo.VoltageMultiLevelSensor:")):
+        if not element_uid.startswith(
+            (
+                "devolo.DewpointSensor:",
+                "devolo.MultiLevelSensor:",
+                "devolo.ValveTemperatureSensor",
+                "devolo.VoltageMultiLevelSensor:",
+            )
+        ):
             raise WrongElementError(f"{element_uid} is not a Multi Level Sensor.")
 
         super().__init__(element_uid=element_uid, **kwargs)
@@ -30,31 +35,14 @@ class MultiLevelSensorProperty(SensorProperty):
 
     @property
     def unit(self) -> str:
-        """ Human readable unit of the property. """
+        """Human readable unit of the property."""
         units = {
-            "dewpoint": {
-                0: "°C",
-                1: "°F"
-            },
-            "humidity": {
-                0: "%",
-                1: "g/m³"
-            },
-            "light": {
-                0: "%",
-                1: "lx"
-            },
-            "temperature": {
-                0: "°C",
-                1: "°F"
-            },
-            "Seismic Intensity": {
-                0: ""
-            },
-            "voltage": {
-                0: "V",
-                1: "mV"
-            },
+            "dewpoint": {0: "°C", 1: "°F"},
+            "humidity": {0: "%", 1: "g/m³"},
+            "light": {0: "%", 1: "lx"},
+            "temperature": {0: "°C", 1: "°F"},
+            "Seismic Intensity": {0: ""},
+            "voltage": {0: "V", 1: "mV"},
         }
         try:
             return units[self.sensor_type].get(self._unit, str(self._unit))
@@ -63,12 +51,12 @@ class MultiLevelSensorProperty(SensorProperty):
 
     @property
     def value(self) -> float:
-        """ Multi level value. """
+        """Multi level value."""
         return self._value
 
     @value.setter
     def value(self, value: float):
-        """ Update value of the multilevel sensor and set point in time of the last_activity. """
+        """Update value of the multilevel sensor and set point in time of the last_activity."""
         self._value = value
         self._last_activity = datetime.now()
         self._logger.debug("value of element_uid %s set to %s.", self.element_uid, value)

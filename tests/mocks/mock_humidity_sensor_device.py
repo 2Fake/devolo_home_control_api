@@ -30,27 +30,28 @@ def humidity_sensor_device(device_uid: str) -> Zwave:
 
     element_uid = f"devolo.DewpointSensor:{device_uid}"
     device.multi_level_sensor_property[element_uid] = MultiLevelSensorProperty(
-        element_uid=element_uid,
-        value=test_data.get("devices").get("humidity").get("dewpoint"))
+        element_uid=element_uid, value=test_data.get("devices").get("humidity").get("dewpoint")
+    )
 
     element_uid = f"devolo.MildewSensor:{device_uid}"
     device.binary_sensor_property[element_uid] = BinarySensorProperty(
-        element_uid=element_uid,
-        state=test_data.get("devices").get("humidity").get("mildew"))
+        element_uid=element_uid, state=test_data.get("devices").get("humidity").get("mildew")
+    )
 
     element_uid = f"devolo.HumidityBar:{device_uid}"
     device.humidity_bar_property[element_uid] = HumidityBarProperty(
         element_uid=element_uid,
         zone=test_data.get("devices").get("humidity").get("zone"),
-        value=test_data.get("devices").get("humidity").get("value"))
+        value=test_data.get("devices").get("humidity").get("value"),
+    )
 
-    device.settings_property['general_device_settings'] = SettingsProperty(
+    device.settings_property["general_device_settings"] = SettingsProperty(
         element_uid=f'gds.{test_data.get("devices").get("humidity").get("uid")}',
-        setter=lambda uid,
-        state: None,
+        setter=lambda uid, state: None,
         icon=test_data.get("devices").get("humidity").get("icon"),
         name=test_data.get("devices").get("humidity").get("itemName"),
         zone_id=test_data.get("devices").get("humidity").get("zoneId"),
-        zones=test_data.get("gateway").get("zones"))
+        zones=test_data.get("gateway").get("zones"),
+    )
 
     return device

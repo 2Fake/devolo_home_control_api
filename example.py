@@ -10,11 +10,13 @@ password = "password"
 
 
 class Subscriber:
+    """Subscriber, that just prints received messages."""
 
     def __init__(self, name):
         self.name = name
 
     def update(self, message):
+        """Typically your magic goes here."""
         print(f'{self.name} got message "{message}"')
 
 
@@ -26,5 +28,5 @@ gateway_id = mydevolo.get_gateway_ids()[0]
 homecontrol = HomeControl(gateway_id=gateway_id, mydevolo_instance=mydevolo)
 
 for device in homecontrol.devices:
-    homecontrol.devices[device].subscriber = Subscriber(device)
-    homecontrol.publisher.register(device, homecontrol.devices[device].subscriber)
+    subscriber = Subscriber(device)
+    homecontrol.publisher.register(device, subscriber)

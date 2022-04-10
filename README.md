@@ -12,16 +12,16 @@ This project implements parts of the devolo Home Control API in Python. It is ba
 Defining the system requirements with exact versions typically is difficult. But there is a tested environment:
 
 * Linux
-* Python 3.6.9
-* pip 18.1
-* requests 2.22.0
-* websocket_client 0.58.0
-* zeroconf 0.24.4
+* Python 3.7.12
+* pip 22.0.1
+* requests 2.27.1
+* websocket_client 1.3.1
+* zeroconf 0.38.4
 
 Other versions and even other operating systems might work. Feel free to tell us about your experience. If you want to run our unit tests, you also need:
 
-* pytest 4.5.0
-* pytest-mock 1.11.2
+* pytest 7.0.1
+* pytest-mock 3.7.0
 
 ## Versioning
 

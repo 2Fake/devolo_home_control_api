@@ -1,3 +1,4 @@
+"""Generic Properties"""
 import logging
 from abc import ABC
 from datetime import datetime
@@ -5,7 +6,7 @@ from datetime import datetime
 from ..devices.zwave import get_device_uid_from_element_uid
 
 
-class Property(ABC):
+class Property(ABC):  # pylint: disable=too-few-public-methods
     """
     Abstract base object for properties.
 
@@ -21,5 +22,5 @@ class Property(ABC):
 
     @property
     def last_activity(self) -> datetime:
-        """ Date and time the property was last updated. """
+        """Date and time the property was last updated."""
         return self._last_activity

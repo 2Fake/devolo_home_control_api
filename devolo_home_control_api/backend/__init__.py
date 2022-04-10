@@ -1,3 +1,5 @@
+"""Backends to communicate with."""
+
 MESSAGE_TYPES = {
     "devolo.BinarySensor": "_binary_sensor",
     "devolo.BinarySwitch": "_binary_switch",
@@ -32,5 +34,5 @@ MESSAGE_TYPES = {
     "stmss.hdm": "_multilevel_sync",
     "sts.hdm": "_switch_type",
     "trs.hdm": "_temperature_report",
-    "vfs.hdm": "_led"
+    "vfs.hdm": "_led",
 }

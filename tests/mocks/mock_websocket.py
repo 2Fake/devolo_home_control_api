@@ -1,5 +1,4 @@
 class MockWebsocketError:
-
     def close(self):
         raise AssertionError
 

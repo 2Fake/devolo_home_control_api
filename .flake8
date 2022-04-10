@@ -1,0 +1,6 @@
+[flake8]
+ignore = E203,E303,W503
+profile = black
+max-complexity = 10
+max-cognitive-complexity = 5
+max-line-length = 127

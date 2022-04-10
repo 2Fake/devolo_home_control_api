@@ -1,3 +1,4 @@
+"""Remote Controls"""
 from datetime import datetime
 from typing import Callable
 
@@ -30,12 +31,12 @@ class RemoteControlProperty(Property):
 
     @property
     def key_pressed(self) -> int:
-        """ Multi level value. """
+        """Multi level value."""
         return self._key_pressed
 
     @key_pressed.setter
     def key_pressed(self, key_pressed: int):
-        """ Update value of the multilevel value and set point in time of the last_activity. """
+        """Update value of the multilevel value and set point in time of the last_activity."""
         self._key_pressed = key_pressed
         self._last_activity = datetime.now()
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)

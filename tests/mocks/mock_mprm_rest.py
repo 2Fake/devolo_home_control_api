@@ -14,9 +14,9 @@ def mock_get_data_from_uid_list(self, uids):
     if len(uids) == 1:
         return [test_data["devices"]["mains"]]
     else:
-        return [{
-            "UID": test_data["devices"]["mains"]["settingUIDs"][0],
-            "properties": {
-                "settings": test_data["devices"]["mains"]["properties"]
-            },
-        }]
+        return [
+            {
+                "UID": test_data["devices"]["mains"]["settingUIDs"][0],
+                "properties": {"settings": test_data["devices"]["mains"]["properties"]},
+            }
+        ]

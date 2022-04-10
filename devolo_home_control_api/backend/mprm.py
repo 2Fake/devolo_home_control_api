@@ -1,11 +1,13 @@
+"""mPRM communication"""
 import contextlib
 import socket
 import sys
 import time
 from abc import ABC
+from http import HTTPStatus
 from json import JSONDecodeError
 from threading import Thread
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import urlsplit
 
 import requests
@@ -70,13 +72,13 @@ class Mprm(MprmWebsocket, ABC):
         that URL establishes the connection.
         """
         self._logger.info("Connecting to gateway locally.")
-        self._url = "http://" + self._local_ip
+        self._url = f"http://{self._local_ip}"
         self._logger.debug("Session URL set to '%s'", self._url)
         try:
-            connection = self._session.get(self._url + "/dhlp/portal/full",
-                                           auth=(self.gateway.local_user,
-                                                 self.gateway.local_passkey),
-                                           timeout=5)
+            connection = self._session.get(
+                f"{self._url}/dhlp/portal/full", auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=5
+            )
+
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
@@ -88,7 +90,7 @@ class Mprm(MprmWebsocket, ABC):
             self._logger.debug("Gateway start-up is not finished, yet.")
             raise GatewayOfflineError("Gateway is offline.") from None
 
-        token_url = connection.json()['link']
+        token_url = connection.json()["link"]
         self._logger.debug("Got a token URL: %s", token_url)
 
         self._session.get(token_url)
@@ -110,21 +112,24 @@ class Mprm(MprmWebsocket, ABC):
         return True
 
     def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
-        """ Service handler for Zeroconf state changes. """
+        """Service handler for Zeroconf state changes."""
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
             if service_info and service_info.server.startswith("devolo-homecontrol"):
-                with contextlib.suppress(requests.exceptions.ReadTimeout), \
-                     contextlib.suppress(requests.exceptions.ConnectTimeout):
+                with contextlib.suppress(requests.exceptions.ReadTimeout), contextlib.suppress(
+                    requests.exceptions.ConnectTimeout
+                ):
                     self._try_local_connection(service_info.addresses)
 
-    def _try_local_connection(self, addresses: list):
-        """ Try to connect to an mDNS hostname. If connection was successful, save local IP address. """
+    def _try_local_connection(self, addresses: List[bytes]):
+        """Try to connect to an mDNS hostname. If connection was successful, save local IP address."""
         for address in addresses:
             ip = socket.inet_ntoa(address)
-            if requests.get("http://" + ip + "/dhlp/port/full",
-                            auth=(self.gateway.local_user,
-                                  self.gateway.local_passkey),
-                            timeout=0.5).status_code == requests.codes.ok:  # pylint: disable=no-member
+            if (
+                requests.get(
+                    f"http://{ip}/dhlp/port/full", auth=(self.gateway.local_user, self.gateway.local_passkey), timeout=0.5
+                ).status_code
+                == HTTPStatus.OK
+            ):
                 self._logger.debug("Got successful answer from ip %s. Setting this as local gateway", ip)
                 self._local_ip = ip

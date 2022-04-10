@@ -2,7 +2,6 @@ from devolo_home_control_api.backend.mprm_websocket import MprmWebsocket
 
 
 class StubMprmWebsocket(MprmWebsocket):
-
     def __init__(self):
         super().__init__()
         self._ws = None

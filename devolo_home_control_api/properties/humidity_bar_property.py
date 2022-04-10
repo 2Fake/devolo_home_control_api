@@ -1,3 +1,4 @@
+"""Humidity Bars"""
 from datetime import datetime
 
 from ..exceptions.device import WrongElementError
@@ -26,7 +27,7 @@ class HumidityBarProperty(SensorProperty):
 
     @property
     def value(self) -> int:
-        """ Position inside a zone. """
+        """Position inside a zone."""
         return self._value
 
     @value.setter

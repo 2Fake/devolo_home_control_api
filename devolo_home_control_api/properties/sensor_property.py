@@ -1,9 +1,10 @@
+"""Generic Sensors"""
 from abc import ABC
 
 from .property import Property
 
 
-class SensorProperty(Property, ABC):
+class SensorProperty(Property, ABC):  # pylint: disable=too-few-public-methods
     """
     Abstract object for sensors. It stores the sensor and sub type.
 

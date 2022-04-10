@@ -1,3 +1,4 @@
+"""Binary Switches"""
 from datetime import datetime
 from typing import Callable
 
@@ -29,12 +30,12 @@ class BinarySwitchProperty(Property):
 
     @property
     def state(self) -> bool:
-        """ State of the binary sensor. """
+        """State of the binary sensor."""
         return self._state
 
     @state.setter
     def state(self, state: bool):
-        """ Update state of the binary sensor and set point in time of the last_activity. """
+        """Update state of the binary sensor and set point in time of the last_activity."""
         self._state = state
         self._last_activity = datetime.now()
         self._logger.debug("State of %s set to %s.", self.element_uid, state)

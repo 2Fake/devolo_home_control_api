@@ -1,3 +1,4 @@
+"""Consumptions"""
 from datetime import datetime
 from typing import Union
 
@@ -32,35 +33,35 @@ class ConsumptionProperty(Property):
 
     @property
     def current(self) -> float:
-        """ Consumption value. """
+        """Consumption value."""
         return self._current
 
     @current.setter
     def current(self, current: float):
-        """ Update current consumption and set point in time of the last_activity. """
+        """Update current consumption and set point in time of the last_activity."""
         self._current = current
         self._last_activity = datetime.now()
         self._logger.debug("current of element_uid %s set to %s.", self.element_uid, current)
 
     @property
     def total(self) -> float:
-        """ Total consumption value. """
+        """Total consumption value."""
         return self._total
 
     @total.setter
     def total(self, total: float):
-        """ Update total consumption and set point in time of the last_activity. """
+        """Update total consumption and set point in time of the last_activity."""
         self._total = total
         self._last_activity = datetime.now()
         self._logger.debug("total of element_uid %s set to %s.", self.element_uid, total)
 
     @property
     def total_since(self) -> datetime:
-        """ Date and time the binary sensor was last triggered. """
+        """Date and time the binary sensor was last triggered."""
         return self._total_since
 
     @total_since.setter
     def total_since(self, timestamp: int):
-        """ Convert a timestamp in millisecond to a datetime object. """
+        """Convert a timestamp in millisecond to a datetime object."""
         self._total_since = datetime.utcfromtimestamp(timestamp / 1000)
         self._logger.debug("total_since of element_uid %s set to %s.", self.element_uid, self._total_since)
