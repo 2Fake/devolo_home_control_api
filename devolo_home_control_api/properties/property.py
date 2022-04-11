@@ -13,7 +13,7 @@ class Property(ABC):  # pylint: disable=too-few-public-methods
     :param element_uid: Element UID, something like devolo.BinarySwitch:hdm:ZWave:CBC56091/24#2
     """
 
-    def __init__(self, element_uid: str):
+    def __init__(self, element_uid: str) -> None:
         self.element_uid = element_uid
         self.device_uid = get_device_uid_from_element_uid(element_uid)
 

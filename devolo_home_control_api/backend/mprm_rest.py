@@ -20,7 +20,7 @@ class MprmRest(ABC):
     and a Session object.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._data_id = 0
         self._local_ip = ""

@@ -16,7 +16,7 @@ class HumidityBarProperty(SensorProperty):
     :type zone: int
     """
 
-    def __init__(self, element_uid: str, **kwargs):
+    def __init__(self, element_uid: str, **kwargs) -> None:
         if not element_uid.startswith("devolo.HumidityBar:"):
             raise WrongElementError(f"{element_uid} is not a humidity bar.")
 
@@ -31,7 +31,7 @@ class HumidityBarProperty(SensorProperty):
         return self._value
 
     @value.setter
-    def value(self, value: int):
+    def value(self, value: int) -> None:
         """
         Update value and set point in time of the last_activity. As zone never changes without a value, just the value sets
         the last activity.

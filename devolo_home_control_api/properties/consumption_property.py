@@ -19,7 +19,7 @@ class ConsumptionProperty(Property):
     :type total_since: int
     """
 
-    def __init__(self, element_uid: str, **kwargs: Union[int, float]):
+    def __init__(self, element_uid: str, **kwargs: Union[int, float]) -> None:
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(f"{element_uid} is not a Meter.")
 
@@ -37,7 +37,7 @@ class ConsumptionProperty(Property):
         return self._current
 
     @current.setter
-    def current(self, current: float):
+    def current(self, current: float) -> None:
         """Update current consumption and set point in time of the last_activity."""
         self._current = current
         self._last_activity = datetime.now()
@@ -49,7 +49,7 @@ class ConsumptionProperty(Property):
         return self._total
 
     @total.setter
-    def total(self, total: float):
+    def total(self, total: float) -> None:
         """Update total consumption and set point in time of the last_activity."""
         self._total = total
         self._last_activity = datetime.now()
@@ -61,7 +61,7 @@ class ConsumptionProperty(Property):
         return self._total_since
 
     @total_since.setter
-    def total_since(self, timestamp: int):
+    def total_since(self, timestamp: int) -> None:
         """Convert a timestamp in millisecond to a datetime object."""
         self._total_since = datetime.utcfromtimestamp(timestamp / 1000)
         self._logger.debug("total_since of element_uid %s set to %s.", self.element_uid, self._total_since)

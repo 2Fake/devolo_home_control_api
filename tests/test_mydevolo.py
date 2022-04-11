@@ -53,14 +53,14 @@ class TestMydevolo:
         mydevolo._gateway_ids = [self.gateway["id"]]
         mydevolo.password = self.user["password"]
 
-        assert mydevolo._uuid is None
+        assert mydevolo._uuid == ""
         assert mydevolo._gateway_ids == []
 
     def test_set_user(self, mydevolo):
         mydevolo._gateway_ids = [self.gateway["id"]]
         mydevolo.user = self.user["username"]
 
-        assert mydevolo._uuid is None
+        assert mydevolo._uuid == ""
         assert mydevolo._gateway_ids == []
 
     def test_get_user(self, mydevolo):
@@ -73,7 +73,7 @@ class TestMydevolo:
 
     @pytest.mark.usefixtures("mock_mydevolo__call")
     def test_uuid(self, mydevolo):
-        mydevolo._uuid = None
+        mydevolo._uuid = ""
         assert mydevolo.uuid() == self.user["uuid"]
 
     @pytest.mark.usefixtures("mock_response_wrong_credentials_error")

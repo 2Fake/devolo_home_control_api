@@ -14,7 +14,7 @@ class BinarySensorProperty(SensorProperty):
     :type state: bool
     """
 
-    def __init__(self, element_uid: str, **kwargs):
+    def __init__(self, element_uid: str, **kwargs) -> None:
         if not element_uid.startswith(
             ("devolo.BinarySensor:", "devolo.MildewSensor:", "devolo.ShutterMovementFI:", "devolo.WarningBinaryFI:")
         ):
@@ -30,7 +30,7 @@ class BinarySensorProperty(SensorProperty):
         return super().last_activity
 
     @last_activity.setter
-    def last_activity(self, timestamp: int):
+    def last_activity(self, timestamp: int) -> None:
         """The gateway persists the last activity of some binary sensors. They can be initialized with that value."""
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
@@ -42,7 +42,7 @@ class BinarySensorProperty(SensorProperty):
         return self._state
 
     @state.setter
-    def state(self, state: bool):
+    def state(self, state: bool) -> None:
         """Update state of the binary sensor and set point in time of the last_activity."""
         self._state = state
         self._last_activity = datetime.now()

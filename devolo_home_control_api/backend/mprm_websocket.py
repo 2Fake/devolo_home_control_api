@@ -25,7 +25,7 @@ class MprmWebsocket(MprmRest, ABC):
     recommended.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._ws: websocket.WebSocketApp = None
         self._connected = False  # This attribute saves, if the websocket is fully established
@@ -56,7 +56,7 @@ class MprmWebsocket(MprmRest, ABC):
     def on_update(self, message: Dict[str, Any]):
         """Initialize steps needed to update properties on a new message."""
 
-    def wait_for_websocket_establishment(self):
+    def wait_for_websocket_establishment(self) -> None:
         """
         In some cases it is needed to wait for the websocket to be fully established. This method can be used to block your
         current thread for up to one minute.
@@ -68,7 +68,7 @@ class MprmWebsocket(MprmRest, ABC):
             self._logger.debug("Websocket could not be established")
             raise GatewayOfflineError("Websocket could not be established.")
 
-    def websocket_connect(self):
+    def websocket_connect(self) -> None:
         """
         Set up the websocket connection. The protocol type of the known session URL is exchanged depending on whether TLS is
         used or not. After establishing the websocket, a ping is sent every 30 seconds to keep the connection alive. If there
@@ -94,7 +94,7 @@ class MprmWebsocket(MprmRest, ABC):
         )
         self._ws.run_forever(ping_interval=30, ping_timeout=5)
 
-    def websocket_disconnect(self, event: str = ""):
+    def websocket_disconnect(self, event: str = "") -> None:
         """
         Close the websocket connection.
         """
@@ -103,11 +103,11 @@ class MprmWebsocket(MprmRest, ABC):
             self._logger.info("Reason: %s", event)
         self._ws.close()
 
-    def _on_close(self, *args: Any):  # pylint: disable=unused-argument
+    def _on_close(self, *args: Any) -> None:  # pylint: disable=unused-argument
         """Callback method to react on closing the websocket."""
         self._logger.info("Closed websocket connection.")
 
-    def _on_error(self, ws: websocket.WebSocketApp, error: Exception):
+    def _on_error(self, ws: websocket.WebSocketApp, error: Exception) -> None:
         """Callback method to react on errors. We will try reconnecting with prolonging intervals."""
         self._logger.exception(error)
         self._connected = False
@@ -122,11 +122,7 @@ class MprmWebsocket(MprmRest, ABC):
 
         self.websocket_connect()
 
-    def _on_error_old(self, error: Exception):
-        """Deprecated callback method to react on errors."""
-        self._on_error(ws=self._ws, error=error)
-
-    def _on_message(self, ws: websocket.WebSocketApp, message: str):  # pylint: disable=unused-argument
+    def _on_message(self, ws: websocket.WebSocketApp, message: str) -> None:  # pylint: disable=unused-argument
         """Callback method to react on a message."""
         msg = json.loads(message)
         self._logger.debug("Got message from websocket:\n%s", msg)
@@ -144,11 +140,7 @@ class MprmWebsocket(MprmRest, ABC):
 
         self.on_update(msg)
 
-    def _on_message_old(self, message: str):
-        """Deprecated callback method to react on a message."""
-        self._on_message(ws=self._ws, message=message)
-
-    def _on_open(self, ws: websocket.WebSocketApp):
+    def _on_open(self, ws: websocket.WebSocketApp) -> None:
         """Callback method to keep the websocket open."""
 
         def run():
@@ -159,15 +151,11 @@ class MprmWebsocket(MprmRest, ABC):
         threading.Thread(target=run, name=f"{self.__class__.__name__}.websocket_run").start()
         self._connected = True
 
-    def _on_open_old(self):
-        """Deprecated callback method to keep the websocket open."""
-        self._on_open(ws=self._ws)
-
-    def _on_pong(self, *args: Any):  # pylint: disable=unused-argument
+    def _on_pong(self, *args: Any) -> None:  # pylint: disable=unused-argument
         """Callback method to keep the session valid."""
         self.refresh_session()
 
-    def _try_reconnect(self, sleep_interval: int):
+    def _try_reconnect(self, sleep_interval: int) -> None:
         """Try to reconnect to the websocket."""
         try:
             self._logger.info("Trying to reconnect to the websocket.")
