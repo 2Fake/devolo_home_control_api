@@ -16,7 +16,7 @@ class SensorProperty(Property, ABC):  # pylint: disable=too-few-public-methods
     :type sub_type: str
     """
 
-    def __init__(self, element_uid: str, **kwargs: str):
+    def __init__(self, element_uid: str, **kwargs: str) -> None:
         super().__init__(element_uid=element_uid)
 
         self.sensor_type: str = kwargs.pop("sensor_type", "")

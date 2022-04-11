@@ -1,6 +1,6 @@
 """The devolo Home Control Central Unit"""
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 from ..mydevolo import Mydevolo
 
@@ -14,7 +14,7 @@ class Gateway:  # pylint: disable=too-few-public-methods
     :param mydevolo_instance: Mydevolo instance for talking to the devolo Cloud
     """
 
-    def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo):
+    def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 
@@ -41,7 +41,7 @@ class Gateway:  # pylint: disable=too-few-public-methods
 
         self._update_state(status=details.get("status", ""), state=details.get("state", ""))
 
-    def update_state(self, online: bool = None):
+    def update_state(self, online: Optional[bool] = None) -> None:
         """
         Update the state of the gateway. If called without parameter, we will check my devolo.
 
@@ -54,7 +54,7 @@ class Gateway:  # pylint: disable=too-few-public-methods
             self.online = online
             self.sync = online
 
-    def _update_state(self, status: str, state: str):
+    def _update_state(self, status: str, state: str) -> None:
         """Helper to update the state."""
         self.online = status == "devolo.hc_gateway.status.online"
         self.sync = state == "devolo.hc_gateway.state.idle"

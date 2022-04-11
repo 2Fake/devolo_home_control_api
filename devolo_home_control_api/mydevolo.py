@@ -1,6 +1,6 @@
 """my devolo"""
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import requests
 
@@ -15,12 +15,12 @@ class Mydevolo:
     All calls are done in a user context, so you need to provide credentials of that user.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._user = None
-        self._password = None
-        self._uuid = None
-        self._gateway_ids = []
+        self._user = ""
+        self._password = ""
+        self._uuid = ""
+        self._gateway_ids: List[int] = []
 
         self.url = "https://www.mydevolo.com"
 
@@ -33,7 +33,7 @@ class Mydevolo:
     def user(self, user: str):
         """Invalidate uuid and gateway IDs on user name change."""
         self._user = user
-        self._uuid = None
+        self._uuid = ""
         self._gateway_ids = []
 
     @property
@@ -45,7 +45,7 @@ class Mydevolo:
     def password(self, password: str):
         """Invalidate uuid and gateway IDs on password change."""
         self._password = password
-        self._uuid = None
+        self._uuid = ""
         self._gateway_ids = []
 
     def credentials_valid(self) -> bool:
@@ -59,7 +59,7 @@ class Mydevolo:
         except WrongCredentialsError:
             return False
 
-    def get_gateway_ids(self) -> list:
+    def get_gateway_ids(self) -> List[int]:
         """
         Get all gateway IDs attached to current account.
         """
@@ -74,7 +74,7 @@ class Mydevolo:
                 raise IndexError("No gateways found.")
         return self._gateway_ids
 
-    def get_gateway(self, gateway_id: str) -> dict:
+    def get_gateway(self, gateway_id: str) -> Dict[str, Any]:
         """
         Get gateway details like name, local passkey and other.
 
@@ -144,7 +144,7 @@ class Mydevolo:
         """
         The uuid is a central attribute in my devolo. Most URLs in the user's context contain it.
         """
-        if self._uuid is None:
+        if self._uuid == "":
             self._logger.debug("Getting UUID")
             self._uuid = self._call(f"{self.url.rstrip('/')}/v1/users/uuid")["uuid"]
         return self._uuid

@@ -1,5 +1,5 @@
 """Settings"""
-from typing import Callable
+from typing import Any, Callable
 
 from ..exceptions.device import WrongElementError
 from .property import Property
@@ -18,9 +18,20 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
 
     calibration_status: bool
     direction: bool
+    events_enabled: bool
+    icon: str
+    led_setting: bool
+    local_switching: bool
+    motion_sensitivity: int
+    name: str
     param_changed: bool
+    remote_switching: bool
+    temp_report: bool
+    tone: int
+    value: bool
+    zone_id: str
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs) -> None:
         if not element_uid.startswith(
             ("acs", "bas", "bss", "cps", "gds", "lis", "mas", "mss", "ps", "sts", "stmss", "trs", "vfs")
         ):
@@ -30,10 +41,6 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         self._setter = setter
 
         if element_uid.startswith("gds") and {"zones", "zone_id"} <= kwargs.keys():
-            self.events_enabled: bool
-            self.icon: str
-            self.name: str
-            self.zone_id: str
             self.zone = kwargs.pop("zones")[kwargs["zone_id"]]
 
         for key, value in kwargs.items():
@@ -59,17 +66,17 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         for attribute in clean_up_list:
             delattr(self, attribute)
 
-    def _set_bas(self, value: bool):
+    def _set_bas(self, value: bool) -> None:
         """
         Set a binary async setting. This is e.g. the muted setting of a siren or the three way switch setting of a dimmer.
 
         :param value: New state
         """
         if self._setter(self.element_uid, [value]):
-            self.value = value  # pylint: disable=attribute-defined-outside-init
+            self.value = value
             self._logger.debug("Binary async setting property %s set to %s", self.element_uid, value)
 
-    def _set_gds(self, **kwargs):
+    def _set_gds(self, **kwargs: Any) -> None:
         """
         Set one or more general device setting.
 
@@ -100,17 +107,17 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
             self.zone_id = zone_id
             self._logger.debug("General device setting %s changed.", self.element_uid)
 
-    def _set_lis(self, led_setting: bool):
+    def _set_lis(self, led_setting: bool) -> None:
         """
         Set led settings.
 
         :param led_setting: LED indication setting
         """
         if self._setter(self.element_uid, [led_setting]):
-            self.led_setting = led_setting  # pylint: disable=attribute-defined-outside-init
+            self.led_setting = led_setting
             self._logger.debug("LED indication setting property %s set to %s", self.element_uid, led_setting)
 
-    def _set_mss(self, motion_sensitivity: int):
+    def _set_mss(self, motion_sensitivity: int) -> None:
         """
         Set motion sensitivity.
 
@@ -119,10 +126,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         if not 0 <= motion_sensitivity <= 100:
             raise ValueError("Value must be between 0 and 100")
         if self._setter(self.element_uid, [motion_sensitivity]):
-            self.motion_sensitivity = motion_sensitivity  # pylint: disable=attribute-defined-outside-init
+            self.motion_sensitivity = motion_sensitivity
             self._logger.debug("Motion sensitivity setting property %s set to %s", self.element_uid, motion_sensitivity)
 
-    def _set_ps(self, **kwargs: bool):
+    def _set_ps(self, **kwargs: bool) -> None:
         """
         Set one or both protection settings.
 
@@ -131,9 +138,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         :key remote_switching: Allow local switching
         :type remote_switching: bool
         """
-        # pylint: disable=access-member-before-definition
         local_switching = kwargs.pop("local_switching", self.local_switching)
-        # pylint: disable=access-member-before-definition
         remote_switching = kwargs.pop("remote_switching", self.remote_switching)
 
         if self._setter(
@@ -145,8 +150,8 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
                 }
             ],
         ):
-            self.local_switching: bool = local_switching  # pylint: disable=attribute-defined-outside-init
-            self.remote_switching: bool = remote_switching  # pylint: disable=attribute-defined-outside-init
+            self.local_switching = local_switching
+            self.remote_switching = remote_switching
             self._logger.debug(
                 "Protection setting property %s set to %s (local) and %s (remote).",
                 self.element_uid,
@@ -154,12 +159,12 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
                 remote_switching,
             )
 
-    def _set_trs(self, temp_report: bool):
+    def _set_trs(self, temp_report: bool) -> None:
         """
         Set temperature report setting.
 
         :param temp_report: Boolean of the target value
         """
         if self._setter(self.element_uid, [temp_report]):
-            self.temp_report = temp_report  # pylint: disable=attribute-defined-outside-init
+            self.temp_report = temp_report
             self._logger.debug("Temperature report setting property %s set to %s", self.element_uid, temp_report)

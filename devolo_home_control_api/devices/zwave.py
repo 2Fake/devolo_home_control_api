@@ -47,10 +47,20 @@ class Zwave:
     multi_level_switch_property: Dict[str, "MultiLevelSwitchProperty"]
     remote_control_property: Dict[str, "RemoteControlProperty"]
 
+    brand: str
     device_model_uid: str
+    device_type: str
+    href: str
+    identifier: str
+    is_zwave_plus: bool
+    name: str
+    manufacturer_id: str
     pending_operations: bool
+    product_id: str
+    product_type_id: str
+    zwave_version: str
 
-    def __init__(self, mydevolo_instance: Mydevolo, **kwargs: Any):
+    def __init__(self, mydevolo_instance: Mydevolo, **kwargs: Any) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 
@@ -111,7 +121,7 @@ class Zwave:
         """
         return [*getattr(self, f"{name}_property").values()]
 
-    def get_zwave_info(self):
+    def get_zwave_info(self) -> None:
         """
         Get publicly available information like manufacturer or model from my devolo. For a complete list, please look at
         Zwave.__init__.

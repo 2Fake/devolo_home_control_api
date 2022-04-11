@@ -23,7 +23,7 @@ class Mprm(MprmWebsocket, ABC):
     way is chosen, depending on detecting the gateway via mDNS.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._zeroconf: Optional[Zeroconf]
 
         super().__init__()
@@ -31,7 +31,7 @@ class Mprm(MprmWebsocket, ABC):
         self.detect_gateway_in_lan()
         self.create_connection()
 
-    def create_connection(self):
+    def create_connection(self) -> None:
         """
         Create session, either locally or remotely via cloud. The remote case has two conditions, that both need to be
         fulfilled: Remote access must be allowed and my devolo must not be in maintenance mode.
@@ -111,7 +111,9 @@ class Mprm(MprmWebsocket, ABC):
             raise GatewayOfflineError("Gateway is offline.") from None
         return True
 
-    def _on_service_state_change(self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange):
+    def _on_service_state_change(
+        self, zeroconf: Zeroconf, service_type: str, name: str, state_change: ServiceStateChange
+    ) -> None:
         """Service handler for Zeroconf state changes."""
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
@@ -121,7 +123,7 @@ class Mprm(MprmWebsocket, ABC):
                 ):
                     self._try_local_connection(service_info.addresses)
 
-    def _try_local_connection(self, addresses: List[bytes]):
+    def _try_local_connection(self, addresses: List[bytes]) -> None:
         """Try to connect to an mDNS hostname. If connection was successful, save local IP address."""
         for address in addresses:
             ip = socket.inet_ntoa(address)

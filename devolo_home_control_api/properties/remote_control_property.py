@@ -19,7 +19,7 @@ class RemoteControlProperty(Property):
     :type key_pressed: int
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: int):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: int) -> None:
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(f"{element_uid} is not a remote control.")
 
@@ -35,13 +35,13 @@ class RemoteControlProperty(Property):
         return self._key_pressed
 
     @key_pressed.setter
-    def key_pressed(self, key_pressed: int):
+    def key_pressed(self, key_pressed: int) -> None:
         """Update value of the multilevel value and set point in time of the last_activity."""
         self._key_pressed = key_pressed
         self._last_activity = datetime.now()
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
-    def set(self, key_pressed: int):
+    def set(self, key_pressed: int) -> None:
         """
         Trigger a button press of a remote control like if the button was physically pressed.
 

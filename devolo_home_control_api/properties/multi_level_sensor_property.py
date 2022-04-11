@@ -17,7 +17,7 @@ class MultiLevelSensorProperty(SensorProperty):
     :type unit: int
     """
 
-    def __init__(self, element_uid: str, **kwargs):
+    def __init__(self, element_uid: str, **kwargs) -> None:
         if not element_uid.startswith(
             (
                 "devolo.DewpointSensor:",
@@ -55,7 +55,7 @@ class MultiLevelSensorProperty(SensorProperty):
         return self._value
 
     @value.setter
-    def value(self, value: float):
+    def value(self, value: float) -> None:
         """Update value of the multilevel sensor and set point in time of the last_activity."""
         self._value = value
         self._last_activity = datetime.now()

@@ -18,7 +18,7 @@ class BinarySwitchProperty(Property):
     :type state: bool
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: bool):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: bool) -> None:
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(f"{element_uid} is not a Binary Switch.")
 
@@ -34,13 +34,13 @@ class BinarySwitchProperty(Property):
         return self._state
 
     @state.setter
-    def state(self, state: bool):
+    def state(self, state: bool) -> None:
         """Update state of the binary sensor and set point in time of the last_activity."""
         self._state = state
         self._last_activity = datetime.now()
         self._logger.debug("State of %s set to %s.", self.element_uid, state)
 
-    def set(self, state: bool):
+    def set(self, state: bool) -> None:
         """
         Set the binary switch of the given element_uid to the given state.
 

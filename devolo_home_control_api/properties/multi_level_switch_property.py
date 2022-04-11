@@ -22,7 +22,7 @@ class MultiLevelSwitchProperty(Property):
     :type min: float
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs):
+    def __init__(self, element_uid: str, setter: Callable, **kwargs) -> None:
         if not element_uid.startswith(
             ("devolo.Blinds:", "devolo.Dimmer:", "devolo.MultiLevelSwitch:", "devolo.SirenMultiLevelSwitch:")
         ):
@@ -42,7 +42,7 @@ class MultiLevelSwitchProperty(Property):
         return super().last_activity
 
     @last_activity.setter
-    def last_activity(self, timestamp: int):
+    def last_activity(self, timestamp: int) -> None:
         """The gateway persists the last activity of some multi level switchs. They can be initialized with that value."""
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
@@ -63,13 +63,13 @@ class MultiLevelSwitchProperty(Property):
         return self._value
 
     @value.setter
-    def value(self, value: float):
+    def value(self, value: float) -> None:
         """Update value of the multilevel value and set point in time of the last_activity."""
         self._value = value
         self._last_activity = datetime.now()
         self._logger.debug("Value of %s set to %s.", self.element_uid, value)
 
-    def set(self, value: float):
+    def set(self, value: float) -> None:
         """
         Set the multilevel switch of the given element_uid to the given value.
 
