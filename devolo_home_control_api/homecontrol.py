@@ -3,6 +3,8 @@ import threading
 from typing import Any, Dict, List, Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
 from zeroconf import Zeroconf
 
 from . import __version__
@@ -41,9 +43,13 @@ class HomeControl(Mprm):
     """
 
     def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo, zeroconf_instance: Optional[Zeroconf] = None) -> None:
+        retry = Retry(total=5, backoff_factor=0.1, allowed_methods=("GET", "POST"))
+        adapter = HTTPAdapter(max_retries=retry)
+
         self._mydevolo = mydevolo_instance
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": f"devolo_home_control_api/{__version__}"})
+        self._session.mount("http://", adapter)
         self._zeroconf = zeroconf_instance
         self.gateway = Gateway(gateway_id, mydevolo_instance)
 

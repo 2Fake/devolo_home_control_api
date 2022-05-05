@@ -1,4 +1,5 @@
 import time
+from unittest.mock import patch
 
 import pytest
 from requests.exceptions import ConnectionError
@@ -79,10 +80,10 @@ class TestMprmWebsocket:
 
     @pytest.mark.usefixtures("mock_mprmwebsocket_websocketapp")
     def test__try_reconnect_with_detect(self, mocker):
-        spy_sleep = mocker.spy(time, "sleep")
-        spy_detect_gateway = mocker.spy(StubMprmWebsocket, "detect_gateway_in_lan")
-        self.mprm._ws = ConnectionError
-        self.mprm._local_ip = self.gateway["local_ip"]
-        self.mprm._try_reconnect(4)
-        spy_sleep.assert_called_once_with(1)
-        spy_detect_gateway.assert_called_once()
+        with patch("time.sleep") as sleep:
+            spy_detect_gateway = mocker.spy(StubMprmWebsocket, "detect_gateway_in_lan")
+            self.mprm._ws = ConnectionError
+            self.mprm._local_ip = self.gateway["local_ip"]
+            self.mprm._try_reconnect(4)
+            sleep.assert_called_once_with(1)
+            spy_detect_gateway.assert_called_once()
