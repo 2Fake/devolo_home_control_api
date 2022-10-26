@@ -11,11 +11,11 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
     - name: Check formatting
-      uses: pre-commit/action@v2.0.3
+      uses: pre-commit/action@v3.0.0
 
   lint:
     name: Lint
@@ -24,7 +24,7 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
     - name: Lint with flake8
@@ -49,12 +49,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
     - name: Checkout sources
       uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -65,7 +65,7 @@ jobs:
       run: |
         pytest --cov=devolo_home_control_api
     - name: Preserve coverage
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: coverage
         path: .coverage
@@ -78,11 +78,11 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
     - name: Download coverage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: coverage
     - name: Coveralls
@@ -92,6 +92,6 @@ jobs:
         export COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }}
         coveralls
     - name: Clean up coverage
-      uses: geekyeggo/delete-artifact@v1
+      uses: geekyeggo/delete-artifact@v2
       with:
         name: coverage
