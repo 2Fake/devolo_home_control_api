@@ -30,7 +30,7 @@ class Gateway:  # pylint: disable=too-few-public-methods
         self.firmware_version = details.get("firmwareVersion")
 
         try:
-            self.full_url: str | None = self._mydevolo.get_full_url(self.id)
+            self.full_url: Optional[str] = self._mydevolo.get_full_url(self.id)
         except GatewayOfflineError:
             self.full_url = None
 
