@@ -1,6 +1,6 @@
 # devolo Home Control API
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/2Fake/devolo_home_control_api/Python%20package)](https://github.com/2Fake/devolo_home_control_api/actions?query=workflow%3A%22Python+package%22)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/2Fake/devolo_home_control_api/pythonpackage.yml?branch=master)](https://github.com/2Fake/devolo_home_control_api/actions?query=workflow%3A%22Python+package%22)
 [![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api)](https://pypi.org/project/devolo-home-control-api/)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/2Fake/devolo_home_control_api)](https://codeclimate.com/github/2Fake/devolo_home_control_api)
 [![Coverage Status](https://coveralls.io/repos/github/2Fake/devolo_home_control_api/badge.svg?branch=master)](https://coveralls.io/github/2Fake/devolo_home_control_api?branch=master)

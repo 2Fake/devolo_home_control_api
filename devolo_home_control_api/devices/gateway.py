@@ -2,6 +2,7 @@
 import logging
 from typing import Dict, Optional
 
+from ..exceptions.gateway import GatewayOfflineError
 from ..mydevolo import Mydevolo
 
 
@@ -23,11 +24,15 @@ class Gateway:  # pylint: disable=too-few-public-methods
         self.id = details["gatewayId"]
         self.name = details.get("name")
         self.role = details.get("role")
-        self.full_url = self._mydevolo.get_full_url(self.id)
         self.local_user = self._mydevolo.uuid()
         self.local_passkey = details["localPasskey"]
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
+
+        try:
+            self.full_url: Optional[str] = self._mydevolo.get_full_url(self.id)
+        except GatewayOfflineError:
+            self.full_url = None
 
         # Let's assume the gateway is connected remotely. Will be corrected as soon as a real connection is established.
         self.local_connection = False
