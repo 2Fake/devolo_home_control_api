@@ -1,15 +1,19 @@
+"""Fixtures used for mydevolo testing."""
+from collections.abc import Generator
+from unittest.mock import patch
+
 import pytest
+
 from devolo_home_control_api.mydevolo import Mydevolo, WrongCredentialsError, WrongUrlError
 
 from ..mocks.mock_mydevolo import MockMydevolo
 
 
 @pytest.fixture()
-def mydevolo(request):
+def mydevolo(request: pytest.FixtureRequest) -> Generator[Mydevolo, None, None]:
     """Create real mydevolo object with static test data."""
-    mydevolo_instance = Mydevolo()
-    mydevolo_instance._uuid = request.cls.user.get("uuid")
-    yield mydevolo_instance
+    with patch("devolo_home_control_api.mydevolo.Mydevolo.uuid", return_value=request.cls.user.get("uuid")):
+        yield Mydevolo()
 
 
 @pytest.fixture()
@@ -26,9 +30,10 @@ def mock_mydevolo__call_raise_WrongUrlError(mocker):
 
 
 @pytest.fixture()
-def mock_mydevolo_uuid_raise_WrongCredentialsError(mocker):
+def mock_mydevolo_uuid_raise_WrongCredentialsError(mydevolo: Mydevolo) -> Generator[Mydevolo, None, None]:
     """Respond with WrongCredentialsError on calls to the mydevolo API."""
-    mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.uuid", side_effect=WrongCredentialsError)
+    with patch("devolo_home_control_api.mydevolo.Mydevolo.uuid", side_effect=WrongCredentialsError):
+        yield mydevolo
 
 
 @pytest.fixture()
