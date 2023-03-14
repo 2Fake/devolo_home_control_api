@@ -1,8 +1,9 @@
 """Fixtures used for mydevolo testing."""
-from collections.abc import Generator
+from typing import Generator
 from unittest.mock import patch
 
 import pytest
+from pytest_mock import MockerFixture
 
 from devolo_home_control_api.mydevolo import Mydevolo, WrongCredentialsError, WrongUrlError
 
@@ -17,14 +18,14 @@ def mydevolo(request: pytest.FixtureRequest) -> Generator[Mydevolo, None, None]:
 
 
 @pytest.fixture()
-def mock_mydevolo__call(mocker, request):
+def mock_mydevolo__call(mocker: MockerFixture, request: pytest.FixtureRequest) -> None:
     """Mock calls to the mydevolo API."""
     mock_mydevolo = MockMydevolo(request)
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=mock_mydevolo._call)
 
 
 @pytest.fixture()
-def mock_mydevolo__call_raise_WrongUrlError(mocker):
+def mock_mydevolo__call_raise_WrongUrlError(mocker: MockerFixture) -> None:
     """Respond with WrongUrlError on calls to the mydevolo API."""
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo._call", side_effect=WrongUrlError)
 
@@ -37,6 +38,6 @@ def mock_mydevolo_uuid_raise_WrongCredentialsError(mydevolo: Mydevolo) -> Genera
 
 
 @pytest.fixture()
-def mock_get_zwave_products(mocker):
+def mock_get_zwave_products(mocker: MockerFixture) -> None:
     """Mock Z-Wave product information call to speed up tests."""
     mocker.patch("devolo_home_control_api.mydevolo.Mydevolo.get_zwave_products", return_value={})
