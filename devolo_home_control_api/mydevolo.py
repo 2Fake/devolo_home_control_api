@@ -1,5 +1,6 @@
 """my devolo"""
 import logging
+from functools import lru_cache
 from typing import Any, Dict, List
 
 import requests
@@ -19,7 +20,6 @@ class Mydevolo:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._user = ""
         self._password = ""
-        self._uuid = ""
         self._gateway_ids: List[int] = []
 
         self.url = "https://www.mydevolo.com"
@@ -33,8 +33,8 @@ class Mydevolo:
     def user(self, user: str) -> None:
         """Invalidate uuid and gateway IDs on user name change."""
         self._user = user
-        self._uuid = ""
         self._gateway_ids = []
+        self.uuid.cache_clear()
 
     @property
     def password(self) -> str:
@@ -45,8 +45,8 @@ class Mydevolo:
     def password(self, password: str) -> None:
         """Invalidate uuid and gateway IDs on password change."""
         self._password = password
-        self._uuid = ""
         self._gateway_ids = []
+        self.uuid.cache_clear()
 
     def credentials_valid(self) -> bool:
         """
@@ -140,14 +140,13 @@ class Mydevolo:
         self._logger.warning("devolo Home Control is in maintenance mode.")
         return True
 
+    @lru_cache()
     def uuid(self) -> str:
         """
         The uuid is a central attribute in my devolo. Most URLs in the user's context contain it.
         """
-        if self._uuid == "":
-            self._logger.debug("Getting UUID")
-            self._uuid = self._call(f"{self.url.rstrip('/')}/v1/users/uuid")["uuid"]
-        return self._uuid
+        self._logger.debug("Getting UUID")
+        return self._call(f"{self.url.rstrip('/')}/v1/users/uuid")["uuid"]
 
     def _call(self, url: str) -> Dict[str, Any]:
         """Make a call to any entry point with the user's context."""
