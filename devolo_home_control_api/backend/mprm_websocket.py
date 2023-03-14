@@ -66,7 +66,7 @@ class MprmWebsocket(MprmRest, ABC):
             time.sleep(0.1)
         if not self._connected:
             self._logger.debug("Websocket could not be established")
-            raise GatewayOfflineError("Websocket could not be established.")
+            raise GatewayOfflineError
 
     def websocket_connect(self) -> None:
         """
@@ -131,7 +131,7 @@ class MprmWebsocket(MprmRest, ABC):
             self._event_sequence += 1
         else:
             self._logger.warning(
-                "We missed a websocket message. Internal event_sequence is at %s. " "Event sequence by websocket is at %s",
+                "We missed a websocket message. Internal event_sequence is at %s. Event sequence by websocket is at %s",
                 self._event_sequence,
                 event_sequence,
             )

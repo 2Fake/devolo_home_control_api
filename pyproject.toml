@@ -23,7 +23,7 @@ max-attributes = 15
 max-line-length = 127
 
 [tool.pylint.messages_control]
-disable = "C0330, C0326, R0801"
+disable = "R0801"
 good-names = "id,ip,ws"
 
 [tool.setuptools_scm]

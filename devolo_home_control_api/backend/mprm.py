@@ -82,13 +82,13 @@ class Mprm(MprmWebsocket, ABC):
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug(sys.exc_info())
-            raise GatewayOfflineError("Gateway is offline.") from None
+            raise GatewayOfflineError from None
 
         # After a reboot we can connect to the gateway but it answers with a 503 if not fully started.
         if not connection.ok:
             self._logger.error("Could not connect to the gateway locally.")
             self._logger.debug("Gateway start-up is not finished, yet.")
-            raise GatewayOfflineError("Gateway is offline.") from None
+            raise GatewayOfflineError from None
 
         token_url = connection.json()["link"]
         self._logger.debug("Got a token URL: %s", token_url)
@@ -97,10 +97,11 @@ class Mprm(MprmWebsocket, ABC):
         return True
 
     def get_remote_session(self) -> bool:
-        """
-        Connect to the gateway remotely. Calling the known portal URL is enough in this case.
-        """
+        """Connect to the gateway remotely. Calling the known portal URL is enough in this case."""
         self._logger.info("Connecting to gateway via cloud.")
+        if not self.gateway.full_url:
+            self._logger.error("Could not connect to the gateway remotely.")
+            raise GatewayOfflineError
         try:
             url = urlsplit(self._session.get(self.gateway.full_url, timeout=15).url)
             self._url = f"{url.scheme}://{url.netloc}"
@@ -108,7 +109,7 @@ class Mprm(MprmWebsocket, ABC):
         except JSONDecodeError:
             self._logger.error("Could not connect to the gateway remotely.")
             self._logger.debug(sys.exc_info())
-            raise GatewayOfflineError("Gateway is offline.") from None
+            raise GatewayOfflineError from None
         return True
 
     def _on_service_state_change(

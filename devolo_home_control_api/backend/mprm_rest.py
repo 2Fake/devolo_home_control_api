@@ -21,6 +21,8 @@ class MprmRest(ABC):
     """
 
     def __init__(self) -> None:
+        logging.captureWarnings(True)
+
         self._logger = logging.getLogger(self.__class__.__name__)
         self._data_id = 0
         self._local_ip = ""
@@ -168,7 +170,7 @@ class MprmRest(ABC):
             self._logger.error("Gateway is offline.")
             self._logger.debug(sys.exc_info())
             self.gateway.update_state(False)
-            raise GatewayOfflineError("Gateway is offline.") from None
+            raise GatewayOfflineError from None
         if response["id"] != data["id"]:
             self._logger.error("Got an unexpected response after posting data.")
             self._logger.debug("Message had ID %s, response had ID %s.", data["id"], response["id"])

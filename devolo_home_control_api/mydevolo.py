@@ -30,7 +30,7 @@ class Mydevolo:
         return self._user
 
     @user.setter
-    def user(self, user: str):
+    def user(self, user: str) -> None:
         """Invalidate uuid and gateway IDs on user name change."""
         self._user = user
         self._uuid = ""
@@ -42,7 +42,7 @@ class Mydevolo:
         return self._password
 
     @password.setter
-    def password(self, password: str):
+    def password(self, password: str) -> None:
         """Invalidate uuid and gateway IDs on password change."""
         self._password = password
         self._uuid = ""
@@ -161,7 +161,7 @@ class Mydevolo:
             raise WrongUrlError(f"Wrong URL: {url}")
         if responds.status_code == requests.codes.service_unavailable:  # pylint: disable=no-member
             # mydevolo sends a 503, if the gateway is offline
-            self._logger.error("The requested gateway seems to be offline.")
-            raise GatewayOfflineError("Gateway offline.")
+            self._logger.warning("The requested gateway seems to be offline.")
+            raise GatewayOfflineError
 
         return responds.json()
