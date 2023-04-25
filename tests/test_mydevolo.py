@@ -1,4 +1,6 @@
 """Test mydevolo."""
+from unittest.mock import patch
+
 import pytest
 
 from devolo_home_control_api.mydevolo import GatewayOfflineError, Mydevolo, WrongCredentialsError, WrongUrlError
@@ -63,17 +65,17 @@ class TestMydevolo:
 
     def test_set_password(self, mydevolo: Mydevolo) -> None:
         """Test setting a new password."""
-        mydevolo._gateway_ids = [self.gateway["id"]]
-        mydevolo.password = self.user["password"]
-        assert mydevolo.uuid.cache_clear.call_count == 1
-        assert mydevolo._gateway_ids == []
+        with patch("devolo_home_control_api.mydevolo.Mydevolo.get_gateway_ids"):
+            mydevolo.password = self.user["password"]
+            assert mydevolo.uuid.cache_clear.call_count == 1
+            assert mydevolo.get_gateway_ids.cache_clear.call_count == 1
 
     def test_set_user(self, mydevolo: Mydevolo) -> None:
         """Test setting a new username."""
-        mydevolo._gateway_ids = [self.gateway["id"]]
-        mydevolo.user = self.user["username"]
-        assert mydevolo.uuid.cache_clear.call_count == 1
-        assert mydevolo._gateway_ids == []
+        with patch("devolo_home_control_api.mydevolo.Mydevolo.get_gateway_ids"):
+            mydevolo.user = self.user["username"]
+            assert mydevolo.uuid.cache_clear.call_count == 1
+            assert mydevolo.get_gateway_ids.cache_clear.call_count == 1
 
     def test_get_user(self, mydevolo: Mydevolo) -> None:
         """Test getting the username."""
