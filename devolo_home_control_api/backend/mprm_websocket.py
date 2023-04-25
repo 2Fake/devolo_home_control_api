@@ -10,7 +10,8 @@ import requests
 import websocket
 from urllib3.connection import ConnectTimeoutError
 
-from ..exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+
 from .mprm_rest import MprmRest
 
 

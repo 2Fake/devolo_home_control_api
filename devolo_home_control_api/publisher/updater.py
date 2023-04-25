@@ -4,11 +4,16 @@ import logging
 from contextlib import suppress
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from ..backend import MESSAGE_TYPES
-from ..devices.gateway import Gateway
-from ..devices.zwave import Zwave
-from ..helper.string import camel_case_to_snake_case
-from ..helper.uid import get_device_type_from_element_uid, get_device_uid_from_element_uid, get_device_uid_from_setting_uid
+from devolo_home_control_api.backend import MESSAGE_TYPES
+from devolo_home_control_api.devices.gateway import Gateway
+from devolo_home_control_api.devices.zwave import Zwave
+from devolo_home_control_api.helper.string import camel_case_to_snake_case
+from devolo_home_control_api.helper.uid import (
+    get_device_type_from_element_uid,
+    get_device_uid_from_element_uid,
+    get_device_uid_from_setting_uid,
+)
+
 from .publisher import Publisher
 
 

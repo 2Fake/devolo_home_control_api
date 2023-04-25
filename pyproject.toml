@@ -6,11 +6,10 @@ requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 line-length = 127
 
 [tool.isort]
+combine_as_imports = true
 filter_files = true
-ignore_whitespace = true
+forced_separate = ["tests"]
 line_length = 127
-multi_line_output = 1
-order_by_type = true
 profile = "black"
 
 [tool.mypy]

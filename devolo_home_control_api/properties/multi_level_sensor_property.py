@@ -1,7 +1,8 @@
 """Multi Level Sensors"""
 from datetime import datetime
 
-from ..exceptions.device import WrongElementError
+from devolo_home_control_api.exceptions.device import WrongElementError
+
 from .sensor_property import SensorProperty
 
 

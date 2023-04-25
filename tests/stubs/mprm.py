@@ -6,7 +6,7 @@ from requests import Session
 from devolo_home_control_api.backend.mprm import Mprm
 from devolo_home_control_api.mydevolo import Mydevolo
 
-from ..mocks.mock_gateway import MockGateway
+from tests.mocks.mock_gateway import MockGateway
 
 
 class StubMprm(Mprm):
