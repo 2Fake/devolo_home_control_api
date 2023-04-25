@@ -1,6 +1,42 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=61", "setuptools_scm[toml]>=6.2"]
+
+[project]
+authors = [
+    { name = "Markus Bong", email = "m.bong@famabo.de" },
+    { name = "Guido Schmitz", email = "guido.schmitz@fedaix.de"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+description = "devolo Home Control API in Python"
+dependencies = [
+    "importlib-metadata;python_version<'3.8'",
+    "requests>=2.4.0",
+    "websocket_client>=0.58.0",
+    "zeroconf>=0.38.0",
+]
+dynamic = [
+    "version",
+]
+license = { file = "LICENSE" }
+name = "devolo_home_control_api"
+readme = "README.md"
+requires-python = ">= 3.7"
+urls = {changelog = "https://github.com/2Fake/devolo_home_control_api/docs/CHANGELOG.md", homepage = "https://github.com/2Fake/devolo_home_control_api"}
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+]
 
 [tool.black]
 line-length = 127
@@ -25,5 +61,11 @@ max-line-length = 127
 [tool.pylint.messages_control]
 disable = "R0801"
 good-names = "id,ip,ws"
+
+[tool.setuptools]
+packages = { find = {exclude=["docs*", "tests*"]} }
+
+[tool.setuptools.package-data]
+devolo_home_control_api = ["py.typed"]
 
 [tool.setuptools_scm]
