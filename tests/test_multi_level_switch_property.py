@@ -1,4 +1,5 @@
 import pytest
+
 from devolo_home_control_api.exceptions.device import WrongElementError
 from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
 

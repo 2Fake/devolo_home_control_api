@@ -2,8 +2,8 @@
 import logging
 from typing import Dict, Optional
 
-from ..exceptions.gateway import GatewayOfflineError
-from ..mydevolo import Mydevolo
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.mydevolo import Mydevolo
 
 
 class Gateway:  # pylint: disable=too-few-public-methods

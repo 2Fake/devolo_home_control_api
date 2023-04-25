@@ -3,7 +3,7 @@ import logging
 from abc import ABC
 from datetime import datetime
 
-from ..devices.zwave import get_device_uid_from_element_uid
+from devolo_home_control_api.devices.zwave import get_device_uid_from_element_uid
 
 
 class Property(ABC):  # pylint: disable=too-few-public-methods

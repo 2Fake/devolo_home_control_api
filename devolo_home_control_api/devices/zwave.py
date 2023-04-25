@@ -2,19 +2,19 @@
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from ..helper.string import camel_case_to_snake_case
-from ..helper.uid import get_device_uid_from_element_uid
-from ..mydevolo import Mydevolo
+from devolo_home_control_api.helper.string import camel_case_to_snake_case
+from devolo_home_control_api.helper.uid import get_device_uid_from_element_uid
+from devolo_home_control_api.mydevolo import Mydevolo
 
 if TYPE_CHECKING:
-    from ..properties.binary_sensor_property import BinarySensorProperty
-    from ..properties.binary_switch_property import BinarySwitchProperty
-    from ..properties.consumption_property import ConsumptionProperty
-    from ..properties.humidity_bar_property import HumidityBarProperty
-    from ..properties.multi_level_sensor_property import MultiLevelSensorProperty
-    from ..properties.multi_level_switch_property import MultiLevelSwitchProperty
-    from ..properties.remote_control_property import RemoteControlProperty
-    from ..properties.settings_property import SettingsProperty
+    from devolo_home_control_api.properties.binary_sensor_property import BinarySensorProperty
+    from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
+    from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
+    from devolo_home_control_api.properties.humidity_bar_property import HumidityBarProperty
+    from devolo_home_control_api.properties.multi_level_sensor_property import MultiLevelSensorProperty
+    from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
+    from devolo_home_control_api.properties.remote_control_property import RemoteControlProperty
+    from devolo_home_control_api.properties.settings_property import SettingsProperty
 
 
 class Zwave:

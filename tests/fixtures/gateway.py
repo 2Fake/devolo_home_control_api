@@ -1,6 +1,6 @@
 import pytest
 
-from ..mocks.mock_gateway import MockGateway
+from tests.mocks.mock_gateway import MockGateway
 
 
 @pytest.fixture()

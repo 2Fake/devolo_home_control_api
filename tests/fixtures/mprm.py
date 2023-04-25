@@ -3,14 +3,14 @@ import requests
 
 from devolo_home_control_api.backend.mprm_rest import MprmRest
 
-from ..mocks.mock_gateway import MockGateway
-from ..mocks.mock_mprm_rest import try_local_connection
-from ..mocks.mock_service_browser import ServiceBrowser
-from ..mocks.mock_websocket import try_reconnect
-from ..mocks.mock_websocketapp import MockWebsocketapp
-from ..mocks.mock_zeroconf import Zeroconf
-from ..stubs.mprm import StubMprm
-from ..stubs.mprm_websocket import StubMprmWebsocket
+from tests.mocks.mock_gateway import MockGateway
+from tests.mocks.mock_mprm_rest import try_local_connection
+from tests.mocks.mock_service_browser import ServiceBrowser
+from tests.mocks.mock_websocket import try_reconnect
+from tests.mocks.mock_websocketapp import MockWebsocketapp
+from tests.mocks.mock_zeroconf import Zeroconf
+from tests.stubs.mprm import StubMprm
+from tests.stubs.mprm_websocket import StubMprmWebsocket
 
 
 @pytest.fixture()

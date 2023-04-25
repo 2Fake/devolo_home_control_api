@@ -2,7 +2,8 @@
 from datetime import datetime
 from typing import Callable
 
-from ..exceptions.device import SwitchingProtected, WrongElementError
+from devolo_home_control_api.exceptions.device import SwitchingProtected, WrongElementError
+
 from .property import Property
 
 

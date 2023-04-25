@@ -1,6 +1,6 @@
 import pytest
 
-from ..mocks.mock_response import (
+from tests.mocks.mock_response import (
     MockResponseConnectTimeout,
     MockResponseGet,
     MockResponseJsonError,
