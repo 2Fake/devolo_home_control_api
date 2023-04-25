@@ -25,7 +25,7 @@ dynamic = [
 license = { file = "LICENSE" }
 name = "devolo_home_control_api"
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.7"
 urls = {changelog = "https://github.com/2Fake/devolo_home_control_api/docs/CHANGELOG.md", homepage = "https://github.com/2Fake/devolo_home_control_api"}
 
 [project.optional-dependencies]
