@@ -20,7 +20,6 @@ class Mydevolo:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._user = ""
         self._password = ""
-        self._gateway_ids: List[int] = []
 
         self.url = "https://www.mydevolo.com"
 
@@ -33,7 +32,7 @@ class Mydevolo:
     def user(self, user: str) -> None:
         """Invalidate uuid and gateway IDs on user name change."""
         self._user = user
-        self._gateway_ids = []
+        self.get_gateway_ids.cache_clear()
         self.uuid.cache_clear()
 
     @property
@@ -45,7 +44,7 @@ class Mydevolo:
     def password(self, password: str) -> None:
         """Invalidate uuid and gateway IDs on password change."""
         self._password = password
-        self._gateway_ids = []
+        self.get_gateway_ids.cache_clear()
         self.uuid.cache_clear()
 
     def credentials_valid(self) -> bool:
@@ -59,20 +58,18 @@ class Mydevolo:
         except WrongCredentialsError:
             return False
 
-    def get_gateway_ids(self) -> List[int]:
+    @lru_cache(maxsize=1)
+    def get_gateway_ids(self) -> List[str]:
         """
         Get all gateway IDs attached to current account.
         """
-        if not self._gateway_ids:
-            self._logger.debug("Getting list of gateways")
-            items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")["items"]
-            for gateway in items:
-                self._gateway_ids.append(gateway.get("gatewayId"))
-                self._logger.debug("Adding %s to list of gateways.", gateway.get("gatewayId"))
-            if len(self._gateway_ids) == 0:
-                self._logger.error("Could not get gateway list. No gateway attached to account?")
-                raise IndexError("No gateways found.")
-        return self._gateway_ids
+        self._logger.debug("Getting list of gateways")
+        items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")["items"]
+        gateway_ids = [gateway["gatewayId"] for gateway in items]
+        if not gateway_ids:
+            self._logger.error("Could not get gateway list. No gateway attached to account?")
+            raise IndexError("No gateways found.")
+        return gateway_ids
 
     def get_gateway(self, gateway_id: str) -> Dict[str, Any]:
         """
