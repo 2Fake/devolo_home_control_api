@@ -1,4 +1,4 @@
-"""mPRM communication"""
+"""mPRM communication."""
 import contextlib
 import socket
 import sys
@@ -13,7 +13,8 @@ from urllib.parse import urlsplit
 import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
-from ..exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+
 from .mprm_websocket import MprmWebsocket
 
 
@@ -24,6 +25,7 @@ class Mprm(MprmWebsocket, ABC):
     """
 
     def __init__(self) -> None:
+        """Initialize communication."""
         self._zeroconf: Optional[Zeroconf]
 
         super().__init__()
@@ -54,10 +56,10 @@ class Mprm(MprmWebsocket, ABC):
         :return: Local IP of the gateway, if found
         """
         zeroconf = self._zeroconf or Zeroconf()
-        browser = ServiceBrowser(zeroconf, "_http._tcp.local.", handlers=[self._on_service_state_change])
+        browser = ServiceBrowser(zeroconf, "_dvl-deviceapi._tcp.local.", handlers=[self._on_service_state_change])
         self._logger.info("Searching for gateway in LAN.")
         start_time = time.time()
-        while not time.time() > start_time + 3 and self._local_ip == "":
+        while not time.time() > start_time + 3 and not self._local_ip:
             time.sleep(0.05)
 
         Thread(target=browser.cancel, name=f"{self.__class__.__name__}.browser_cancel").start()
@@ -118,7 +120,7 @@ class Mprm(MprmWebsocket, ABC):
         """Service handler for Zeroconf state changes."""
         if state_change is ServiceStateChange.Added:
             service_info = zeroconf.get_service_info(service_type, name)
-            if service_info and service_info.server.startswith("devolo-homecontrol"):
+            if service_info and service_info.server and service_info.server.startswith("devolo-homecontrol"):
                 with contextlib.suppress(requests.exceptions.ReadTimeout), contextlib.suppress(
                     requests.exceptions.ConnectTimeout
                 ):
