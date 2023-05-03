@@ -1,0 +1,68 @@
+{
+    "general_device_settings": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": {
+                "eventsEnabled": false,
+                "icon": "icon_15",
+                "name": "Troublemaker",
+                "zoneID": "hz_2"
+            },
+            "uid": "gds.hdm:ZWave:CBC56091/6",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "muted": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 0,
+            "uid": "bas.hdm:ZWave:CBC56091/6",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "param_changed": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "cps.hdm:ZWave:CBC56091/6",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "switch_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/6",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "success": {
+        "id": 5,
+        "result": {
+            "status": 1
+        }
+    },
+    "tone": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "mss.hdm:ZWave:CBC56091/6",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    }
+}

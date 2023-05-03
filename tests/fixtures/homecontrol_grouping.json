@@ -1,0 +1,24 @@
+{
+    "properties": {
+        "property.name": "zones",
+        "data": 1,
+        "property.value.new": [
+            {
+                "id": "hz_1",
+                "name": "Office"
+            },
+            {
+                "id": "hz_2",
+                "name": "Bathroom"
+            },
+            {
+                "id": "hz_3",
+                "name": "Kitchen"
+            }
+        ],
+        "uid": "devolo.Grouping",
+        "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+        "timestamp": 1682530133755
+    },
+    "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+}

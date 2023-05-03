@@ -2,120 +2,82 @@
 from unittest.mock import patch
 
 import pytest
+import requests
+from requests_mock import Mocker
+from syrupy.assertion import SnapshotAssertion
 
-from devolo_home_control_api.mydevolo import GatewayOfflineError, Mydevolo, WrongCredentialsError, WrongUrlError
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions.general import WrongUrlError
+from devolo_home_control_api.mydevolo import Mydevolo
+
+from . import GATEWAY_DETAILS_URL, GATEWAY_FULLURL, GATEWAY_STATUS_URL, MAINTENANCE_URL, UUID_URL, ZWAVE_PRODUCTS_URL
 
 
-class TestMydevolo:
-    def test_credentials_valid(self, mydevolo: Mydevolo) -> None:
-        """Test credential validation."""
-        assert mydevolo.credentials_valid()
+def test_cache_clear(mydevolo: Mydevolo) -> None:
+    """Test clearing the UUID cache on new username or password."""
+    with patch("devolo_home_control_api.mydevolo.Mydevolo.uuid.cache_clear") as cache_clear:
+        mydevolo.user = "test@test.com"
+        mydevolo.password = "secret"
+        assert mydevolo.user == "test@test.com"
+        assert mydevolo.password == "secret"
+        assert cache_clear.call_count == 2
 
-    @pytest.mark.usefixtures("mock_mydevolo_uuid_raise_WrongCredentialsError")
-    def test_credentials_invalid(self, mydevolo: Mydevolo) -> None:
-        """Test credential validation."""
-        assert not mydevolo.credentials_valid()
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_gateway_ids(self, mydevolo: Mydevolo) -> None:
-        """Test getting gateway serial numbers."""
-        assert mydevolo.get_gateway_ids() == [self.gateway["id"]]
+def test_credential_verification(mydevolo: Mydevolo, requests_mock: Mocker) -> None:
+    """Test credentil verification."""
+    mydevolo.user = "test@test.com"
+    mydevolo.password = "secret"
+    assert mydevolo.credentials_valid()
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_gateway_ids_empty(self, mydevolo: Mydevolo) -> None:
-        """Test raising on empty gateway list."""
-        with pytest.raises(IndexError):
-            mydevolo.get_gateway_ids()
+    requests_mock.get(UUID_URL, status_code=requests.codes.forbidden)
+    mydevolo.uuid.cache_clear()
+    assert not mydevolo.credentials_valid()
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_get_full_url(self, mydevolo: Mydevolo) -> None:
-        """Test getting the remote mPRM URL."""
-        full_url = mydevolo.get_full_url(self.gateway["id"])
-        assert full_url == self.gateway["full_url"]
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_get_gateway(self, mydevolo: Mydevolo) -> None:
-        """Test getting gateway details."""
-        details = mydevolo.get_gateway(self.gateway["id"])
-        assert details.get("gatewayId") == self.gateway["id"]
+def test_get_gateway_ids(mydevolo: Mydevolo, requests_mock: Mocker, snapshot: SnapshotAssertion) -> None:
+    """Test getting gateway serial numbers."""
+    gateway_ids = mydevolo.get_gateway_ids()
+    assert gateway_ids == snapshot
 
-    @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
-    def test_get_gateway_invalid(self, mydevolo: Mydevolo) -> None:
-        """Test raising on wrong gateway serial number."""
-        with pytest.raises(WrongUrlError):
-            mydevolo.get_gateway(self.gateway["id"])
+    requests_mock.get(GATEWAY_STATUS_URL, json={"items": []})
+    mydevolo.get_gateway_ids.cache_clear()
+    with pytest.raises(IndexError):
+        mydevolo.get_gateway_ids()
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_get_zwave_products(self, mydevolo: Mydevolo) -> None:
-        """Test getting Z-Wave product information."""
-        device_info = mydevolo.get_zwave_products(manufacturer="0x0060", product_type="0x0001", product="0x000")
-        assert device_info.get("name") == "Everspring PIR Sensor SP814"
 
-    @pytest.mark.usefixtures("mock_mydevolo__call_raise_WrongUrlError")
-    def test_get_zwave_products_invalid(self, mydevolo: Mydevolo) -> None:
-        """Test handling unknown Z-wave products."""
-        device_info = mydevolo.get_zwave_products(manufacturer="0x0070", product_type="0x0001", product="0x000")
-        assert device_info.get("name") == "Unknown"
+def test_get_gateway(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker, snapshot: SnapshotAssertion) -> None:
+    """Test getting gateway details."""
+    gateway = mydevolo.get_gateway(gateway_id)
+    assert gateway == snapshot
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    @pytest.mark.parametrize("result", [True, False])
-    def test_maintenance(self, mydevolo: Mydevolo, result: bool) -> None:
-        """Test checking for maintenance mode."""
-        assert mydevolo.maintenance() == result
+    requests_mock.get(GATEWAY_DETAILS_URL, status_code=requests.codes.not_found)
+    with pytest.raises(WrongUrlError):
+        mydevolo.get_gateway(gateway_id)
 
-    def test_set_password(self, mydevolo: Mydevolo) -> None:
-        """Test setting a new password."""
-        with patch("devolo_home_control_api.mydevolo.Mydevolo.get_gateway_ids"):
-            mydevolo.password = self.user["password"]
-            assert mydevolo.uuid.cache_clear.call_count == 1
-            assert mydevolo.get_gateway_ids.cache_clear.call_count == 1
+    requests_mock.get(GATEWAY_FULLURL, status_code=requests.codes.service_unavailable)
+    with pytest.raises(GatewayOfflineError):
+        mydevolo.get_full_url(gateway_id)
 
-    def test_set_user(self, mydevolo: Mydevolo) -> None:
-        """Test setting a new username."""
-        with patch("devolo_home_control_api.mydevolo.Mydevolo.get_gateway_ids"):
-            mydevolo.user = self.user["username"]
-            assert mydevolo.uuid.cache_clear.call_count == 1
-            assert mydevolo.get_gateway_ids.cache_clear.call_count == 1
 
-    def test_get_user(self, mydevolo: Mydevolo) -> None:
-        """Test getting the username."""
-        mydevolo.user = self.user["username"]
-        assert mydevolo.user == self.user["username"]
+def test_get_zwave_products(mydevolo: Mydevolo, requests_mock: Mocker, snapshot: SnapshotAssertion) -> None:
+    """Test getting zwave product information."""
+    details = mydevolo.get_zwave_products("0x0060", "0x0001", "0x0002")
+    assert details == snapshot
 
-    def test_get_password(self, mydevolo: Mydevolo) -> None:
-        """Test getting the password."""
-        mydevolo.password = self.user["password"]
-        assert mydevolo.password == self.user["password"]
+    requests_mock.get(ZWAVE_PRODUCTS_URL, status_code=requests.codes.not_found)
+    details = mydevolo.get_zwave_products("0x1060", "0x0001", "0x0002")
+    assert details == snapshot
 
-    @pytest.mark.usefixtures("mock_mydevolo__call")
-    def test_uuid(self) -> None:
-        """Test getting the uuid."""
-        mydevolo = Mydevolo()
-        assert mydevolo.uuid() == self.user["uuid"]
-        assert mydevolo.uuid() == self.user["uuid"]
-        assert mydevolo.uuid.cache_info().hits == 1
 
-    @pytest.mark.usefixtures("mock_response_wrong_credentials_error")
-    def test_call_WrongCredentialsError(self) -> None:
-        """Test raising on wrong credentials."""
-        mydevolo = Mydevolo()
-        with pytest.raises(WrongCredentialsError):
-            mydevolo._call("test")
+def test_maintenance(mydevolo: Mydevolo, requests_mock: Mocker) -> None:
+    """Test maintenance mode state."""
+    assert not mydevolo.maintenance()
 
-    @pytest.mark.usefixtures("mock_response_wrong_url_error")
-    def test_call_WrongUrlError(self) -> None:
-        """Test raising on wrong URL."""
-        mydevolo = Mydevolo()
-        with pytest.raises(WrongUrlError):
-            mydevolo._call("test")
+    requests_mock.get(MAINTENANCE_URL, json={"state": "off"})
+    assert mydevolo.maintenance()
 
-    @pytest.mark.usefixtures("mock_response_gateway_offline")
-    def test_call_GatewayOfflineError(self, mydevolo: Mydevolo) -> None:
-        """Test raising on offline gateway."""
-        with pytest.raises(GatewayOfflineError):
-            mydevolo._call("test")
 
-    @pytest.mark.usefixtures("mock_response_valid")
-    def test_call_valid(self, mydevolo: Mydevolo) -> None:
-        """Test valid calls."""
-        assert mydevolo._call("test").get("response") == "response"
+def test_get_uuid(mydevolo: Mydevolo, snapshot: SnapshotAssertion) -> None:
+    """Test getting user's UUID."""
+    uuid = mydevolo.uuid()
+    assert uuid == snapshot

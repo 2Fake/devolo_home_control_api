@@ -1,0 +1,101 @@
+{
+    "battery_low": {
+        "properties": {
+            "property.name": "batteryLow",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "battery_level": {
+        "properties": {
+            "property.name": "batteryLevel",
+            "data": 1,
+            "property.value.new": 5,
+            "uid": "hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 1,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "button_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 0,
+            "uid": "devolo.RemoteControl:hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 2,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "general_device_settings": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": {
+                "eventsEnabled": false,
+                "icon": "icon_15",
+                "name": "Roomthermostat",
+                "zoneID": "hz_2"
+            },
+            "uid": "gds.hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "param_changed": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "cps.hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "pending_operation": {
+        "properties": {
+            "property.name": "pendingOperations",
+            "data": 1,
+            "property.value.new": 22,
+            "uid": "devolo.MultiLevelSwitch:hdm:ZWave:CBC56091/5#ThermostatSetpoint(1)",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "sensor_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 22.1,
+            "uid": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "switch_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 22,
+            "uid": "devolo.MultiLevelSwitch:hdm:ZWave:CBC56091/5#ThermostatSetpoint(1)",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 1,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "success": {
+        "id": 5,
+        "result": {
+            "status": 1
+        }
+    }
+}

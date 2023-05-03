@@ -1,0 +1,140 @@
+{
+    "current_event": {
+        "properties": {
+            "property.name": "currentValue",
+            "data": 1,
+            "property.value.new": 20,
+            "uid": "devolo.Meter:hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "gui_enabled": {
+        "properties": {
+            "property.name": "guiEnabled",
+            "data": 1,
+            "property.value.new": false,
+            "uid": "devolo.Meter:hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 1,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "fail": {
+        "id": 5,
+        "result": {
+            "status": 2
+        }
+    },
+    "flash_mode": {
+        "properties": {
+            "property.name": "mas",
+            "data": 1,
+            "property.value.new": 2,
+            "uid": "mas.hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "general_device_settings": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": {
+                "eventsEnabled": false,
+                "icon": "icon_15",
+                "name": "Lamp",
+                "zoneID": "hz_2"
+            },
+            "uid": "gds.hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "led": {
+        "properties": {
+            "property.name": "led",
+            "data": 1,
+            "property.value.new": false,
+            "uid": "lis.hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "param_changed": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "cps.hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "protection": {
+        "properties": {
+            "property.name": "remoteSwitch",
+            "data": 1,
+            "property.value.new": false,
+            "uid": "ps.hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "success": {
+        "id": 5,
+        "result": {
+            "status": 1
+        }
+    },
+    "switch_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 0,
+            "uid": "devolo.BinarySwitch:hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "total_event": {
+        "properties": {
+            "property.name": "totalValue",
+            "data": 1,
+            "property.value.new": 29.00,
+            "uid": "devolo.Meter:hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 1,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "total_since": {
+        "properties": {
+            "property.name": "sinceTime",
+            "data": 1,
+            "property.value.new": 1496131874998,
+            "uid": "devolo.Meter:hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 2,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "voltage_event": {
+        "properties": {
+            "property.name": "value",
+            "data": 1,
+            "property.value.new": 230,
+            "uid": "devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/2",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    }
+}

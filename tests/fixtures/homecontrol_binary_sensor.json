@@ -1,0 +1,95 @@
+{
+    "battery_low": {
+        "properties": {
+            "property.name": "batteryLow",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "battery_level": {
+        "properties": {
+            "property.name": "batteryLevel",
+            "data": 1,
+            "property.value.new": 5,
+            "uid": "hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 1,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "general_device_settings": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": {
+                "eventsEnabled": false,
+                "icon": "icon_15",
+                "name": "Door",
+                "zoneID": "hz_2"
+            },
+            "uid": "gds.hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "led": {
+        "properties": {
+            "property.name": "led",
+            "data": 1,
+            "property.value.new": false,
+            "uid": "lis.hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "param_changed": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "cps.hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "sensor_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "devolo.BinarySensor:hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "temperature_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 10,
+            "uid": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/3#MultilevelSensor(1)",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "temperature_report": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": false,
+            "uid": "trs.hdm:ZWave:CBC56091/3",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    }
+}

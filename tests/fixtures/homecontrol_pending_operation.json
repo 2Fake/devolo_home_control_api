@@ -1,0 +1,10 @@
+{
+    "properties": {
+        "property.name": "pendingOperations",
+        "data": 1,
+        "property.value.new": [],
+        "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+        "timestamp": 1682530133755
+    },
+    "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+}

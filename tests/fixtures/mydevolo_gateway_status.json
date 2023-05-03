@@ -1,0 +1,11 @@
+{
+    "href": "https://mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/status",
+    "items": [
+        {
+            "href": "https://mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/1409301750000598/status",
+            "gatewayId": "1409301750000598",
+            "status": "off",
+            "disabled": true
+        }
+    ]
+}
