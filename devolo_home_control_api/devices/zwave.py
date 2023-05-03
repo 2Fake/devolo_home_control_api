@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from devolo_home_control_api.properties.humidity_bar_property import HumidityBarProperty
     from devolo_home_control_api.properties.multi_level_sensor_property import MultiLevelSensorProperty
     from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
+    from devolo_home_control_api.properties.property import Property
     from devolo_home_control_api.properties.remote_control_property import RemoteControlProperty
     from devolo_home_control_api.properties.settings_property import SettingsProperty
 
@@ -66,6 +67,7 @@ class Zwave:
 
         # Get important values
         self.battery_level = kwargs.pop("batteryLevel", -1)
+        self.battery_low = kwargs.pop("batteryLow", False)
         self.element_uids = kwargs.pop("elementUIDs")
         self.man_id = kwargs.pop("manID")
         self.prod_id = kwargs.pop("prodID")
@@ -111,7 +113,7 @@ class Zwave:
             delattr(self, "battery_level")
             delattr(self, "battery_low")
 
-    def get_property(self, name: str) -> List[str]:
+    def get_property(self, name: str) -> List["Property"]:
         """
         Get element UIDs to a specified property.
 
