@@ -1,9 +1,9 @@
 """Test mydevolo."""
 import sys
+from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
-import requests
 from requests_mock import Mocker
 from syrupy.assertion import SnapshotAssertion
 
@@ -30,7 +30,7 @@ def test_credential_verification(mydevolo: Mydevolo, requests_mock: Mocker) -> N
     mydevolo.password = "secret"
     assert mydevolo.credentials_valid()
 
-    requests_mock.get(UUID_URL, status_code=requests.codes.forbidden)
+    requests_mock.get(UUID_URL, status_code=HTTPStatus.FORBIDDEN)
     mydevolo.uuid.cache_clear()
     assert not mydevolo.credentials_valid()
 
@@ -53,11 +53,11 @@ def test_get_gateway(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker,
     gateway = mydevolo.get_gateway(gateway_id)
     assert gateway == snapshot
 
-    requests_mock.get(GATEWAY_DETAILS_URL, status_code=requests.codes.not_found)
+    requests_mock.get(GATEWAY_DETAILS_URL, status_code=HTTPStatus.NOT_FOUND)
     with pytest.raises(WrongUrlError):
         mydevolo.get_gateway(gateway_id)
 
-    requests_mock.get(GATEWAY_FULLURL, status_code=requests.codes.service_unavailable)
+    requests_mock.get(GATEWAY_FULLURL, status_code=HTTPStatus.SERVICE_UNAVAILABLE)
     with pytest.raises(GatewayOfflineError):
         mydevolo.get_full_url(gateway_id)
 
@@ -68,7 +68,7 @@ def test_get_zwave_products(mydevolo: Mydevolo, requests_mock: Mocker, snapshot:
     details = mydevolo.get_zwave_products("0x0060", "0x0001", "0x0002")
     assert details == snapshot
 
-    requests_mock.get(ZWAVE_PRODUCTS_URL, status_code=requests.codes.not_found)
+    requests_mock.get(ZWAVE_PRODUCTS_URL, status_code=HTTPStatus.NOT_FOUND)
     details = mydevolo.get_zwave_products("0x1060", "0x0001", "0x0002")
     assert details == snapshot
 

@@ -1,6 +1,7 @@
 """Test the Home Control setup."""
 import json
 import sys
+from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
@@ -43,7 +44,7 @@ def test_setup_local_gateway_offline(mydevolo: Mydevolo, gateway_id: str, gatewa
     with pytest.raises(GatewayOfflineError):
         HomeControl(gateway_id, mydevolo)
 
-    requests_mock.get(f"http://{gateway_ip}/dhlp/portal/full", status_code=requests.codes.unavailable)
+    requests_mock.get(f"http://{gateway_ip}/dhlp/portal/full", status_code=HTTPStatus.SERVICE_UNAVAILABLE)
     with pytest.raises(GatewayOfflineError):
         HomeControl(gateway_id, mydevolo)
 
@@ -59,7 +60,7 @@ def test_setup_remote(remote_gateway: HomeControl, snapshot: SnapshotAssertion) 
 @pytest.mark.usefixtures("remote_gateway")
 def test_setup_remote_gateway_offline(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker) -> None:
     """Test setup failure when gateway is offline."""
-    requests_mock.get(GATEWAY_FULLURL, status_code=requests.codes.unavailable)
+    requests_mock.get(GATEWAY_FULLURL, status_code=HTTPStatus.SERVICE_UNAVAILABLE)
     with pytest.raises(GatewayOfflineError):
         HomeControl(gateway_id, mydevolo)
 
