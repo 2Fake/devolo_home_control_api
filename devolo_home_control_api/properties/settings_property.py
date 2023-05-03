@@ -21,6 +21,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
     direction: bool
     events_enabled: bool
     icon: str
+    inverted: int
     led_setting: bool
     local_switching: bool
     motion_sensitivity: int

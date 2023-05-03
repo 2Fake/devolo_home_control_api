@@ -8,7 +8,8 @@
             "hdm:ZWave:CBC56091/4",
             "hdm:ZWave:CBC56091/5",
             "hdm:ZWave:CBC56091/6",
-            "hdm:ZWave:CBC56091/7"
+            "hdm:ZWave:CBC56091/7",
+            "hdm:ZWave:CBC56091/8"
         ],
         "uid": "devolo.DevicesPage",
         "com.prosyst.mbs.services.remote.event.sequence.number": 0,

@@ -11,7 +11,8 @@
                         "hdm:ZWave:CBC56091/5",
                         "hdm:ZWave:CBC56091/6",
                         "hdm:ZWave:CBC56091/7",
-                        "hdm:ZWave:CBC56091/8"
+                        "hdm:ZWave:CBC56091/8",
+                        "hdm:ZWave:CBC56091/9"
                     ]
                 }
             }

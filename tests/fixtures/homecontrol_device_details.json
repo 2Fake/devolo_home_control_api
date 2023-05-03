@@ -523,7 +523,7 @@
                     "keyNum": 2,
                     "scene": {
                         "controlData": "0",
-                        "widgetElementUID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/33",
+                        "widgetElementUID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/7",
                         "operName": ""
                     },
                     "itemId": null
@@ -557,7 +557,7 @@
                     "keyNum": 4,
                     "scene": {
                         "controlData": "0",
-                        "widgetElementUID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/33",
+                        "widgetElementUID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/7",
                         "operName": ""
                     },
                     "itemId": null
@@ -693,6 +693,62 @@
                     "guiEnabled": true,
                     "type": 2,
                     "widgetUID": "hdm:ZWave:CBC56091/8",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "acs.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "calibrationStatus": 1,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "bas.hdm:ZWave:CBC56091/9#i2",
+                "properties": {
+                    "value": true,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "bss.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "value": 0,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_16",
+                        "name": "Shutter"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "mss.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "value": 20,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.Blinds:hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "targetValue": 21,
+                    "value": 21,
+                    "min": 0,
+                    "pendingOperations": null,
+                    "max": 100,
+                    "guiEnabled": true,
+                    "operationStatus": null,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/9",
+                    "switchType": "",
                     "itemId": null
                 }
             }

@@ -43,11 +43,7 @@ def test_websocket_breakdown(local_gateway: HomeControl) -> None:
     with patch(
         "devolo_home_control_api.backend.mprm_websocket.MprmWebsocket.websocket_connect",
         wraps=local_gateway.websocket_connect,
-    ) as websocket_connect:
-        WEBSOCKET.error()
-        websocket_connect.assert_called_once()
-
-    with patch(
+    ) as websocket_connect, patch(
         "devolo_home_control_api.backend.mprm.Mprm.get_local_session",
         side_effect=[GatewayOfflineError, requests.exceptions.ConnectTimeout, True],
     ) as get_local_session, patch(
@@ -57,6 +53,7 @@ def test_websocket_breakdown(local_gateway: HomeControl) -> None:
     ):
         WEBSOCKET.error()
         assert get_local_session.call_count == 3
+        websocket_connect.assert_called_once()
         detect_gateway_in_lan.assert_called_once()
 
 

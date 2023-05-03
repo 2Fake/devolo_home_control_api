@@ -98,7 +98,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         element_uid: str = message["properties"]["uid"]
         value = bool(message["properties"]["property.value.new"])
         device_uid = get_device_uid_from_setting_uid(element_uid)
-        self.devices[device_uid].settings_property["movement_direction"].direction = value
+        self.devices[device_uid].settings_property["movement_direction"].inverted = value
         self._logger.debug("Updating state of %s to %s", element_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value))
 

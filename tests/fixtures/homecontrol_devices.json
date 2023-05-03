@@ -270,6 +270,44 @@
                         "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/8#MultilevelSensor(3)"
                     ]
                 }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLevel": -1,
+                    "batteryLow": null,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Shutter",
+                    "prodTypeID": "0x0002",
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/9",
+                    "secureInclusionCode": 0,
+                    "prodID": "0x000e",
+                    "status": 2,
+                    "settingUIDs": [
+                        "acs.hdm:ZWave:CBC56091/9",
+                        "bas.hdm:ZWave:CBC56091/9#i2",
+                        "bss.hdm:ZWave:CBC56091/9",
+                        "gds.hdm:ZWave:CBC56091/9",
+                        "mss.hdm:ZWave:CBC56091/9"
+                    ],
+                    "manID": "0x0175",
+                    "icon": "icon_16",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "calibrationStatus": 1,
+                    "i2": true,
+                    "inverted": false,
+                    "deviceModelUID": "devolo.model.Shutter",
+                    "itemName": "Motion",
+                    "elementUIDs": [
+                        "devolo.Blinds:hdm:ZWave:CBC56091/9"
+                    ]
+                }
             }
         ]
     },

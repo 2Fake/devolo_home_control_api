@@ -152,3 +152,38 @@ def test_ignore_pending_operations(local_gateway: HomeControl, useless: str) -> 
     fixture["properties"]["uid"] = useless
     WEBSOCKET.recv_packet(json.dumps(fixture))
     subscriber.update.assert_not_called()
+
+
+@pytest.mark.usefixtures("local_gateway")
+def test_ignore_unwanted_messages() -> None:
+    """Test ignoring updates on unwanted mesages."""
+    with patch("devolo_home_control_api.publisher.updater.get_device_type_from_element_uid") as device_type:
+        message = {
+            "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED",
+            "properties": {
+                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            },
+        }
+        WEBSOCKET.recv_packet(json.dumps(message))
+        device_type.assert_not_called()
+
+        message = {
+            "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+            "properties": {
+                "property.name": "assistantsConnected",
+                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            },
+        }
+        WEBSOCKET.recv_packet(json.dumps(message))
+        device_type.assert_not_called()
+
+        message = {
+            "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+            "properties": {
+                "property.name": "zones",
+                "uid": "smartGroup",
+                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            },
+        }
+        WEBSOCKET.recv_packet(json.dumps(message))
+        device_type.assert_not_called()

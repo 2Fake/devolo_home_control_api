@@ -1,0 +1,81 @@
+{
+    "automatic_calibration": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": {
+                "status": 2
+            },
+            "uid": "acs.hdm:ZWave:CBC56091/9",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "automatic_calibration_old": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "acs.hdm:ZWave:CBC56091/9",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 1,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "general_device_settings": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": {
+                "eventsEnabled": false,
+                "icon": "icon_15",
+                "name": "Window",
+                "zoneID": "hz_2"
+            },
+            "uid": "gds.hdm:ZWave:CBC56091/9",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "movement_direction": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "bss.hdm:ZWave:CBC56091/9",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "movement_event": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 22,
+            "uid": "devolo.Blinds:hdm:ZWave:CBC56091/9",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "param_changed": {
+        "properties": {
+            "property.name": "targetState",
+            "data": 1,
+            "property.value.new": 1,
+            "uid": "cps.hdm:ZWave:CBC56091/5",
+            "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            "timestamp": 1682530133755
+        },
+        "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+    },
+    "success": {
+        "id": 5,
+        "result": {
+            "status": 1
+        }
+    }
+}
