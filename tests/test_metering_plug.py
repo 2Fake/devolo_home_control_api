@@ -1,5 +1,6 @@
 """Test interacting with a metering plug."""
 import json
+import sys
 from datetime import datetime
 
 import pytest
@@ -16,6 +17,7 @@ ELEMENT_ID = "hdm:ZWave:CBC56091/2"
 FIXTURE = load_fixture("homecontrol_binary_switch")
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8))
 def test_getting_devices(local_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
     """Test getting binary switch devices."""
     assert local_gateway.binary_switch_devices == snapshot

@@ -1,5 +1,6 @@
 """Test interacting with a wall switch."""
 import json
+import sys
 
 import pytest
 from requests_mock import Mocker
@@ -14,6 +15,7 @@ ELEMENT_ID = "hdm:ZWave:CBC56091/7"
 FIXTURE = load_fixture("homecontrol_remote_control")
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8))
 @pytest.mark.freeze_time("2023-04-28T08:00:00")
 def test_getting_devices(local_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
     """Test getting remote control devices."""

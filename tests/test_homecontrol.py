@@ -1,5 +1,6 @@
 """Test the Home Control setup."""
 import json
+import sys
 from unittest.mock import patch
 
 import pytest
@@ -15,6 +16,7 @@ from . import GATEWAY_FULLURL, MAINTENANCE_URL, Subscriber, load_fixture
 from .mocks import WEBSOCKET
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8))
 @pytest.mark.freeze_time("2023-04-28T08:00:00")
 def test_setup_local(local_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
     """Test setting up locally."""
@@ -46,6 +48,7 @@ def test_setup_local_gateway_offline(mydevolo: Mydevolo, gateway_id: str, gatewa
         HomeControl(gateway_id, mydevolo)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8))
 @pytest.mark.freeze_time("2023-04-28T08:00:00")
 def test_setup_remote(remote_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
     """Test setting up remotely."""
