@@ -35,7 +35,7 @@ def test_credential_verification(mydevolo: Mydevolo, requests_mock: Mocker) -> N
     assert not mydevolo.credentials_valid()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8))
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
 def test_get_gateway_ids(mydevolo: Mydevolo, requests_mock: Mocker, snapshot: SnapshotAssertion) -> None:
     """Test getting gateway serial numbers."""
     gateway_ids = mydevolo.get_gateway_ids()
@@ -47,7 +47,7 @@ def test_get_gateway_ids(mydevolo: Mydevolo, requests_mock: Mocker, snapshot: Sn
         mydevolo.get_gateway_ids()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8))
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
 def test_get_gateway(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker, snapshot: SnapshotAssertion) -> None:
     """Test getting gateway details."""
     gateway = mydevolo.get_gateway(gateway_id)
@@ -62,7 +62,7 @@ def test_get_gateway(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker,
         mydevolo.get_full_url(gateway_id)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8))
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
 def test_get_zwave_products(mydevolo: Mydevolo, requests_mock: Mocker, snapshot: SnapshotAssertion) -> None:
     """Test getting zwave product information."""
     details = mydevolo.get_zwave_products("0x0060", "0x0001", "0x0002")
@@ -81,7 +81,7 @@ def test_maintenance(mydevolo: Mydevolo, requests_mock: Mocker) -> None:
     assert mydevolo.maintenance()
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8))
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
 def test_get_uuid(mydevolo: Mydevolo, snapshot: SnapshotAssertion) -> None:
     """Test getting user's UUID."""
     uuid = mydevolo.uuid()

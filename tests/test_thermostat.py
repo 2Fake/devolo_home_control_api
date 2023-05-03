@@ -15,7 +15,7 @@ ELEMENT_ID = "hdm:ZWave:CBC56091/5"
 FIXTURE = load_fixture("homecontrol_thermostat")
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8))
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
 @pytest.mark.freeze_time("2023-04-28T08:00:00")
 def test_getting_devices(local_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
     """Test getting multi level sensor and switch devices."""

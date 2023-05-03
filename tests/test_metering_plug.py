@@ -17,7 +17,7 @@ ELEMENT_ID = "hdm:ZWave:CBC56091/2"
 FIXTURE = load_fixture("homecontrol_binary_switch")
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8))
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
 def test_getting_devices(local_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
     """Test getting binary switch devices."""
     assert local_gateway.binary_switch_devices == snapshot
