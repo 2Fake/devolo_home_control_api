@@ -1,8 +1,8 @@
 """Websocket communication"""
 import json
 import threading
-import time
 from abc import ABC, abstractmethod
+from time import sleep, time
 from types import TracebackType
 from typing import Any, Dict, Optional
 
@@ -62,9 +62,9 @@ class MprmWebsocket(MprmRest, ABC):
         In some cases it is needed to wait for the websocket to be fully established. This method can be used to block your
         current thread for up to one minute.
         """
-        start_time = time.time()
-        while not self._connected and time.time() < start_time + 600:
-            time.sleep(0.1)
+        start_time = time()
+        while not self._connected and time() < start_time + 600:
+            sleep(0.1)
         if not self._connected:
             self._logger.debug("Websocket could not be established")
             raise GatewayOfflineError
@@ -147,7 +147,7 @@ class MprmWebsocket(MprmRest, ABC):
         def run():
             self._logger.info("Starting web socket connection.")
             while ws.sock is not None and ws.sock.connected:
-                time.sleep(1)
+                sleep(1)
 
         threading.Thread(target=run, name=f"{self.__class__.__name__}.websocket_run").start()
         self._connected = True
@@ -163,8 +163,8 @@ class MprmWebsocket(MprmRest, ABC):
             self._reachable = self.get_local_session() if self._local_ip else self.get_remote_session()
         except (ConnectTimeoutError, GatewayOfflineError):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
-            time.sleep(sleep_interval)
+            sleep(sleep_interval)
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             self._logger.info("Sleeping for %s seconds.", sleep_interval)
-            time.sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
+            sleep(sleep_interval - 3)  # mDNS browsing will take up tp 3 seconds by itself
             self.detect_gateway_in_lan()
