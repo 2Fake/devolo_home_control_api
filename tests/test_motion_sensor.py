@@ -97,7 +97,7 @@ def test_setting_led(remote_gateway: HomeControl, requests_mock: Mocker) -> None
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     motion_sensor = remote_gateway.devices[ELEMENT_ID]
     led_setting = motion_sensor.settings_property["led"].led_setting
-    motion_sensor.settings_property["led"].set(False)
+    motion_sensor.settings_property["led"].set(led_setting=False)
     assert motion_sensor.settings_property["led"].led_setting != led_setting
 
 
@@ -138,7 +138,7 @@ def test_setting_temperature_report(remote_gateway: HomeControl, requests_mock: 
     response = FIXTURE["success"]
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     motion_sensor = remote_gateway.devices[ELEMENT_ID]
-    motion_sensor.settings_property["temperature_report"].set(False)
+    motion_sensor.settings_property["temperature_report"].set(temp_report=False)
     assert not motion_sensor.settings_property["temperature_report"].temp_report
 
 

@@ -167,7 +167,7 @@ def test_setting_led(remote_gateway: HomeControl, requests_mock: Mocker) -> None
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     metering_plug = remote_gateway.devices[ELEMENT_ID]
     led_setting = metering_plug.settings_property["led"].led_setting
-    metering_plug.settings_property["led"].set(False)
+    metering_plug.settings_property["led"].set(led_setting=False)
     assert metering_plug.settings_property["led"].led_setting != led_setting
 
 

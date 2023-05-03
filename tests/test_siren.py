@@ -77,7 +77,7 @@ def test_setting_mute_state(remote_gateway: HomeControl, requests_mock: Mocker) 
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     siren = remote_gateway.devices[ELEMENT_ID]
     mute = siren.settings_property["muted"].value
-    siren.settings_property["muted"].set(False)
+    siren.settings_property["muted"].set(value=False)
     assert mute != siren.settings_property["muted"].value
 
 
