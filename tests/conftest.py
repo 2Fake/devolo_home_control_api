@@ -1,5 +1,5 @@
 """Configure tests."""
-from socket import inet_aton, socket
+from socket import inet_aton
 from typing import Generator
 from unittest.mock import patch
 
@@ -129,11 +129,3 @@ def mydevolo(requests_mock: Mocker) -> Mydevolo:
 def snapshot(snapshot: SnapshotAssertion) -> SnapshotAssertion:
     """Return snapshot assertion fixture with nicer path."""
     return snapshot.use_extension(DifferentDirectoryExtension)
-
-
-@pytest.fixture(name="socket")
-def mock_socket() -> Generator[socket, None, None]:
-    """Mock socket communication."""
-    with patch("socket.socket") as mocked_socket:
-        mocked_socket.return_value.connected = True
-        yield mocked_socket
