@@ -23,7 +23,7 @@ def test_getting_devices(local_gateway: HomeControl, snapshot: SnapshotAssertion
 
 
 def test_state_change(local_gateway: HomeControl, gateway_ip: str, requests_mock: Mocker) -> None:
-    """Test state change of a binary sensor."""
+    """Test state change of a wall switch."""
     response = FIXTURE["success"]
     requests_mock.post(f"http://{gateway_ip}/remote/json-rpc", json=response)
     subscriber = Subscriber(ELEMENT_ID)
@@ -39,8 +39,17 @@ def test_state_change(local_gateway: HomeControl, gateway_ip: str, requests_mock
     assert subscriber.update.call_count == 1
 
     button = wall_swtich.remote_control_property[f"devolo.RemoteControl:{ELEMENT_ID}"]
-    button.set(2)
+    assert button.set(2)
     assert button.key_pressed == 2
+
+
+def test_state_change_same_value(local_gateway: HomeControl, gateway_ip: str, requests_mock: Mocker) -> None:
+    """Test state change of a wall switch using the same value."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"http://{gateway_ip}/remote/json-rpc", json=response)
+    wall_swtich = local_gateway.devices[ELEMENT_ID]
+    button = wall_swtich.remote_control_property[f"devolo.RemoteControl:{ELEMENT_ID}"]
+    assert not button.set(2)
 
 
 def test_type_change(local_gateway: HomeControl) -> None:
