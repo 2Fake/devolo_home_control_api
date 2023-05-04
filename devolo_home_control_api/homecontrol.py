@@ -1,6 +1,6 @@
-"""devolo Home Control"""
+"""devolo Home Control."""
 import threading
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -43,6 +43,7 @@ class HomeControl(Mprm):
     """
 
     def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo, zeroconf_instance: Optional[Zeroconf] = None) -> None:
+        """Initialize communication with your Home Control setup."""
         retry = Retry(total=5, backoff_factor=0.1, allowed_methods=("GET", "POST"))
         adapter = HTTPAdapter(max_retries=retry)
 
@@ -115,7 +116,7 @@ class HomeControl(Mprm):
         """Get all remote control devices."""
         return [uid for uid in self.devices.values() if hasattr(uid, "remote_control_property")]
 
-    def device_change(self, device_uids: List[str]):
+    def device_change(self, device_uids: List[str]) -> Tuple[str, str]:
         """
         React on new devices or removed devices. As the Z-Wave controller can only be in inclusion or exclusion mode, we
         assume, that you cannot add and remove devices at the same time. So if the number of devices increases, there is
@@ -145,7 +146,7 @@ class HomeControl(Mprm):
         self.updater.update(message)
 
     def _binary_sensor(self, uid_info: Dict[str, Any]) -> None:
-        """Process BinarySensor properties"""
+        """Process BinarySensor properties."""
         device_uid = get_device_uid_from_element_uid(uid_info["UID"])
         if not hasattr(self.devices[device_uid], "binary_sensor_property"):
             self.devices[device_uid].binary_sensor_property = {}

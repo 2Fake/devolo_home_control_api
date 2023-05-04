@@ -1,5 +1,6 @@
-"""Multi Level Sensors"""
+"""Multi Level Sensors."""
 from datetime import datetime
+from typing import Any
 
 from devolo_home_control_api.exceptions.device import WrongElementError
 
@@ -18,7 +19,8 @@ class MultiLevelSensorProperty(SensorProperty):
     :type unit: int
     """
 
-    def __init__(self, element_uid: str, **kwargs) -> None:
+    def __init__(self, element_uid: str, **kwargs: Any) -> None:
+        """Initialize the multi level sensor."""
         if not element_uid.startswith(
             (
                 "devolo.DewpointSensor:",

@@ -1,4 +1,4 @@
-"""REST communication"""
+"""mPRM communication via REST."""
 import json
 import logging
 import sys
@@ -21,6 +21,7 @@ class MprmRest(ABC):
     """
 
     def __init__(self) -> None:
+        """Initialize REST communication."""
         logging.captureWarnings(capture=True)
 
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -58,7 +59,7 @@ class MprmRest(ABC):
 
     def get_data_from_uid_list(self, uids: List[str]) -> List[Dict[str, Any]]:
         """
-        Returns data from an element UID list using an RPC call.
+        Return data from an element UID list using an RPC call.
 
         :param uids: Element UIDs, something like [devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2,
                      devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#1]
@@ -69,10 +70,8 @@ class MprmRest(ABC):
         self._logger.debug("Response of 'get_data_from_uid_list':\n%s", response)
         return response["result"]["items"]
 
-    def refresh_session(self):
-        """
-        Refresh currently running session. Without this call from time to time especially websockets will terminate.
-        """
+    def refresh_session(self) -> None:
+        """Refresh currently running session. Without this call from time to time especially websockets will terminate."""
         self._logger.debug("Refreshing session.")
         data = {
             "method": "FIM/invokeOperation",

@@ -1,5 +1,6 @@
-"""Humidity Bars"""
+"""Humidity Bars."""
 from datetime import datetime
+from typing import Any
 
 from devolo_home_control_api.exceptions.device import WrongElementError
 
@@ -17,7 +18,8 @@ class HumidityBarProperty(SensorProperty):
     :type zone: int
     """
 
-    def __init__(self, element_uid: str, **kwargs) -> None:
+    def __init__(self, element_uid: str, **kwargs: Any) -> None:
+        """Initialize the humidity bar."""
         if not element_uid.startswith("devolo.HumidityBar:"):
             raise WrongElementError(f"{element_uid} is not a humidity bar.")
 
