@@ -1,0 +1,22 @@
+{
+    "id": 2,
+    "result": {
+        "items": [
+            {
+                "properties": {
+                    "deviceUIDs": [
+                        "hdm:ZWave:CBC56091/2",
+                        "hdm:ZWave:CBC56091/3",
+                        "hdm:ZWave:CBC56091/4",
+                        "hdm:ZWave:CBC56091/5",
+                        "hdm:ZWave:CBC56091/6",
+                        "hdm:ZWave:CBC56091/7",
+                        "hdm:ZWave:CBC56091/8",
+                        "hdm:ZWave:CBC56091/9"
+                    ]
+                }
+            }
+        ]
+    },
+    "jsonrpc": "2.0"
+}

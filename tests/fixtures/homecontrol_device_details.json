@@ -1,0 +1,758 @@
+{
+    "id": 4,
+    "result": {
+        "items": [
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "light-bulb",
+                        "name": "Light Bulb"
+                    }
+                }
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "lis.hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "pendingOperations": null,
+                    "operationStatus": null,
+                    "targetLed": true,
+                    "led": true,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "ps.hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "pendingOperations": null,
+                    "operationStatus": null,
+                    "remoteSwitch": true,
+                    "targetRemoteSwitch": true,
+                    "targetLocalSwitch": true,
+                    "itemId": null,
+                    "localSwitch": true
+                }
+            },
+            {
+                "UID": "mas.hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "targetValue": 3,
+                    "value": 3,
+                    "pendingOperations": null,
+                    "operationStatus": null,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.Meter:hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "pendingOperations": null,
+                    "sensorType": "energy",
+                    "guiEnabled": true,
+                    "sinceTime": 1496131864998,
+                    "currentValue": 10,
+                    "operationStatus": null,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/2",
+                    "totalValue": 28.38,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.BinarySwitch:hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "targetState": 0,
+                    "state": 0,
+                    "pendingOperations": null,
+                    "guiEnabled": true,
+                    "operationStatus": null,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/2",
+                    "itemId": null,
+                    "switchType": "normal"
+                }
+            },
+            {
+                "UID": "devolo.BinarySensor:hdm:ZWave:CBC56091/2#Alarm(0)",
+                "properties": {
+                    "state": 0,
+                    "sensorType": "alarm",
+                    "guiEnabled": true,
+                    "subType": "overload",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/2",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "value": 233.5,
+                    "unit": 0,
+                    "sensorType": "voltage",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/2",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.WarningBinaryFI:hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "state": 0,
+                    "sensorType": "warning",
+                    "guiEnabled": true,
+                    "subType": "overload",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/2",
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.label.BinarySensorFI",
+                    "com.devolo.fi.widget.WidgetElement",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_16",
+                        "name": "Window"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "trs.hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "pendingOperations": null,
+                    "tempReport": true,
+                    "operationStatus": null,
+                    "targetTempReport": true,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "vfs.hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "pendingOperations": null,
+                    "feedback": true,
+                    "targetFeedback": true,
+                    "operationStatus": null,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.BinarySensor:hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "state": 0,
+                    "sensorType": "door",
+                    "guiEnabled": true,
+                    "subType": "",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/3",
+                    "itemId": ""
+                }
+            },
+            {
+                "UID": "devolo.LastActivity:hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "lastActivityTime": 1682581124279,
+                    "guiEnabled": true,
+                    "type": 2,
+                    "subType": "",
+                    "widgetUID": "hdm:ZWave:CBC56091/3",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/3#MultilevelSensor(1)",
+                "properties": {
+                    "value": 20,
+                    "unit": 0,
+                    "sensorType": "temperature",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/3",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/3#MultilevelSensor(3)",
+                "properties": {
+                    "value": 61,
+                    "unit": 0,
+                    "sensorType": "light",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/3",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_2",
+                        "eventsEnabled": true,
+                        "icon": "icon_16",
+                        "name": "Shower"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "trs.hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "pendingOperations": null,
+                    "tempReport": true,
+                    "operationStatus": null,
+                    "targetTempReport": true,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "vfs.hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "pendingOperations": null,
+                    "feedback": true,
+                    "targetFeedback": true,
+                    "operationStatus": null,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.HumidityBarZone:hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "value": 0,
+                    "sensorType": "humidityBarZone",
+                    "guiEnabled": true,
+                    "subType": "",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/4",
+                    "itemId": ""
+                }
+            },
+            {
+                "UID": "devolo.HumidityBarValue:hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "value": 0,
+                    "sensorType": "humidityBarPos",
+                    "guiEnabled": true,
+                    "subType": "",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/4",
+                    "itemId": ""
+                }
+            },
+            {
+                "UID": "devolo.MildewSensor:hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "state": 1,
+                    "unit": 0,
+                    "sensorType": "",
+                    "subType": "",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/4",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/4#MultilevelSensor(1)",
+                "properties": {
+                    "value": 20,
+                    "unit": 0,
+                    "sensorType": "temperature",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/4",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/4#MultilevelSensor(3)",
+                "properties": {
+                    "value": 61,
+                    "unit": 0,
+                    "sensorType": "light",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/4",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/5",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_27",
+                        "name": "Thermostat"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/5",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "ss.hdm:ZWave:CBC56091/5:0",
+                "properties": {
+                    "keyNum": 1,
+                    "scene": null,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/5",
+                "properties": {
+                    "value": 21.3,
+                    "unit": 0,
+                    "sensorType": "temperature",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/5",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSwitch:hdm:ZWave:CBC56091/5#ThermostatSetpoint(1)",
+                "properties": {
+                    "targetValue": 21,
+                    "value": 21,
+                    "min": 4,
+                    "pendingOperations": null,
+                    "max": 28,
+                    "guiEnabled": true,
+                    "operationStatus": null,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/5",
+                    "switchType": "temperature",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.RemoteControl:hdm:ZWave:CBC56091/5",
+                "properties": {
+                    "keyCount": 1,
+                    "keyPressed": 0,
+                    "guiEnabled": true,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/5",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_34",
+                        "name": "Siren"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "bas.hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "targetValue": true,
+                    "value": true,
+                    "pendingOperations": null,
+                    "operationStatus": null,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "mss.hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "value": 7,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "targetValue": 0,
+                    "value": 0,
+                    "min": 0,
+                    "pendingOperations": null,
+                    "max": 9,
+                    "guiEnabled": true,
+                    "operationStatus": null,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/6",
+                    "itemId": null,
+                    "switchType": "tone"
+                }
+            },
+            {
+                "UID": "devolo.SirenBinarySensor:hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "state": 1,
+                    "sensorType": "volume",
+                    "guiEnabled": true,
+                    "subType": "",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/6",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.SirenMultiLevelSensor:hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "value": 7,
+                    "unit": 0,
+                    "sensorType": "tone",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/6",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.LastActivity:hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "lastActivityTime": 1682664236957,
+                    "guiEnabled": true,
+                    "type": 2,
+                    "subType": "",
+                    "widgetUID": "hdm:ZWave:CBC56091/6",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/7",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_47",
+                        "name": "Wall Switch"
+                    },
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.GeneralDeviceSettings",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/7",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.ConfigurationParameterSetting",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "ss.hdm:ZWave:CBC56091/7:0",
+                "properties": {
+                    "keyNum": 1,
+                    "scene": null,
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.SceneSetting",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "ss.hdm:ZWave:CBC56091/7:1",
+                "properties": {
+                    "keyNum": 2,
+                    "scene": {
+                        "controlData": "0",
+                        "widgetElementUID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/7",
+                        "operName": ""
+                    },
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.SceneSetting",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "ss.hdm:ZWave:CBC56091/7:2",
+                "properties": {
+                    "keyNum": 3,
+                    "scene": null,
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.SceneSetting",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "ss.hdm:ZWave:CBC56091/7:3",
+                "properties": {
+                    "keyNum": 4,
+                    "scene": {
+                        "controlData": "0",
+                        "widgetElementUID": "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/7",
+                        "operName": ""
+                    },
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.SceneSetting",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "sts.hdm:ZWave:CBC56091/7",
+                "properties": {
+                    "switchType": 2,
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.setting.SwitchTypeSetting",
+                    "com.devolo.fi.setting.DeviceSetting",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "devolo.RemoteControl:hdm:ZWave:CBC56091/7",
+                "properties": {
+                    "keyCount": 4,
+                    "keyPressed": 0,
+                    "guiEnabled": true,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/7",
+                    "itemId": null
+                },
+                "attributes": {},
+                "objectClass": [
+                    "com.devolo.fi.control.RemoteControlFI",
+                    "com.devolo.fi.widget.WidgetElement",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "tags": []
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_16",
+                        "name": "Motion"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "cps.hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "value": -1,
+                    "paramChanged": false,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "mss.hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "value": 7,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "trs.hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "pendingOperations": null,
+                    "tempReport": true,
+                    "operationStatus": null,
+                    "targetTempReport": true,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "vfs.hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "pendingOperations": null,
+                    "feedback": true,
+                    "targetFeedback": true,
+                    "operationStatus": null,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.BinarySensor:hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "state": 0,
+                    "sensorType": "door",
+                    "guiEnabled": true,
+                    "subType": "",
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/8",
+                    "itemId": ""
+                }
+            },
+            {
+                "UID": "devolo.LastActivity:hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "lastActivityTime": 1682581124279,
+                    "guiEnabled": true,
+                    "type": 2,
+                    "subType": "",
+                    "widgetUID": "hdm:ZWave:CBC56091/8",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/8#MultilevelSensor(1)",
+                "properties": {
+                    "value": 20,
+                    "unit": 0,
+                    "sensorType": "temperature",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/8",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/8#MultilevelSensor(3)",
+                "properties": {
+                    "value": 61,
+                    "unit": 0,
+                    "sensorType": "light",
+                    "guiEnabled": true,
+                    "type": 2,
+                    "widgetUID": "hdm:ZWave:CBC56091/8",
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "acs.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "calibrationStatus": 1,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "bas.hdm:ZWave:CBC56091/9#i2",
+                "properties": {
+                    "value": true,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "bss.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "value": 0,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "gds.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "settings": {
+                        "zoneID": "hz_1",
+                        "eventsEnabled": true,
+                        "icon": "icon_16",
+                        "name": "Shutter"
+                    },
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "mss.hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "value": 20,
+                    "itemId": null
+                }
+            },
+            {
+                "UID": "devolo.Blinds:hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "targetValue": 21,
+                    "value": 21,
+                    "min": 0,
+                    "pendingOperations": null,
+                    "max": 100,
+                    "guiEnabled": true,
+                    "operationStatus": null,
+                    "type": 1,
+                    "widgetUID": "hdm:ZWave:CBC56091/9",
+                    "switchType": "",
+                    "itemId": null
+                }
+            }
+        ]
+    },
+    "jsonrpc": "2.0"
+}

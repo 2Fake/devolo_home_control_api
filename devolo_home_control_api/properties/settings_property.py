@@ -1,5 +1,5 @@
 """Settings"""
-from typing import Any, Callable
+from typing import Any, Callable, Dict
 
 from devolo_home_control_api.exceptions.device import WrongElementError
 
@@ -21,6 +21,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
     direction: bool
     events_enabled: bool
     icon: str
+    inverted: int
     led_setting: bool
     local_switching: bool
     motion_sensitivity: int
@@ -47,7 +48,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        setter_method = {
+        setter_method: Dict[str, Callable[..., None]] = {
             "bas": self._set_bas,
             "gds": self._set_gds,
             "lis": self._set_lis,
@@ -59,7 +60,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
 
         # Depending on the type of setting property, this will create a callable named "set".
         # However, this methods are not working, if the gateway is connected locally, yet.
-        self.set = setter_method.get(element_uid.split(".")[0])
+        self.set = setter_method.get(element_uid.split(".")[0], lambda: None)
 
         # Clean up attributes which are unwanted.
         clean_up_list = ["device_uid"]

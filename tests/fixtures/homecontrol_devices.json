@@ -1,0 +1,315 @@
+{
+    "id": 3,
+    "result": {
+        "items": [
+            {
+                "UID": "hdm:ZWave:CBC56091/2",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLow": false,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Office",
+                    "prodTypeID": "0x0001",
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/2",
+                    "secureInclusionCode": 0,
+                    "prodID": "0x0011",
+                    "status": 2,
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/2",
+                        "cps.hdm:ZWave:CBC56091/2",
+                        "lis.hdm:ZWave:CBC56091/2",
+                        "ps.hdm:ZWave:CBC56091/2",
+                        "mas.hdm:ZWave:CBC56091/2"
+                    ],
+                    "manID": "0x0175",
+                    "batteryLevel": -1,
+                    "icon": "light-bulb",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "deviceModelUID": "devolo.model.Wall:Plug:Switch:and:Meter",
+                    "itemName": "Light Bulb",
+                    "elementUIDs": [
+                        "devolo.Meter:hdm:ZWave:CBC56091/2",
+                        "devolo.BinarySwitch:hdm:ZWave:CBC56091/2",
+                        "devolo.BinarySensor:hdm:ZWave:CBC56091/2#Alarm(0)",
+                        "devolo.VoltageMultiLevelSensor:hdm:ZWave:CBC56091/2",
+                        "devolo.WarningBinaryFI:hdm:ZWave:CBC56091/2"
+                    ]
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/3",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLow": false,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Office",
+                    "prodTypeID": "0x0002",
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/3",
+                    "secureInclusionCode": 0,
+                    "prodID": "0x000e",
+                    "status": 2,
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/3",
+                        "cps.hdm:ZWave:CBC56091/3",
+                        "trs.hdm:ZWave:CBC56091/3",
+                        "vfs.hdm:ZWave:CBC56091/3"
+                    ],
+                    "manID": "0x0175",
+                    "batteryLevel": 100,
+                    "icon": "icon_16",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "deviceModelUID": "devolo.model.Door/Window:Sensor",
+                    "itemName": "Window",
+                    "elementUIDs": [
+                        "devolo.BinarySensor:hdm:ZWave:CBC56091/3",
+                        "devolo.LastActivity:hdm:ZWave:CBC56091/3",
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/3#MultilevelSensor(1)",
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/3#MultilevelSensor(3)"
+                    ]
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/4",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLow": false,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Office",
+                    "prodTypeID": "0x0002",
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/4",
+                    "secureInclusionCode": 0,
+                    "prodID": "0x000e",
+                    "status": 2,
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/3",
+                        "cps.hdm:ZWave:CBC56091/3",
+                        "trs.hdm:ZWave:CBC56091/3",
+                        "vfs.hdm:ZWave:CBC56091/3"
+                    ],
+                    "manID": "0x0175",
+                    "batteryLevel": 100,
+                    "icon": "icon_16",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "deviceModelUID": "devolo.model.Door/Window:Sensor",
+                    "itemName": "Window",
+                    "elementUIDs": [
+                        "devolo.HumidityBarZone:hdm:ZWave:CBC56091/4",
+                        "devolo.HumidityBarValue:hdm:ZWave:CBC56091/4",
+                        "devolo.MildewSensor:hdm:ZWave:CBC56091/4",
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/4#MultilevelSensor(1)",
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/4#MultilevelSensor(3)"
+                    ]
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/5",
+                "objectClass": [
+                    "com.devolo.fi.widget.DeviceWidget",
+                    "com.devolo.fi.widget.BaseWidget",
+                    "com.devolo.fi.widget.Widget",
+                    "com.devolo.fi.async.base.AsyncFunctionalItem",
+                    "com.prosyst.mbs.services.fim.FunctionalItem"
+                ],
+                "attributes": {},
+                "properties": {
+                    "isOwn": true,
+                    "operationStatus": null,
+                    "wrongDevicePaired": false,
+                    "assistantsEnabled": 1,
+                    "deviceModelUID": "devolo.model.Room:Thermostat",
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/5",
+                        "cps.hdm:ZWave:CBC56091/5",
+                        "ss.hdm:ZWave:CBC56091/5:0"
+                    ],
+                    "isSecurelyIncluded": false,
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/5",
+                    "icon": "icon_27",
+                    "description": null,
+                    "prodID": "0x8010",
+                    "prodTypeID": "0x0003",
+                    "secureInclusionCode": 0,
+                    "itemName": "Thermostat",
+                    "pendingOperations": null,
+                    "zone": "Office",
+                    "elementUIDs": [
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/5",
+                        "devolo.MultiLevelSwitch:hdm:ZWave:CBC56091/5#ThermostatSetpoint(1)",
+                        "devolo.RemoteControl:hdm:ZWave:CBC56091/5"
+                    ],
+                    "manID": "0x0002",
+                    "zoneId": "hz_1",
+                    "batteryLow": false,
+                    "status": 2,
+                    "batteryLevel": 84
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/6",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLow": false,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Office",
+                    "prodTypeID": "0x0004",
+                    "statisticsUID": null,
+                    "secureInclusionCode": 0,
+                    "prodID": "0x000a",
+                    "status": 2,
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/6",
+                        "cps.hdm:ZWave:CBC56091/6",
+                        "bas.hdm:ZWave:CBC56091/6",
+                        "mss.hdm:ZWave:CBC56091/6"
+                    ],
+                    "manID": "0x0175",
+                    "batteryLevel": -1,
+                    "icon": "icon_34",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "deviceModelUID": "devolo.model.Siren",
+                    "itemName": "Siren",
+                    "elementUIDs": [
+                        "devolo.SirenMultiLevelSwitch:hdm:ZWave:CBC56091/6",
+                        "devolo.SirenBinarySensor:hdm:ZWave:CBC56091/6",
+                        "devolo.SirenMultiLevelSensor:hdm:ZWave:CBC56091/6",
+                        "devolo.LastActivity:hdm:ZWave:CBC56091/6"
+                    ]
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/7",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLow": false,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Office",
+                    "prodTypeID": "0x0100",
+                    "statisticsUID": null,
+                    "secureInclusionCode": 0,
+                    "prodID": "0x0101",
+                    "status": 1,
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/7",
+                        "cps.hdm:ZWave:CBC56091/7",
+                        "ss.hdm:ZWave:CBC56091/7:0",
+                        "ss.hdm:ZWave:CBC56091/7:1",
+                        "ss.hdm:ZWave:CBC56091/7:2",
+                        "ss.hdm:ZWave:CBC56091/7:3",
+                        "sts.hdm:ZWave:CBC56091/7"
+                    ],
+                    "manID": "0x0175",
+                    "batteryLevel": 60,
+                    "icon": "icon_47",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "deviceModelUID": "devolo.model.Wall:Control",
+                    "itemName": "Wall Switch",
+                    "elementUIDs": [
+                        "devolo.RemoteControl:hdm:ZWave:CBC56091/7"
+                    ]
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/8",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLow": false,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Office",
+                    "prodTypeID": "0x0002",
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/8",
+                    "secureInclusionCode": 0,
+                    "prodID": "0x000e",
+                    "status": 2,
+                    "settingUIDs": [
+                        "gds.hdm:ZWave:CBC56091/8",
+                        "cps.hdm:ZWave:CBC56091/8",
+                        "mss.hdm:ZWave:CBC56091/8",
+                        "trs.hdm:ZWave:CBC56091/8",
+                        "vfs.hdm:ZWave:CBC56091/8"
+                    ],
+                    "manID": "0x0175",
+                    "batteryLevel": 100,
+                    "icon": "icon_16",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "deviceModelUID": "devolo.model.Motion:Sensor",
+                    "itemName": "Motion",
+                    "elementUIDs": [
+                        "devolo.BinarySensor:hdm:ZWave:CBC56091/8",
+                        "devolo.LastActivity:hdm:ZWave:CBC56091/8",
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/8#MultilevelSensor(1)",
+                        "devolo.MultiLevelSensor:hdm:ZWave:CBC56091/8#MultilevelSensor(3)"
+                    ]
+                }
+            },
+            {
+                "UID": "hdm:ZWave:CBC56091/9",
+                "properties": {
+                    "pendingOperations": null,
+                    "batteryLevel": -1,
+                    "batteryLow": null,
+                    "zoneId": "hz_1",
+                    "isSecurelyIncluded": false,
+                    "assistantsEnabled": 1,
+                    "zone": "Shutter",
+                    "prodTypeID": "0x0002",
+                    "statisticsUID": "st.hdm:ZWave:CBC56091/9",
+                    "secureInclusionCode": 0,
+                    "prodID": "0x000e",
+                    "status": 2,
+                    "settingUIDs": [
+                        "acs.hdm:ZWave:CBC56091/9",
+                        "bas.hdm:ZWave:CBC56091/9#i2",
+                        "bss.hdm:ZWave:CBC56091/9",
+                        "gds.hdm:ZWave:CBC56091/9",
+                        "mss.hdm:ZWave:CBC56091/9"
+                    ],
+                    "manID": "0x0175",
+                    "icon": "icon_16",
+                    "operationStatus": null,
+                    "description": null,
+                    "isOwn": true,
+                    "wrongDevicePaired": false,
+                    "calibrationStatus": 1,
+                    "i2": true,
+                    "inverted": false,
+                    "deviceModelUID": "devolo.model.Shutter",
+                    "itemName": "Motion",
+                    "elementUIDs": [
+                        "devolo.Blinds:hdm:ZWave:CBC56091/9"
+                    ]
+                }
+            }
+        ]
+    },
+    "jsonrpc": "2.0"
+}

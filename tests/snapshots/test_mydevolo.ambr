@@ -1,0 +1,76 @@
+# serializer version: 1
+# name: test_get_full_url
+  'https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000001_1:24b1516b93adebf7&X-MPRM-LB=1410000000001_1'
+# ---
+# name: test_get_gateway
+  dict({
+    'externalAccess': True,
+    'firmwareVersion': '8.0.45_2016-11-17',
+    'gatewayId': '1409301750000598',
+    'hcuPartner': 'string',
+    'href': 'https://mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/1409301750000598',
+    'invitations': dict({
+      'href': 'string',
+    }),
+    'localPasskey': '6b96ad097aa389209f1ceeaed6fe7029',
+    'location': 'https://www.mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/1409301750000598/location',
+    'name': 'DVT Lab 1409301750000598',
+    'partner': 'string',
+    'role': 'user',
+    'sceneActionJournal': dict({
+      'href': 'string',
+    }),
+    'sceneActions': dict({
+      'href': 'string',
+    }),
+    'scenes': dict({
+      'href': 'string',
+    }),
+    'state': 'devolo.hc_gateway.state.idle',
+    'status': 'devolo.hc_gateway.status.online',
+    'type': 'M',
+    'users': dict({
+      'href': 'string',
+    }),
+  })
+# ---
+# name: test_get_gateway_ids
+  list([
+    '1409301750000598',
+  ])
+# ---
+# name: test_get_uuid
+  '535512AB-165D-11E7-A4E2-000C29D76CCA'
+# ---
+# name: test_get_zwave_products
+  dict({
+    'brand': 'Everspring',
+    'deviceType': 'Door Lock Keypad',
+    'genericDeviceClass': 'Entry Control',
+    'href': 'https://mydevolo.com/v1/zwave/products/0x0060/0x0001/0x0002',
+    'identifier': 'SP814-US',
+    'isZWavePlus': True,
+    'manufacturerId': '0x0060',
+    'name': 'Everspring PIR Sensor SP814',
+    'productId': '0x0002',
+    'productTypeId': '0x0001',
+    'specificDeviceClass': 'Secure Keypad Door Lock',
+    'zwaveVersion': '6.51.07',
+  })
+# ---
+# name: test_get_zwave_products.1
+  dict({
+    'brand': 'Unknown',
+    'deviceType': 'Unknown',
+    'genericDeviceClass': 'Unknown',
+    'href': 'https://www.mydevolo.com/v1/zwave/products/0x1060/0x0001/0x0002',
+    'identifier': 'Unknown',
+    'isZWavePlus': False,
+    'manufacturerId': '0x1060',
+    'name': 'Unknown',
+    'productId': '0x0002',
+    'productTypeId': '0x0001',
+    'specificDeviceClass': 'Unknown',
+    'zwaveVersion': 'Unknown',
+  })
+# ---

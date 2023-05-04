@@ -1,0 +1,84 @@
+# serializer version: 1
+# name: test_getting_devices
+  list([
+    Zwave(
+      assistants_enabled=1,
+      brand='Everspring',
+      calibration_status=1,
+      description=None,
+      device_model_uid='devolo.model.Shutter',
+      device_type='Door Lock Keypad',
+      element_uids=list([
+        'devolo.Blinds:hdm:ZWave:CBC56091/9',
+      ]),
+      generic_device_class='Entry Control',
+      href='https://mydevolo.com/v1/zwave/products/0x0060/0x0001/0x0002',
+      i2=True,
+      identifier='SP814-US',
+      inverted=False,
+      is_own=True,
+      is_securely_included=False,
+      is_zwave_plus=True,
+      manufacturer_id='0x0060',
+      multi_level_switch_property=dict({
+        'devolo.Blinds:hdm:ZWave:CBC56091/9': MultiLevelSwitchProperty(
+          device_uid='hdm:ZWave:CBC56091/9',
+          element_uid='devolo.Blinds:hdm:ZWave:CBC56091/9',
+          last_activity=datetime.datetime(1970, 1, 1, 0, 0),
+          max=100,
+          min=0,
+          switch_type='',
+          unit='%',
+          value=21,
+        ),
+      }),
+      name='Everspring PIR Sensor SP814',
+      pending_operations=False,
+      product_id='0x0002',
+      product_type_id='0x0001',
+      secure_inclusion_code=0,
+      setting_uids=list([
+        'acs.hdm:ZWave:CBC56091/9',
+        'bas.hdm:ZWave:CBC56091/9#i2',
+        'bss.hdm:ZWave:CBC56091/9',
+        'gds.hdm:ZWave:CBC56091/9',
+        'mss.hdm:ZWave:CBC56091/9',
+      ]),
+      settings_property=dict({
+        'automatic_calibration': SettingsProperty(
+          calibration_status=True,
+          element_uid='acs.hdm:ZWave:CBC56091/9',
+          last_activity=datetime.datetime(1970, 1, 1, 0, 0),
+        ),
+        'general_device_settings': SettingsProperty(
+          element_uid='gds.hdm:ZWave:CBC56091/9',
+          events_enabled=True,
+          icon='icon_16',
+          last_activity=datetime.datetime(1970, 1, 1, 0, 0),
+          name='Shutter',
+          zone='Office',
+          zone_id='hz_1',
+        ),
+        'i2': SettingsProperty(
+          element_uid='bas.hdm:ZWave:CBC56091/9#i2',
+          last_activity=datetime.datetime(1970, 1, 1, 0, 0),
+          value=True,
+        ),
+        'movement_direction': SettingsProperty(
+          element_uid='bss.hdm:ZWave:CBC56091/9',
+          inverted=0,
+          last_activity=datetime.datetime(1970, 1, 1, 0, 0),
+        ),
+        'shutter_duration': SettingsProperty(
+          element_uid='mss.hdm:ZWave:CBC56091/9',
+          last_activity=datetime.datetime(1970, 1, 1, 0, 0),
+          shutter_duration=20,
+        ),
+      }),
+      specific_device_class='Secure Keypad Door Lock',
+      status=2,
+      uid='hdm:ZWave:CBC56091/9',
+      zwave_version='6.51.07',
+    ),
+  ])
+# ---

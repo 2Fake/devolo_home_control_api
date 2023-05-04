@@ -1,15 +1,15 @@
-import json
-import pathlib
+"""Mock methods from the zeroconf package."""
+from typing import Any, Callable, List
+from unittest.mock import Mock
 
-from zeroconf import ServiceInfo
-
-file = pathlib.Path(__file__).parent / ".." / "test_data.json"
-with file.open("r") as fh:
-    test_data = json.load(fh)
+from zeroconf import ServiceStateChange, Zeroconf
 
 
-class Zeroconf:
-    def get_service_info(self, service_type, name):
-        service_info = ServiceInfo(service_type, name)
-        service_info.server = "devolo-homecontrol.local"
-        return service_info
+class MockServiceBrowser:
+    """Mock of the ServiceBrowser."""
+
+    cancel = Mock()
+
+    def __init__(self, zeroconf: Zeroconf, type_: str, handlers: List[Callable], **__: Any) -> None:
+        """Initialize the service browser."""
+        handlers[0](zeroconf, type_, type_, ServiceStateChange.Added)

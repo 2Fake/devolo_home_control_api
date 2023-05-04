@@ -1,0 +1,14 @@
+{
+    "href": "https://mydevolo.com/v1/zwave/products/0x0060/0x0001/0x0002",
+    "manufacturerId": "0x0060",
+    "productTypeId": "0x0001",
+    "productId": "0x0002",
+    "name": "Everspring PIR Sensor SP814",
+    "brand": "Everspring",
+    "identifier": "SP814-US",
+    "isZWavePlus": true,
+    "deviceType": "Door Lock Keypad",
+    "zwaveVersion": "6.51.07",
+    "specificDeviceClass": "Secure Keypad Door Lock",
+    "genericDeviceClass": "Entry Control"
+}

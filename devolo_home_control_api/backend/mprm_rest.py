@@ -69,17 +69,6 @@ class MprmRest(ABC):
         self._logger.debug("Response of 'get_data_from_uid_list':\n%s", response)
         return response["result"]["items"]
 
-    def get_name_and_element_uids(self, uid: str) -> Dict[str, Any]:
-        """
-        Returns the name, all element UIDs and the device model of the given device UID.
-
-        :param uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
-        """
-        data = {"method": "FIM/getFunctionalItems", "params": [[uid], 0]}
-        response = self._post(data)
-        self._logger.debug("Response of 'get_name_and_element_uids':\n%s", response)
-        return response["result"]["items"][0]["properties"]
-
     def refresh_session(self):
         """
         Refresh currently running session. Without this call from time to time especially websockets will terminate.

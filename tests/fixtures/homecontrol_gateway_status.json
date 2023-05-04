@@ -1,0 +1,14 @@
+{
+    "properties": {
+        "property.name": "gatewayAccessible",
+        "data": 1,
+        "property.value.new": {
+            "accessible": 1,
+            "onlineSync": 1
+        },
+        "uid": "devolo.mprm.gw.GatewayAccessibilityFI",
+        "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+        "timestamp": 1682530133755
+    },
+    "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+}

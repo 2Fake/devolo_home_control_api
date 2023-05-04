@@ -1,450 +1,190 @@
-from datetime import datetime
+"""Test the Home Control setup."""
+import json
+import sys
+from http import HTTPStatus
+from unittest.mock import patch
 
 import pytest
+import requests
+from requests_mock import Mocker
+from syrupy.assertion import SnapshotAssertion
 
-from devolo_home_control_api.backend import MESSAGE_TYPES
+from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.homecontrol import HomeControl
+from devolo_home_control_api.mydevolo import Mydevolo
+
+from . import GATEWAY_FULLURL, MAINTENANCE_URL, Subscriber, load_fixture
+from .mocks import WEBSOCKET
 
 
-@pytest.mark.usefixtures("mock_inspect_devices_metering_plug")
-@pytest.mark.usefixtures("home_control_instance")
-@pytest.mark.usefixtures("mock_mydevolo__call")
-class TestHomeControl:
-    def test_hasattr(self):
-        homecontrol_functions = (
-            func for func in dir(self.homecontrol) if callable(getattr(self.homecontrol, func)) and not func.startswith("__")
-        )
-        assert set(MESSAGE_TYPES.values()).difference(homecontrol_functions) == {"_gateway_accessible", "_device_state"}
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
+@pytest.mark.freeze_time("2023-04-28T08:00:00")
+def test_setup_local(local_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
+    """Test setting up locally."""
+    assert local_gateway.gateway.local_connection
+    assert local_gateway.devices == snapshot
 
-    def test_binary_sensor_devices(self):
-        assert hasattr(self.homecontrol.binary_sensor_devices[0], "binary_sensor_property")
 
-    def test_binary_switch_devices(self):
-        assert hasattr(self.homecontrol.binary_switch_devices[0], "binary_switch_property")
+@pytest.mark.usefixtures("maintenance_mode")
+def test_setup_local_while_in_maintenance(local_gateway: HomeControl) -> None:
+    """Test setting up locally while mydevolo is in maintenance mode."""
+    assert local_gateway.gateway.local_connection
 
-    def test_blinds_devices(self):
-        assert hasattr(self.homecontrol.blinds_devices[0], "multi_level_switch_property")
 
-    def test_multi_level_sensor_devices(self):
-        assert hasattr(self.homecontrol.multi_level_sensor_devices[0], "multi_level_sensor_property")
+@pytest.mark.usefixtures("disable_external_access")
+def test_setup_local_without_external_access(local_gateway: HomeControl) -> None:
+    """Test setting up locally while external access is prohibited."""
+    assert local_gateway.gateway.local_connection
 
-    def test_multi_level_switch_devices(self):
-        assert hasattr(self.homecontrol.multi_level_switch_devices[0], "multi_level_switch_property")
 
-    def test_remote_control_devices(self):
-        assert hasattr(self.homecontrol.remote_control_devices[0], "remote_control_property")
+@pytest.mark.usefixtures("local_gateway")
+def test_setup_local_gateway_offline(mydevolo: Mydevolo, gateway_id: str, gateway_ip: str, requests_mock: Mocker) -> None:
+    """Test setup failure when gateway is offline."""
+    requests_mock.get(f"http://{gateway_ip}/dhlp/portal/full", exc=requests.exceptions.ConnectionError)
+    with pytest.raises(GatewayOfflineError):
+        HomeControl(gateway_id, mydevolo)
 
-    def test_get_publisher(self):
-        assert len(self.homecontrol.publisher._events) == 10
+    requests_mock.get(f"http://{gateway_ip}/dhlp/portal/full", status_code=HTTPStatus.SERVICE_UNAVAILABLE)
+    with pytest.raises(GatewayOfflineError):
+        HomeControl(gateway_id, mydevolo)
 
-    def test__automatic_calibration(self):
-        device = self.devices["blinds"]
-        uid = device["uid"]
-        self.homecontrol._automatic_calibration(
-            {"UID": f"acs.{uid}", "properties": {"calibrationStatus": device["calibrationStatus"]}}
-        )
-        assert self.homecontrol.devices.get(uid).settings_property["automatic_calibration"].calibration_status == bool(
-            device["calibrationStatus"]
-        )
 
-    def test___binary_sync(self):
-        device = self.devices["blinds"]
-        uid = device["uid"]
-        self.homecontrol._binary_sync({"UID": f"acs.{uid}", "properties": {"value": device["inverted"]}})
-        assert self.homecontrol.devices.get(uid).settings_property["movement_direction"].inverted is device["inverted"]
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
+@pytest.mark.freeze_time("2023-04-28T08:00:00")
+def test_setup_remote(remote_gateway: HomeControl, snapshot: SnapshotAssertion) -> None:
+    """Test setting up remotely."""
+    assert not remote_gateway.gateway.local_connection
+    assert remote_gateway.devices == snapshot
 
-    def test__binary_async_blinds(self):
-        device = self.devices.get("blinds").get("uid")
-        i2 = self.devices.get("blinds").get("i2")
-        self.homecontrol._binary_async({"UID": f"bas.{device}#i2", "properties": {"value": not i2}})
-        assert self.homecontrol.devices.get(device).settings_property.get("i2").value is not i2
 
-    def test__binary_async_siren(self):
-        device = self.devices.get("siren").get("uid")
-        muted = self.devices.get("siren").get("muted")
-        self.homecontrol._binary_async({"UID": f"bas.{device}", "properties": {"value": not muted}})
-        assert self.homecontrol.devices.get(device).settings_property.get("muted").value is not muted
+@pytest.mark.usefixtures("remote_gateway")
+def test_setup_remote_gateway_offline(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker) -> None:
+    """Test setup failure when gateway is offline."""
+    requests_mock.get(GATEWAY_FULLURL, status_code=HTTPStatus.SERVICE_UNAVAILABLE)
+    with pytest.raises(GatewayOfflineError):
+        HomeControl(gateway_id, mydevolo)
 
-    def test__binary_sensor(self):
-        device = self.devices.get("sensor").get("uid")
-        del self.homecontrol.devices[device].binary_sensor_property
-        assert not hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
-        self.homecontrol._binary_sensor(
-            {
-                "UID": self.devices.get("sensor").get("elementUIDs")[0],
-                "properties": {
-                    "state": self.devices.get("sensor").get("state"),
-                    "sensorType": self.devices.get("sensor").get("sensor_type"),
-                    "subType": "",
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device), "binary_sensor_property")
 
-    def test__binary_switch(self):
-        device = self.devices["mains"]["uid"]
-        del self.homecontrol.devices[device].binary_switch_property
-        assert not hasattr(self.homecontrol.devices[device], "binary_switch_property")
-        self.homecontrol._binary_switch(
-            {
-                "UID": self.devices["mains"]["properties"]["elementUIDs"][1],
-                "properties": self.devices["mains"]["properties"],
-            }
-        )
-        assert hasattr(self.homecontrol.devices[device], "binary_switch_property")
+@pytest.mark.usefixtures("remote_gateway")
+def test_setup_remote_maintenance(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker) -> None:
+    """Test failing setup remotely while mydevolo is in maintenance mode."""
+    requests_mock.get(MAINTENANCE_URL, json={"state": "off"})
+    with pytest.raises(ConnectionError):
+        HomeControl(gateway_id, mydevolo)
 
-    def test__consumption(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        del self.homecontrol.devices[device].consumption_property
-        assert not hasattr(self.homecontrol.devices.get(device), "consumption_property")
-        self.homecontrol._meter(
-            {
-                "UID": "devolo.Meter:hdm:ZWave:F6BF9812/2",
-                "properties": {
-                    "currentValue": self.devices.get("mains").get("current_consumption"),
-                    "totalValue": self.devices.get("mains").get("total_consumption"),
-                    "sinceTime": self.devices.get("mains").get("properties").get("total_consumption"),
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device), "consumption_property")
 
-    def test__general_device(self):
-        device = self.devices["mains"]
-        element_uid = f"gds.{device['uid']}"
-        self.homecontrol.devices[device["uid"]].settings_property["general_device_settings"].events_enabled = not device[
-            "properties"
-        ]["eventsEnabled"]
-        self.homecontrol._general_device(
-            {
-                "UID": element_uid,
-                "properties": {
-                    "settings": {
-                        "eventsEnabled": device["properties"]["eventsEnabled"],
-                        "name": device["properties"]["itemName"],
-                        "zoneID": device["properties"]["zoneId"],
-                        "icon": device["properties"]["icon"],
-                    }
-                },
-            }
-        )
-        assert (
-            self.homecontrol.devices[device["uid"]].settings_property["general_device_settings"].events_enabled
-            == device["properties"]["eventsEnabled"]
-        )
+@pytest.mark.usefixtures("remote_gateway", "disable_external_access")
+def test_setup_remote_external_access(mydevolo: Mydevolo, gateway_id: str) -> None:
+    """Test failing setup remotely while external access is prohibited."""
+    with pytest.raises(ConnectionError):
+        HomeControl(gateway_id, mydevolo)
 
-    def test__humidity_bar(self):
-        # TODO: Use test data
-        device = self.devices.get("humidity").get("uid")
-        del self.homecontrol.devices[device].humidity_bar_property
-        assert not hasattr(self.homecontrol.devices.get(device), "humidity_bar_property")
-        self.homecontrol._humidity_bar(
-            {
-                "UID": f"devolo.HumidityBarValue:{device}",
-                "properties": {
-                    "sensorType": "humidityBarPos",
-                    "value": 75,
-                },
-            }
-        )
-        self.homecontrol._humidity_bar(
-            {
-                "UID": f"devolo.HumidityBarZone:{device}",
-                "properties": {
-                    "sensorType": "humidityBarZone",
-                    "value": 1,
-                },
-            }
-        )
-        assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").value == 75
-        assert self.homecontrol.devices.get(device).humidity_bar_property.get(f"devolo.HumidityBar:{device}").zone == 1
 
-    def test__last_activity_binary_sensor(self):
-        device = self.devices["sensor"]["uid"]
-        element_uids = self.devices["sensor"]["elementUIDs"]
-        self.homecontrol._binary_sensor(
-            {
-                "UID": element_uids[0],
-                "properties": {
-                    "state": self.devices["sensor"]["state"],
-                    "sensorType": self.devices["sensor"]["sensor_type"],
-                    "subType": "",
-                },
-            }
-        )
-        self.homecontrol._last_activity(
-            {
-                "UID": element_uids[1],
-                "properties": {
-                    "lastActivityTime": self.devices["sensor"]["last_activity"],
-                },
-            }
-        )
-        assert self.homecontrol.devices[device].binary_sensor_property.get(
-            element_uids[0]
-        ).last_activity == datetime.utcfromtimestamp(self.devices["sensor"]["last_activity"] / 1000)
+def test_context_manager(mydevolo: Mydevolo, gateway_id: str, gateway_ip: str, requests_mock: Mocker) -> None:
+    """Test setting up using a conext manager."""
+    connection = load_fixture("homecontrol_local_session")
+    connection["link"] = f"http://{gateway_ip}/dhlp/portal/full/?token=54e8c82fc921ee7e&"
+    requests_mock.get(f"http://{gateway_ip}/dhlp/port/full")
+    requests_mock.get(f"http://{gateway_ip}/dhlp/portal/full", json=connection)
+    requests_mock.get(connection["link"])
+    requests_mock.post(
+        f"http://{gateway_ip}/remote/json-rpc",
+        [
+            {"json": load_fixture("homecontrol_zones")},
+            {"json": load_fixture("homecontrol_device_page")},
+            {"json": load_fixture("homecontrol_devices")},
+            {"json": load_fixture("homecontrol_device_details")},
+        ],
+    )
+    with HomeControl(gateway_id, mydevolo) as homecontrol:
+        assert homecontrol
 
-    def test__last_activity_siren(self):
-        device = self.devices["siren"]["uid"]
-        element_uids = self.devices["siren"]["elementUIDs"]
-        self.homecontrol._multi_level_switch(
-            {
-                "UID": element_uids[0],
-                "properties": {
-                    "value": self.devices["siren"]["properties"]["value"],
-                    "switchType": self.devices["siren"]["switch_type"],
-                    "max": self.devices["siren"]["properties"]["max"],
-                    "min": self.devices["siren"]["properties"]["min"],
-                },
-            }
-        )
-        self.homecontrol._last_activity(
-            {
-                "UID": element_uids[3],
-                "properties": {
-                    "lastActivityTime": self.devices["siren"]["last_activity"],
-                },
-            }
-        )
-        assert self.homecontrol.devices[device].multi_level_switch_property[
-            element_uids[0]
-        ].last_activity == datetime.utcfromtimestamp(self.devices["siren"]["last_activity"] / 1000)
 
-    def test__led(self):
-        device = self.devices["mains"]
-        element_uid = f"lis.{device['UID']}"
-        led_setting = device["properties"]["led_setting"]
-        self.homecontrol._led(
-            {
-                "UID": element_uid,
-                "properties": {
-                    "led": led_setting,
-                },
-            }
-        )
-        assert self.homecontrol.devices[device["UID"]].settings_property["led"].led_setting == led_setting
-        device = self.devices["sensor"]
-        element_uid = f"vfs.{device['UID']}"
-        led_setting = device["led_setting"]
-        self.homecontrol._led(
-            {
-                "UID": element_uid,
-                "properties": {
-                    "feedback": led_setting,
-                },
-            }
-        )
-        assert self.homecontrol.devices[device["UID"]].settings_property["led"].led_setting == led_setting
+def test_update_online_state(local_gateway: HomeControl, gateway_ip: str, requests_mock: Mocker) -> None:
+    """Test updating the online state."""
+    local_gateway.gateway.online = False
+    local_gateway.gateway.sync = False
+    local_gateway.gateway.update_state()
+    assert local_gateway.gateway.online
+    assert local_gateway.gateway.sync
 
-    def test__multilevel_async(self):
-        device = self.devices["blinds"]
-        uid = device["uid"]
-        self.homecontrol._multilevel_async(
-            {
-                "UID": f"mas.{uid}",
-                "properties": {
-                    "itemId": "motorActivity",
-                    "value": device["motorActivity"],
-                },
-            }
-        )
-        assert self.homecontrol.devices[uid].settings_property["motor_activity"].value == device["motorActivity"]
+    requests_mock.post(f"http://{gateway_ip}/remote/json-rpc", exc=requests.exceptions.ConnectionError)
+    with pytest.raises(GatewayOfflineError):
+        local_gateway.refresh_session()
+    assert not local_gateway.gateway.online
+    assert not local_gateway.gateway.sync
 
-    def test__multilevel_async_mains(self):
-        device = self.devices["mains"]
-        uid = device["uid"]
-        self.homecontrol._multilevel_async(
-            {
-                "UID": f"mas.{uid}",
-                "properties": {
-                    "itemId": None,
-                    "value": device["flashMode"],
-                },
-            }
-        )
-        assert self.homecontrol.devices[uid].settings_property["flash_mode"].value == device["flashMode"]
+    WEBSOCKET.recv_packet(json.dumps(load_fixture("homecontrol_gateway_status")))
+    assert local_gateway.gateway.online
+    assert local_gateway.gateway.sync
 
-    def test__multilevel_async_type_error(self):
-        with pytest.raises(TypeError):
-            device = self.devices["sensor"]
-            uid = device["uid"]
-            self.homecontrol._multilevel_async(
-                {
-                    "UID": f"mas.{uid}",
-                    "properties": {
-                        "itemId": None,
-                        "value": device["motion_sensitivity"],
-                    },
-                }
-            )
 
-    def test__multilevel_sync_sensor(self):
-        device = self.devices["sensor"]["uid"]
-        self.homecontrol._multilevel_sync(
-            {
-                "UID": self.devices["sensor"]["settingUIDs"][2],
-                "properties": self.devices["sensor"]["properties"],
-            }
-        )
-        assert (
-            self.homecontrol.devices[device].settings_property["motion_sensitivity"].motion_sensitivity
-            == self.devices["sensor"]["properties"]["value"]
-        )
+def test_update_zones(local_gateway: HomeControl) -> None:
+    """Update zones."""
+    fixture = load_fixture("homecontrol_grouping")
+    WEBSOCKET.recv_packet(json.dumps(fixture))
+    assert len(local_gateway.gateway.zones) == len(fixture["properties"]["property.value.new"])
 
-    def test__multilevel_sync_shutter(self):
-        device = self.devices["blinds"]["uid"]
-        self.homecontrol._multilevel_sync(
-            {
-                "UID": f"mss.{device}",
-                "properties": {
-                    "value": self.devices["blinds"]["shutter_duration"],
-                },
-            }
-        )
-        assert (
-            self.homecontrol.devices[device].settings_property["shutter_duration"].shutter_duration
-            == self.devices["blinds"]["shutter_duration"]
-        )
 
-    def test__multilevel_sync_siren(self):
-        device = self.devices["siren"]["uid"]
-        self.homecontrol._multilevel_sync(
-            {
-                "UID": self.devices["siren"]["settingUIDs"][0],
-                "properties": self.devices["siren"]["properties"],
-            }
-        )
-        assert self.homecontrol.devices[device].settings_property["tone"].tone == self.devices["siren"]["properties"]["value"]
+@pytest.mark.usefixtures("local_gateway")
+def test_device_added() -> None:
+    """Test handling an added device."""
+    fixture = load_fixture("homecontrol_device_new")
+    with patch("devolo_home_control_api.homecontrol.HomeControl._inspect_devices") as inspect_devices:
+        WEBSOCKET.recv_packet(json.dumps(fixture))
+        inspect_devices.assert_called_once_with([fixture["properties"]["property.value.new"][-1]])
 
-    def test__multi_level_sensor(self):
-        # TODO: Use test data
-        device = self.devices.get("sensor").get("uid")
-        del self.homecontrol.devices[device].multi_level_sensor_property
-        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
-        self.homecontrol._multi_level_sensor(
-            {
-                "UID": self.devices.get("sensor").get("elementUIDs")[2],
-                "properties": {
-                    "value": 90.0,
-                    "unit": "%",
-                    "sensorType": "light",
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device), "multi_level_sensor_property")
 
-    def test__multi_level_switch(self):
-        device = self.devices.get("siren").get("uid")
-        del self.homecontrol.devices[device].multi_level_switch_property
-        assert not hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
-        self.homecontrol._multi_level_switch(
-            {
-                "UID": self.devices.get("siren").get("elementUIDs")[0],
-                "properties": {
-                    "state": self.devices.get("multi_level_switch").get("state"),
-                    "value": self.devices.get("multi_level_switch").get("value"),
-                    "switchType": self.devices.get("multi_level_switch").get("switch_type"),
-                    "max": self.devices.get("multi_level_switch").get("max"),
-                    "min": self.devices.get("multi_level_switch").get("min"),
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device), "multi_level_switch_property")
+def test_device_deleted(local_gateway: HomeControl) -> None:
+    """Test handling an deleted device."""
+    fixture = load_fixture("homecontrol_device_del")
+    WEBSOCKET.recv_packet(json.dumps(fixture))
+    assert len(local_gateway.devices) == len(fixture["properties"]["property.value.new"])
 
-    def test__parameter(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        self.homecontrol._parameter(
-            {
-                "UID": "cps.hdm:ZWave:F6BF9812/2",
-                "properties": {
-                    "paramChanged": False,
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("param_changed"), "param_changed")
 
-    def test__protection(self):
-        # TODO: Use test data
-        device = self.devices.get("mains").get("uid")
-        self.homecontrol._protection(
-            {
-                "UID": "ps.hdm:ZWave:F6BF9812/2",
-                "properties": {
-                    "localSwitch": True,
-                    "remoteSwitch": False,
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "local_switching")
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("protection"), "remote_switching")
+@pytest.mark.parametrize(
+    "useless", ["devolo.HttpRequest", "devolo.PairDevice", "devolo.RemoveDevice", "devolo.mprm.gw.GatewayManager"]
+)
+def test_ignore_pending_operations(local_gateway: HomeControl, useless: str) -> None:
+    """Test ignoring certail pending operations."""
+    subscriber = Subscriber(useless)
+    local_gateway.publisher.register(useless, subscriber)
+    fixture = load_fixture("homecontrol_pending_operation")
+    fixture["properties"]["uid"] = useless
+    WEBSOCKET.recv_packet(json.dumps(fixture))
+    subscriber.update.assert_not_called()
 
-    def test__remote_control(self):
-        device = self.devices.get("remote").get("uid")
-        element_uid = self.devices.get("remote").get("elementUIDs")[0]
-        del self.homecontrol.devices[device].remote_control_property
-        assert not hasattr(self.homecontrol.devices.get(device), "remote_control_property")
-        self.homecontrol._remote_control(
-            {
-                "UID": element_uid,
-                "properties": {
-                    "keyCount": self.devices.get("remote").get("key_count"),
-                    "keyPressed": 0,
-                    "type": 1,
-                },
-            }
-        )
-        assert self.homecontrol.devices.get(device).remote_control_property[element_uid].key_pressed == 0
 
-    def test__switch_type(self):
-        device = self.devices["remote"]["uid"]
-        self.homecontrol._switch_type(
-            {
-                "UID": f"sts.{device}",
-                "properties": {
-                    "switchType": self.devices["remote"]["key_count"] / 2,
-                },
-            }
-        )
-        assert self.homecontrol.devices[device].settings_property["switch_type"].value == self.devices["remote"]["key_count"]
+@pytest.mark.usefixtures("local_gateway")
+def test_ignore_unwanted_messages() -> None:
+    """Test ignoring updates on unwanted mesages."""
+    with patch("devolo_home_control_api.publisher.updater.get_device_type_from_element_uid") as device_type:
+        message = {
+            "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/UNREGISTERED",
+            "properties": {
+                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            },
+        }
+        WEBSOCKET.recv_packet(json.dumps(message))
+        device_type.assert_not_called()
 
-    def test__temperature_report(self):
-        # TODO: Use test data
-        device = self.devices.get("sensor").get("uid")
-        self.homecontrol._temperature_report(
-            {
-                "UID": "trs.hdm:ZWave:F6BF9812/6",
-                "properties": {
-                    "tempReport": True,
-                    "targetTempReport": False,
-                },
-            }
-        )
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "temp_report")
-        assert hasattr(self.homecontrol.devices.get(device).settings_property.get("temperature_report"), "target_temp_report")
+        message = {
+            "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+            "properties": {
+                "property.name": "assistantsConnected",
+                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            },
+        }
+        WEBSOCKET.recv_packet(json.dumps(message))
+        device_type.assert_not_called()
 
-    @pytest.mark.usefixtures("mock_inspect_devices")
-    def test_device_change_add(self, mocker):
-        uids = [self.devices.get(device).get("uid") for device in self.devices]
-        uids.append("test_uid")
-        spy = mocker.spy(self.homecontrol, "_inspect_devices")
-        self.homecontrol.device_change(uids)
-        spy.assert_called_once_with(["test_uid"])
-
-    def test_device_change_remove(self):
-        uids = [self.devices.get(device).get("uid") for device in self.devices]
-        del uids[4]
-        self.homecontrol.device_change(uids)
-        assert self.devices.get("mains").get("uid") not in self.homecontrol.devices.keys()
-
-    @pytest.mark.usefixtures("mock_extract_data_from_element_uids")
-    @pytest.mark.usefixtures("mock_mprmrest_get_all_devices")
-    def test__inspect_devices(self):
-        uid = self.devices.get("mains").get("uid")
-        del self.homecontrol.devices[uid]
-        self.homecontrol._inspect_devices(self.homecontrol.get_all_devices())
-        try:
-            self.homecontrol.devices[uid]
-            assert True
-        except KeyError:
-            assert False
+        message = {
+            "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
+            "properties": {
+                "property.name": "zones",
+                "uid": "smartGroup",
+                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+            },
+        }
+        WEBSOCKET.recv_packet(json.dumps(message))
+        device_type.assert_not_called()

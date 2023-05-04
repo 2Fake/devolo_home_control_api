@@ -1,0 +1,21 @@
+{
+    "properties": {
+        "property.name": "devolo.DevicesPage",
+        "data": 1,
+        "property.value.new": [
+            "hdm:ZWave:CBC56091/2",
+            "hdm:ZWave:CBC56091/3",
+            "hdm:ZWave:CBC56091/4",
+            "hdm:ZWave:CBC56091/5",
+            "hdm:ZWave:CBC56091/6",
+            "hdm:ZWave:CBC56091/7",
+            "hdm:ZWave:CBC56091/8",
+            "hdm:ZWave:CBC56091/9",
+            "hdm:ZWave:CBC56091/10"
+        ],
+        "uid": "devolo.DevicesPage",
+        "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+        "timestamp": 1682530133755
+    },
+    "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
+}

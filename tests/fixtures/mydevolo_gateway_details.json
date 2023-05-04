@@ -1,0 +1,30 @@
+{
+    "href": "https://mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/1409301750000598",
+    "gatewayId": "1409301750000598",
+    "name": "DVT Lab 1409301750000598",
+    "role": "user",
+    "localPasskey": "6b96ad097aa389209f1ceeaed6fe7029",
+    "externalAccess": true,
+    "location": "https://www.mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/1409301750000598/location",
+    "status": "devolo.hc_gateway.status.online",
+    "state": "devolo.hc_gateway.state.idle",
+    "type": "M",
+    "firmwareVersion": "8.0.45_2016-11-17",
+    "partner": "string",
+    "hcuPartner": "string",
+    "users": {
+        "href": "string"
+    },
+    "invitations": {
+        "href": "string"
+    },
+    "scenes": {
+        "href": "string"
+    },
+    "sceneActions": {
+        "href": "string"
+    },
+    "sceneActionJournal": {
+        "href": "string"
+    }
+}

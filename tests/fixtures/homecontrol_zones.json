@@ -1,0 +1,29 @@
+{
+    "id": 1,
+    "result": {
+        "items": [
+            {
+                "properties": {
+                    "zones": [
+                        {
+                            "deviceUIDs": [
+                                "hdm:ZWave:CBC56091/2",
+                                "hdm:ZWave:CBC56091/3"
+                            ],
+                            "id": "hz_1",
+                            "name": "Office"
+                        },
+                        {
+                            "deviceUIDs": [
+                                "hdm:ZWave:CBC56091/4"
+                            ],
+                            "id": "hz_2",
+                            "name": "Bathroom"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "jsonrpc": "2.0"
+}
