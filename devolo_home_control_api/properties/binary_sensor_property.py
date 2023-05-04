@@ -1,5 +1,6 @@
-"""Binary Sensors"""
+"""Binary Sensors."""
 from datetime import datetime
+from typing import Any
 
 from devolo_home_control_api.exceptions.device import WrongElementError
 
@@ -15,7 +16,8 @@ class BinarySensorProperty(SensorProperty):
     :type state: bool
     """
 
-    def __init__(self, element_uid: str, **kwargs) -> None:
+    def __init__(self, element_uid: str, **kwargs: Any) -> None:
+        """Initialize the binary sensor."""
         if not element_uid.startswith(
             ("devolo.BinarySensor:", "devolo.MildewSensor:", "devolo.ShutterMovementFI:", "devolo.WarningBinaryFI:")
         ):
@@ -32,7 +34,10 @@ class BinarySensorProperty(SensorProperty):
 
     @last_activity.setter
     def last_activity(self, timestamp: int) -> None:
-        """The gateway persists the last activity of some binary sensors. They can be initialized with that value."""
+        """
+        Set the last activity of the binary sensor. The gateway persists the last activity only for some of the binary sensors.
+        They can be initialized with that value. The others stay with a default timestamp until first update.
+        """
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)

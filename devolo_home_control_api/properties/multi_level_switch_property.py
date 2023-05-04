@@ -1,6 +1,6 @@
-"""Multi Level Switches"""
+"""Multi Level Switches."""
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from devolo_home_control_api.exceptions.device import WrongElementError
 
@@ -23,7 +23,8 @@ class MultiLevelSwitchProperty(Property):
     :type min: float
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs) -> None:
+    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any) -> None:
+        """Initialize the multi level switch."""
         if not element_uid.startswith(
             ("devolo.Blinds:", "devolo.Dimmer:", "devolo.MultiLevelSwitch:", "devolo.SirenMultiLevelSwitch:")
         ):
@@ -44,7 +45,10 @@ class MultiLevelSwitchProperty(Property):
 
     @last_activity.setter
     def last_activity(self, timestamp: int) -> None:
-        """The gateway persists the last activity of some multi level switchs. They can be initialized with that value."""
+        """
+        Set the last activity of the multi level switch. The gateway persists the last activity only for some of the multi
+        level switchs. They can be initialized with that value. The others stay with a default timestamp until first update.
+        """
         if timestamp != -1:
             self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
@@ -78,10 +82,8 @@ class MultiLevelSwitchProperty(Property):
         """
         if value > self.max or value < self.min:
             raise ValueError(
-                (
-                    f"Set value {value} is too {'low' if value < self.min else 'high'}. "
-                    f"The min value is {self.min}. The max value is {self.max}"
-                )
+                f"Set value {value} is too {'low' if value < self.min else 'high'}. "
+                f"The min value is {self.min}. The max value is {self.max}"
             )
 
         if self._setter(self.element_uid, value):
