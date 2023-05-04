@@ -2,8 +2,7 @@
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from devolo_home_control_api.helper.string import camel_case_to_snake_case
-from devolo_home_control_api.helper.uid import get_device_uid_from_element_uid
+from devolo_home_control_api.helper import camel_case_to_snake_case, get_device_uid_from_element_uid
 from devolo_home_control_api.mydevolo import Mydevolo
 
 if TYPE_CHECKING:
