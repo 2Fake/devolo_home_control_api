@@ -42,7 +42,7 @@ def test_state_change(local_gateway: HomeControl, gateway_ip: str, requests_mock
 
     switch = thermostat.multi_level_switch_property[f"devolo.MultiLevelSwitch:{ELEMENT_ID}#ThermostatSetpoint(1)"]
     value = switch.value
-    switch.set(value - 1)
+    assert switch.set(value - 1)
     assert value - 1 == switch.value
 
     value = switch.value
@@ -54,13 +54,27 @@ def test_state_change(local_gateway: HomeControl, gateway_ip: str, requests_mock
 
     FIXTURE["success"]["id"] += 1
     button = thermostat.remote_control_property[f"devolo.RemoteControl:{ELEMENT_ID}"]
-    button.set(1)
+    assert button.set(1)
     assert button.key_pressed == 1
 
     WEBSOCKET.recv_packet(json.dumps(FIXTURE["button_event"]))
     assert button.key_pressed == 0
     assert last_activity != switch.last_activity
     assert subscriber.update.call_count == 3
+
+
+def test_switching_same_state(local_gateway: HomeControl, gateway_ip: str, requests_mock: Mocker) -> None:
+    """Test switching a room thermostat to the same state."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"http://{gateway_ip}/remote/json-rpc", json=response)
+    subscriber = Subscriber(ELEMENT_ID)
+    local_gateway.publisher.register(ELEMENT_ID, subscriber)
+
+    thermostat = local_gateway.devices[ELEMENT_ID]
+    switch = thermostat.multi_level_switch_property[f"devolo.MultiLevelSwitch:{ELEMENT_ID}#ThermostatSetpoint(1)"]
+    value = switch.value
+    assert not switch.set(value=value)
+    assert value == switch.value
 
 
 def test_invalid_set(local_gateway: HomeControl) -> None:

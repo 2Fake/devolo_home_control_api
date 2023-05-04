@@ -32,6 +32,12 @@
         },
         "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED"
     },
+    "fail": {
+        "id": 5,
+        "result": {
+            "status": 2
+        }
+    },
     "general_device_settings": {
         "properties": {
             "property.name": "targetState",

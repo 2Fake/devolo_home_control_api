@@ -33,7 +33,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
     value: bool
     zone_id: str
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, setter: Callable[..., bool], **kwargs: Any) -> None:
         """Initialize the setting."""
         if not element_uid.startswith(
             ("acs", "bas", "bss", "cps", "gds", "lis", "mas", "mss", "ps", "sts", "stmss", "trs", "vfs")
@@ -49,7 +49,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        setter_method: Dict[str, Callable[..., None]] = {
+        setter_method: Dict[str, Callable[..., bool]] = {
             "bas": self._set_bas,
             "gds": self._set_gds,
             "lis": self._set_lis,
@@ -61,7 +61,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
 
         # Depending on the type of setting property, this will create a callable named "set".
         # However, this methods are not working, if the gateway is connected locally, yet.
-        self.set = setter_method.get(element_uid.split(".")[0], lambda: None)
+        self.set = setter_method.get(element_uid.split(".")[0], lambda: False)
 
         # Clean up attributes which are unwanted.
         clean_up_list = ["device_uid"]
@@ -69,7 +69,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         for attribute in clean_up_list:
             delattr(self, attribute)
 
-    def _set_bas(self, value: bool) -> None:
+    def _set_bas(self, value: bool) -> bool:
         """
         Set a binary async setting. This is e.g. the muted setting of a siren or the three way switch setting of a dimmer.
 
@@ -78,8 +78,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         if self._setter(self.element_uid, [value]):
             self.value = value
             self._logger.debug("Binary async setting property %s set to %s", self.element_uid, value)
+            return True
+        return False
 
-    def _set_gds(self, **kwargs: Any) -> None:
+    def _set_gds(self, **kwargs: Any) -> bool:
         """
         Set one or more general device setting.
 
@@ -109,8 +111,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
             self.name = name
             self.zone_id = zone_id
             self._logger.debug("General device setting %s changed.", self.element_uid)
+            return True
+        return False
 
-    def _set_lis(self, led_setting: bool) -> None:
+    def _set_lis(self, led_setting: bool) -> bool:
         """
         Set led settings.
 
@@ -119,8 +123,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         if self._setter(self.element_uid, [led_setting]):
             self.led_setting = led_setting
             self._logger.debug("LED indication setting property %s set to %s", self.element_uid, led_setting)
+            return True
+        return False
 
-    def _set_mss(self, motion_sensitivity: int) -> None:
+    def _set_mss(self, motion_sensitivity: int) -> bool:
         """
         Set motion sensitivity.
 
@@ -131,8 +137,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         if self._setter(self.element_uid, [motion_sensitivity]):
             self.motion_sensitivity = motion_sensitivity
             self._logger.debug("Motion sensitivity setting property %s set to %s", self.element_uid, motion_sensitivity)
+            return True
+        return False
 
-    def _set_ps(self, **kwargs: bool) -> None:
+    def _set_ps(self, **kwargs: bool) -> bool:
         """
         Set one or both protection settings.
 
@@ -161,8 +169,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
                 local_switching,
                 remote_switching,
             )
+            return True
+        return False
 
-    def _set_trs(self, temp_report: bool) -> None:
+    def _set_trs(self, temp_report: bool) -> bool:
         """
         Set temperature report setting.
 
@@ -171,3 +181,5 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         if self._setter(self.element_uid, [temp_report]):
             self.temp_report = temp_report
             self._logger.debug("Temperature report setting property %s set to %s", self.element_uid, temp_report)
+            return True
+        return False

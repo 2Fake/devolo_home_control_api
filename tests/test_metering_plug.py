@@ -34,7 +34,7 @@ def test_switching(local_gateway: HomeControl, gateway_ip: str, requests_mock: M
     binary_switch = metering_plug.binary_switch_property[f"devolo.BinarySwitch:{ELEMENT_ID}"]
     state = binary_switch.state
     last_activity = binary_switch.last_activity
-    binary_switch.set(state=not state)
+    assert binary_switch.set(state=not state)
     assert state != binary_switch.state
     assert last_activity != binary_switch.last_activity
 
@@ -56,7 +56,7 @@ def test_switching_same_state(local_gateway: HomeControl, gateway_ip: str, reque
     metering_plug = local_gateway.devices[ELEMENT_ID]
     binary_switch = metering_plug.binary_switch_property[f"devolo.BinarySwitch:{ELEMENT_ID}"]
     state = binary_switch.state
-    binary_switch.set(state=not state)
+    assert not binary_switch.set(state=not state)
     assert state == binary_switch.state
 
 
@@ -147,11 +147,21 @@ def test_setting_general_device_settings(remote_gateway: HomeControl, requests_m
     icon = metering_plug.settings_property["general_device_settings"].icon
     name = metering_plug.settings_property["general_device_settings"].name
     zone_id = metering_plug.settings_property["general_device_settings"].zone_id
-    metering_plug.settings_property["general_device_settings"].set(icon="icon_15")
+    assert metering_plug.settings_property["general_device_settings"].set(icon="icon_15")
     assert metering_plug.settings_property["general_device_settings"].events_enabled == events_enabled
     assert icon != metering_plug.settings_property["general_device_settings"].icon
     assert name == metering_plug.settings_property["general_device_settings"].name
     assert zone_id == metering_plug.settings_property["general_device_settings"].zone_id
+
+
+def test_setting_general_device_settings_same_state(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
+    """Test setting general device settings to the same state."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
+    metering_plug = remote_gateway.devices[ELEMENT_ID]
+    icon = metering_plug.settings_property["general_device_settings"].icon
+    assert not metering_plug.settings_property["general_device_settings"].set(icon="icon_15")
+    assert icon == metering_plug.settings_property["general_device_settings"].icon
 
 
 def test_changing_led_settings(local_gateway: HomeControl) -> None:
@@ -167,8 +177,18 @@ def test_setting_led(remote_gateway: HomeControl, requests_mock: Mocker) -> None
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     metering_plug = remote_gateway.devices[ELEMENT_ID]
     led_setting = metering_plug.settings_property["led"].led_setting
-    metering_plug.settings_property["led"].set(led_setting=False)
+    assert metering_plug.settings_property["led"].set(led_setting=False)
     assert metering_plug.settings_property["led"].led_setting != led_setting
+
+
+def test_setting_led_same_state(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
+    """Test setting led settings to the same state."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
+    metering_plug = remote_gateway.devices[ELEMENT_ID]
+    led_setting = metering_plug.settings_property["led"].led_setting
+    assert not metering_plug.settings_property["led"].set(led_setting=True)
+    assert metering_plug.settings_property["led"].led_setting == led_setting
 
 
 def test_changing_protection_mode(local_gateway: HomeControl) -> None:
@@ -188,15 +208,25 @@ def test_changing_protection_mode(local_gateway: HomeControl) -> None:
 
 
 def test_protection_mode(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
-    """Test setting led protection mode."""
+    """Test setting the protection mode."""
     response = FIXTURE["success"]
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     metering_plug = remote_gateway.devices[ELEMENT_ID]
     local_switching = metering_plug.settings_property["protection"].local_switching
     remote_switching = metering_plug.settings_property["protection"].remote_switching
-    metering_plug.settings_property["protection"].set(local_switching=False)
+    assert metering_plug.settings_property["protection"].set(local_switching=False)
     assert metering_plug.settings_property["protection"].local_switching != local_switching
     assert metering_plug.settings_property["protection"].remote_switching == remote_switching
+
+
+def test_protection_mode_same_state(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
+    """Test setting the protection mode to the same state."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
+    metering_plug = remote_gateway.devices[ELEMENT_ID]
+    local_switching = metering_plug.settings_property["protection"].local_switching
+    assert not metering_plug.settings_property["protection"].set(local_switching=False)
+    assert metering_plug.settings_property["protection"].local_switching == local_switching
 
 
 def test_changing_expert_settings(local_gateway: HomeControl) -> None:
