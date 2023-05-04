@@ -7,8 +7,7 @@ import pytest
 from requests_mock import Mocker
 from syrupy.assertion import SnapshotAssertion
 
-from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
-from devolo_home_control_api.exceptions.general import WrongUrlError
+from devolo_home_control_api.exceptions import GatewayOfflineError, WrongUrlError
 from devolo_home_control_api.mydevolo import Mydevolo
 
 from . import GATEWAY_DETAILS_URL, GATEWAY_FULLURL, GATEWAY_STATUS_URL, MAINTENANCE_URL, UUID_URL, ZWAVE_PRODUCTS_URL

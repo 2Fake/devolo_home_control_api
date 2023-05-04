@@ -7,7 +7,7 @@ import pytest
 from requests_mock import Mocker
 from syrupy.assertion import SnapshotAssertion
 
-from devolo_home_control_api.exceptions.device import SwitchingProtected
+from devolo_home_control_api.exceptions import SwitchingProtected
 from devolo_home_control_api.homecontrol import HomeControl
 
 from . import HOMECONTROL_URL, Subscriber, load_fixture

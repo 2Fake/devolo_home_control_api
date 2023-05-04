@@ -1,17 +1,19 @@
 """Exceptions occuring when talking to a Z-Wave device."""
-
-
-class MprmDeviceCommunicationError(Exception):
-    """Communicating to a device via mPRM failed."""
-
-
-class MprmDeviceNotFoundError(Exception):
-    """A device like this was not found."""
+import re
 
 
 class WrongElementError(Exception):
-    """This element was not meant for this property."""
+    """The element was not meant for this property."""
+
+    def __init__(self, element_uid: str, property_class: str) -> None:
+        """Initialize error."""
+        property_name = " ".join(re.findall("[A-Z][^A-Z]*", property_class)).lower()
+        super().__init__(f"{element_uid} is not a {property_name}.")
 
 
 class SwitchingProtected(Exception):
-    """This device is protected against remote switching."""
+    """The device is protected against remote switching."""
+
+    def __init__(self) -> None:
+        """Initialize error."""
+        super().__init__("This device is protected against remote switching.")

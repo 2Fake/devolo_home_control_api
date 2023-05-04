@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Callable
 
-from devolo_home_control_api.exceptions.device import SwitchingProtected, WrongElementError
+from devolo_home_control_api.exceptions import SwitchingProtected, WrongElementError
 
 from .property import Property
 
@@ -21,7 +21,7 @@ class BinarySwitchProperty(Property):
 
     def __init__(self, element_uid: str, setter: Callable, **kwargs: bool) -> None:
         if not element_uid.startswith("devolo.BinarySwitch:"):
-            raise WrongElementError(f"{element_uid} is not a Binary Switch.")
+            raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid=element_uid)
         self._setter = setter
@@ -48,7 +48,7 @@ class BinarySwitchProperty(Property):
         :param state: True if switching on, False if switching off
         """
         if not self.enabled:
-            raise SwitchingProtected("This device is protected against remote switching.")
+            raise SwitchingProtected
 
         if self._setter(self.element_uid, state):
             self.state = state

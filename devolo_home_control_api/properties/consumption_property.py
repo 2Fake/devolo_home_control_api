@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Union
 
-from devolo_home_control_api.exceptions.device import WrongElementError
+from devolo_home_control_api.exceptions import WrongElementError
 
 from .property import Property
 
@@ -22,7 +22,7 @@ class ConsumptionProperty(Property):
 
     def __init__(self, element_uid: str, **kwargs: Union[int, float]) -> None:
         if not element_uid.startswith("devolo.Meter:"):
-            raise WrongElementError(f"{element_uid} is not a Meter.")
+            raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid=element_uid)
 

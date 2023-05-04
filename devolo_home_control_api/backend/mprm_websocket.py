@@ -11,7 +11,7 @@ import websocket
 from typing_extensions import Self
 from urllib3.connection import ConnectTimeoutError
 
-from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions import GatewayOfflineError
 
 from .mprm_rest import MprmRest
 

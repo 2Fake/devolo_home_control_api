@@ -1,7 +1,7 @@
 """Settings."""
 from typing import Any, Callable, Dict
 
-from devolo_home_control_api.exceptions.device import WrongElementError
+from devolo_home_control_api.exceptions import WrongElementError
 
 from .property import Property
 
@@ -38,7 +38,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
         if not element_uid.startswith(
             ("acs", "bas", "bss", "cps", "gds", "lis", "mas", "mss", "ps", "sts", "stmss", "trs", "vfs")
         ):
-            raise WrongElementError((f"{element_uid} is not a setting."))
+            raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid=element_uid)
         self._setter = setter

@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Callable
 
-from devolo_home_control_api.exceptions.device import WrongElementError
+from devolo_home_control_api.exceptions import WrongElementError
 
 from .property import Property
 
@@ -22,7 +22,7 @@ class RemoteControlProperty(Property):
 
     def __init__(self, element_uid: str, setter: Callable, **kwargs: int) -> None:
         if not element_uid.startswith("devolo.RemoteControl"):
-            raise WrongElementError(f"{element_uid} is not a remote control.")
+            raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid=element_uid)
         self._setter = setter
