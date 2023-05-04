@@ -1,9 +1,9 @@
-"""Helper functions for splitting UID
+"""
+Helper functions for splitting UID.
 
 Element UIDs and setting UIDs are the central identifies in devolo Home Control. However, for grouping information together
 you often need to split them. This helper functions will do that for you.
 """
-
 import re
 from typing import Optional
 
@@ -56,7 +56,8 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
 
 def get_home_id_from_device_uid(device_uid: str) -> str:
     """
-    Return the home id of the given device UID
+    Return the home id of the given device UID.
+
     :param device_uid: Device UID, something like hdm:ZWave:EB5A9F6C/4
     :return: Home ID, something like EB5A9F6C
     """

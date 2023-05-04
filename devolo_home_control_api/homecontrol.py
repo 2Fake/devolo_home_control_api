@@ -12,8 +12,8 @@ from .backend import MESSAGE_TYPES
 from .backend.mprm import Mprm
 from .devices.gateway import Gateway
 from .devices.zwave import Zwave
-from .helper.string import camel_case_to_snake_case
-from .helper.uid import (
+from .helper import (
+    camel_case_to_snake_case,
     get_device_type_from_element_uid,
     get_device_uid_from_element_uid,
     get_device_uid_from_setting_uid,
