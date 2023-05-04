@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 from abc import ABC
+from enum import IntEnum
 from typing import Any, Dict, List, Union
 
 from requests import Session
@@ -129,9 +130,9 @@ class MprmRest(ABC):
 
     def _evaluate_response(self, uid: str, value: Union[bool, float, List[str]], response: Dict[str, Any]) -> bool:
         """Evaluate the response of setting a device to a value."""
-        if response["result"].get("status") == 1:
+        if response["result"].get("status") == RestResponseStatus.VALID:
             return True
-        if response["result"].get("status") == 2:
+        if response["result"].get("status") == RestResponseStatus.INVALID:
             self._logger.debug("Value of %s is already %s.", uid, value)
         else:
             self._logger.error("Something went wrong setting %s.", uid)
@@ -164,3 +165,10 @@ class MprmRest(ABC):
             self._logger.debug("Message had ID %s, response had ID %s.", data["id"], response["id"])
             raise ValueError("Got an unexpected response after posting data.")
         return response
+
+
+class RestResponseStatus(IntEnum):
+    """Status codes for mPRM responses."""
+
+    VALID = 1
+    INVALID = 2
