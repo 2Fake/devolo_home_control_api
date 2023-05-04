@@ -9,7 +9,7 @@ from requests import Session
 from requests.exceptions import ConnectionError, ReadTimeout  # pylint: disable=redefined-builtin
 
 from devolo_home_control_api.devices.gateway import Gateway
-from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions import GatewayOfflineError
 from devolo_home_control_api.mydevolo import Mydevolo
 
 

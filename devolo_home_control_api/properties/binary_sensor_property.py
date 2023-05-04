@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any
 
-from devolo_home_control_api.exceptions.device import WrongElementError
+from devolo_home_control_api.exceptions import WrongElementError
 
 from .sensor_property import SensorProperty
 
@@ -21,7 +21,7 @@ class BinarySensorProperty(SensorProperty):
         if not element_uid.startswith(
             ("devolo.BinarySensor:", "devolo.MildewSensor:", "devolo.ShutterMovementFI:", "devolo.WarningBinaryFI:")
         ):
-            raise WrongElementError(f"{element_uid} is not a Binary Sensor.")
+            raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid=element_uid, **kwargs)
 

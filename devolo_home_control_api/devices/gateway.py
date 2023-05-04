@@ -2,7 +2,7 @@
 import logging
 from typing import Dict, Optional
 
-from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions import GatewayOfflineError
 from devolo_home_control_api.mydevolo import Mydevolo
 
 

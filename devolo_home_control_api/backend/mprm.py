@@ -13,7 +13,7 @@ from urllib.parse import urlsplit
 import requests
 from zeroconf import ServiceBrowser, ServiceStateChange, Zeroconf
 
-from devolo_home_control_api.exceptions.gateway import GatewayOfflineError
+from devolo_home_control_api.exceptions import GatewayOfflineError
 
 from .mprm_websocket import MprmWebsocket
 

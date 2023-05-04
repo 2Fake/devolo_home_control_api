@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any, Callable, Optional
 
-from devolo_home_control_api.exceptions.device import WrongElementError
+from devolo_home_control_api.exceptions import WrongElementError
 
 from .property import Property
 
@@ -28,7 +28,7 @@ class MultiLevelSwitchProperty(Property):
         if not element_uid.startswith(
             ("devolo.Blinds:", "devolo.Dimmer:", "devolo.MultiLevelSwitch:", "devolo.SirenMultiLevelSwitch:")
         ):
-            raise WrongElementError(f"{element_uid} is not a multi level switch.")
+            raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid=element_uid)
         self._setter = setter
