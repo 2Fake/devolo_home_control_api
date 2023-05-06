@@ -1,4 +1,4 @@
-"""Generic Properties"""
+"""Generic Properties."""
 import logging
 from abc import ABC
 from datetime import datetime
@@ -14,6 +14,7 @@ class Property(ABC):  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, element_uid: str) -> None:
+        """Initialize the property."""
         self.element_uid = element_uid
         self.device_uid = get_device_uid_from_element_uid(element_uid)
 

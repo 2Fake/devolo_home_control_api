@@ -1,4 +1,4 @@
-"""A Z-Wave device"""
+"""A Z-Wave device."""
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List
 
@@ -6,15 +6,17 @@ from devolo_home_control_api.helper import camel_case_to_snake_case, get_device_
 from devolo_home_control_api.mydevolo import Mydevolo
 
 if TYPE_CHECKING:
-    from devolo_home_control_api.properties.binary_sensor_property import BinarySensorProperty
-    from devolo_home_control_api.properties.binary_switch_property import BinarySwitchProperty
-    from devolo_home_control_api.properties.consumption_property import ConsumptionProperty
-    from devolo_home_control_api.properties.humidity_bar_property import HumidityBarProperty
-    from devolo_home_control_api.properties.multi_level_sensor_property import MultiLevelSensorProperty
-    from devolo_home_control_api.properties.multi_level_switch_property import MultiLevelSwitchProperty
+    from devolo_home_control_api.properties import (
+        BinarySensorProperty,
+        BinarySwitchProperty,
+        ConsumptionProperty,
+        HumidityBarProperty,
+        MultiLevelSensorProperty,
+        MultiLevelSwitchProperty,
+        RemoteControlProperty,
+        SettingsProperty,
+    )
     from devolo_home_control_api.properties.property import Property
-    from devolo_home_control_api.properties.remote_control_property import RemoteControlProperty
-    from devolo_home_control_api.properties.settings_property import SettingsProperty
 
 
 class Zwave:
@@ -61,6 +63,7 @@ class Zwave:
     zwave_version: str
 
     def __init__(self, mydevolo_instance: Mydevolo, **kwargs: Any) -> None:
+        """Initialize a Z-Wave device."""
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 

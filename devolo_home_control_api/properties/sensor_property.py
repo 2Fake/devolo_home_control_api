@@ -1,4 +1,4 @@
-"""Generic Sensors"""
+"""Generic Sensors."""
 from abc import ABC
 
 from .property import Property
@@ -17,6 +17,7 @@ class SensorProperty(Property, ABC):  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, element_uid: str, **kwargs: str) -> None:
+        """Initialize the sensor."""
         super().__init__(element_uid=element_uid)
 
         self.sensor_type: str = kwargs.pop("sensor_type", "")

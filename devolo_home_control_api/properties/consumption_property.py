@@ -1,4 +1,4 @@
-"""Consumptions"""
+"""Consumption Meters."""
 from datetime import datetime
 from typing import Union
 
@@ -9,7 +9,7 @@ from .property import Property
 
 class ConsumptionProperty(Property):
     """
-    Object for consumptions. It stores the current and total consumption and the corresponding units.
+    Object for consumption meters. It stores the current and total consumption and the corresponding units.
 
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
     :key current: Consumption value valid at time of creating the instance
@@ -21,6 +21,7 @@ class ConsumptionProperty(Property):
     """
 
     def __init__(self, element_uid: str, **kwargs: Union[int, float]) -> None:
+        """Initialize the consumption meter."""
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 

@@ -20,14 +20,16 @@ from .helper import (
     get_home_id_from_device_uid,
 )
 from .mydevolo import Mydevolo
-from .properties.binary_sensor_property import BinarySensorProperty
-from .properties.binary_switch_property import BinarySwitchProperty
-from .properties.consumption_property import ConsumptionProperty
-from .properties.humidity_bar_property import HumidityBarProperty
-from .properties.multi_level_sensor_property import MultiLevelSensorProperty
-from .properties.multi_level_switch_property import MultiLevelSwitchProperty
-from .properties.remote_control_property import RemoteControlProperty
-from .properties.settings_property import SettingsProperty
+from .properties import (
+    BinarySensorProperty,
+    BinarySwitchProperty,
+    ConsumptionProperty,
+    HumidityBarProperty,
+    MultiLevelSensorProperty,
+    MultiLevelSwitchProperty,
+    RemoteControlProperty,
+    SettingsProperty,
+)
 from .publisher.publisher import Publisher
 from .publisher.updater import Updater
 
