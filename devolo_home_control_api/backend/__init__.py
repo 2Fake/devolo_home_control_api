@@ -1,4 +1,5 @@
 """Backends to communicate with."""
+from .mprm import Mprm
 
 MESSAGE_TYPES = {
     "devolo.BinarySensor": "_binary_sensor",
@@ -36,3 +37,5 @@ MESSAGE_TYPES = {
     "trs.hdm": "_temperature_report",
     "vfs.hdm": "_led",
 }
+
+__all__ = ["Mprm", "MESSAGE_TYPES"]
