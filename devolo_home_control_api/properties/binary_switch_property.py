@@ -1,4 +1,4 @@
-"""Binary Switches"""
+"""Binary Switches."""
 from datetime import datetime
 from typing import Callable
 
@@ -20,6 +20,7 @@ class BinarySwitchProperty(Property):
     """
 
     def __init__(self, element_uid: str, setter: Callable, **kwargs: bool) -> None:
+        """Initialize the binary switch."""
         if not element_uid.startswith("devolo.BinarySwitch:"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 

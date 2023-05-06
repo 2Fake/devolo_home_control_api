@@ -1,4 +1,4 @@
-"""Remote Controls"""
+"""Remote Controls."""
 from datetime import datetime
 from typing import Callable
 
@@ -21,6 +21,7 @@ class RemoteControlProperty(Property):
     """
 
     def __init__(self, element_uid: str, setter: Callable, **kwargs: int) -> None:
+        """Initialize the remote control."""
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
