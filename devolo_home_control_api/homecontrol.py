@@ -8,10 +8,8 @@ from urllib3 import Retry
 from zeroconf import Zeroconf
 
 from . import __version__
-from .backend import MESSAGE_TYPES
-from .backend.mprm import Mprm
-from .devices.gateway import Gateway
-from .devices.zwave import Zwave
+from .backend import MESSAGE_TYPES, Mprm
+from .devices import Gateway, Zwave
 from .helper import (
     camel_case_to_snake_case,
     get_device_type_from_element_uid,

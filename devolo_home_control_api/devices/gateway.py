@@ -1,4 +1,4 @@
-"""The devolo Home Control Central Unit"""
+"""The devolo Home Control Central Unit."""
 import logging
 from typing import Dict, Optional
 
@@ -16,6 +16,7 @@ class Gateway:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo) -> None:
+        """Initialize the central unit."""
         self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 
@@ -41,7 +42,7 @@ class Gateway:  # pylint: disable=too-few-public-methods
         self.online = False
         self.sync = False
 
-        self.zones: Dict = {}
+        self.zones: Dict[str, str] = {}
         self.home_id = ""
 
         self._update_state(status=details.get("status", ""), state=details.get("state", ""))
@@ -60,6 +61,6 @@ class Gateway:  # pylint: disable=too-few-public-methods
             self.sync = online
 
     def _update_state(self, status: str, state: str) -> None:
-        """Helper to update the state."""
+        """Update the internal state."""
         self.online = status == "devolo.hc_gateway.status.online"
         self.sync = state == "devolo.hc_gateway.state.idle"
