@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Set methods of settings properties now return True on success and False on failure
+- Set methods of properties now return True on success and False on failure
+- Last activities attributes are not timezone aware
 
 ## [v0.18.3] - 2023/03/14
 
