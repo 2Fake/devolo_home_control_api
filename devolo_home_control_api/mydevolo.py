@@ -33,7 +33,6 @@ class Mydevolo:
     def user(self, user: str) -> None:
         """Invalidate uuid and gateway IDs on user name change."""
         self._user = user
-        self.get_gateway_ids.cache_clear()
         self.uuid.cache_clear()
 
     @property
@@ -45,7 +44,6 @@ class Mydevolo:
     def password(self, password: str) -> None:
         """Invalidate uuid and gateway IDs on password change."""
         self._password = password
-        self.get_gateway_ids.cache_clear()
         self.uuid.cache_clear()
 
     def credentials_valid(self) -> bool:
@@ -59,7 +57,6 @@ class Mydevolo:
         except WrongCredentialsError:
             return False
 
-    @lru_cache(maxsize=1)
     def get_gateway_ids(self) -> List[str]:
         """Get all gateway IDs attached to current account."""
         self._logger.debug("Getting list of gateways")

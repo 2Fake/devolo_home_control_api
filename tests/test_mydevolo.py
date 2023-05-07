@@ -41,7 +41,6 @@ def test_get_gateway_ids(mydevolo: Mydevolo, requests_mock: Mocker, snapshot: Sn
     assert gateway_ids == snapshot
 
     requests_mock.get(GATEWAY_STATUS_URL, json={"items": []})
-    mydevolo.get_gateway_ids.cache_clear()
     with pytest.raises(IndexError):
         mydevolo.get_gateway_ids()
 
