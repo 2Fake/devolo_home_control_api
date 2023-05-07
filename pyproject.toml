@@ -14,8 +14,8 @@ classifiers = [
 ]
 description = "devolo Home Control API in Python"
 dependencies = [
-    "dateutil>=2.8.0",
     "importlib-metadata;python_version<'3.8'",
+    "python-dateutil>=2.8.0",
     "requests>=2.4.0",
     "typing-extensions>=4.1.0;python_version<'3.11'",
     "websocket_client>=0.58.0",
