@@ -172,7 +172,7 @@ def test_ignore_unwanted_messages() -> None:
             "topic": "com/prosyst/mbs/services/fim/FunctionalItemEvent/PROPERTY_CHANGED",
             "properties": {
                 "property.name": "assistantsConnected",
-                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+                "com.prosyst.mbs.services.remote.event.sequence.number": 1,
             },
         }
         WEBSOCKET.recv_packet(json.dumps(message))
@@ -183,7 +183,7 @@ def test_ignore_unwanted_messages() -> None:
             "properties": {
                 "property.name": "zones",
                 "uid": "smartGroup",
-                "com.prosyst.mbs.services.remote.event.sequence.number": 0,
+                "com.prosyst.mbs.services.remote.event.sequence.number": 2,
             },
         }
         WEBSOCKET.recv_packet(json.dumps(message))

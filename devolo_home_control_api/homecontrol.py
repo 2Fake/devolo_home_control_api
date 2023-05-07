@@ -28,8 +28,7 @@ from .properties import (
     RemoteControlProperty,
     SettingsProperty,
 )
-from .publisher.publisher import Publisher
-from .publisher.updater import Updater
+from .publisher import Publisher, Updater
 
 
 class HomeControl(Mprm):
