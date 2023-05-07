@@ -8,12 +8,16 @@ from typing import Any, Dict, Optional
 
 import requests
 import websocket
-from typing_extensions import Self
 from urllib3.connection import ConnectTimeoutError
 
 from devolo_home_control_api.exceptions import GatewayOfflineError
 
 from .mprm_rest import MprmRest
+
+try:
+    from typing import Self  # type: ignore[attr-defined,misc]
+except ImportError:
+    from typing_extensions import Self
 
 
 class MprmWebsocket(MprmRest, ABC):
