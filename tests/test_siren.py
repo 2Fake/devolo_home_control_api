@@ -77,8 +77,18 @@ def test_setting_mute_state(remote_gateway: HomeControl, requests_mock: Mocker) 
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     siren = remote_gateway.devices[ELEMENT_ID]
     mute = siren.settings_property["muted"].value
-    siren.settings_property["muted"].set(value=False)
+    assert siren.settings_property["muted"].set(value=False)
     assert mute != siren.settings_property["muted"].value
+
+
+def test_setting_mute_state_same_value(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
+    """Test muting the siren using the same value."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
+    siren = remote_gateway.devices[ELEMENT_ID]
+    mute = siren.settings_property["muted"].value
+    assert not siren.settings_property["muted"].set(value=False)
+    assert mute == siren.settings_property["muted"].value
 
 
 def test_changing_default_tone(local_gateway: HomeControl) -> None:

@@ -20,7 +20,7 @@ class RemoteControlProperty(Property):
     :type key_pressed: int
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: int) -> None:
+    def __init__(self, element_uid: str, setter: Callable[[str, int], bool], **kwargs: int) -> None:
         """Initialize the remote control."""
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(element_uid, self.__class__.__name__)
@@ -43,7 +43,7 @@ class RemoteControlProperty(Property):
         self._last_activity = datetime.now()
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
-    def set(self, key_pressed: int) -> None:
+    def set(self, key_pressed: int) -> bool:
         """
         Trigger a button press of a remote control like if the button was physically pressed.
 
@@ -54,4 +54,5 @@ class RemoteControlProperty(Property):
 
         if self._setter(self.element_uid, key_pressed):
             self.key_pressed = key_pressed
-            self._logger.debug("Remote Control property %s set to %s", self.element_uid, key_pressed)
+            return True
+        return False

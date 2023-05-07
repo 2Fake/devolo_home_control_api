@@ -23,7 +23,7 @@ class MultiLevelSwitchProperty(Property):
     :type min: float
     """
 
-    def __init__(self, element_uid: str, setter: Callable, **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, setter: Callable[[str, float], bool], **kwargs: Any) -> None:
         """Initialize the multi level switch."""
         if not element_uid.startswith(
             ("devolo.Blinds:", "devolo.Dimmer:", "devolo.MultiLevelSwitch:", "devolo.SirenMultiLevelSwitch:")
@@ -74,7 +74,7 @@ class MultiLevelSwitchProperty(Property):
         self._last_activity = datetime.now()
         self._logger.debug("Value of %s set to %s.", self.element_uid, value)
 
-    def set(self, value: float) -> None:
+    def set(self, value: float) -> bool:
         """
         Set the multilevel switch of the given element_uid to the given value.
 
@@ -88,3 +88,5 @@ class MultiLevelSwitchProperty(Property):
 
         if self._setter(self.element_uid, value):
             self.value = value
+            return True
+        return False

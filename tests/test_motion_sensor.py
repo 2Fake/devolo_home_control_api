@@ -122,8 +122,18 @@ def test_setting_motion_sensitivity(remote_gateway: HomeControl, requests_mock: 
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     motion_sensor = remote_gateway.devices[ELEMENT_ID]
     motion_sensitivity = motion_sensor.settings_property["motion_sensitivity"].motion_sensitivity
-    motion_sensor.settings_property["motion_sensitivity"].set(9)
+    assert motion_sensor.settings_property["motion_sensitivity"].set(9)
     assert motion_sensor.settings_property["motion_sensitivity"].motion_sensitivity != motion_sensitivity
+
+
+def test_setting_motion_sensitivity_same_value(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
+    """Test setting motion sensitivity settings using the same value."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
+    motion_sensor = remote_gateway.devices[ELEMENT_ID]
+    motion_sensitivity = motion_sensor.settings_property["motion_sensitivity"].motion_sensitivity
+    assert not motion_sensor.settings_property["motion_sensitivity"].set(9)
+    assert motion_sensor.settings_property["motion_sensitivity"].motion_sensitivity == motion_sensitivity
 
 
 def test_temperature_report_setting(local_gateway: HomeControl) -> None:
@@ -138,8 +148,17 @@ def test_setting_temperature_report(remote_gateway: HomeControl, requests_mock: 
     response = FIXTURE["success"]
     requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
     motion_sensor = remote_gateway.devices[ELEMENT_ID]
-    motion_sensor.settings_property["temperature_report"].set(temp_report=False)
+    assert motion_sensor.settings_property["temperature_report"].set(temp_report=False)
     assert not motion_sensor.settings_property["temperature_report"].temp_report
+
+
+def test_setting_temperature_report_same_value(remote_gateway: HomeControl, requests_mock: Mocker) -> None:
+    """Test chaning the temperature report setting using the same value."""
+    response = FIXTURE["fail"]
+    requests_mock.post(f"{HOMECONTROL_URL}/remote/json-rpc", json=response)
+    motion_sensor = remote_gateway.devices[ELEMENT_ID]
+    assert not motion_sensor.settings_property["temperature_report"].set(temp_report=False)
+    assert motion_sensor.settings_property["temperature_report"].temp_report
 
 
 def test_changing_expert_settings(local_gateway: HomeControl) -> None:
