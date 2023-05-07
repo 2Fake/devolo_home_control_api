@@ -80,8 +80,7 @@ class Mydevolo:
         except WrongUrlError:
             self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise
-        if details["location"]:
-            details["location"] = self._call(details["location"])
+        details["location"] = self._call(details["location"]) if details["location"] else {}
         return details
 
     def get_full_url(self, gateway_id: str) -> str:

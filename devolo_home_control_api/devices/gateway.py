@@ -31,12 +31,8 @@ class Gateway:  # pylint: disable=too-few-public-methods
         self.local_user = self._mydevolo.uuid()
         self.local_passkey = details["localPasskey"]
         self.external_access = details.get("externalAccess")
+        self.timezone = tz.gettz(details["location"].get("timezone") or self._mydevolo.get_timezone()) or timezone.utc
         self.firmware_version = details.get("firmwareVersion")
-
-        if details["location"]:
-            self.timezone = tz.gettz(details["location"]["timezone"]) or timezone.utc
-        else:
-            self.timezone = tz.gettz(self._mydevolo.get_timezone()) or timezone.utc
 
         try:
             self.full_url: Optional[str] = self._mydevolo.get_full_url(self.id)

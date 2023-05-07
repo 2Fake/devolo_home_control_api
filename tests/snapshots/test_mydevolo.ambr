@@ -13,7 +13,8 @@
       'href': 'string',
     }),
     'localPasskey': '6b96ad097aa389209f1ceeaed6fe7029',
-    'location': None,
+    'location': dict({
+    }),
     'name': 'DVT Lab 1409301750000598',
     'partner': 'string',
     'role': 'user',
