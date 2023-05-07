@@ -1,5 +1,5 @@
 """Test the publisher."""
-from devolo_home_control_api.publisher.publisher import Publisher
+from devolo_home_control_api.publisher import Publisher
 
 from . import Subscriber
 
