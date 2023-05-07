@@ -1,4 +1,4 @@
-"""The Updater"""
+"""The Updater."""
 import json
 import logging
 from contextlib import suppress
@@ -27,6 +27,7 @@ class Updater:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(self, devices: Dict[str, Zwave], gateway: Gateway, publisher: Publisher) -> None:
+        """Initialize the updater."""
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = gateway
         self._publisher = publisher
