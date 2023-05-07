@@ -1,9 +1,10 @@
 """Test interacting with a metering plug."""
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
+from dateutil import tz
 from requests_mock import Mocker
 from syrupy.assertion import SnapshotAssertion
 
@@ -15,6 +16,7 @@ from .mocks import WEBSOCKET
 
 ELEMENT_ID = "hdm:ZWave:CBC56091/2"
 FIXTURE = load_fixture("homecontrol_binary_switch")
+TIMEZONE = tz.gettz()
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Tests with snapshots need at least Python 3.8")
@@ -83,7 +85,9 @@ def test_consumption(local_gateway: HomeControl) -> None:
     consumption = metering_plug.consumption_property[f"devolo.Meter:{ELEMENT_ID}"]
     assert consumption.current == element["properties"]["currentValue"]
     assert consumption.total == element["properties"]["totalValue"]
-    assert consumption.total_since == datetime.utcfromtimestamp(element["properties"]["sinceTime"] / 1000)
+    assert consumption.total_since == datetime.fromtimestamp(
+        element["properties"]["sinceTime"] / 1000, tz=timezone.utc
+    ).replace(tzinfo=tz.gettz("Europe/Berlin"))
 
     last_activity = consumption.last_activity
     WEBSOCKET.recv_packet(json.dumps(FIXTURE["current_event"]))
@@ -98,9 +102,9 @@ def test_consumption(local_gateway: HomeControl) -> None:
     assert subscriber.update.call_count == 2
 
     WEBSOCKET.recv_packet(json.dumps(FIXTURE["total_since"]))
-    assert consumption.total_since == datetime.utcfromtimestamp(
-        FIXTURE["total_since"]["properties"]["property.value.new"] / 1000
-    )
+    assert consumption.total_since == datetime.fromtimestamp(
+        FIXTURE["total_since"]["properties"]["property.value.new"] / 1000, tz=timezone.utc
+    ).replace(tzinfo=tz.gettz("Europe/Berlin"))
     assert subscriber.update.call_count == 3
 
 

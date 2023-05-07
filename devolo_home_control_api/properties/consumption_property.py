@@ -1,5 +1,5 @@
 """Consumption Meters."""
-from datetime import datetime
+from datetime import datetime, timezone, tzinfo
 from typing import Union
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -12,6 +12,7 @@ class ConsumptionProperty(Property):
     Object for consumption meters. It stores the current and total consumption and the corresponding units.
 
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
+    :param tz: Timezone the last activity is recorded in
     :key current: Consumption value valid at time of creating the instance
     :type current: float
     :key total: Total consumption since last reset
@@ -20,18 +21,20 @@ class ConsumptionProperty(Property):
     :type total_since: int
     """
 
-    def __init__(self, element_uid: str, **kwargs: Union[int, float]) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: Union[int, float]) -> None:
         """Initialize the consumption meter."""
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(element_uid, tz)
 
         self._current: float = kwargs.pop("current", 0.0)
         self.current_unit = "W"
         self._total: float = kwargs.pop("total", 0.0)
         self.total_unit = "kWh"
-        self._total_since = datetime.utcfromtimestamp(kwargs.pop("total_since", 0) / 1000)
+        self._total_since = datetime.fromtimestamp(kwargs.pop("total_since", 0) / 1000, tz=timezone.utc).replace(
+            tzinfo=self._timezone
+        )
 
     @property
     def current(self) -> float:
@@ -42,7 +45,7 @@ class ConsumptionProperty(Property):
     def current(self, current: float) -> None:
         """Update current consumption and set point in time of the last_activity."""
         self._current = current
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("current of element_uid %s set to %s.", self.element_uid, current)
 
     @property
@@ -54,7 +57,7 @@ class ConsumptionProperty(Property):
     def total(self, total: float) -> None:
         """Update total consumption and set point in time of the last_activity."""
         self._total = total
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("total of element_uid %s set to %s.", self.element_uid, total)
 
     @property
@@ -65,5 +68,5 @@ class ConsumptionProperty(Property):
     @total_since.setter
     def total_since(self, timestamp: int) -> None:
         """Convert a timestamp in millisecond to a datetime object."""
-        self._total_since = datetime.utcfromtimestamp(timestamp / 1000)
+        self._total_since = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).replace(tzinfo=self._timezone)
         self._logger.debug("total_since of element_uid %s set to %s.", self.element_uid, self._total_since)

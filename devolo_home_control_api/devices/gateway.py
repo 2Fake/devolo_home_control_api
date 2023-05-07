@@ -1,6 +1,9 @@
 """The devolo Home Control Central Unit."""
 import logging
+from datetime import timezone
 from typing import Dict, Optional
+
+from dateutil import tz
 
 from devolo_home_control_api.exceptions import GatewayOfflineError
 from devolo_home_control_api.mydevolo import Mydevolo
@@ -29,6 +32,11 @@ class Gateway:  # pylint: disable=too-few-public-methods
         self.local_passkey = details["localPasskey"]
         self.external_access = details.get("externalAccess")
         self.firmware_version = details.get("firmwareVersion")
+
+        if details["location"]:
+            self.timezone = tz.gettz(details["location"]["timezone"]) or timezone.utc
+        else:
+            self.timezone = tz.gettz(self._mydevolo.get_timezone()) or timezone.utc
 
         try:
             self.full_url: Optional[str] = self._mydevolo.get_full_url(self.id)

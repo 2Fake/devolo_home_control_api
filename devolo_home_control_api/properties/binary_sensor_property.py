@@ -1,5 +1,5 @@
 """Binary Sensors."""
-from datetime import datetime
+from datetime import datetime, timezone, tzinfo
 from typing import Any
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -12,18 +12,19 @@ class BinarySensorProperty(SensorProperty):
     Object for binary sensors. It stores the binary sensor state.
 
     :param element_uid: Element UID, something like devolo.BinarySensor:hdm:ZWave:CBC56091/24
+    :param tz: Timezone the last activity is recorded in
     :key state: State of the binary sensor
     :type state: bool
     """
 
-    def __init__(self, element_uid: str, **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: Any) -> None:
         """Initialize the binary sensor."""
         if not element_uid.startswith(
             ("devolo.BinarySensor:", "devolo.MildewSensor:", "devolo.ShutterMovementFI:", "devolo.WarningBinaryFI:")
         ):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid, **kwargs)
+        super().__init__(element_uid, tz, **kwargs)
 
         self._state: bool = kwargs.pop("state", False)
 
@@ -39,7 +40,7 @@ class BinarySensorProperty(SensorProperty):
         They can be initialized with that value. The others stay with a default timestamp until first update.
         """
         if timestamp != -1:
-            self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
+            self._last_activity = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).replace(tzinfo=self._timezone)
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
@@ -51,5 +52,5 @@ class BinarySensorProperty(SensorProperty):
     def state(self, state: bool) -> None:
         """Update state of the binary sensor and set point in time of the last_activity."""
         self._state = state
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("state of element_uid %s set to %s.", self.element_uid, state)

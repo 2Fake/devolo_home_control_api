@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import pytest
 import requests
+from dateutil import tz
 from requests_mock import Mocker
 from syrupy.assertion import SnapshotAssertion
 
@@ -13,7 +14,17 @@ from devolo_home_control_api.exceptions import GatewayOfflineError
 from devolo_home_control_api.homecontrol import HomeControl
 from devolo_home_control_api.mydevolo import Mydevolo
 
-from . import GATEWAY_FULLURL, MAINTENANCE_URL, Subscriber, load_fixture
+from . import (
+    GATEWAY_DETAILS_URL,
+    GATEWAY_FULLURL,
+    GATEWAY_STATUS_URL,
+    MAINTENANCE_URL,
+    STANDARD_TIMEZONE_URL,
+    UUID_URL,
+    ZWAVE_PRODUCTS_URL,
+    Subscriber,
+    load_fixture,
+)
 from .mocks import WEBSOCKET
 
 
@@ -80,10 +91,24 @@ def test_setup_remote_external_access(mydevolo: Mydevolo, gateway_id: str) -> No
         HomeControl(gateway_id, mydevolo)
 
 
-def test_context_manager(mydevolo: Mydevolo, gateway_id: str, gateway_ip: str, requests_mock: Mocker) -> None:
-    """Test setting up using a conext manager."""
+def test_timezone_with_location(local_gateway: HomeControl) -> None:
+    """Test getting the gateway's timezone, if a location is set."""
+    assert local_gateway.gateway.timezone == tz.gettz("Europe/Berlin")
+
+
+def test_timezone_without_location(gateway_id: str, gateway_ip: str, requests_mock: Mocker) -> None:
+    """Test getting the gateway's timezone, if no location is set."""
     connection = load_fixture("homecontrol_local_session")
     connection["link"] = f"http://{gateway_ip}/dhlp/portal/full/?token=54e8c82fc921ee7e&"
+    gateway_details = load_fixture("mydevolo_gateway_details")
+    gateway_details["location"] = None
+    requests_mock.get(UUID_URL, json=load_fixture("mydevolo_uuid"))
+    requests_mock.get(GATEWAY_STATUS_URL, json=load_fixture("mydevolo_gateway_status"))
+    requests_mock.get(GATEWAY_DETAILS_URL, json=gateway_details)
+    requests_mock.get(GATEWAY_FULLURL, json=load_fixture("mydevolo_gateway_fullurl"))
+    requests_mock.get(ZWAVE_PRODUCTS_URL, json=load_fixture("mydevolo_zwave_products"))
+    requests_mock.get(MAINTENANCE_URL, json=load_fixture("mydevolo_maintenance"))
+    requests_mock.get(STANDARD_TIMEZONE_URL, json=load_fixture("mydevolo_standard_timezone"))
     requests_mock.get(f"http://{gateway_ip}/dhlp/port/full")
     requests_mock.get(f"http://{gateway_ip}/dhlp/portal/full", json=connection)
     requests_mock.get(connection["link"])
@@ -96,8 +121,9 @@ def test_context_manager(mydevolo: Mydevolo, gateway_id: str, gateway_ip: str, r
             {"json": load_fixture("homecontrol_device_details")},
         ],
     )
+    mydevolo = Mydevolo()
     with HomeControl(gateway_id, mydevolo) as homecontrol:
-        assert homecontrol
+        assert homecontrol.gateway.timezone == tz.gettz("Europe/Berlin")
 
 
 def test_update_online_state(local_gateway: HomeControl, gateway_ip: str, requests_mock: Mocker) -> None:

@@ -152,6 +152,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding binary sensor property to %s.", device_uid)
         self.devices[device_uid].binary_sensor_property[uid_info["UID"]] = BinarySensorProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             state=bool(uid_info["properties"]["state"]),
             sensor_type=uid_info["properties"]["sensorType"],
             sub_type=uid_info["properties"]["subType"],
@@ -165,6 +166,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding binary switch property to %s.", device_uid)
         self.devices[device_uid].binary_switch_property[uid_info["UID"]] = BinarySwitchProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_binary_switch,
             state=bool(uid_info["properties"]["state"]),
             enabled=uid_info["properties"]["guiEnabled"],
@@ -176,6 +178,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding general device settings to %s.", device_uid)
         self.devices[device_uid].settings_property["general_device_settings"] = SettingsProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_setting,
             events_enabled=uid_info["properties"]["settings"]["eventsEnabled"],
             name=uid_info["properties"]["settings"]["name"],
@@ -201,7 +204,9 @@ class HomeControl(Mprm):
             self.devices[device_uid].humidity_bar_property = {}
         if self.devices[device_uid].humidity_bar_property.get(fake_element_uid) is None:
             self.devices[device_uid].humidity_bar_property[fake_element_uid] = HumidityBarProperty(
-                element_uid=fake_element_uid, sensorType="humidityBar"
+                element_uid=fake_element_uid,
+                tz=self.gateway.timezone,
+                sensorType="humidityBar",
             )
         if uid_info["properties"]["sensorType"] == "humidityBarZone":
             self._logger.debug("Adding humidity bar zone property to %s.", device_uid)
@@ -252,6 +257,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding automatic calibration setting to %s.", device_uid)
         self.devices[device_uid].settings_property["automatic_calibration"] = SettingsProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_setting,
             calibration_status=bool(uid_info["properties"]["calibrationStatus"]),
         )
@@ -264,7 +270,10 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
         self._logger.debug("Adding binary sync setting to %s.", device_uid)
         self.devices[device_uid].settings_property["movement_direction"] = SettingsProperty(
-            element_uid=uid_info["UID"], setter=self.set_setting, inverted=uid_info["properties"]["value"]
+            element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
+            setter=self.set_setting,
+            inverted=uid_info["properties"]["value"],
         )
 
     def _binary_async(self, uid_info: Dict[str, Any]) -> None:
@@ -272,7 +281,10 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
         self._logger.debug("Adding binary async settings to %s.", device_uid)
         settings_property = SettingsProperty(
-            element_uid=uid_info["UID"], setter=self.set_setting, value=uid_info["properties"]["value"]
+            element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
+            setter=self.set_setting,
+            value=uid_info["properties"]["value"],
         )
 
         # The siren needs to be handled differently, as otherwise their binary async setting will not be named nicely
@@ -309,7 +321,10 @@ class HomeControl(Mprm):
         except KeyError:
             led_setting = uid_info["properties"]["feedback"]
         self.devices[device_uid].settings_property["led"] = SettingsProperty(
-            element_uid=uid_info["UID"], setter=self.set_setting, led_setting=led_setting
+            element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
+            setter=self.set_setting,
+            led_setting=led_setting,
         )
 
     def _meter(self, uid_info: Dict[str, Any]) -> None:
@@ -320,6 +335,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding consumption property to %s.", device_uid)
         self.devices[device_uid].consumption_property[uid_info["UID"]] = ConsumptionProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             current=uid_info["properties"]["currentValue"],
             total=uid_info["properties"]["totalValue"],
             total_since=uid_info["properties"]["sinceTime"],
@@ -339,7 +355,10 @@ class HomeControl(Mprm):
 
         self._logger.debug("Adding %s setting to %s.", name, device_uid)
         self.devices[device_uid].settings_property[name] = SettingsProperty(
-            element_uid=uid_info["UID"], setter=self.set_setting, value=uid_info["properties"]["value"]
+            element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
+            setter=self.set_setting,
+            value=uid_info["properties"]["value"],
         )
 
     def _multilevel_sync(self, uid_info: Dict[str, Any]) -> None:
@@ -350,21 +369,30 @@ class HomeControl(Mprm):
         if self.devices[device_uid].device_model_uid == "devolo.model.Siren":
             self._logger.debug("Adding tone settings to %s.", device_uid)
             self.devices[device_uid].settings_property["tone"] = SettingsProperty(
-                element_uid=uid_info["UID"], setter=self.set_setting, tone=uid_info["properties"]["value"]
+                element_uid=uid_info["UID"],
+                tz=self.gateway.timezone,
+                setter=self.set_setting,
+                tone=uid_info["properties"]["value"],
             )
 
         # The shutter needs to be handled differently, as otherwise their multilevel sync setting will not be named nicely.
         elif self.devices[device_uid].device_model_uid in ("devolo.model.OldShutter", "devolo.model.Shutter"):
             self._logger.debug("Adding shutter duration settings to %s.", device_uid)
             self.devices[device_uid].settings_property["shutter_duration"] = SettingsProperty(
-                element_uid=uid_info["UID"], setter=self.set_setting, shutter_duration=uid_info["properties"]["value"]
+                element_uid=uid_info["UID"],
+                tz=self.gateway.timezone,
+                setter=self.set_setting,
+                shutter_duration=uid_info["properties"]["value"],
             )
 
         # Other devices are up to now always motion sensors.
         else:
             self._logger.debug("Adding motion sensitivity settings to %s.", device_uid)
             self.devices[device_uid].settings_property["motion_sensitivity"] = SettingsProperty(
-                element_uid=uid_info["UID"], setter=self.set_setting, motion_sensitivity=uid_info["properties"]["value"]
+                element_uid=uid_info["UID"],
+                tz=self.gateway.timezone,
+                setter=self.set_setting,
+                motion_sensitivity=uid_info["properties"]["value"],
             )
 
     def _multi_level_sensor(self, uid_info: Dict[str, Any]) -> None:
@@ -375,6 +403,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding multi level sensor property %s to %s.", uid_info["UID"], device_uid)
         self.devices[device_uid].multi_level_sensor_property[uid_info["UID"]] = MultiLevelSensorProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             value=uid_info["properties"]["value"],
             unit=uid_info["properties"]["unit"],
             sensor_type=uid_info["properties"]["sensorType"],
@@ -388,6 +417,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding multi level switch property %s to %s.", uid_info["UID"], device_uid)
         self.devices[device_uid].multi_level_switch_property[uid_info["UID"]] = MultiLevelSwitchProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_multi_level_switch,
             value=uid_info["properties"]["value"],
             switch_type=uid_info["properties"]["switchType"],
@@ -400,7 +430,10 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
         self._logger.debug("Adding parameter settings to %s.", device_uid)
         self.devices[device_uid].settings_property["param_changed"] = SettingsProperty(
-            element_uid=uid_info["UID"], setter=self.set_setting, param_changed=uid_info["properties"]["paramChanged"]
+            element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
+            setter=self.set_setting,
+            param_changed=uid_info["properties"]["paramChanged"],
         )
 
     def _protection(self, uid_info: Dict[str, Any]) -> None:
@@ -409,6 +442,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding protection settings to %s.", device_uid)
         self.devices[device_uid].settings_property["protection"] = SettingsProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_setting,
             local_switching=uid_info["properties"]["localSwitch"],
             remote_switching=uid_info["properties"]["remoteSwitch"],
@@ -422,6 +456,7 @@ class HomeControl(Mprm):
             self.devices[device_uid].remote_control_property = {}
         self.devices[device_uid].remote_control_property[uid_info["UID"]] = RemoteControlProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_remote_control,
             key_count=uid_info["properties"]["keyCount"],
             key_pressed=uid_info["properties"]["keyPressed"],
@@ -436,7 +471,10 @@ class HomeControl(Mprm):
         device_uid = get_device_uid_from_setting_uid(uid_info["UID"])
         self._logger.debug("Adding switch type setting to %s.", device_uid)
         self.devices[device_uid].settings_property["switch_type"] = SettingsProperty(
-            element_uid=uid_info["UID"], setter=self.set_setting, value=uid_info["properties"]["switchType"] * 2
+            element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
+            setter=self.set_setting,
+            value=uid_info["properties"]["switchType"] * 2,
         )
 
     def _temperature_report(self, uid_info: Dict[str, Any]) -> None:
@@ -445,6 +483,7 @@ class HomeControl(Mprm):
         self._logger.debug("Adding temperature report settings to %s.", device_uid)
         self.devices[device_uid].settings_property["temperature_report"] = SettingsProperty(
             element_uid=uid_info["UID"],
+            tz=self.gateway.timezone,
             setter=self.set_setting,
             temp_report=uid_info["properties"]["tempReport"],
             target_temp_report=uid_info["properties"]["targetTempReport"],

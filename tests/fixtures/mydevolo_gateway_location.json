@@ -1,0 +1,14 @@
+{
+    "href": "https://mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/addresses/535512AB-165D-11E7-A4E2-000C29D76CCA",
+    "name": "main",
+    "company": "devolo AG",
+    "street": "Charlottenburger Allee",
+    "houseno": "67",
+    "zipcode": "52068",
+    "city": "Aachen",
+    "country": "DE",
+    "timezone": "Europe/Berlin",
+    "timezoneCEEJ": "CET",
+    "latitude": "50.7910659763063",
+    "longitude": "6.139662697677296"
+}

@@ -1,5 +1,5 @@
 """Multi Level Sensors."""
-from datetime import datetime
+from datetime import datetime, tzinfo
 from typing import Any
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -13,13 +13,14 @@ class MultiLevelSensorProperty(SensorProperty):
     state in the right context.
 
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#MultilevelSensor(1)
+    :param tz: Timezone the last activity is recorded in
     :key value: Multi level value
     :type value: float
     :key unit: Unit of that value
     :type unit: int
     """
 
-    def __init__(self, element_uid: str, **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: Any) -> None:
         """Initialize the multi level sensor."""
         if not element_uid.startswith(
             (
@@ -31,7 +32,7 @@ class MultiLevelSensorProperty(SensorProperty):
         ):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid, **kwargs)
+        super().__init__(element_uid, tz, **kwargs)
 
         self._value: float = kwargs.pop("value", 0.0)
         self._unit: int = kwargs.pop("unit", 0)
@@ -61,5 +62,5 @@ class MultiLevelSensorProperty(SensorProperty):
     def value(self, value: float) -> None:
         """Update value of the multilevel sensor and set point in time of the last_activity."""
         self._value = value
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("value of element_uid %s set to %s.", self.element_uid, value)
