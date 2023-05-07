@@ -1,4 +1,4 @@
-"""my devolo"""
+"""my devolo."""
 import logging
 from functools import lru_cache
 from typing import Any, Dict, List
@@ -17,6 +17,7 @@ class Mydevolo:
     """
 
     def __init__(self) -> None:
+        """Initialize my devolo communication."""
         self._logger = logging.getLogger(self.__class__.__name__)
         self._user = ""
         self._password = ""
@@ -60,9 +61,7 @@ class Mydevolo:
 
     @lru_cache(maxsize=1)
     def get_gateway_ids(self) -> List[str]:
-        """
-        Get all gateway IDs attached to current account.
-        """
+        """Get all gateway IDs attached to current account."""
         self._logger.debug("Getting list of gateways")
         items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")["items"]
         gateway_ids = [gateway["gatewayId"] for gateway in items]
@@ -128,9 +127,7 @@ class Mydevolo:
         return device_info
 
     def maintenance(self) -> bool:
-        """
-        If devolo Home Control is in maintenance, there is not much we can do via cloud.
-        """
+        """If devolo Home Control is in maintenance, there is not much we can do via cloud."""
         state = self._call(f"{self.url}/v1/hc/maintenance")["state"]
         if state == "on":
             return False
@@ -139,9 +136,7 @@ class Mydevolo:
 
     @lru_cache()
     def uuid(self) -> str:
-        """
-        The uuid is a central attribute in my devolo. Most URLs in the user's context contain it.
-        """
+        """Get the uuid. The uuid is a central attribute in my devolo. Most URLs in the user's context contain it."""
         self._logger.debug("Getting UUID")
         return self._call(f"{self.url.rstrip('/')}/v1/users/uuid")["uuid"]
 
