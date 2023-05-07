@@ -63,7 +63,7 @@ max-line-length = 127
 
 [tool.pylint.messages_control]
 disable = "R0801"
-good-names = "id,ip,ws"
+good-names = "id,ip,tz,ws"
 
 [tool.setuptools]
 packages = { find = {exclude=["docs*", "tests*"]} }
