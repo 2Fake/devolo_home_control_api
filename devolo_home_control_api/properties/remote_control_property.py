@@ -44,14 +44,14 @@ class RemoteControlProperty(Property):
         self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
-    def set(self, key_pressed: int) -> bool:
+    def set(self, key_pressed: int) -> bool:  # noqa: A003
         """
         Trigger a button press of a remote control like if the button was physically pressed.
 
         :param key_pressed: Number of the button to press
         """
         if key_pressed > self.key_count or key_pressed <= 0:
-            raise ValueError(f"Set value {key_pressed} is invalid.")
+            raise ValueError(f"Set value {key_pressed} is invalid.")  # noqa: TRY003
 
         if self._setter(self.element_uid, key_pressed):
             self.key_pressed = key_pressed

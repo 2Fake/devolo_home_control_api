@@ -125,7 +125,7 @@ class MprmWebsocket(MprmRest, ABC):
         sleep_interval = 16
         while not self._reachable:
             self._try_reconnect(sleep_interval)
-            sleep_interval = sleep_interval * 2 if sleep_interval < 2048 else 3600
+            sleep_interval = min(sleep_interval * 2, 3600)
 
         self.websocket_connect()
 

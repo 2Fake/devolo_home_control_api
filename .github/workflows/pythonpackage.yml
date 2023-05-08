@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3.5.2
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v4.5.0
       with:
-        python-version: 3.8
+        python-version: "3.8"
     - name: Check formatting
       uses: pre-commit/action@v3.0.0
 
@@ -22,27 +22,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3.5.2
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v4.5.0
       with:
-        python-version: 3.8
-    - name: Lint with flake8
+        python-version: "3.8"
+    - name: Lint with ruff
       run: |
         python -m pip install --upgrade pip
-        pip install flake8
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --statistics
-    - name: Lint with pylint
-      run: |
-        pip install pylint
-        pip install -e .
-        pylint --errors-only --score=n devolo_home_control_api
-        pylint --exit-zero --score=n --disable=E --enable=useless-suppression devolo_home_control_api
+        python -m pip install ruff
+        ruff check --format=github devolo_plc_api scripts
+        ruff check --format=github --exit-zero tests
     - name: Lint with mypy
       run: |
         pip install mypy types-python-dateutil types-requests
-        mypy --ignore-missing-imports devolo_home_control_api
+        mypy devolo_home_control_api
+        mypy tests || true
 
   test:
     name: Test with Python ${{ matrix.python-version }}
@@ -52,9 +47,9 @@ jobs:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3.5.2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v4.5.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -65,7 +60,7 @@ jobs:
       run: |
         pytest --cov=devolo_home_control_api
     - name: Preserve coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.2
       if: matrix.python-version == '3.8'
       with:
         name: coverage
@@ -77,13 +72,13 @@ jobs:
     needs: test
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3.5.2
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v4.5.0
       with:
         python-version: 3.8
     - name: Download coverage
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v3.0.2
       with:
         name: coverage
     - name: Coveralls
@@ -93,6 +88,6 @@ jobs:
         export COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }}
         coveralls
     - name: Clean up coverage
-      uses: geekyeggo/delete-artifact@v2
+      uses: geekyeggo/delete-artifact@v2.0.0
       with:
         name: coverage

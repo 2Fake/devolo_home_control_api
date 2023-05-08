@@ -18,7 +18,7 @@ def get_device_uid_from_element_uid(element_uid: str) -> str:
     parts = re.search(r".*?:(.*/\d{1,3})", element_uid)
     if parts:
         return parts.group(1)
-    raise ValueError("Element UID has a wrong format.")
+    raise ValueError("Element UID has a wrong format.")  # noqa: TRY003
 
 
 def get_device_uid_from_setting_uid(setting_uid: str) -> str:
@@ -31,7 +31,7 @@ def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     parts = re.search(r".*\.(.*/\d{1,3})", setting_uid)
     if parts:
         return parts.group(1)
-    raise ValueError("Settings UID has a wrong format.")
+    raise ValueError("Settings UID has a wrong format.")  # noqa: TRY003
 
 
 def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
@@ -64,4 +64,4 @@ def get_home_id_from_device_uid(device_uid: str) -> str:
     parts = re.search(r":.*?(:)(.*)(/)", device_uid)
     if parts:
         return parts.group(2)
-    raise ValueError("Device UID has a wrong format.")
+    raise ValueError("Device UID has a wrong format.")  # noqa: TRY003

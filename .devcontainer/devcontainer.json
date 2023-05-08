@@ -22,12 +22,9 @@
 				"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
 				"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
 				"python.linting.enabled": true,
-				"python.linting.flake8Enabled": true,
+				"python.linting.flake8Enabled": false,
 				"python.linting.mypyEnabled": true,
-				"python.linting.pylintEnabled": true,
-				"python.linting.pylintArgs": [
-					"--enable=useless-suppression"
-				],
+				"python.linting.pylintEnabled": false,
 				"python.testing.nosetestsEnabled": false,
 				"python.testing.pytestEnabled": true,
 				"python.testing.unittestEnabled": false,
@@ -40,7 +37,8 @@
 				"ms-python.vscode-pylance",
 				"ms-python.isort",
 				"sourcery.sourcery",
-				"visualstudioexptteam.vscodeintellicode"
+				"visualstudioexptteam.vscodeintellicode",
+				"charliermarsh.ruff"
 			]
 		}
 	},

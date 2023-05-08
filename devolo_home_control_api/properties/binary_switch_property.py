@@ -43,7 +43,7 @@ class BinarySwitchProperty(Property):
         self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("State of %s set to %s.", self.element_uid, state)
 
-    def set(self, state: bool) -> bool:
+    def set(self, state: bool) -> bool:  # noqa: A003
         """
         Set the binary switch of the given element_uid to the given state.
 

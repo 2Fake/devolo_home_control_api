@@ -5,7 +5,7 @@ from datetime import tzinfo
 from .property import Property
 
 
-class SensorProperty(Property, ABC):  # pylint: disable=too-few-public-methods
+class SensorProperty(Property, ABC):
     """
     Abstract object for sensors. It stores the sensor and sub type.
 

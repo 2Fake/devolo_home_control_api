@@ -32,7 +32,7 @@ class Publisher:
         :raises AttributeError: The supposed callback is not callable.
         """
         if callback is None:
-            callback = getattr(who, "update")
+            callback = who.update
         self._get_subscribers_for_specific_event(event)[who] = callback
         self._logger.debug("Subscriber registered for event %s", event)
 
