@@ -13,7 +13,8 @@
       'href': 'string',
     }),
     'localPasskey': '6b96ad097aa389209f1ceeaed6fe7029',
-    'location': 'https://www.mydevolo.com/v1/users/535512AB-165D-11E7-A4E2-000C29D76CCA/hc/gateways/1409301750000598/location',
+    'location': dict({
+    }),
     'name': 'DVT Lab 1409301750000598',
     'partner': 'string',
     'role': 'user',

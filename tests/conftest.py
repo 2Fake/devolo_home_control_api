@@ -14,9 +14,11 @@ from devolo_home_control_api.mydevolo import Mydevolo
 from . import (
     GATEWAY_DETAILS_URL,
     GATEWAY_FULLURL,
+    GATEWAY_LOCATION_URL,
     GATEWAY_STATUS_URL,
     HOMECONTROL_URL,
     MAINTENANCE_URL,
+    STANDARD_TIMEZONE_URL,
     UUID_URL,
     ZWAVE_PRODUCTS_URL,
     DifferentDirectoryExtension,
@@ -119,9 +121,11 @@ def mydevolo(requests_mock: Mocker) -> Mydevolo:
     requests_mock.get(UUID_URL, json=load_fixture("mydevolo_uuid"))
     requests_mock.get(GATEWAY_STATUS_URL, json=load_fixture("mydevolo_gateway_status"))
     requests_mock.get(GATEWAY_DETAILS_URL, json=load_fixture("mydevolo_gateway_details"))
+    requests_mock.get(GATEWAY_LOCATION_URL, json=load_fixture("mydevolo_gateway_location"))
     requests_mock.get(GATEWAY_FULLURL, json=load_fixture("mydevolo_gateway_fullurl"))
     requests_mock.get(ZWAVE_PRODUCTS_URL, json=load_fixture("mydevolo_zwave_products"))
     requests_mock.get(MAINTENANCE_URL, json=load_fixture("mydevolo_maintenance"))
+    requests_mock.get(STANDARD_TIMEZONE_URL, json=load_fixture("mydevolo_standard_timezone"))
     return Mydevolo()
 
 

@@ -1,5 +1,5 @@
 """Humidity Bars."""
-from datetime import datetime
+from datetime import datetime, tzinfo
 from typing import Any
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -12,18 +12,19 @@ class HumidityBarProperty(SensorProperty):
     Object for humidity bars. It stores the zone and the position inside that zone.
 
     :param element_uid: Fake element UID, something like devolo.HumidityBar:hdm:ZWave:CBC56091/24
+    :param tz: Timezone the last activity is recorded in
     :key value: Position inside a zone
     :type value: int
     :key zone: Humidity zone from 0 (very dry) to 4 (very humid)
     :type zone: int
     """
 
-    def __init__(self, element_uid: str, **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: Any) -> None:
         """Initialize the humidity bar."""
         if not element_uid.startswith("devolo.HumidityBar:"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid, **kwargs)
+        super().__init__(element_uid, tz, **kwargs)
 
         self._value: int = kwargs.pop("value", 0)
         self.zone: int = kwargs.pop("zone", 0)
@@ -40,5 +41,5 @@ class HumidityBarProperty(SensorProperty):
         the last activity.
         """
         self._value = value
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("value of element_uid %s set to %s.", self.element_uid, value)

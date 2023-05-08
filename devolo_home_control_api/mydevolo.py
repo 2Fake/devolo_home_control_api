@@ -80,6 +80,7 @@ class Mydevolo:
         except WrongUrlError:
             self._logger.error("Could not get full URL. Wrong gateway ID used?")
             raise
+        details["location"] = self._call(details["location"]) if details["location"] else {}
         return details
 
     def get_full_url(self, gateway_id: str) -> str:
@@ -91,6 +92,15 @@ class Mydevolo:
         """
         self._logger.debug("Getting full URL of gateway.")
         return self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/{gateway_id}/fullURL")["url"]
+
+    def get_timezone(self) -> str:
+        """
+        Get user's standard timezone.
+
+        :return: Standard timezone of the user based on his country settings.
+        """
+        self._logger.debug("Getting the user's standard timezone.")
+        return self._call(f"{self.url}/v1/users/{self.uuid()}/standardTimezone")["timezone"]
 
     def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> Dict[str, Any]:
         """

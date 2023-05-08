@@ -15,6 +15,7 @@ classifiers = [
 description = "devolo Home Control API in Python"
 dependencies = [
     "importlib-metadata;python_version<'3.8'",
+    "python-dateutil>=2.8.0",
     "requests>=2.4.0",
     "typing-extensions>=4.1.0;python_version<'3.11'",
     "websocket_client>=0.58.0",
@@ -62,7 +63,7 @@ max-line-length = 127
 
 [tool.pylint.messages_control]
 disable = "R0801"
-good-names = "id,ip,ws"
+good-names = "id,ip,tz,ws"
 
 [tool.setuptools]
 packages = { find = {exclude=["docs*", "tests*"]} }

@@ -1,5 +1,5 @@
 """Remote Controls."""
-from datetime import datetime
+from datetime import datetime, tzinfo
 from typing import Callable
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -13,6 +13,7 @@ class RemoteControlProperty(Property):
     right context.
 
     :param element_uid: Element UID, something like devolo.RemoteControl:hdm:ZWave:CBC56091/24#2
+    :param tz: Timezone the last activity is recorded in
     :param setter: Method to call on setting the state
     :key key_count: Number of buttons this remote control has
     :type key_count: int
@@ -20,12 +21,12 @@ class RemoteControlProperty(Property):
     :type key_pressed: int
     """
 
-    def __init__(self, element_uid: str, setter: Callable[[str, int], bool], **kwargs: int) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, setter: Callable[[str, int], bool], **kwargs: int) -> None:
         """Initialize the remote control."""
         if not element_uid.startswith("devolo.RemoteControl"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(element_uid, tz)
         self._setter = setter
 
         self._key_pressed: int = kwargs.pop("key_pressed", 0)
@@ -40,7 +41,7 @@ class RemoteControlProperty(Property):
     def key_pressed(self, key_pressed: int) -> None:
         """Update value of the multilevel value and set point in time of the last_activity."""
         self._key_pressed = key_pressed
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
     def set(self, key_pressed: int) -> bool:

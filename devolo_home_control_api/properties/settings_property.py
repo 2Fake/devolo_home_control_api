@@ -1,4 +1,5 @@
 """Settings."""
+from datetime import tzinfo
 from typing import Any, Callable, Dict
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -13,6 +14,7 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
     are removed, they should be handled at least in reading them. Nevertheless, a few unwanted attributes are filtered.
 
     :param element_uid: Element UID, something like acs.hdm:ZWave:CBC56091/24
+    :param tz: Timezone the last activity is recorded in
     :param setter: Method to call on setting the state
     :param **kwargs: Any setting, that shall be available in this object
     """
@@ -33,14 +35,14 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
     value: bool
     zone_id: str
 
-    def __init__(self, element_uid: str, setter: Callable[..., bool], **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, setter: Callable[..., bool], **kwargs: Any) -> None:
         """Initialize the setting."""
         if not element_uid.startswith(
             ("acs", "bas", "bss", "cps", "gds", "lis", "mas", "mss", "ps", "sts", "stmss", "trs", "vfs")
         ):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(element_uid, tz)
         self._setter = setter
 
         if element_uid.startswith("gds") and {"zones", "zone_id"} <= kwargs.keys():

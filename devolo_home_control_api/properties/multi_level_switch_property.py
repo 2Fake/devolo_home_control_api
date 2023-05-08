@@ -1,5 +1,5 @@
 """Multi Level Switches."""
-from datetime import datetime
+from datetime import datetime, timezone, tzinfo
 from typing import Any, Callable, Optional
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -13,6 +13,7 @@ class MultiLevelSwitchProperty(Property):
     in the right context.
 
     :param element_uid: Element UID, something like devolo.Dimmer:hdm:ZWave:CBC56091/24#2
+    :param tz: Timezone the last activity is recorded in
     :key value: Value the multi level switch has at time of creating this instance
     :type value: float
     :key switch_type: Type this switch is of, e.g. temperature
@@ -23,14 +24,14 @@ class MultiLevelSwitchProperty(Property):
     :type min: float
     """
 
-    def __init__(self, element_uid: str, setter: Callable[[str, float], bool], **kwargs: Any) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, setter: Callable[[str, float], bool], **kwargs: Any) -> None:
         """Initialize the multi level switch."""
         if not element_uid.startswith(
             ("devolo.Blinds:", "devolo.Dimmer:", "devolo.MultiLevelSwitch:", "devolo.SirenMultiLevelSwitch:")
         ):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
-        super().__init__(element_uid=element_uid)
+        super().__init__(element_uid, tz)
         self._setter = setter
 
         self._value: float = kwargs.pop("value", 0.0)
@@ -50,7 +51,7 @@ class MultiLevelSwitchProperty(Property):
         level switchs. They can be initialized with that value. The others stay with a default timestamp until first update.
         """
         if timestamp != -1:
-            self._last_activity = datetime.utcfromtimestamp(timestamp / 1000)
+            self._last_activity = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).replace(tzinfo=self._timezone)
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
@@ -71,7 +72,7 @@ class MultiLevelSwitchProperty(Property):
     def value(self, value: float) -> None:
         """Update value of the multilevel value and set point in time of the last_activity."""
         self._value = value
-        self._last_activity = datetime.now()
+        self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("Value of %s set to %s.", self.element_uid, value)
 
     def set(self, value: float) -> bool:
