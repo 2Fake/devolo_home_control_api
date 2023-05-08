@@ -1,9 +1,9 @@
 # devolo Home Control API
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/2Fake/devolo_home_control_api/pythonpackage.yml?branch=master)](https://github.com/2Fake/devolo_home_control_api/actions?query=workflow%3A%22Python+package%22)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/2Fake/devolo_home_control_api/pythonpackage.yml?branch=main)](https://github.com/2Fake/devolo_home_control_api/actions?query=workflow%3A%22Python+package%22)
 [![PyPI - Downloads](https://img.shields.io/pypi/dd/devolo-home-control-api)](https://pypi.org/project/devolo-home-control-api/)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/2Fake/devolo_home_control_api)](https://codeclimate.com/github/2Fake/devolo_home_control_api)
-[![Coverage Status](https://coveralls.io/repos/github/2Fake/devolo_home_control_api/badge.svg?branch=master)](https://coveralls.io/github/2Fake/devolo_home_control_api?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/2Fake/devolo_home_control_api/badge.svg?branch=main)](https://coveralls.io/github/2Fake/devolo_home_control_api?branch=main)
 
 This project implements parts of the devolo Home Control API in Python. It is based on reverse engineering and therefore may fail with any new devolo update. If you discover a breakage, please feel free to [report an issue](https://github.com/2Fake/devolo_home_control_api/issues).
 
@@ -14,14 +14,18 @@ Defining the system requirements with exact versions typically is difficult. But
 * Linux
 * Python 3.7.12
 * pip 22.0.1
+* python-dateutil 2.8.2
 * requests 2.27.1
 * websocket_client 1.3.1
 * zeroconf 0.38.4
 
 Other versions and even other operating systems might work. Feel free to tell us about your experience. If you want to run our unit tests, you also need:
 
-* pytest 7.0.1
-* pytest-mock 3.7.0
+* pytest 7.2.2
+* pytest-cov 4.0.0
+* pytest-freezer 0.4.6
+* requests-mock 3.10.0
+* syrupy 4.0.0
 
 ## Versioning
 
@@ -47,13 +51,13 @@ Then you need to take care of the requirements.
 
 ```bash
 cd devolo_home_control_api
-python setup.py install
+python -m pip install .
 ```
 
 If you want to run out tests, install the extra requirements and start pytest.
 
 ```bash
-pip install -e .[test]
+python -m pip install -e .[test]
 pytest
 ```
 
