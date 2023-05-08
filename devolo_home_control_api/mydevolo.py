@@ -142,7 +142,7 @@ class Mydevolo:
         self._logger.warning("devolo Home Control is in maintenance mode.")
         return True
 
-    @lru_cache(maxsize=1)
+    @lru_cache(maxsize=1)  # noqa: B019
     def uuid(self) -> str:
         """Get the uuid. The uuid is a central attribute in my devolo. Most URLs in the user's context contain it."""
         self._logger.debug("Getting UUID")
