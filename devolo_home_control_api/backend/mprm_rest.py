@@ -7,7 +7,7 @@ from enum import IntEnum
 from typing import Any, Dict, List, Union
 
 from requests import Session
-from requests.exceptions import ConnectionError, ReadTimeout  # pylint: disable=redefined-builtin
+from requests.exceptions import ConnectionError, ReadTimeout
 
 from devolo_home_control_api.devices import Gateway
 from devolo_home_control_api.exceptions import GatewayOfflineError
@@ -163,7 +163,7 @@ class MprmRest(ABC):
         if response["id"] != data["id"]:
             self._logger.error("Got an unexpected response after posting data.")
             self._logger.debug("Message had ID %s, response had ID %s.", data["id"], response["id"])
-            raise ValueError("Got an unexpected response after posting data.")
+            raise ValueError("Got an unexpected response after posting data.")  # noqa: TRY003
         return response
 
 

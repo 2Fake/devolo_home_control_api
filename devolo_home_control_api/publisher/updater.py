@@ -70,7 +70,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         try:
             calibration_status = message["properties"]["property.value.new"]["status"]
             self._update_automatic_calibration(
-                element_uid=message["properties"]["uid"], calibration_status=calibration_status != 2
+                element_uid=message["properties"]["uid"], calibration_status=calibration_status != 2  # noqa: PLR2004
             )
         except (KeyError, TypeError):
             if type(message["properties"]["property.value.new"]) not in [dict, list]:

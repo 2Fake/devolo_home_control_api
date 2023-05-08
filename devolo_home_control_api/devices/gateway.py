@@ -1,5 +1,4 @@
 """The devolo Home Control Central Unit."""
-import logging
 from datetime import timezone
 from typing import Dict, Optional
 
@@ -9,7 +8,7 @@ from devolo_home_control_api.exceptions import GatewayOfflineError
 from devolo_home_control_api.mydevolo import Mydevolo
 
 
-class Gateway:  # pylint: disable=too-few-public-methods
+class Gateway:
     """
     Representing object for devolo Home Control Central Units. As it is a gateway from the IP world to the Z-Wave
     world, we call it that way. Nearly all attributes are delivered by my devolo.
@@ -20,7 +19,6 @@ class Gateway:  # pylint: disable=too-few-public-methods
 
     def __init__(self, gateway_id: str, mydevolo_instance: Mydevolo) -> None:
         """Initialize the central unit."""
-        self._logger = logging.getLogger(self.__class__.__name__)
         self._mydevolo = mydevolo_instance
 
         details = self._mydevolo.get_gateway(gateway_id)

@@ -1,5 +1,6 @@
 """Settings."""
 from datetime import tzinfo
+from enum import IntEnum
 from typing import Any, Callable, Dict
 
 from devolo_home_control_api.exceptions import WrongElementError
@@ -7,7 +8,7 @@ from devolo_home_control_api.exceptions import WrongElementError
 from .property import Property
 
 
-class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
+class SettingsProperty(Property):
     """
     Object for settings. Basically, everything can be stored in here as long as there is a corresponding functional item on
     the gateway. This is to be as flexible to gateway firmware changes as possible. So if new attributes appear or old ones
@@ -134,8 +135,8 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
 
         :param motion_sensitivity: Integer for the motion sensitivity setting.
         """
-        if not 0 <= motion_sensitivity <= 100:
-            raise ValueError("Value must be between 0 and 100")
+        if not MotionSensitivity.MIN <= motion_sensitivity <= MotionSensitivity.MAX:
+            raise ValueError(f"Value must be between {MotionSensitivity.MIN} and {MotionSensitivity.MAX}")  # noqa: TRY003
         if self._setter(self.element_uid, [motion_sensitivity]):
             self.motion_sensitivity = motion_sensitivity
             self._logger.debug("Motion sensitivity setting property %s set to %s", self.element_uid, motion_sensitivity)
@@ -185,3 +186,10 @@ class SettingsProperty(Property):  # pylint: disable=too-few-public-methods
             self._logger.debug("Temperature report setting property %s set to %s", self.element_uid, temp_report)
             return True
         return False
+
+
+class MotionSensitivity(IntEnum):
+    """Motion sensitivity boundary value."""
+
+    MIN = 0
+    MAX = 100

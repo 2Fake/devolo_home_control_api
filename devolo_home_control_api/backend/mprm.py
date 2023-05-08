@@ -45,7 +45,7 @@ class Mprm(MprmWebsocket, ABC):
             self.get_remote_session()
         else:
             self._logger.error("Cannot connect to gateway. No gateway found in LAN and external access is not possible.")
-            raise ConnectionError("Cannot connect to gateway.")
+            raise ConnectionError("Cannot connect to gateway.")  # noqa: TRY003
 
     def detect_gateway_in_lan(self) -> str:
         """

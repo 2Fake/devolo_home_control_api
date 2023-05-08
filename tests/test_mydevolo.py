@@ -1,7 +1,6 @@
 """Test mydevolo."""
 import sys
 from http import HTTPStatus
-from unittest.mock import patch
 
 import pytest
 from requests_mock import Mocker
@@ -15,12 +14,11 @@ from . import GATEWAY_DETAILS_URL, GATEWAY_FULLURL, GATEWAY_STATUS_URL, MAINTENA
 
 def test_cache_clear(mydevolo: Mydevolo) -> None:
     """Test clearing the UUID cache on new username or password."""
-    with patch("devolo_home_control_api.mydevolo.Mydevolo.uuid.cache_clear") as cache_clear:
-        mydevolo.user = "test@test.com"
-        mydevolo.password = "secret"
-        assert mydevolo.user == "test@test.com"
-        assert mydevolo.password == "secret"
-        assert cache_clear.call_count == 2
+    mydevolo.user = "test@test.com"
+    mydevolo.password = "secret"
+    assert mydevolo.user == "test@test.com"
+    assert mydevolo.password == "secret"
+    assert mydevolo.uuid.cache_info().currsize == 0
 
 
 def test_credential_verification(mydevolo: Mydevolo, requests_mock: Mocker) -> None:

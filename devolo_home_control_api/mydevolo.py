@@ -1,6 +1,7 @@
 """my devolo."""
 import logging
 from functools import lru_cache
+from http import HTTPStatus
 from typing import Any, Dict, List
 
 import requests
@@ -64,7 +65,7 @@ class Mydevolo:
         gateway_ids = [gateway["gatewayId"] for gateway in items]
         if not gateway_ids:
             self._logger.error("Could not get gateway list. No gateway attached to account?")
-            raise IndexError("No gateways found.")
+            raise IndexError("No gateways found.")  # noqa: TRY003
         return gateway_ids
 
     def get_gateway(self, gateway_id: str) -> Dict[str, Any]:
@@ -141,7 +142,7 @@ class Mydevolo:
         self._logger.warning("devolo Home Control is in maintenance mode.")
         return True
 
-    @lru_cache()
+    @lru_cache(maxsize=1)  # noqa: B019
     def uuid(self) -> str:
         """Get the uuid. The uuid is a central attribute in my devolo. Most URLs in the user's context contain it."""
         self._logger.debug("Getting UUID")
@@ -152,12 +153,12 @@ class Mydevolo:
         headers = {"content-type": "application/json", "User-Agent": f"devolo_home_control_api/{__version__}"}
         responds = requests.get(url, auth=(self._user, self._password), headers=headers, timeout=60)
 
-        if responds.status_code == requests.codes.forbidden:  # pylint: disable=no-member
+        if responds.status_code == HTTPStatus.FORBIDDEN:
             self._logger.error("Could not get full URL. Wrong username or password?")
             raise WrongCredentialsError
-        if responds.status_code == requests.codes.not_found:  # pylint: disable=no-member
+        if responds.status_code == HTTPStatus.NOT_FOUND:
             raise WrongUrlError(url)
-        if responds.status_code == requests.codes.service_unavailable:  # pylint: disable=no-member
+        if responds.status_code == HTTPStatus.SERVICE_UNAVAILABLE:
             # mydevolo sends a 503, if the gateway is offline
             self._logger.warning("The requested gateway seems to be offline.")
             raise GatewayOfflineError

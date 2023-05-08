@@ -6,7 +6,7 @@ from datetime import datetime, tzinfo
 from devolo_home_control_api.helper import get_device_uid_from_element_uid
 
 
-class Property(ABC):  # pylint: disable=too-few-public-methods
+class Property(ABC):
     """
     Abstract base object for properties.
 
