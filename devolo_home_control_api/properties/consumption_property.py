@@ -1,6 +1,7 @@
 """Consumption Meters."""
+from __future__ import annotations
+
 from datetime import datetime, timezone, tzinfo
-from typing import Union
 
 from devolo_home_control_api.exceptions import WrongElementError
 
@@ -21,7 +22,7 @@ class ConsumptionProperty(Property):
     :type total_since: int
     """
 
-    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: Union[int, float]) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: int | float) -> None:
         """Initialize the consumption meter."""
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(element_uid, self.__class__.__name__)

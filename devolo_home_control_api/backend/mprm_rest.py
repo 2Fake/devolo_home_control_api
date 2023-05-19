@@ -1,10 +1,12 @@
 """mPRM communication via REST."""
+from __future__ import annotations
+
 import json
 import logging
 import sys
 from abc import ABC
 from enum import IntEnum
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from requests import Session
 from requests.exceptions import ConnectionError, ReadTimeout
@@ -34,7 +36,7 @@ class MprmRest(ABC):
         self._session: Session
         self.gateway: Gateway
 
-    def get_all_devices(self) -> List[str]:
+    def get_all_devices(self) -> list[str]:
         """
         Get all devices.
 
@@ -46,7 +48,7 @@ class MprmRest(ABC):
         self._logger.debug("Response of 'get_all_devices':\n%s", response)
         return response["result"]["items"][0]["properties"]["deviceUIDs"]
 
-    def get_all_zones(self) -> Dict[str, str]:
+    def get_all_zones(self) -> dict[str, str]:
         """
         Get all zones, also called rooms.
 
@@ -58,7 +60,7 @@ class MprmRest(ABC):
         self._logger.debug("Response of 'get_all_zones':\n%s", response)
         return {key["id"]: key["name"] for key in response}
 
-    def get_data_from_uid_list(self, uids: List[str]) -> List[Dict[str, Any]]:
+    def get_data_from_uid_list(self, uids: list[str]) -> list[dict[str, Any]]:
         """
         Return data from an element UID list using an RPC call.
 
@@ -116,7 +118,7 @@ class MprmRest(ABC):
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=key_pressed, response=response)
 
-    def set_setting(self, uid: str, setting: List[str]) -> bool:
+    def set_setting(self, uid: str, setting: list[str]) -> bool:
         """
         Set a setting of a device.
 
@@ -128,7 +130,7 @@ class MprmRest(ABC):
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=setting, response=response)
 
-    def _evaluate_response(self, uid: str, value: Union[bool, float, List[str]], response: Dict[str, Any]) -> bool:
+    def _evaluate_response(self, uid: str, value: bool | float | list[str], response: dict[str, Any]) -> bool:
         """Evaluate the response of setting a device to a value."""
         if response["result"].get("status") == RestResponseStatus.VALID:
             return True
@@ -139,7 +141,7 @@ class MprmRest(ABC):
             self._logger.debug("Response to set command:\n%s", response)
         return False
 
-    def _post(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _post(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Communicate with the RPC interface. If the call times out, it is assumed that the gateway is offline and the state is
         changed accordingly.

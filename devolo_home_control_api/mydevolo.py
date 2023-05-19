@@ -1,8 +1,10 @@
 """my devolo."""
+from __future__ import annotations
+
 import logging
 from functools import lru_cache
 from http import HTTPStatus
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 
@@ -58,7 +60,7 @@ class Mydevolo:
         except WrongCredentialsError:
             return False
 
-    def get_gateway_ids(self) -> List[str]:
+    def get_gateway_ids(self) -> list[str]:
         """Get all gateway IDs attached to current account."""
         self._logger.debug("Getting list of gateways")
         items = self._call(f"{self.url}/v1/users/{self.uuid()}/hc/gateways/status")["items"]
@@ -68,7 +70,7 @@ class Mydevolo:
             raise IndexError("No gateways found.")  # noqa: TRY003
         return gateway_ids
 
-    def get_gateway(self, gateway_id: str) -> Dict[str, Any]:
+    def get_gateway(self, gateway_id: str) -> dict[str, Any]:
         """
         Get gateway details like name, local passkey and other.
 
@@ -103,7 +105,7 @@ class Mydevolo:
         self._logger.debug("Getting the user's standard timezone.")
         return self._call(f"{self.url}/v1/users/{self.uuid()}/standardTimezone")["timezone"]
 
-    def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> Dict[str, Any]:
+    def get_zwave_products(self, manufacturer: str, product_type: str, product: str) -> dict[str, Any]:
         """
         Get information about a Z-Wave device.
 
@@ -148,7 +150,7 @@ class Mydevolo:
         self._logger.debug("Getting UUID")
         return self._call(f"{self.url.rstrip('/')}/v1/users/uuid")["uuid"]
 
-    def _call(self, url: str) -> Dict[str, Any]:
+    def _call(self, url: str) -> dict[str, Any]:
         """Make a call to any entry point with the user's context."""
         headers = {"content-type": "application/json", "User-Agent": f"devolo_home_control_api/{__version__}"}
         responds = requests.get(url, auth=(self._user, self._password), headers=headers, timeout=60)

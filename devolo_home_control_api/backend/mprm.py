@@ -1,4 +1,6 @@
 """mPRM communication."""
+from __future__ import annotations
+
 import contextlib
 import socket
 import sys
@@ -7,7 +9,6 @@ from abc import ABC
 from http import HTTPStatus
 from json import JSONDecodeError
 from threading import Thread
-from typing import List, Optional
 from urllib.parse import urlsplit
 
 import requests
@@ -26,7 +27,7 @@ class Mprm(MprmWebsocket, ABC):
 
     def __init__(self) -> None:
         """Initialize communication."""
-        self._zeroconf: Optional[Zeroconf]
+        self._zeroconf: Zeroconf | None
 
         super().__init__()
 
@@ -126,7 +127,7 @@ class Mprm(MprmWebsocket, ABC):
                 ):
                     self._try_local_connection(service_info.addresses)
 
-    def _try_local_connection(self, addresses: List[bytes]) -> None:
+    def _try_local_connection(self, addresses: list[bytes]) -> None:
         """Try to connect to an mDNS hostname. If connection was successful, save local IP address."""
         for address in addresses:
             ip = socket.inet_ntoa(address)

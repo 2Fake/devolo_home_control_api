@@ -1,15 +1,17 @@
 """The Publisher."""
+from __future__ import annotations
+
 import logging
-from typing import Any, Callable, Dict, KeysView, List, Optional, Tuple, Union
+from typing import Any, Callable, KeysView
 
 
 class Publisher:
     """The Publisher send messages to attached subscribers."""
 
-    def __init__(self, events: Union[List[Any], KeysView]) -> None:
+    def __init__(self, events: list[Any] | KeysView) -> None:
         """Initialize the publisher."""
         self._logger = logging.getLogger(self.__class__.__name__)
-        self._events: Dict[Any, Any] = {event: {} for event in events}
+        self._events: dict[Any, Any] = {event: {} for event in events}
 
     def add_event(self, event: str) -> None:
         """Add a new event to listen to."""
@@ -19,12 +21,12 @@ class Publisher:
         """Delete a not longer needed event."""
         self._events.pop(event)
 
-    def dispatch(self, event: str, message: Tuple[Any, ...]) -> None:
+    def dispatch(self, event: str, message: tuple[Any, ...]) -> None:
         """Dispatch the message to the subscribers."""
         for callback in self._get_subscribers_for_specific_event(event).values():
             callback(message)
 
-    def register(self, event: str, who: Any, callback: Optional[Callable] = None) -> None:
+    def register(self, event: str, who: Any, callback: Callable | None = None) -> None:
         """
         As a new subscriber for an event, add a callback function to call on new message.
         If no callback is given, it registers update().
@@ -41,6 +43,6 @@ class Publisher:
         del self._get_subscribers_for_specific_event(event)[who]
         self._logger.debug("Subscriber deleted for event %s", event)
 
-    def _get_subscribers_for_specific_event(self, event: str) -> Dict[Any, Any]:
+    def _get_subscribers_for_specific_event(self, event: str) -> dict[Any, Any]:
         """All subscribers listening to an event."""
         return self._events.get(event, {})

@@ -1,8 +1,10 @@
 """The Updater."""
+from __future__ import annotations
+
 import json
 import logging
 from contextlib import suppress
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable
 
 from devolo_home_control_api.backend import MESSAGE_TYPES
 from devolo_home_control_api.devices import Gateway, Zwave
@@ -16,7 +18,7 @@ from devolo_home_control_api.helper import (
 from .publisher import Publisher
 
 
-class Updater:  # pylint: disable=too-few-public-methods
+class Updater:
     """
     The Updater takes care of new states and values of devices and sends them to the Publisher object. Using methods in here
     do not effect the real device states.
@@ -26,16 +28,16 @@ class Updater:  # pylint: disable=too-few-public-methods
     :param publisher: Instance of a Publisher object
     """
 
-    def __init__(self, devices: Dict[str, Zwave], gateway: Gateway, publisher: Publisher) -> None:
+    def __init__(self, devices: dict[str, Zwave], gateway: Gateway, publisher: Publisher) -> None:
         """Initialize the updater."""
         self._logger = logging.getLogger(self.__class__.__name__)
         self._gateway = gateway
         self._publisher = publisher
 
         self.devices = devices
-        self.on_device_change: Optional[Callable[[List[str]], Tuple[str, str]]] = None
+        self.on_device_change: Callable[[list[str]], tuple[str, str]] | None = None
 
-    def update(self, message: Dict[str, Any]) -> None:
+    def update(self, message: dict[str, Any]) -> None:
         """
         Update states and values depending on the message type.
 
@@ -65,7 +67,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         with suppress(AttributeError, KeyError):  # Sometime we receive already messages although the device is not setup yet.
             getattr(self, message_type)(message)
 
-    def _automatic_calibration(self, message: Dict[str, Any]) -> None:
+    def _automatic_calibration(self, message: dict[str, Any]) -> None:
         """Update a automatic calibration message."""
         try:
             calibration_status = message["properties"]["property.value.new"]["status"]
@@ -79,7 +81,7 @@ class Updater:  # pylint: disable=too-few-public-methods
                     calibration_status=bool(message["properties"]["property.value.new"]),
                 )
 
-    def _binary_async(self, message: Dict[str, Any]) -> None:
+    def _binary_async(self, message: dict[str, Any]) -> None:
         """Update a binary async setting."""
         if type(message["properties"]["property.value.new"]) not in [dict, list]:
             element_uid: str = message["properties"]["uid"]
@@ -93,7 +95,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating state of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _binary_sync(self, message: Dict[str, Any]) -> None:
+    def _binary_sync(self, message: dict[str, Any]) -> None:
         """Update a binary sync setting."""
         element_uid: str = message["properties"]["uid"]
         value = bool(message["properties"]["property.value.new"])
@@ -102,7 +104,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         self._logger.debug("Updating state of %s to %s", element_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _binary_sensor(self, message: Dict[str, Any]) -> None:
+    def _binary_sensor(self, message: dict[str, Any]) -> None:
         """Update a binary sensor's state."""
         if message["properties"]["property.value.new"] is not None:
             element_uid: str = message["properties"]["uid"]
@@ -112,7 +114,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating state of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _binary_switch(self, message: Dict[str, Any]) -> None:
+    def _binary_switch(self, message: dict[str, Any]) -> None:
         """Update a binary switch's state."""
         if message["properties"]["property.name"] == "targetState" and message["properties"]["property.value.new"] is not None:
             element_uid: str = message["properties"]["uid"]
@@ -122,7 +124,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating state of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _pending_operations(self, message: Dict[str, Any]) -> None:
+    def _pending_operations(self, message: dict[str, Any]) -> None:
         """Update pending operation state."""
         element_uid: str = message["properties"]["uid"]
 
@@ -144,11 +146,11 @@ class Updater:  # pylint: disable=too-few-public-methods
         self._logger.debug("Updating pending operations of device %s to %s", device_uid, pending_operations)
         self._publisher.dispatch(device_uid, ("pending_operations", pending_operations))
 
-    def _current_consumption(self, message: Dict[str, Any]) -> None:
+    def _current_consumption(self, message: dict[str, Any]) -> None:
         """Update current consumption."""
         self._update_consumption(element_uid=message["uid"], consumption="current", value=message["property.value.new"])
 
-    def _device_state(self, message: Dict[str, Any]) -> None:
+    def _device_state(self, message: dict[str, Any]) -> None:
         """Update the device state."""
         property_name = {
             "batteryLevel": "battery_level",
@@ -167,7 +169,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         except KeyError:
             self._unknown(message)
 
-    def _gateway_accessible(self, message: Dict[str, Any]) -> None:
+    def _gateway_accessible(self, message: dict[str, Any]) -> None:
         """Update the gateway's state."""
         if message["properties"]["property.name"] == "gatewayAccessible":
             accessible = message["properties"]["property.value.new"]["accessible"]
@@ -176,7 +178,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._gateway.online = accessible
             self._gateway.sync = online_sync
 
-    def _general_device(self, message: Dict[str, Any]) -> None:
+    def _general_device(self, message: dict[str, Any]) -> None:
         """Update general device settings."""
         self._update_general_device_settings(
             element_uid=message["properties"]["uid"],
@@ -187,12 +189,12 @@ class Updater:  # pylint: disable=too-few-public-methods
             zones=self._gateway.zones,
         )
 
-    def _grouping(self, message: Dict[str, Any]) -> None:
+    def _grouping(self, message: dict[str, Any]) -> None:
         """Update zone (also called room) of a device."""
         self._gateway.zones = {key["id"]: key["name"] for key in message["properties"]["property.value.new"]}
         self._logger.debug("Updating gateway zones.")
 
-    def _gui_enabled(self, message: Dict[str, Any]) -> None:
+    def _gui_enabled(self, message: dict[str, Any]) -> None:
         """Update protection setting of binary switches."""
         device_uid = get_device_uid_from_element_uid(message["uid"])
         enabled = message["property.value.new"]
@@ -201,7 +203,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating enabled state of %s to %s", element_uid, enabled)
             self._publisher.dispatch(device_uid, (element_uid, enabled, "gui_enabled"))
 
-    def _humidity_bar(self, message: Dict[str, Any]) -> None:
+    def _humidity_bar(self, message: dict[str, Any]) -> None:
         """Update a humidity bar."""
         fake_element_uid = f"devolo.HumidityBar:{message['properties']['uid'].split(':', 1)[1]}"
         value = message["properties"]["property.value.new"]
@@ -221,7 +223,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             ),
         )
 
-    def _inspect_devices(self, message: Dict[str, Any]) -> None:
+    def _inspect_devices(self, message: dict[str, Any]) -> None:
         """Call method if a new device appears or an old one disappears."""
         if not callable(self.on_device_change):
             self._logger.error("on_device_change is not set.")
@@ -242,7 +244,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._publisher.dispatch(device_uid, (device_uid, mode))
             self._publisher.delete_event(event=device_uid)
 
-    def _led(self, message: Dict[str, Any]) -> None:
+    def _led(self, message: dict[str, Any]) -> None:
         """Update LED settings."""
         if type(message["properties"]["property.value.new"]) not in [dict, list]:
             element_uid: str = message["properties"]["uid"]
@@ -252,7 +254,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self.devices[device_uid].settings_property["led"].led_setting = value
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _meter(self, message: Dict[str, Any]) -> None:
+    def _meter(self, message: dict[str, Any]) -> None:
         """Update a meter value."""
         property_name = {
             "currentValue": self._current_consumption,
@@ -263,7 +265,7 @@ class Updater:  # pylint: disable=too-few-public-methods
 
         property_name[message["properties"]["property.name"]](message["properties"])
 
-    def _multilevel_async(self, message: Dict[str, Any]) -> None:
+    def _multilevel_async(self, message: dict[str, Any]) -> None:
         """Update multilevel async setting (mas) properties."""
         device_uid = get_device_uid_from_setting_uid(message["properties"]["uid"])
         try:
@@ -276,7 +278,7 @@ class Updater:  # pylint: disable=too-few-public-methods
                 raise
         self.devices[device_uid].settings_property[name].value = message["properties"]["property.value.new"]
 
-    def _multi_level_sensor(self, message: Dict[str, Any]) -> None:
+    def _multi_level_sensor(self, message: dict[str, Any]) -> None:
         """Update a multi level sensor."""
         element_uid: str = message["properties"]["uid"]
         value = message["properties"]["property.value.new"]
@@ -285,7 +287,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         self.devices[device_uid].multi_level_sensor_property[element_uid].value = value
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _multi_level_switch(self, message: Dict[str, Any]) -> None:
+    def _multi_level_switch(self, message: dict[str, Any]) -> None:
         """Update a multi level switch."""
         if not isinstance(message["properties"]["property.value.new"], (list, dict, type(None))):
             element_uid: str = message["properties"]["uid"]
@@ -295,7 +297,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self.devices[device_uid].multi_level_switch_property[element_uid].value = value
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _multilevel_sync(self, message: Dict[str, Any]) -> None:
+    def _multilevel_sync(self, message: dict[str, Any]) -> None:
         """Update multilevel sync settings."""
         if type(message["properties"]["property.value.new"]) not in [dict, list]:
             element_uid: str = message["properties"]["uid"]
@@ -317,7 +319,7 @@ class Updater:  # pylint: disable=too-few-public-methods
 
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _parameter(self, message: Dict[str, Any]) -> None:
+    def _parameter(self, message: dict[str, Any]) -> None:
         """Update parameter settings."""
         if type(message["properties"].get("property.value.new")) not in [dict, list]:
             element_uid: str = message["properties"]["uid"]
@@ -327,7 +329,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating %s to %s.", element_uid, param_changed)
             self._publisher.dispatch(device_uid, (element_uid, param_changed))
 
-    def _protection(self, message: Dict[str, Any]) -> None:
+    def _protection(self, message: dict[str, Any]) -> None:
         """Update protection settings."""
         if type(message["properties"].get("property.value.new")) not in [dict, list]:
             element_uid: str = message["properties"]["uid"]
@@ -345,7 +347,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating %s protection of %s to %s", switching_type[name], element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value, switching_type[name]))
 
-    def _remote_control(self, message: Dict[str, Any]) -> None:
+    def _remote_control(self, message: dict[str, Any]) -> None:
         """Update a remote control."""
         element_uid: str = message["properties"]["uid"]
         key_pressed = message["properties"]["property.value.new"]
@@ -362,7 +364,7 @@ class Updater:  # pylint: disable=too-few-public-methods
             )
             self._publisher.dispatch(device_uid, (element_uid, key_pressed))
 
-    def _since_time(self, message: Dict[str, Any]) -> None:
+    def _since_time(self, message: dict[str, Any]) -> None:
         """Update point in time the total consumption was reset."""
         element_uid = message["uid"]
         total_since = message["property.value.new"]
@@ -371,7 +373,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         self._logger.debug("Updating total since of %s to %s", element_uid, total_since)
         self._publisher.dispatch(device_uid, (element_uid, total_since, "total_since"))
 
-    def _switch_type(self, message: Dict[str, Any]) -> None:
+    def _switch_type(self, message: dict[str, Any]) -> None:
         """Update switch type setting (sts)."""
         element_uid: str = message["properties"]["uid"]
         value = message["properties"]["property.value.new"] * 2  # FWR, value.new is 1 for 2 buttons and 2 for 4 buttons.
@@ -381,7 +383,7 @@ class Updater:  # pylint: disable=too-few-public-methods
         self._logger.debug("Updating switch type of %s to %s", device_uid, value)
         self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _temperature_report(self, message: Dict[str, Any]) -> None:
+    def _temperature_report(self, message: dict[str, Any]) -> None:
         """Update temperature report settings."""
         if type(message["properties"].get("property.value.new")) not in [dict, list]:
             element_uid: str = message["properties"]["uid"]
@@ -391,11 +393,11 @@ class Updater:  # pylint: disable=too-few-public-methods
             self._logger.debug("Updating temperature report of %s to %s", element_uid, value)
             self._publisher.dispatch(device_uid, (element_uid, value))
 
-    def _total_consumption(self, message: Dict[str, Any]) -> None:
+    def _total_consumption(self, message: dict[str, Any]) -> None:
         """Update total consumption."""
         self._update_consumption(element_uid=message["uid"], consumption="total", value=message["property.value.new"])
 
-    def _unknown(self, message: Dict[str, Any]) -> None:
+    def _unknown(self, message: dict[str, Any]) -> None:
         """Ignore unknown messages."""
         ignore = (
             "devolo.DeviceEvents",

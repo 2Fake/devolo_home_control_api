@@ -1,6 +1,8 @@
 """A Z-Wave device."""
+from __future__ import annotations
+
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from devolo_home_control_api.helper import camel_case_to_snake_case, get_device_uid_from_element_uid
 from devolo_home_control_api.mydevolo import Mydevolo
@@ -40,14 +42,14 @@ class Zwave:
     :type status: int
     """
 
-    binary_sensor_property: Dict[str, "BinarySensorProperty"]
-    binary_switch_property: Dict[str, "BinarySwitchProperty"]
-    consumption_property: Dict[str, "ConsumptionProperty"]
-    humidity_bar_property: Dict[str, "HumidityBarProperty"]
-    settings_property: Dict[str, "SettingsProperty"]
-    multi_level_sensor_property: Dict[str, "MultiLevelSensorProperty"]
-    multi_level_switch_property: Dict[str, "MultiLevelSwitchProperty"]
-    remote_control_property: Dict[str, "RemoteControlProperty"]
+    binary_sensor_property: dict[str, BinarySensorProperty]
+    binary_switch_property: dict[str, BinarySwitchProperty]
+    consumption_property: dict[str, ConsumptionProperty]
+    humidity_bar_property: dict[str, HumidityBarProperty]
+    settings_property: dict[str, SettingsProperty]
+    multi_level_sensor_property: dict[str, MultiLevelSensorProperty]
+    multi_level_switch_property: dict[str, MultiLevelSwitchProperty]
+    remote_control_property: dict[str, RemoteControlProperty]
 
     brand: str
     device_model_uid: str
@@ -115,7 +117,7 @@ class Zwave:
             delattr(self, "battery_level")
             delattr(self, "battery_low")
 
-    def get_property(self, name: str) -> List["Property"]:
+    def get_property(self, name: str) -> list[Property]:
         """
         Get element UIDs to a specified property.
 
