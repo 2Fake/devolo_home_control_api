@@ -42,14 +42,14 @@ class Zwave:
     :type status: int
     """
 
-    binary_sensor_property: dict[str, "BinarySensorProperty"]
-    binary_switch_property: dict[str, "BinarySwitchProperty"]
-    consumption_property: dict[str, "ConsumptionProperty"]
-    humidity_bar_property: dict[str, "HumidityBarProperty"]
-    settings_property: dict[str, "SettingsProperty"]
-    multi_level_sensor_property: dict[str, "MultiLevelSensorProperty"]
-    multi_level_switch_property: dict[str, "MultiLevelSwitchProperty"]
-    remote_control_property: dict[str, "RemoteControlProperty"]
+    binary_sensor_property: dict[str, BinarySensorProperty]
+    binary_switch_property: dict[str, BinarySwitchProperty]
+    consumption_property: dict[str, ConsumptionProperty]
+    humidity_bar_property: dict[str, HumidityBarProperty]
+    settings_property: dict[str, SettingsProperty]
+    multi_level_sensor_property: dict[str, MultiLevelSensorProperty]
+    multi_level_switch_property: dict[str, MultiLevelSwitchProperty]
+    remote_control_property: dict[str, RemoteControlProperty]
 
     brand: str
     device_model_uid: str
@@ -117,7 +117,7 @@ class Zwave:
             delattr(self, "battery_level")
             delattr(self, "battery_low")
 
-    def get_property(self, name: str) -> list["Property"]:
+    def get_property(self, name: str) -> list[Property]:
         """
         Get element UIDs to a specified property.
 
