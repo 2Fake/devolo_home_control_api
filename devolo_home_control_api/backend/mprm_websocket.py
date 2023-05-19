@@ -1,10 +1,12 @@
 """mPRM communication via websocket."""
+from __future__ import annotations
+
 import json
 import threading
 from abc import ABC, abstractmethod
 from time import sleep, time
 from types import TracebackType
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 import websocket
@@ -44,7 +46,7 @@ class MprmWebsocket(MprmRest, ABC):
         return self
 
     def __exit__(
-        self, exception_type: Optional[type], exception_value: Optional[BaseException], traceback: Optional[TracebackType]
+        self, exception_type: type | None, exception_value: BaseException | None, traceback: TracebackType | None
     ) -> None:
         """Disconnect from the websocket."""
         self.websocket_disconnect()
@@ -62,7 +64,7 @@ class MprmWebsocket(MprmRest, ABC):
         """Connect to the gateway remotely."""
 
     @abstractmethod
-    def on_update(self, message: Dict[str, Any]) -> None:
+    def on_update(self, message: dict[str, Any]) -> None:
         """Initialize steps needed to update properties on a new message."""
 
     def wait_for_websocket_establishment(self) -> None:

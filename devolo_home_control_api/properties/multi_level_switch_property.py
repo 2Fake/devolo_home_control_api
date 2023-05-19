@@ -1,6 +1,8 @@
 """Multi Level Switches."""
+from __future__ import annotations
+
 from datetime import datetime, timezone, tzinfo
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from devolo_home_control_api.exceptions import WrongElementError
 
@@ -55,7 +57,7 @@ class MultiLevelSwitchProperty(Property):
             self._logger.debug("last_activity of element_uid %s set to %s.", self.element_uid, self._last_activity)
 
     @property
-    def unit(self) -> Optional[str]:
+    def unit(self) -> str | None:
         """Human readable unit of the property. Defaults to percent."""
         units = {
             "temperature": "°C",

@@ -4,8 +4,9 @@ Helper functions for splitting UID.
 Element UIDs and setting UIDs are the central identifies in devolo Home Control. However, for grouping information together
 you often need to split them. This helper functions will do that for you.
 """
+from __future__ import annotations
+
 import re
-from typing import Optional
 
 
 def get_device_uid_from_element_uid(element_uid: str) -> str:
@@ -34,7 +35,7 @@ def get_device_uid_from_setting_uid(setting_uid: str) -> str:
     raise ValueError("Settings UID has a wrong format.")  # noqa: TRY003
 
 
-def get_sub_device_uid_from_element_uid(element_uid: str) -> Optional[int]:
+def get_sub_device_uid_from_element_uid(element_uid: str) -> int | None:
     """
     Return the sub device uid of the given element UID.
 

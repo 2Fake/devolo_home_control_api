@@ -338,7 +338,6 @@ class HomeControl(Mprm):
         self.devices[device_uid].consumption_property[uid_info["UID"]] = ConsumptionProperty(
             element_uid=uid_info["UID"],
             tz=self.gateway.timezone,
-            setter=self.reset_consumption,
             current=uid_info["properties"]["currentValue"],
             total=uid_info["properties"]["totalValue"],
             total_since=uid_info["properties"]["sinceTime"],

@@ -1,9 +1,11 @@
 """Tests for devolo_home_control_api."""
+from __future__ import annotations
+
 import json
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import Mock
 
 from syrupy.extensions.amber import AmberSnapshotExtension
@@ -38,7 +40,7 @@ def get_fixtures_path() -> Path:
 
 
 @lru_cache()
-def load_fixture(name: str) -> Dict[str, Any]:
+def load_fixture(name: str) -> dict[str, Any]:
     """Load a fixture."""
     fixture_path = get_fixtures_path().joinpath(f"{name}.json")
     with Path.open(fixture_path, encoding="UTF-8") as fixture:
