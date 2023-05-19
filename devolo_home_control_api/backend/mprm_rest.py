@@ -80,6 +80,17 @@ class MprmRest(ABC):
         }
         self._post(data)
 
+    def reset_consumption(self, uid: str) -> bool:
+        """
+        Reset the total consumpion of a metering device to 0.
+
+        :param uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24
+        :return: True if successfully reset, false otherwise
+        """
+        data = {"method": "FIM/invokeOperation", "params": [uid, "resetTotalConsumption", []]}
+        response = self._post(data)
+        return self._evaluate_response(uid=uid, value=True, response=response)
+
     def set_binary_switch(self, uid: str, state: bool) -> bool:
         """
         Set a binary switch state of a device.

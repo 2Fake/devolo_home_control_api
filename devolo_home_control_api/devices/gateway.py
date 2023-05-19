@@ -1,6 +1,7 @@
 """The devolo Home Control Central Unit."""
+from __future__ import annotations
+
 from datetime import timezone
-from typing import Dict, Optional
 
 from dateutil import tz
 
@@ -33,7 +34,7 @@ class Gateway:
         self.firmware_version = details.get("firmwareVersion")
 
         try:
-            self.full_url: Optional[str] = self._mydevolo.get_full_url(self.id)
+            self.full_url: str | None = self._mydevolo.get_full_url(self.id)
         except GatewayOfflineError:
             self.full_url = None
 
@@ -44,12 +45,12 @@ class Gateway:
         self.online = False
         self.sync = False
 
-        self.zones: Dict[str, str] = {}
+        self.zones: dict[str, str] = {}
         self.home_id = ""
 
         self._update_state(status=details.get("status", ""), state=details.get("state", ""))
 
-    def update_state(self, online: Optional[bool] = None) -> None:
+    def update_state(self, online: bool | None = None) -> None:
         """
         Update the state of the gateway. If called without parameter, we will check my devolo.
 

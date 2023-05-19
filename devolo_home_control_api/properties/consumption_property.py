@@ -1,6 +1,6 @@
 """Consumption Meters."""
 from datetime import datetime, timezone, tzinfo
-from typing import Union
+from typing import Callable, Union
 
 from devolo_home_control_api.exceptions import WrongElementError
 
@@ -13,6 +13,7 @@ class ConsumptionProperty(Property):
 
     :param element_uid: Element UID, something like devolo.Meter:hdm:ZWave:CBC56091/24#2
     :param tz: Timezone the last activity is recorded in
+    :param setter: Method to call on resetting the total consumption
     :key current: Consumption value valid at time of creating the instance
     :type current: float
     :key total: Total consumption since last reset
@@ -21,12 +22,13 @@ class ConsumptionProperty(Property):
     :type total_since: int
     """
 
-    def __init__(self, element_uid: str, tz: tzinfo, **kwargs: Union[int, float]) -> None:
+    def __init__(self, element_uid: str, tz: tzinfo, setter: Callable[[str], bool], **kwargs: Union[int, float]) -> None:
         """Initialize the consumption meter."""
         if not element_uid.startswith("devolo.Meter:"):
             raise WrongElementError(element_uid, self.__class__.__name__)
 
         super().__init__(element_uid, tz)
+        self._setter = setter
 
         self._current: float = kwargs.pop("current", 0.0)
         self.current_unit = "W"
@@ -70,3 +72,11 @@ class ConsumptionProperty(Property):
         """Convert a timestamp in millisecond to a datetime object."""
         self._total_since = datetime.fromtimestamp(timestamp / 1000, tz=timezone.utc).replace(tzinfo=self._timezone)
         self._logger.debug("total_since of element_uid %s set to %s.", self.element_uid, self._total_since)
+
+    # Sadly, this method is not working, if the gateway is connected locally, yet.
+    def reset(self) -> bool:
+        """Reset the total concumption."""
+        if self._setter(self.element_uid):
+            self.total = 0
+            return True
+        return False

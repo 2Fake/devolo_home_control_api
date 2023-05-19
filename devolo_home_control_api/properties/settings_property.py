@@ -1,7 +1,9 @@
 """Settings."""
+from __future__ import annotations
+
 from datetime import tzinfo
 from enum import IntEnum
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 from devolo_home_control_api.exceptions import WrongElementError
 
@@ -52,7 +54,7 @@ class SettingsProperty(Property):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        setter_method: Dict[str, Callable[..., bool]] = {
+        setter_method: dict[str, Callable[..., bool]] = {
             "bas": self._set_bas,
             "gds": self._set_gds,
             "lis": self._set_lis,

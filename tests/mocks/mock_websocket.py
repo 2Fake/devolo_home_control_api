@@ -1,5 +1,7 @@
 """Mock methods from the websocket package."""
-from typing import Any, Callable, List
+from __future__ import annotations
+
+from typing import Any, Callable
 
 from websocket import ABNF, WebSocket, WebSocketApp
 from websocket._url import parse_url
@@ -28,7 +30,7 @@ class SockMock:
 
     def __init__(self) -> None:
         """Initialize the mock."""
-        self.data: List[bytes] = []
+        self.data: list[bytes] = []
 
     def add_packet(self, data: str) -> None:
         """Add data to the socket's stack."""
