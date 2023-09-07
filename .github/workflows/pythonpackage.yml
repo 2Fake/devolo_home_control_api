@@ -60,7 +60,7 @@ jobs:
       run: |
         pytest --cov=devolo_home_control_api
     - name: Preserve coverage
-      uses: actions/upload-artifact@v3.1.2
+      uses: actions/upload-artifact@v3.1.3
       if: matrix.python-version == '3.8'
       with:
         name: coverage
