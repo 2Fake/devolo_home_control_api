@@ -46,7 +46,10 @@ class MprmWebsocket(MprmRest, ABC):
         return self
 
     def __exit__(
-        self, exception_type: type | None, exception_value: BaseException | None, traceback: TracebackType | None
+        self,
+        exception_type: type[BaseException] | None,
+        exception_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         """Disconnect from the websocket."""
         self.websocket_disconnect()
