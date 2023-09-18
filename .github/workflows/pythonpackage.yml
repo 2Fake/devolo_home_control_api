@@ -11,7 +11,7 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v3.5.2
     - name: Set up Python
-      uses: actions/setup-python@v4.5.0
+      uses: actions/setup-python@v4.7.0
       with:
         python-version: "3.8"
     - name: Check formatting
@@ -24,7 +24,7 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v3.5.2
     - name: Set up Python
-      uses: actions/setup-python@v4.5.0
+      uses: actions/setup-python@v4.7.0
       with:
         python-version: "3.8"
     - name: Lint with ruff
