@@ -77,7 +77,7 @@ class MultiLevelSwitchProperty(Property):
         self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("Value of %s set to %s.", self.element_uid, value)
 
-    def set(self, value: float) -> bool:  # noqa: A003
+    def set(self, value: float) -> bool:
         """
         Set the multilevel switch of the given element_uid to the given value.
 
