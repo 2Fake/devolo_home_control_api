@@ -56,16 +56,16 @@ profile = "black"
 ignore_missing_imports = true
 
 [tool.ruff]
-ignore = ["ANN101", "ANN102", "ANN401", "B024", "COM812", "D203", "D205", "D212", "EM", "FBT001", "N818", "TCH", "TRY300", "TRY400"]
 line-length = 127
-select = ["ALL"]
+lint.ignore = ["ANN101", "ANN102", "ANN401", "B024", "COM812", "D203", "D205", "D212", "EM", "FBT001", "N818", "TCH", "TRY300", "TRY400"]
+lint.select = ["ALL"]
 target-version = "py37"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 forced-separate = ["tests"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = ["PLR2004", "PT004", "PT011", "S101", "S105"]
 
 [tool.setuptools]

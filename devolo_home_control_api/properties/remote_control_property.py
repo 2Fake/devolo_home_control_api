@@ -44,7 +44,7 @@ class RemoteControlProperty(Property):
         self._last_activity = datetime.now(tz=self._timezone)
         self._logger.debug("key_pressed of element_uid %s set to %s.", self.element_uid, key_pressed)
 
-    def set(self, key_pressed: int) -> bool:  # noqa: A003
+    def set(self, key_pressed: int) -> bool:
         """
         Trigger a button press of a remote control like if the button was physically pressed.
 
