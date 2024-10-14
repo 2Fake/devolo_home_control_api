@@ -1,7 +1,4 @@
 # serializer version: 1
-# name: test_get_full_url
-  'https://homecontrol.mydevolo.com/dhp/portal/fullLogin/?token=1410000000001_1:24b1516b93adebf7&X-MPRM-LB=1410000000001_1'
-# ---
 # name: test_get_gateway
   dict({
     'externalAccess': True,
