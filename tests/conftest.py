@@ -42,7 +42,7 @@ def block_communication(gateway_ip: str) -> Generator[None, None, None]:
         yield
 
 
-@pytest.fixture()
+@pytest.fixture
 def disable_external_access() -> Generator[None, None, None]:
     """Temporary forbidd external access."""
     gateway_details = load_fixture("mydevolo_gateway_details")
@@ -51,20 +51,20 @@ def disable_external_access() -> Generator[None, None, None]:
     gateway_details["externalAccess"] = True
 
 
-@pytest.fixture()
+@pytest.fixture
 def gateway_id() -> str:
     """Get a valid gateway ID."""
     details = load_fixture("mydevolo_gateway_details")
     return details["gatewayId"]
 
 
-@pytest.fixture()
+@pytest.fixture
 def gateway_ip() -> str:
     """Get the gateway's IP address."""
     return "192.0.2.1"
 
 
-@pytest.fixture()
+@pytest.fixture
 def local_gateway(
     mydevolo: Mydevolo, gateway_id: str, gateway_ip: str, requests_mock: Mocker
 ) -> Generator[HomeControl, None, None]:
@@ -88,13 +88,13 @@ def local_gateway(
     homecontrol.websocket_disconnect("Test finished.")
 
 
-@pytest.fixture()
+@pytest.fixture
 def maintenance_mode(requests_mock: Mocker) -> None:
     """Simulate mydevolo maitenance mode."""
     requests_mock.get(MAINTENANCE_URL, json={"state": "off"})
 
 
-@pytest.fixture()
+@pytest.fixture
 def remote_gateway(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker) -> Generator[HomeControl, None, None]:
     """Emulate a remote gateway connection."""
     requests_mock.get(
@@ -115,7 +115,7 @@ def remote_gateway(mydevolo: Mydevolo, gateway_id: str, requests_mock: Mocker) -
         homecontrol.websocket_disconnect("Test finished.")
 
 
-@pytest.fixture()
+@pytest.fixture
 def mydevolo(requests_mock: Mocker) -> Mydevolo:
     """Create a mydevolo object with static test data."""
     requests_mock.get(UUID_URL, json=load_fixture("mydevolo_uuid"))
@@ -129,7 +129,7 @@ def mydevolo(requests_mock: Mocker) -> Mydevolo:
     return Mydevolo()
 
 
-@pytest.fixture()
+@pytest.fixture
 def snapshot(snapshot: SnapshotAssertion) -> SnapshotAssertion:
     """Return snapshot assertion fixture with nicer path."""
     return snapshot.use_extension(DifferentDirectoryExtension)
