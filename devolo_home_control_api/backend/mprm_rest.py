@@ -90,7 +90,7 @@ class MprmRest(ABC):
         :param state: True if switching on, False if switching off
         :return: True if successfully switched, false otherwise
         """
-        data = {"method": "FIM/invokeOperation", "params": [uid, "turnOn" if state else "turnOff", []]}
+        data: dict[str, str | list] = {"method": "FIM/invokeOperation", "params": [uid, "turnOn" if state else "turnOff", []]}
         response = self._post(data)
         return self._evaluate_response(uid=uid, value=state, response=response)
 

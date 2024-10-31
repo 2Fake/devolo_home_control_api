@@ -36,7 +36,7 @@ class MprmWebsocket(MprmRest, ABC):
     def __init__(self) -> None:
         """Initialize websocket communication."""
         super().__init__()
-        self._ws: websocket.WebSocketApp = None
+        self._ws: websocket.WebSocketApp | None = None
         self._connected = False  # This attribute saves, if the websocket is fully established
         self._reachable = True  # This attribute saves, if the a new session can be established
         self._event_sequence = 0
@@ -110,6 +110,10 @@ class MprmWebsocket(MprmRest, ABC):
 
     def websocket_disconnect(self, event: str = "") -> None:
         """Close the websocket connection."""
+        if not self._ws:
+            self._logger.info("Not connected to the web socket.")
+            return
+
         self._logger.info("Closing web socket connection.")
         if event:
             self._logger.info("Reason: %s", event)
