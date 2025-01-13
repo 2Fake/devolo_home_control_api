@@ -1,5 +1,5 @@
 """
-Helper functions for converting strings.
+Helper functions for converting names.
 
 The information we get from the gateway is often returned in a way, that does not fit to our naming convention. This helper
 function make names fit in nicely.
