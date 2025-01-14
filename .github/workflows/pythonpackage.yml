@@ -39,8 +39,8 @@ jobs:
         mypy devolo_home_control_api
         mypy tests || true
 
-  test:
-  name: Test with Python 3.7
+  test_old:
+    name: Test with Python 3.7
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout sources
@@ -58,6 +58,8 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov=devolo_home_control_api
+  
+  test:
     name: Test with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
