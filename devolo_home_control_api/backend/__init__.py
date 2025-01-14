@@ -38,4 +38,4 @@ MESSAGE_TYPES = {
     "vfs.hdm": "_led",
 }
 
-__all__ = ["Mprm", "MESSAGE_TYPES"]
+__all__ = ["MESSAGE_TYPES", "Mprm"]

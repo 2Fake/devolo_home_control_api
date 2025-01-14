@@ -57,7 +57,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 127
-lint.ignore = ["ANN101", "ANN102", "ANN401", "B024", "COM812", "D203", "D205", "D212", "EM", "FBT001", "N818", "TCH", "TRY300", "TRY400"]
+lint.ignore = ["ANN401", "B024", "COM812", "D203", "D205", "D212", "EM", "FBT001", "N818", "TCH", "TRY300", "TRY400"]
 lint.select = ["ALL"]
 target-version = "py37"
 

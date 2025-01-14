@@ -9,7 +9,7 @@ from enum import IntEnum
 from typing import Any
 
 from requests import Session
-from requests.exceptions import ConnectionError, ReadTimeout
+from requests.exceptions import ConnectionError, ReadTimeout  # noqa: A004
 
 from devolo_home_control_api.devices import Gateway
 from devolo_home_control_api.exceptions import GatewayOfflineError
