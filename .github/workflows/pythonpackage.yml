@@ -80,14 +80,13 @@ jobs:
         pip install -e .[test]
     - name: Test with pytest
       run: |
-        pytest --cov=devolo_home_control_api
+        pytest --cov=devolo_home_control_api --cov-report=xml
     - name: Preserve coverage
       uses: actions/upload-artifact@v4.6.0
       if: matrix.python-version == '3.9'
       with:
         name: coverage
-        include-hidden-files: true
-        path: .coverage
+        path: coverage.xml
 
   coverage:
     name: Upload coverage
@@ -105,11 +104,9 @@ jobs:
       with:
         name: coverage
     - name: Coveralls
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel coveralls
-        export COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }}
-        coveralls
+      uses: coverallsapp/github-action@v2.3.4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Clean up coverage
       uses: geekyeggo/delete-artifact@v5.1.0
       with:
