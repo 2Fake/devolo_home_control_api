@@ -58,7 +58,7 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov=devolo_home_control_api
-  
+
   test:
     name: Test with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
