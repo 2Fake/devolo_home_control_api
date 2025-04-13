@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=61", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=77.0", "setuptools_scm[toml]>=6.2"]
 
 [project]
 authors = [
@@ -9,7 +9,6 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
 description = "devolo Home Control API in Python"
@@ -23,7 +22,7 @@ dependencies = [
 dynamic = [
     "version",
 ]
-license = { file = "LICENSE" }
+license = "GPL-3.0-or-later"
 name = "devolo_home_control_api"
 readme = "README.md"
 requires-python = ">= 3.9"
