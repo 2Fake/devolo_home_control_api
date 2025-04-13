@@ -14,7 +14,6 @@ classifiers = [
 ]
 description = "devolo Home Control API in Python"
 dependencies = [
-    "importlib-metadata;python_version<'3.8'",
     "python-dateutil>=2.8.0",
     "requests>=2.4.0",
     "typing-extensions>=4.1.0;python_version<'3.11'",
@@ -27,7 +26,7 @@ dynamic = [
 license = { file = "LICENSE" }
 name = "devolo_home_control_api"
 readme = "README.md"
-requires-python = ">= 3.7"
+requires-python = ">= 3.9"
 urls = {changelog = "https://github.com/2Fake/devolo_home_control_api/docs/CHANGELOG.md", homepage = "https://github.com/2Fake/devolo_home_control_api"}
 
 [project.optional-dependencies]
