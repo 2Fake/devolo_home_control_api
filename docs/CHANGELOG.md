@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Set methods of properties now return True on success and False on failure
 - Last activities attributes are not timezone aware
 
+### Changed
+
+- Drop support for Python 3.7 and 3.8
+- Use SPDX license identifier for project metadata
+
 ## [v0.18.3] - 2023/03/14
 
 ### Fixed
