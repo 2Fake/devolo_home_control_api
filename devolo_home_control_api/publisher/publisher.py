@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, KeysView
+from collections.abc import KeysView
+from typing import Any, Callable
 
 
 class Publisher:

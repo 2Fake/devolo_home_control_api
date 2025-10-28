@@ -57,7 +57,7 @@ ignore_missing_imports = true
 line-length = 127
 lint.ignore = ["ANN401", "B024", "COM812", "D203", "D205", "D212", "EM", "FBT001", "N818", "TCH", "TRY300", "TRY400"]
 lint.select = ["ALL"]
-target-version = "py37"
+target-version = "py39"
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

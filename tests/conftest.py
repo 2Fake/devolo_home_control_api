@@ -1,6 +1,6 @@
 """Configure tests."""
+from collections.abc import Generator
 from socket import inet_aton
-from typing import Generator
 from unittest.mock import patch
 
 import pytest
