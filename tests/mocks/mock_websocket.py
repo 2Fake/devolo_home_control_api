@@ -95,7 +95,7 @@ class MockWebSocketApp(WebSocketApp):
             """Call registered callback method."""
             data = self.sock.recv()
             if not data:
-                self._callback(self.on_error, self, Exception)
+                self._callback(self.on_error, Exception)
             elif data == str(ABNF.OPCODE_PONG):
                 self._callback(self.on_pong, data)
             elif data == str(ABNF.OPCODE_CLOSE):

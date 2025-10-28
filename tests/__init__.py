@@ -39,7 +39,7 @@ def get_fixtures_path() -> Path:
     return Path(__file__).parent.joinpath("fixtures")
 
 
-@lru_cache()
+@lru_cache
 def load_fixture(name: str) -> dict[str, Any]:
     """Load a fixture."""
     fixture_path = get_fixtures_path().joinpath(f"{name}.json")
