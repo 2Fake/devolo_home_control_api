@@ -141,7 +141,7 @@ class Mydevolo:
         state = self._call(f"{self.url}/v1/hc/maintenance")["state"]
         if state == "on":
             return False
-        self._logger.warning("devolo Home Control is in maintenance mode.")
+        self._logger.debug("devolo Home Control is in maintenance mode.")
         return True
 
     @lru_cache(maxsize=1)  # noqa: B019
@@ -162,7 +162,7 @@ class Mydevolo:
             raise WrongUrlError(url)
         if responds.status_code == HTTPStatus.SERVICE_UNAVAILABLE:
             # mydevolo sends a 503, if the gateway is offline
-            self._logger.warning("The requested gateway seems to be offline.")
+            self._logger.debug("The requested gateway seems to be offline.")
             raise GatewayOfflineError
 
         return responds.json()
