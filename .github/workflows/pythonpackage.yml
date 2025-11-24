@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v5.0.0
+      uses: actions/checkout@v6.0.0
     - name: Set up Python
       uses: actions/setup-python@v6.0.0
       with:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v5.0.0
+      uses: actions/checkout@v6.0.0
     - name: Set up Python
       uses: actions/setup-python@v6.0.0
       with:
@@ -47,7 +47,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v5.0.0
+      uses: actions/checkout@v6.0.0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6.0.0
       with:
@@ -74,7 +74,7 @@ jobs:
     needs: test
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v5.0.0
+      uses: actions/checkout@v6.0.0
     - name: Set up Python
       uses: actions/setup-python@v6.0.0
       with:
