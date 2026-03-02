@@ -42,7 +42,7 @@ def get_sub_device_uid_from_element_uid(element_uid: str) -> int | None:
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Sub device UID, something like 2
     """
-    return None if "#" not in element_uid else int(element_uid.split("#")[-1])
+    return None if "#" not in element_uid else int(element_uid.rsplit("#", maxsplit=1)[1])
 
 
 def get_device_type_from_element_uid(element_uid: str) -> str:
@@ -52,7 +52,7 @@ def get_device_type_from_element_uid(element_uid: str) -> str:
     :param element_uid: Element UID, something like devolo.MultiLevelSensor:hdm:ZWave:CBC56091/24#2
     :return: Device type, something like devolo.MultiLevelSensor
     """
-    return element_uid.split(":")[0]
+    return element_uid.split(":", maxsplit=1)[0]
 
 
 def get_home_id_from_device_uid(device_uid: str) -> str:

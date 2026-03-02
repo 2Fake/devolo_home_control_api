@@ -66,7 +66,7 @@ class SettingsProperty(Property):
 
         # Depending on the type of setting property, this will create a callable named "set".
         # However, this methods are not working, if the gateway is connected locally, yet.
-        self.set = setter_method.get(element_uid.split(".")[0], lambda: False)
+        self.set = setter_method.get(element_uid.split(".", maxsplit=1)[0], lambda: False)
 
         # Clean up attributes which are unwanted.
         clean_up_list = ["device_uid"]
