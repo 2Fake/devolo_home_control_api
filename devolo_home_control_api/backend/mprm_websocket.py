@@ -125,7 +125,7 @@ class MprmWebsocket(MprmRest, ABC):
 
     def _on_error(self, ws: websocket.WebSocketApp, error: Exception) -> None:
         """React on errors. We will try reconnecting with prolonging intervals."""
-        self._logger.exception(error)
+        self._logger.error(error)
         self._connected = False
         self._reachable = False
         ws.close()
